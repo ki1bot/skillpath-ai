@@ -20,6 +20,8 @@ export default function PublicLayout({
     const { auth } = usePage().props as PublicProps;
     const [mobileOpen, setMobileOpen] = useState(false);
 
+    const closeMenu = () => setMobileOpen(false);
+
     return (
         <div className="min-h-screen overflow-x-hidden">
             <header className="sticky top-0 z-40 border-b-2 border-foreground bg-background/95 backdrop-blur">
@@ -27,7 +29,7 @@ export default function PublicLayout({
                     <Link
                         href="/"
                         className="flex min-w-0 items-center gap-3 font-black tracking-tight"
-                        onClick={() => setMobileOpen(false)}
+                        onClick={closeMenu}
                     >
                         <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border-2 border-foreground bg-secondary text-[#171717] shadow-[3px_3px_0_var(--foreground)]">
                             <AppLogoIcon className="size-6" />
@@ -38,23 +40,23 @@ export default function PublicLayout({
                         </span>
                     </Link>
 
-                    <nav className="hidden items-center gap-6 text-sm font-bold md:flex">
+                    <nav className="hidden items-center gap-7 text-sm font-black md:flex">
                         <Link
                             href="/karier"
-                            className="hover:underline hover:decoration-2 hover:underline-offset-4"
+                            className="transition-transform hover:-translate-y-0.5 hover:underline hover:decoration-2 hover:underline-offset-4"
                         >
                             Jalur Karier
                         </Link>
 
                         <Link
                             href="/tentang"
-                            className="hover:underline hover:decoration-2 hover:underline-offset-4"
+                            className="transition-transform hover:-translate-y-0.5 hover:underline hover:decoration-2 hover:underline-offset-4"
                         >
                             Tentang
                         </Link>
                     </nav>
 
-                    <div className="hidden items-center gap-2 sm:flex">
+                    <div className="hidden items-center gap-3 md:flex">
                         {auth?.user ? (
                             <Button asChild size="sm">
                                 <Link href="/dashboard">
@@ -64,7 +66,7 @@ export default function PublicLayout({
                             </Button>
                         ) : (
                             <>
-                                <Button asChild variant="ghost" size="sm">
+                                <Button asChild variant="outline" size="sm">
                                     <Link href="/login">Masuk</Link>
                                 </Button>
 
@@ -82,50 +84,53 @@ export default function PublicLayout({
                         type="button"
                         variant="outline"
                         size="icon-sm"
-                        className="sm:hidden"
+                        className="md:hidden"
                         onClick={() => setMobileOpen((value) => !value)}
-                        aria-label={mobileOpen ? 'Tutup menu' : 'Buka menu'}
+                        aria-expanded={mobileOpen}
+                        aria-controls="public-mobile-menu"
+                        aria-label={
+                            mobileOpen
+                                ? 'Tutup menu navigasi'
+                                : 'Buka menu navigasi'
+                        }
                     >
                         {mobileOpen ? <X /> : <Menu />}
                     </Button>
                 </div>
 
                 {mobileOpen && (
-                    <div className="border-t-2 border-foreground bg-background px-4 py-4 sm:hidden">
-                        <nav className="grid gap-2">
+                    <div
+                        id="public-mobile-menu"
+                        className="border-t-2 border-foreground bg-background px-4 py-4 md:hidden"
+                    >
+                        <nav className="mx-auto grid max-w-7xl gap-3">
                             <Link
                                 href="/karier"
-                                onClick={() => setMobileOpen(false)}
-                                className="rounded-xl border-2 border-foreground bg-card px-4 py-3 text-sm font-black shadow-[3px_3px_0_var(--foreground)]"
+                                onClick={closeMenu}
+                                className="rounded-xl border-2 border-foreground bg-card px-4 py-3 text-sm font-black shadow-[3px_3px_0_var(--foreground)] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
                             >
                                 Jalur Karier
                             </Link>
 
                             <Link
                                 href="/tentang"
-                                onClick={() => setMobileOpen(false)}
-                                className="rounded-xl border-2 border-foreground bg-card px-4 py-3 text-sm font-black shadow-[3px_3px_0_var(--foreground)]"
+                                onClick={closeMenu}
+                                className="rounded-xl border-2 border-foreground bg-card px-4 py-3 text-sm font-black shadow-[3px_3px_0_var(--foreground)] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
                             >
                                 Tentang
                             </Link>
 
                             {auth?.user ? (
-                                <Button asChild className="mt-2 w-full">
-                                    <Link
-                                        href="/dashboard"
-                                        onClick={() => setMobileOpen(false)}
-                                    >
+                                <Button asChild className="mt-1 w-full">
+                                    <Link href="/dashboard" onClick={closeMenu}>
                                         Dasbor
                                         <ArrowRight />
                                     </Link>
                                 </Button>
                             ) : (
-                                <div className="mt-2 grid grid-cols-2 gap-3">
+                                <div className="mt-1 grid grid-cols-2 gap-3">
                                     <Button asChild variant="outline">
-                                        <Link
-                                            href="/login"
-                                            onClick={() => setMobileOpen(false)}
-                                        >
+                                        <Link href="/login" onClick={closeMenu}>
                                             Masuk
                                         </Link>
                                     </Button>
@@ -133,7 +138,7 @@ export default function PublicLayout({
                                     <Button asChild>
                                         <Link
                                             href="/register"
-                                            onClick={() => setMobileOpen(false)}
+                                            onClick={closeMenu}
                                         >
                                             Daftar
                                         </Link>
@@ -148,14 +153,15 @@ export default function PublicLayout({
             {children}
 
             <footer className="mt-16 border-t-2 border-foreground bg-foreground text-background sm:mt-20">
-                <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-8 text-sm sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
+                <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-8 text-sm sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
                     <p className="font-bold">
                         SkillPath AI — belajar terarah dan dibuktikan melalui
                         progres.
                     </p>
 
-                    <p className="text-background/70">
-                        Indikator kesiapan bukan jaminan diterima bekerja.
+                    <p className="max-w-xl text-background/70 md:text-right">
+                        Indikator kesiapan merupakan alat bantu evaluasi dan
+                        bukan jaminan diterima bekerja.
                     </p>
                 </div>
             </footer>
