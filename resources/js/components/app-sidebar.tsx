@@ -27,7 +27,7 @@ export function AppSidebar() {
 
     const items: NavItem[] = [
         {
-            title: 'Dashboard',
+            title: 'Dasbor',
             href: '/dashboard',
             icon: LayoutDashboard,
         },
@@ -37,22 +37,22 @@ export function AppSidebar() {
             icon: Map,
         },
         {
-            title: 'Skills',
+            title: 'Skill',
             href: '/skills',
             icon: Target,
         },
         {
-            title: 'Projects',
+            title: 'Proyek',
             href: '/projects',
             icon: FolderKanban,
         },
         {
-            title: 'Progress',
+            title: 'Progres',
             href: '/progress',
             icon: Activity,
         },
         {
-            title: 'Profile',
+            title: 'Profil Belajar',
             href: '/onboarding',
             icon: UserRound,
         },
@@ -60,7 +60,7 @@ export function AppSidebar() {
 
     if (auth.user.role === 'admin') {
         items.push({
-            title: 'Admin',
+            title: 'Administrator',
             href: '/admin',
             icon: ShieldCheck,
         });

@@ -9,23 +9,28 @@ use App\Models\UserSkill;
 use App\Services\ProjectReadinessService;
 use App\Services\RoadmapService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\CreatesSkillPathRecommendationUser;
 use Tests\TestCase;
 
 class SkillPathRecommendationTest extends TestCase
 {
+    use CreatesSkillPathRecommendationUser;
     use RefreshDatabase;
+
+    private User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
+
         $this->seed();
+
+        $this->user = $this->createSkillPathRecommendationUser();
     }
 
     public function test_weak_programming_is_placed_before_advanced_backend_skills(): void
     {
-        $user = User::query()
-            ->where('email', 'demo@skillpath.test')
-            ->firstOrFail();
+        $user = $this->user->fresh(['targetCareer']);
 
         $programming = $user->targetCareer
             ->skills()
@@ -50,7 +55,7 @@ class SkillPathRecommendationTest extends TestCase
         $roadmap = app(RoadmapService::class)
             ->regenerate(
                 $user->fresh(['targetCareer']),
-                'Test programming gap',
+                'Pengujian gap pemrograman',
             );
 
         $first = $roadmap->items()
@@ -66,9 +71,7 @@ class SkillPathRecommendationTest extends TestCase
 
     public function test_database_gap_is_prioritized_before_dependent_backend_skills(): void
     {
-        $user = User::query()
-            ->where('email', 'demo@skillpath.test')
-            ->firstOrFail();
+        $user = $this->user->fresh(['targetCareer']);
 
         $database = $user->targetCareer
             ->skills()
@@ -113,7 +116,7 @@ class SkillPathRecommendationTest extends TestCase
         $roadmap = app(RoadmapService::class)
             ->regenerate(
                 $user->fresh(['targetCareer']),
-                'Test database gap',
+                'Pengujian gap database',
             );
 
         $items = $roadmap->items()
@@ -141,9 +144,7 @@ class SkillPathRecommendationTest extends TestCase
 
     public function test_failed_evaluation_does_not_increase_skill_score(): void
     {
-        $user = User::query()
-            ->where('email', 'demo@skillpath.test')
-            ->firstOrFail();
+        $user = $this->user->fresh(['targetCareer']);
 
         $material = LearningMaterial::query()
             ->whereHas(
@@ -213,9 +214,7 @@ class SkillPathRecommendationTest extends TestCase
 
     public function test_passing_database_evaluation_unlocks_beginner_backend_project(): void
     {
-        $user = User::query()
-            ->where('email', 'demo@skillpath.test')
-            ->firstOrFail();
+        $user = $this->user->fresh(['targetCareer']);
 
         $material = LearningMaterial::query()
             ->whereHas(
