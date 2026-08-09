@@ -9,6 +9,7 @@ import {
     Sparkles,
     Target,
     TimerReset,
+    type LucideIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -30,6 +31,52 @@ type Props = {
         materials: number;
     };
 };
+
+type ProcessStep = {
+    icon: LucideIcon;
+    number: string;
+    title: string;
+    text: string;
+};
+
+const processSteps: ProcessStep[] = [
+    {
+        icon: Target,
+        number: '01',
+        title: 'Assess',
+        text: 'Ukur skill per area, bukan satu skor abstrak.',
+    },
+    {
+        icon: BarChart3,
+        number: '02',
+        title: 'Compare',
+        text: 'Bandingkan skor dengan standar profesi.',
+    },
+    {
+        icon: GitBranch,
+        number: '03',
+        title: 'Recommend',
+        text: 'Urutkan gap berdasarkan bobot dan dependency.',
+    },
+    {
+        icon: Layers3,
+        number: '04',
+        title: 'Learn',
+        text: 'Pelajari materi yang sudah punya tujuan dan latihan.',
+    },
+    {
+        icon: BrainCircuit,
+        number: '05',
+        title: 'Build',
+        text: 'Buka proyek ketika skill minimum mulai siap.',
+    },
+    {
+        icon: TimerReset,
+        number: '06',
+        title: 'Evaluate',
+        text: 'Nilai ulang skill dan buka langkah berikutnya.',
+    },
+];
 
 export default function Welcome({ careers, stats }: Props) {
     return (
@@ -73,10 +120,12 @@ export default function Welcome({ careers, stats }: Props) {
                                 <Check className="size-4" />
                                 Tidak mulai dari nol
                             </span>
+
                             <span className="flex items-center gap-2">
                                 <Check className="size-4" />
                                 Progress perlu bukti
                             </span>
+
                             <span className="flex items-center gap-2">
                                 <Check className="size-4" />
                                 AI bukan sumber kebenaran
@@ -91,6 +140,7 @@ export default function Welcome({ careers, stats }: Props) {
                                     <p className="text-xs font-black tracking-[0.16em] text-muted-foreground uppercase">
                                         Sample diagnosis
                                     </p>
+
                                     <h2 className="mt-1 text-2xl font-black tracking-tight">
                                         Backend Developer
                                     </h2>
@@ -113,6 +163,7 @@ export default function Welcome({ careers, stats }: Props) {
                                             <span className="font-extrabold">
                                                 {name}
                                             </span>
+
                                             <span className="font-mono text-xs font-bold text-muted-foreground">
                                                 {current}/{target}
                                             </span>
@@ -136,6 +187,7 @@ export default function Welcome({ careers, stats }: Props) {
                                 <p className="text-xs font-black tracking-[0.14em] uppercase">
                                     Kenapa database dulu?
                                 </p>
+
                                 <p className="mt-1 text-sm leading-relaxed font-semibold">
                                     Gap masih 45 poin dan database menjadi
                                     prasyarat untuk ORM serta sebagian pekerjaan
@@ -165,6 +217,7 @@ export default function Welcome({ careers, stats }: Props) {
                                 <p className="text-3xl font-black sm:text-4xl">
                                     {number}
                                 </p>
+
                                 <p className="mt-1 text-[11px] font-bold tracking-[0.12em] text-background/65 uppercase sm:text-xs">
                                     {label}
                                 </p>
@@ -192,55 +245,17 @@ export default function Welcome({ careers, stats }: Props) {
                         </div>
 
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                            {[
-                                [
-                                    Target,
-                                    '01',
-                                    'Assess',
-                                    'Ukur skill per area, bukan satu skor abstrak.',
-                                ],
-                                [
-                                    BarChart3,
-                                    '02',
-                                    'Compare',
-                                    'Bandingkan skor dengan standar profesi.',
-                                ],
-                                [
-                                    GitBranch,
-                                    '03',
-                                    'Recommend',
-                                    'Urutkan gap berdasarkan bobot dan dependency.',
-                                ],
-                                [
-                                    Layers3,
-                                    '04',
-                                    'Learn',
-                                    'Pelajari materi yang sudah punya tujuan dan latihan.',
-                                ],
-                                [
-                                    BrainCircuit,
-                                    '05',
-                                    'Build',
-                                    'Buka proyek ketika skill minimum mulai siap.',
-                                ],
-                                [
-                                    TimerReset,
-                                    '06',
-                                    'Evaluate',
-                                    'Nilai ulang skill dan buka langkah berikutnya.',
-                                ],
-                            ].map(([Icon, no, title, text]) => {
-                                const IconComponent = Icon as typeof Target;
-
-                                return (
+                            {processSteps.map(
+                                ({ icon: Icon, number, title, text }) => (
                                     <article
-                                        key={String(no)}
+                                        key={number}
                                         className="neo-card-flat p-5"
                                     >
                                         <div className="flex items-center justify-between">
-                                            <IconComponent className="size-6" />
+                                            <Icon className="size-6" />
+
                                             <span className="font-mono text-xs font-black text-muted-foreground">
-                                                {no}
+                                                {number}
                                             </span>
                                         </div>
 
@@ -252,8 +267,8 @@ export default function Welcome({ careers, stats }: Props) {
                                             {text}
                                         </p>
                                     </article>
-                                );
-                            })}
+                                ),
+                            )}
                         </div>
                     </div>
                 </section>
@@ -295,6 +310,7 @@ export default function Welcome({ careers, stats }: Props) {
                                         <span className="rounded-full border-2 border-[#171717] px-3 py-1 text-xs font-black">
                                             0{index + 1}
                                         </span>
+
                                         <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
                                     </div>
 
@@ -348,6 +364,7 @@ export default function Welcome({ careers, stats }: Props) {
                                 <p className="font-mono text-6xl font-black">
                                     0→1
                                 </p>
+
                                 <p className="mt-3 text-sm font-black tracking-[0.14em] uppercase">
                                     mulai dari posisi nyata
                                 </p>

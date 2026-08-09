@@ -1,8 +1,8 @@
 import { AppContent } from '@/components/app-content';
-import { FlashMessage } from '@/components/flash-message';
 import { AppShell } from '@/components/app-shell';
 import { AppSidebar } from '@/components/app-sidebar';
 import { AppSidebarHeader } from '@/components/app-sidebar-header';
+import { FlashMessage } from '@/components/flash-message';
 import type { AppLayoutProps } from '@/types';
 
 export default function AppSidebarLayout({

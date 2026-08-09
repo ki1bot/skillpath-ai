@@ -1,5 +1,40 @@
 import { Head } from '@inertiajs/react';
-import { Bot, Database, GitBranch, ShieldCheck } from 'lucide-react';
+import {
+    Bot,
+    Database,
+    GitBranch,
+    ShieldCheck,
+    type LucideIcon,
+} from 'lucide-react';
+
+type Principle = {
+    icon: LucideIcon;
+    title: string;
+    text: string;
+};
+
+const principles: Principle[] = [
+    {
+        icon: Database,
+        title: 'Database skill yang nyata',
+        text: 'Profesi, target skill, bobot, prasyarat, materi, dan proyek disimpan sebagai data yang dapat dikelola administrator.',
+    },
+    {
+        icon: GitBranch,
+        title: 'Roadmap mengikuti dependency',
+        text: 'Skill fondasi ditempatkan lebih awal ketika dibutuhkan oleh skill lain. Urutan tidak dibuat dari prompt kosong.',
+    },
+    {
+        icon: ShieldCheck,
+        title: 'Progress perlu evidence',
+        text: 'Tombol selesai tidak cukup. Evaluasi dan aktivitas belajar ikut menentukan apakah skill benar-benar bergerak.',
+    },
+    {
+        icon: Bot,
+        title: 'AI punya batas',
+        text: 'AI dipakai untuk merangkum dan menjelaskan hasil. Jika API tidak tersedia, asesmen, gap, roadmap, proyek, dan readiness tetap berjalan.',
+    },
+];
 
 export default function About() {
     return (
@@ -23,45 +58,19 @@ export default function About() {
                 </div>
 
                 <div className="mt-12 grid gap-5 md:grid-cols-2">
-                    {[
-                        [
-                            Database,
-                            'Database skill yang nyata',
-                            'Profesi, target skill, bobot, prasyarat, materi, dan proyek disimpan sebagai data yang dapat dikelola administrator.',
-                        ],
-                        [
-                            GitBranch,
-                            'Roadmap mengikuti dependency',
-                            'Skill fondasi ditempatkan lebih awal ketika dibutuhkan oleh skill lain. Urutan tidak dibuat dari prompt kosong.',
-                        ],
-                        [
-                            ShieldCheck,
-                            'Progress perlu evidence',
-                            'Tombol selesai tidak cukup. Evaluasi dan aktivitas belajar ikut menentukan apakah skill benar-benar bergerak.',
-                        ],
-                        [
-                            Bot,
-                            'AI punya batas',
-                            'AI dipakai untuk merangkum dan menjelaskan hasil. Jika API tidak tersedia, asesmen, gap, roadmap, proyek, dan readiness tetap berjalan.',
-                        ],
-                    ].map(([Icon, title, text]) => {
-                        const IconComponent = Icon as typeof Database;
+                    {principles.map(({ icon: Icon, title, text }) => (
+                        <article key={title} className="neo-card p-6">
+                            <Icon className="size-7" />
 
-                        return (
-                            <article
-                                key={String(title)}
-                                className="neo-card p-6"
-                            >
-                                <IconComponent className="size-7" />
-                                <h2 className="mt-7 text-2xl font-black tracking-tight">
-                                    {title}
-                                </h2>
-                                <p className="mt-3 text-sm leading-relaxed font-medium text-muted-foreground">
-                                    {text}
-                                </p>
-                            </article>
-                        );
-                    })}
+                            <h2 className="mt-7 text-2xl font-black tracking-tight">
+                                {title}
+                            </h2>
+
+                            <p className="mt-3 text-sm leading-relaxed font-medium text-muted-foreground">
+                                {text}
+                            </p>
+                        </article>
+                    ))}
                 </div>
 
                 <div className="mt-12 rounded-2xl border-2 border-foreground bg-secondary p-7 text-[#171717] shadow-[5px_5px_0_#171717] sm:p-9">
