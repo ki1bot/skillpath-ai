@@ -17,7 +17,7 @@ Route::get('/karier', [PublicPageController::class, 'careers'])->name('careers.p
 Route::get('/karier/{career}', [PublicPageController::class, 'career'])->name('careers.public.show');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/onboarding', [OnboardingController::class, 'show'])->name('onboarding.show');
     Route::put('/onboarding', [OnboardingController::class, 'update'])->name('onboarding.update');
