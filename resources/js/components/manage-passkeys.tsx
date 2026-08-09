@@ -14,12 +14,14 @@ export type Props = {
 const EmptyState = () => {
     return (
         <div className="p-8 text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
-                <KeyRound className="h-7 w-7 text-muted-foreground" />
+            <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-[14px] border-2 border-foreground bg-muted">
+                <KeyRound className="size-7" />
             </div>
-            <p className="font-medium">Belum ada passkey</p>
+
+            <p className="font-black">Belum ada kunci akses</p>
+
             <p className="mt-1 text-sm text-muted-foreground">
-                Tambahkan passkey untuk masuk tanpa mengetik kata sandi
+                Tambahkan kunci akses agar bisa masuk tanpa mengetik kata sandi.
             </p>
         </div>
     );
@@ -47,11 +49,11 @@ export default function ManagePasskeys(props: Props) {
         <div className="space-y-6">
             <Heading
                 variant="small"
-                title="Passkeys"
-                description="Kelola passkey untuk proses masuk tanpa kata sandi"
+                title="Kunci akses"
+                description="Kelola perangkat yang dapat digunakan untuk masuk tanpa mengetik kata sandi."
             />
 
-            <div className="overflow-hidden rounded-lg border border-border">
+            <div className="overflow-hidden rounded-[12px] border-2 border-border">
                 {passkeys.length > 0 ? (
                     passkeys.map((passkey) => (
                         <PasskeyItem

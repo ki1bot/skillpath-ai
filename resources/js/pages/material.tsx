@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 type Material = {
     id: number;
@@ -87,13 +88,13 @@ export default function MaterialPage({
         <>
             <Head title={material.title} />
 
-            <div className="mx-auto w-full max-w-6xl px-4 py-8 md:px-6 md:py-10">
+            <div className="neo-page py-8 md:py-10">
                 <Link
                     href="/roadmap"
                     className="inline-flex items-center gap-2 text-sm font-black"
                 >
                     <ArrowLeft className="size-4" />
-                    Kembali ke roadmap
+                    Kembali ke jalur belajar
                 </Link>
 
                 <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_320px]">
@@ -103,9 +104,11 @@ export default function MaterialPage({
                                 <span className="neo-label">
                                     {material.skill.name}
                                 </span>
+
                                 <span className="rounded-full border-2 border-foreground bg-muted px-3 py-1 text-xs font-black">
                                     {material.difficulty}
                                 </span>
+
                                 <span className="rounded-full border-2 border-foreground bg-muted px-3 py-1 text-xs font-black">
                                     ± {material.estimated_minutes} menit
                                 </span>
@@ -121,7 +124,7 @@ export default function MaterialPage({
 
                             <div className="mt-8 border-t-2 border-foreground pt-6">
                                 <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                    Setelah materi ini
+                                    Setelah mempelajari materi ini
                                 </p>
 
                                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -143,6 +146,7 @@ export default function MaterialPage({
                         <section className="neo-card p-6">
                             <div className="flex items-center gap-3">
                                 <BookOpen className="size-6" />
+
                                 <h2 className="text-xl font-black">
                                     Latihan praktik
                                 </h2>
@@ -166,6 +170,7 @@ export default function MaterialPage({
                                     >
                                         {material.resource_title ??
                                             'Buka referensi'}
+
                                         <ExternalLink />
                                     </a>
                                 </Button>
@@ -174,7 +179,7 @@ export default function MaterialPage({
 
                         <section className="neo-card p-6">
                             <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                Pemeriksaan bukti
+                                Pemeriksaan pemahaman
                             </p>
 
                             <h2 className="mt-2 text-2xl font-black">
@@ -193,7 +198,7 @@ export default function MaterialPage({
                                     ([key, text]) => (
                                         <label
                                             key={key}
-                                            className={`flex cursor-pointer items-start gap-3 rounded-xl border-2 border-foreground p-4 text-sm font-semibold ${
+                                            className={`flex cursor-pointer items-start gap-3 rounded-[12px] border-2 border-foreground p-4 text-sm font-semibold ${
                                                 evaluationForm.data.answer ===
                                                 key
                                                     ? 'bg-secondary text-[#171717]'
@@ -221,6 +226,7 @@ export default function MaterialPage({
                                                 <strong className="mr-2 font-mono">
                                                     {key}.
                                                 </strong>
+
                                                 {text}
                                             </span>
                                         </label>
@@ -234,22 +240,23 @@ export default function MaterialPage({
                                         evaluationForm.processing
                                     }
                                 >
-                                    Kirim evaluasi
+                                    Kirim jawaban
                                 </Button>
                             </form>
 
                             {latestEvaluation && (
                                 <div
-                                    className={`mt-5 rounded-xl border-2 border-foreground p-4 text-sm leading-relaxed font-semibold ${
+                                    className={`mt-5 rounded-[12px] border-2 border-[#171717] p-4 text-sm leading-relaxed font-semibold text-[#171717] ${
                                         latestEvaluation.passed
-                                            ? 'bg-secondary text-[#171717]'
-                                            : 'bg-[#FF8FAB] text-[#171717]'
+                                            ? 'bg-secondary'
+                                            : 'bg-[var(--neo-pink)]'
                                     }`}
                                 >
                                     <p className="font-black">
                                         Hasil terakhir: {latestEvaluation.score}
                                         /100
                                     </p>
+
                                     <p className="mt-1">
                                         {latestEvaluation.feedback}
                                     </p>
@@ -271,8 +278,9 @@ export default function MaterialPage({
                             <div className="mt-5 space-y-4">
                                 <label className="block">
                                     <span className="mb-2 block text-xs font-black">
-                                        Progres maksimum 95%
+                                        Perkembangan maksimum 95%
                                     </span>
+
                                     <Input
                                         type="number"
                                         min={0}
@@ -294,6 +302,7 @@ export default function MaterialPage({
                                     <span className="mb-2 block text-xs font-black">
                                         Menit belajar
                                     </span>
+
                                     <Input
                                         type="number"
                                         min={0}
@@ -313,7 +322,7 @@ export default function MaterialPage({
                                         Catatan
                                     </span>
 
-                                    <textarea
+                                    <Textarea
                                         rows={4}
                                         value={progressForm.data.notes}
                                         onChange={(event) =>
@@ -322,7 +331,7 @@ export default function MaterialPage({
                                                 event.target.value,
                                             )
                                         }
-                                        className="w-full resize-none rounded-xl border-2 border-foreground bg-card p-3 text-sm font-medium"
+                                        className="min-h-28 resize-none"
                                         placeholder="Apa yang akhirnya kamu pahami?"
                                     />
                                 </label>
@@ -332,7 +341,7 @@ export default function MaterialPage({
                                         Kendala
                                     </span>
 
-                                    <textarea
+                                    <Textarea
                                         rows={3}
                                         value={progressForm.data.obstacle}
                                         onChange={(event) =>
@@ -341,15 +350,16 @@ export default function MaterialPage({
                                                 event.target.value,
                                             )
                                         }
-                                        className="w-full resize-none rounded-xl border-2 border-foreground bg-card p-3 text-sm font-medium"
-                                        placeholder="Bagian mana yang masih menghambat?"
+                                        className="min-h-24 resize-none"
+                                        placeholder="Bagian mana yang masih sulit?"
                                     />
                                 </label>
 
                                 <label className="block">
                                     <span className="mb-2 block text-xs font-black">
-                                        Link bukti opsional
+                                        Tautan bukti opsional
                                     </span>
+
                                     <Input
                                         type="url"
                                         value={progressForm.data.evidence_url}
@@ -371,13 +381,14 @@ export default function MaterialPage({
                                 disabled={progressForm.processing}
                             >
                                 <Save />
-                                Simpan progres
+                                Simpan perkembangan
                             </Button>
                         </form>
 
-                        <div className="rounded-2xl border-2 border-foreground bg-[#FFCE5C] p-5 text-sm leading-relaxed font-bold text-[#171717]">
-                            Progres manual dibatasi sampai 95%. Status 100%
-                            hanya diberikan ketika evaluasi materi lulus.
+                        <div className="rounded-[14px] border-2 border-[#171717] bg-[var(--neo-yellow)] p-5 text-sm leading-relaxed font-bold text-[#171717]">
+                            Perkembangan manual dibatasi sampai 95%. Nilai 100%
+                            hanya diberikan setelah evaluasi materi dinyatakan
+                            lulus.
                         </div>
                     </aside>
                 </div>
@@ -389,7 +400,7 @@ export default function MaterialPage({
 MaterialPage.layout = {
     breadcrumbs: [
         {
-            title: 'Roadmap',
+            title: 'Jalur Belajar',
             href: '/roadmap',
         },
         {

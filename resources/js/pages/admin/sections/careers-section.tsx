@@ -16,8 +16,8 @@ type Props = {
 export function CareersSection({ careers, skills }: Props) {
     return (
         <AdminPanel
-            title="Karier & standar skill"
-            description="Kelola definisi profesi dan standar kemampuan yang digunakan sistem sebagai target."
+            title="Karier & standar kemampuan"
+            description="Kelola definisi profesi dan kemampuan yang digunakan sebagai target untuk setiap jalur karier."
             accentClass="bg-[var(--neo-lime)] text-[#171717]"
         >
             <AdminDetails title="Tambah karier baru">
@@ -29,19 +29,19 @@ export function CareersSection({ careers, skills }: Props) {
                     <AdminDetails
                         key={career.id}
                         title={career.name}
-                        meta={`${career.skills.length} skill`}
+                        meta={`${career.skills.length} keahlian`}
                     >
                         <div className="grid gap-7">
                             <CareerForm career={career} />
 
                             <div className="border-t-2 border-foreground/15 pt-6">
                                 <h3 className="text-base font-black">
-                                    Standar skill karier
+                                    Standar kemampuan karier
                                 </h3>
 
                                 <p className="mt-1 text-sm text-muted-foreground">
                                     Tentukan target penguasaan dan bobot setiap
-                                    skill untuk karier ini.
+                                    kemampuan untuk karier ini.
                                 </p>
 
                                 <Form
@@ -52,13 +52,13 @@ export function CareersSection({ careers, skills }: Props) {
                                     {({ processing }) => (
                                         <>
                                             <SelectField
-                                                label="Skill"
+                                                label="Keahlian"
                                                 name="skill_id"
                                                 defaultValue=""
                                                 required
                                             >
                                                 <option value="">
-                                                    Pilih skill
+                                                    Pilih keahlian
                                                 </option>
 
                                                 {skills.map((skill) => (
@@ -101,6 +101,7 @@ export function CareersSection({ careers, skills }: Props) {
                                                     <option value="1">
                                                         Wajib
                                                     </option>
+
                                                     <option value="0">
                                                         Pendukung
                                                     </option>
@@ -122,7 +123,7 @@ export function CareersSection({ careers, skills }: Props) {
                                     {career.skills.map((skill) => (
                                         <div
                                             key={skill.id}
-                                            className="flex max-w-full items-center gap-2 rounded-xl border-2 border-foreground bg-muted px-3 py-2 text-xs font-black"
+                                            className="flex max-w-full items-center gap-2 rounded-[11px] border-2 border-foreground bg-muted px-3 py-2 text-xs font-black"
                                         >
                                             <span className="min-w-0 break-words">
                                                 {skill.name} · target{' '}

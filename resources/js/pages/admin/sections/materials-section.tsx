@@ -13,7 +13,7 @@ export function MaterialsSection({ materials, skills }: Props) {
     return (
         <AdminPanel
             title="Materi belajar"
-            description="Materi terhubung langsung ke skill dan harus memiliki tujuan, latihan, serta evaluasi."
+            description="Setiap materi terhubung dengan kemampuan tertentu dan memiliki tujuan, latihan, serta evaluasi."
             accentClass="bg-[var(--neo-yellow)] text-[#171717]"
         >
             <AdminDetails title="Tambah materi baru">
@@ -25,7 +25,7 @@ export function MaterialsSection({ materials, skills }: Props) {
                     <AdminDetails
                         key={material.id}
                         title={material.title}
-                        meta={`${material.skill?.name ?? 'Tanpa skill'} · ${material.estimated_minutes} menit`}
+                        meta={`${material.skill?.name ?? 'Belum terhubung dengan keahlian'} · ${material.estimated_minutes} menit`}
                     >
                         <div className="grid gap-5">
                             <MaterialForm material={material} skills={skills} />

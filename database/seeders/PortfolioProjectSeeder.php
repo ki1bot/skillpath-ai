@@ -6,7 +6,6 @@ use App\Models\Career;
 use App\Models\PortfolioProject;
 use App\Models\Skill;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
 class PortfolioProjectSeeder extends Seeder
 {
@@ -15,26 +14,27 @@ class PortfolioProjectSeeder extends Seeder
         $projects = [
             [
                 'backend-developer',
-                'Task Management API',
+                'task-management-api',
+                'API Pengelolaan Tugas',
                 'Pemula',
                 10,
-                'Bangun API pengelolaan tugas yang benar-benar punya autentikasi dan validasi.',
-                'Mahasiswa membutuhkan API sederhana untuk mengelola tugas pribadi secara aman.',
+                'Bangun API pengelolaan tugas dengan autentikasi, validasi, dan aturan akses yang jelas.',
+                'Pengguna membutuhkan API sederhana untuk mengelola tugas pribadi secara aman.',
                 [
                     'Registrasi dan login',
-                    'CRUD tugas',
+                    'Tambah, lihat, ubah, dan hapus tugas',
                     'Status tugas',
                     'Validasi input',
-                    'Relasi user dan task',
+                    'Relasi pengguna dan tugas',
                 ],
                 [
                     'Filter dan pagination',
-                    'Activity log',
+                    'Log aktivitas',
                 ],
                 [
                     'Endpoint sesuai kontrak',
-                    'User hanya mengakses tugas sendiri',
-                    'Validation error konsisten',
+                    'Pengguna hanya dapat mengakses tugas miliknya',
+                    'Pesan kesalahan validasi konsisten',
                 ],
                 [
                     'rest-api' => 55,
@@ -45,27 +45,28 @@ class PortfolioProjectSeeder extends Seeder
             ],
             [
                 'backend-developer',
-                'Sistem Reservasi Ruangan API',
+                'sistem-reservasi-ruangan-api',
+                'API Reservasi Ruangan',
                 'Menengah',
                 18,
-                'Bangun backend reservasi dengan aturan bentrok jadwal dan role.',
-                'Organisasi membutuhkan layanan reservasi ruangan yang menolak jadwal bentrok dan membedakan hak akses.',
+                'Bangun backend reservasi ruangan dengan pemeriksaan bentrok jadwal dan pembagian hak akses.',
+                'Organisasi membutuhkan layanan reservasi ruangan yang menolak jadwal bentrok dan membedakan hak akses administrator dengan pengguna.',
                 [
-                    'Manajemen user',
+                    'Manajemen pengguna',
                     'Jadwal ruangan',
                     'Pemeriksaan bentrok',
-                    'Role admin dan user',
+                    'Hak akses administrator dan pengguna',
                     'Riwayat reservasi',
                 ],
                 [
                     'Notifikasi',
-                    'Audit log',
+                    'Log audit',
                     'Dokumentasi OpenAPI',
                 ],
                 [
-                    'Tidak ada double booking',
-                    'Hak akses diuji',
-                    'Transaksi data aman',
+                    'Tidak terjadi pemesanan ganda',
+                    'Hak akses telah diuji',
+                    'Transaksi data berjalan aman',
                 ],
                 [
                     'rest-api' => 70,
@@ -76,26 +77,27 @@ class PortfolioProjectSeeder extends Seeder
             ],
             [
                 'frontend-developer',
-                'Personal Finance Dashboard',
+                'personal-finance-dashboard',
+                'Dashboard Keuangan Pribadi',
                 'Pemula',
                 12,
-                'Bangun dashboard keuangan yang tetap terbaca baik di mobile dan desktop.',
+                'Bangun dasboard keuangan yang tetap mudah dibaca di perangkat mobile maupun desktop.',
                 'Pengguna membutuhkan ringkasan transaksi yang cepat dipahami tanpa tabel yang membingungkan.',
                 [
                     'Daftar transaksi',
                     'Filter kategori',
                     'Ringkasan pemasukan dan pengeluaran',
-                    'Chart bulanan',
-                    'Responsive layout',
+                    'Grafik bulanan',
+                    'Tata letak responsif',
                 ],
                 [
-                    'Dark mode',
-                    'Export tampilan',
+                    'Mode gelap',
+                    'Ekspor tampilan',
                 ],
                 [
-                    'Keyboard navigation berfungsi',
-                    'State filter konsisten',
-                    'Layout responsif',
+                    'Navigasi keyboard berfungsi',
+                    'State filter tetap konsisten',
+                    'Tata letak responsif',
                 ],
                 [
                     'react' => 60,
@@ -106,25 +108,26 @@ class PortfolioProjectSeeder extends Seeder
             ],
             [
                 'frontend-developer',
-                'Accessible Event Planner',
+                'accessible-event-planner',
+                'Pengelola Acara Aksesibel',
                 'Menengah',
                 18,
-                'Bangun antarmuka pengelolaan event dengan form, state, dan pola aksesibilitas yang serius.',
-                'Panitia membutuhkan UI untuk membuat event dan mengelola peserta tanpa membingungkan pengguna keyboard.',
+                'Bangun antarmuka pengelolaan acara dengan form, state, dan aksesibilitas yang serius.',
+                'Panitia membutuhkan antarmuka untuk membuat acara dan mengelola peserta yang tetap nyaman digunakan dengan keyboard.',
                 [
-                    'Form event',
+                    'Form acara',
                     'Daftar peserta',
                     'Filter status',
                     'Dialog konfirmasi',
-                    'Validasi UI',
+                    'Validasi antarmuka',
                 ],
                 [
-                    'Optimistic update',
-                    'Skeleton loading',
+                    'Pembaruan optimistis',
+                    'Tampilan sementara saat memuat data',
                 ],
                 [
-                    'Focus management benar',
-                    'Error form jelas',
+                    'Pengelolaan focus berjalan benar',
+                    'Pesan kesalahan form jelas',
                     'State tidak hilang tanpa alasan',
                 ],
                 [
@@ -136,13 +139,14 @@ class PortfolioProjectSeeder extends Seeder
             ],
             [
                 'data-analyst',
+                'analisis-kinerja-penjualan',
                 'Analisis Kinerja Penjualan',
                 'Pemula',
                 10,
-                'Bersihkan dan analisis data penjualan lalu rangkum temuan yang relevan.',
-                'Manajer ingin mengetahui kategori, wilayah, dan periode yang paling berpengaruh pada penjualan.',
+                'Bersihkan dan analisis data penjualan lalu rangkum temuan yang benar-benar relevan.',
+                'Manajer ingin mengetahui kategori, wilayah, dan periode yang paling berpengaruh terhadap penjualan.',
                 [
-                    'Data cleaning',
+                    'Pembersihan data',
                     'Ringkasan KPI',
                     'Analisis kategori',
                     'Analisis waktu',
@@ -153,9 +157,9 @@ class PortfolioProjectSeeder extends Seeder
                     'Analisis margin',
                 ],
                 [
-                    'Setiap chart menjawab pertanyaan',
+                    'Setiap grafik menjawab pertanyaan',
                     'Transformasi data terdokumentasi',
-                    'Insight didukung angka',
+                    'Temuan didukung oleh angka',
                 ],
                 [
                     'data-cleaning' => 55,
@@ -166,26 +170,27 @@ class PortfolioProjectSeeder extends Seeder
             ],
             [
                 'data-analyst',
-                'Customer Retention Analysis',
+                'customer-retention-analysis',
+                'Analisis Retensi Pelanggan',
                 'Menengah',
                 18,
-                'Gunakan SQL dan Python untuk melihat pola pelanggan kembali dan perubahan antar periode.',
+                'Gunakan SQL dan Python untuk melihat pola pelanggan yang kembali serta perubahan antarperiode.',
                 'Tim produk ingin memahami apakah pelanggan kembali bertransaksi setelah pembelian pertama.',
                 [
                     'Definisi cohort',
                     'Query transaksi',
-                    'Retention table',
-                    'Visualisasi retention',
-                    'Ringkasan insight',
+                    'Tabel retensi',
+                    'Visualisasi retensi',
+                    'Ringkasan temuan',
                 ],
                 [
                     'Segmentasi kanal',
-                    'Perbandingan campaign',
+                    'Perbandingan kampanye',
                 ],
                 [
                     'Definisi metrik jelas',
-                    'Query dapat direproduksi',
-                    'Kesimpulan tidak melebihi data',
+                    'Query dapat dijalankan kembali',
+                    'Kesimpulan tidak melebihi data yang tersedia',
                 ],
                 [
                     'sql-analytics' => 65,
@@ -202,6 +207,7 @@ class PortfolioProjectSeeder extends Seeder
 
         foreach ($projects as [
             $careerSlug,
+            $slug,
             $title,
             $difficulty,
             $hours,
@@ -217,7 +223,7 @@ class PortfolioProjectSeeder extends Seeder
                 ->firstOrFail();
 
             $project = PortfolioProject::updateOrCreate(
-                ['slug' => Str::slug($title)],
+                ['slug' => $slug],
                 [
                     'career_id' => $career->id,
                     'title' => $title,

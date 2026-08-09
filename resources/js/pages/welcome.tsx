@@ -44,43 +44,43 @@ const processSteps: ProcessStep[] = [
     {
         icon: Target,
         number: '01',
-        title: 'Asesmen',
-        text: 'Ukur kemampuan per area skill, bukan dengan satu skor abstrak.',
+        title: 'Cek kemampuan',
+        text: 'Jawab asesmen singkat untuk melihat kemampuan yang sudah kamu punya.',
         accent: 'bg-[var(--neo-lime)]',
     },
     {
         icon: BarChart3,
         number: '02',
-        title: 'Bandingkan',
-        text: 'Bandingkan kemampuan saat ini dengan standar jalur karier.',
+        title: 'Lihat selisih',
+        text: 'Bandingkan kemampuanmu dengan kebutuhan jalur karier yang dipilih.',
         accent: 'bg-[var(--neo-blue)]',
     },
     {
         icon: GitBranch,
         number: '03',
-        title: 'Rekomendasi',
-        text: 'Urutkan kesenjangan berdasarkan bobot dan hubungan prasyarat.',
+        title: 'Tentukan prioritas',
+        text: 'Dahulukan kemampuan yang paling penting dan menjadi prasyarat untuk materi lain.',
         accent: 'bg-[var(--neo-yellow)]',
     },
     {
         icon: Layers3,
         number: '04',
-        title: 'Belajar',
-        text: 'Pelajari materi yang memiliki tujuan, latihan, dan evaluasi.',
+        title: 'Mulai belajar',
+        text: 'Kerjakan materi, latihan, dan evaluasi dalam urutan yang jelas.',
         accent: 'bg-[var(--neo-orange)]',
     },
     {
         icon: BrainCircuit,
         number: '05',
-        title: 'Bangun',
-        text: 'Mulai proyek ketika kemampuan minimum mulai memenuhi syarat.',
+        title: 'Buat proyek',
+        text: 'Gunakan kemampuan yang sudah cukup kuat untuk mengerjakan proyek portofolio.',
         accent: 'bg-[var(--neo-pink)]',
     },
     {
         icon: TimerReset,
         number: '06',
-        title: 'Evaluasi',
-        text: 'Nilai ulang kemampuan lalu buka langkah berikutnya.',
+        title: 'Evaluasi lagi',
+        text: 'Lihat perkembanganmu dan tentukan langkah berikutnya dari hasil terbaru.',
         accent: 'bg-[var(--neo-lime)]',
     },
 ];
@@ -94,12 +94,12 @@ export default function Welcome({ careers, stats }: Props) {
         },
         {
             value: stats.skills,
-            label: 'Skill terstruktur',
+            label: 'Keahlian terstruktur',
             accent: 'bg-[var(--neo-blue)]',
         },
         {
             value: stats.materials,
-            label: 'Materi berbasis skill',
+            label: 'Materi belajar',
             accent: 'bg-[var(--neo-yellow)]',
         },
     ];
@@ -133,25 +133,24 @@ export default function Welcome({ careers, stats }: Props) {
 
     return (
         <>
-            <Head title="Jalur belajar yang tahu posisi awalmu" />
+            <Head title="Jalur belajar yang sesuai kemampuanmu" />
 
             <main className="pb-12 sm:pb-16">
                 <section className="neo-page grid gap-10 pt-10 sm:pt-14 lg:grid-cols-[1.03fr_0.97fr] lg:items-center lg:gap-14 lg:pt-16">
                     <div>
                         <span className="neo-label">
                             <Sparkles className="size-3.5" />
-                            Roadmap dengan alasan yang jelas
+                            Belajar sesuai kebutuhanmu
                         </span>
 
                         <h1 className="neo-heading mt-6 max-w-4xl text-[clamp(3.2rem,7vw,6rem)]">
-                            Belajar hal yang tepat, bukan semuanya.
+                            Tahu harus belajar apa, dan mulai dari mana.
                         </h1>
 
                         <p className="mt-6 max-w-2xl text-lg leading-8 font-semibold text-muted-foreground sm:text-xl">
-                            SkillPath AI memetakan kemampuanmu terhadap target
-                            karier, mencari kesenjangan paling penting, lalu
-                            menyusun urutan belajar berdasarkan skill dan
-                            prasyarat yang nyata.
+                            Pilih tujuan karier, cek kemampuanmu sekarang, lalu
+                            mulai dari bagian yang memang paling perlu
+                            ditingkatkan.
                         </p>
 
                         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -170,17 +169,17 @@ export default function Welcome({ careers, stats }: Props) {
                         <div className="mt-9 grid gap-3 text-sm font-extrabold sm:grid-cols-3">
                             <span className="flex items-center gap-2">
                                 <Check className="size-4 shrink-0" />
-                                Tidak mulai dari nol
+                                Mulai dari kemampuan yang sudah ada
                             </span>
 
                             <span className="flex items-center gap-2">
                                 <Check className="size-4 shrink-0" />
-                                Progres memerlukan bukti
+                                Setiap langkah punya tujuan
                             </span>
 
                             <span className="flex items-center gap-2">
                                 <Check className="size-4 shrink-0" />
-                                AI bukan sumber kebenaran
+                                Hasil bisa diperiksa kembali
                             </span>
                         </div>
                     </div>
@@ -190,7 +189,7 @@ export default function Welcome({ careers, stats }: Props) {
                             <div className="mb-7 flex items-start justify-between gap-4">
                                 <div>
                                     <p className="text-xs font-black tracking-[0.16em] text-muted-foreground uppercase">
-                                        Contoh diagnosis
+                                        Contoh hasil asesmen
                                     </p>
 
                                     <h2 className="mt-1 text-2xl font-black tracking-tight">
@@ -231,14 +230,15 @@ export default function Welcome({ careers, stats }: Props) {
 
                             <div className="mt-7 rounded-[12px] border-2 border-[#171717] bg-[var(--neo-blue)] p-4 text-[#171717]">
                                 <p className="text-xs font-black tracking-[0.14em] uppercase">
-                                    Kenapa basis data lebih dulu?
+                                    Kenapa basis data didahulukan?
                                 </p>
 
                                 <p className="mt-1 text-sm leading-relaxed font-semibold">
-                                    Kesenjangan masih besar dan basis data
-                                    menjadi prasyarat untuk ORM serta sebagian
-                                    pekerjaan API. Karena itu posisinya naik
-                                    secara logis, bukan dipilih secara acak.
+                                    Kemampuan basis data masih cukup jauh dari
+                                    target dan dibutuhkan sebelum masuk ke ORM
+                                    serta banyak pekerjaan API. Jadi bagian ini
+                                    lebih masuk akal untuk dipelajari lebih
+                                    dulu.
                                 </p>
                             </div>
                         </div>
@@ -253,7 +253,7 @@ export default function Welcome({ careers, stats }: Props) {
                     {statItems.map((item) => (
                         <div
                             key={item.label}
-                            className={`rounded-[14px] border-2 border-[#171717] p-5 text-[#171717] shadow-[4px_4px_0_var(--neo-shadow-color)] ${item.accent}`}
+                            className={`neo-interactive rounded-[14px] border-2 border-[#171717] p-5 text-[#171717] shadow-[4px_4px_0_var(--neo-shadow-color)] ${item.accent}`}
                         >
                             <p className="text-4xl font-black">{item.value}</p>
 
@@ -269,17 +269,17 @@ export default function Welcome({ careers, stats }: Props) {
                         <div className="grid gap-8 lg:grid-cols-[0.7fr_1.3fr]">
                             <div>
                                 <span className="neo-label">
-                                    Bukan chatbot roadmap
+                                    Cara kerja SkillPath
                                 </span>
 
                                 <h2 className="neo-heading mt-5 text-4xl sm:text-5xl">
-                                    Enam langkah. Satu alur yang dapat diuji.
+                                    Enam langkah yang gampang diikuti.
                                 </h2>
 
                                 <p className="mt-5 max-w-md leading-7 font-semibold text-muted-foreground">
-                                    Keputusan inti berasal dari data internal:
-                                    standar skill, hasil asesmen, bobot,
-                                    prasyarat, evaluasi, dan progres.
+                                    Setiap rekomendasi punya alasan. Kamu bisa
+                                    melihat kemampuan yang kurang, urutan yang
+                                    disarankan, dan hasil yang sudah dicapai.
                                 </p>
                             </div>
 
@@ -294,7 +294,7 @@ export default function Welcome({ careers, stats }: Props) {
                                     }) => (
                                         <article
                                             key={number}
-                                            className="rounded-[14px] border-2 border-foreground bg-background p-5"
+                                            className="neo-interactive rounded-[14px] border-2 border-foreground bg-background p-5"
                                         >
                                             <div className="flex items-center justify-between gap-3">
                                                 <span
@@ -328,12 +328,12 @@ export default function Welcome({ careers, stats }: Props) {
                         <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
                             <div>
                                 <p className="text-xs font-black tracking-[0.18em] uppercase">
-                                    Mulai dari tiga jalur
+                                    Pilihan jalur karier
                                 </p>
 
                                 <h2 className="mt-2 max-w-3xl text-4xl font-black tracking-[-0.045em] sm:text-5xl">
-                                    Pilih jalur yang cukup fokus untuk
-                                    diselesaikan.
+                                    Pilih tujuan yang benar-benar ingin kamu
+                                    kejar.
                                 </h2>
                             </div>
 
@@ -343,7 +343,7 @@ export default function Welcome({ careers, stats }: Props) {
                                 className="border-[#171717] bg-[#fffdf7] text-[#171717]"
                             >
                                 <Link href="/karier">
-                                    Bandingkan semuanya
+                                    Lihat semuanya
                                     <ArrowRight />
                                 </Link>
                             </Button>
@@ -358,7 +358,7 @@ export default function Welcome({ careers, stats }: Props) {
                                 >
                                     <div className="flex items-center justify-between">
                                         <span className="rounded-full border-2 border-[#171717] px-3 py-1 text-xs font-black">
-                                            0{index + 1}
+                                            {String(index + 1).padStart(2, '0')}
                                         </span>
 
                                         <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
@@ -372,9 +372,13 @@ export default function Welcome({ careers, stats }: Props) {
                                         {career.tagline}
                                     </p>
 
-                                    <div className="mt-6 flex items-center gap-2 text-xs font-black tracking-wide uppercase">
-                                        <span>{career.skills_count} skill</span>
+                                    <div className="mt-6 flex flex-wrap items-center gap-2 text-xs font-black tracking-wide uppercase">
+                                        <span>
+                                            {career.skills_count} keahlian
+                                        </span>
+
                                         <span>•</span>
+
                                         <span>{career.difficulty}</span>
                                     </div>
                                 </Link>
@@ -387,17 +391,17 @@ export default function Welcome({ careers, stats }: Props) {
                     <div className="neo-card grid overflow-hidden lg:grid-cols-[1fr_300px]">
                         <div className="p-6 sm:p-9">
                             <p className="text-xs font-black tracking-[0.18em] text-muted-foreground uppercase">
-                                Sudah punya target?
+                                Sudah punya tujuan?
                             </p>
 
                             <h2 className="mt-3 max-w-3xl text-4xl font-black tracking-[-0.045em] sm:text-5xl">
-                                Jangan mulai dari roadmap orang lain. Mulai dari
-                                kesenjangan milikmu.
+                                Jangan belajar semuanya sekaligus. Mulai dari
+                                yang paling kamu butuhkan.
                             </h2>
 
                             <p className="mt-5 max-w-2xl leading-7 font-semibold text-muted-foreground">
-                                Buat akun, pilih target, jawab asesmen, lalu
-                                biarkan sistem menunjukkan apa yang perlu
+                                Buat akun, pilih target karier, kerjakan
+                                asesmen, lalu lihat bagian mana yang sebaiknya
                                 dikerjakan lebih dahulu.
                             </p>
 
@@ -416,7 +420,7 @@ export default function Welcome({ careers, stats }: Props) {
                                 </p>
 
                                 <p className="mt-3 text-sm font-black tracking-[0.14em] uppercase">
-                                    Mulai dari posisi nyata
+                                    Mulai dari posisi sekarang
                                 </p>
                             </div>
                         </div>

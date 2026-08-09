@@ -29,12 +29,12 @@ export function MaterialForm({ material, skills }: Props) {
                 <>
                     <div className="grid gap-4 md:grid-cols-3">
                         <SelectField
-                            label="Skill"
+                            label="Keahlian"
                             name="skill_id"
                             defaultValue={material?.skill_id ?? ''}
                             required
                         >
-                            <option value="">Pilih skill</option>
+                            <option value="">Pilih keahlian</option>
 
                             {skills.map((skill) => (
                                 <option key={skill.id} value={skill.id}>

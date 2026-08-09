@@ -16,11 +16,11 @@ type Props = {
 export function SkillsSection({ skills, prerequisites }: Props) {
     return (
         <AdminPanel
-            title="Skill & prasyarat"
-            description="Pisahkan definisi skill dari hubungan prasyarat agar urutan roadmap dapat dihitung secara nyata."
+            title="Keahlian & prasyarat"
+            description="Kelola kemampuan yang digunakan SkillPath serta hubungan prasyarat yang menentukan urutan belajar."
             accentClass="bg-[var(--neo-blue)] text-[#171717]"
         >
-            <AdminDetails title="Tambah skill baru">
+            <AdminDetails title="Tambah keahlian baru">
                 <SkillForm />
             </AdminDetails>
 
@@ -46,7 +46,8 @@ export function SkillsSection({ skills, prerequisites }: Props) {
                 <h3 className="text-lg font-black">Hubungan prasyarat</h3>
 
                 <p className="mt-1 text-sm text-muted-foreground">
-                    Tentukan skill apa yang harus dikuasai sebelum skill lain.
+                    Tentukan kemampuan yang perlu dikuasai sebelum mempelajari
+                    kemampuan lain.
                 </p>
 
                 <Form
@@ -57,12 +58,12 @@ export function SkillsSection({ skills, prerequisites }: Props) {
                     {({ processing }) => (
                         <>
                             <SelectField
-                                label="Skill tujuan"
+                                label="Kemampuan tujuan"
                                 name="skill_id"
                                 defaultValue=""
                                 required
                             >
-                                <option value="">Pilih skill tujuan</option>
+                                <option value="">Pilih kemampuan tujuan</option>
 
                                 {skills.map((skill) => (
                                     <option key={skill.id} value={skill.id}>
@@ -72,7 +73,7 @@ export function SkillsSection({ skills, prerequisites }: Props) {
                             </SelectField>
 
                             <SelectField
-                                label="Skill prasyarat"
+                                label="Kemampuan prasyarat"
                                 name="prerequisite_skill_id"
                                 defaultValue=""
                                 required
@@ -103,7 +104,7 @@ export function SkillsSection({ skills, prerequisites }: Props) {
                                     className="w-full"
                                 >
                                     <Plus className="size-4" />
-                                    Simpan relasi
+                                    Simpan hubungan
                                 </Button>
                             </div>
                         </>
@@ -114,7 +115,7 @@ export function SkillsSection({ skills, prerequisites }: Props) {
                     {prerequisites.map((item) => (
                         <div
                             key={item.id}
-                            className="flex min-w-0 items-center justify-between gap-3 rounded-xl border-2 border-foreground bg-muted p-3 text-sm"
+                            className="flex min-w-0 items-center justify-between gap-3 rounded-[11px] border-2 border-foreground bg-muted p-3 text-sm"
                         >
                             <span className="min-w-0 break-words">
                                 <strong>{item.prerequisite_name}</strong>

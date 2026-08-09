@@ -72,8 +72,8 @@ export default function AssessmentPage({
     const statusText = useMemo(
         () =>
             latestAttempt
-                ? 'Asesmen ulang akan mengganti skor aktif dengan hasil terbaru.'
-                : 'Ini asesmen pertamamu. Jawab tanpa membuka referensi.',
+                ? 'Hasil asesmen terbaru akan menjadi dasar kemampuan aktifmu.'
+                : 'Ini asesmen pertamamu. Jawab sesuai kemampuan tanpa membuka referensi.',
         [latestAttempt],
     );
 
@@ -99,7 +99,7 @@ export default function AssessmentPage({
         <>
             <Head title="Asesmen Awal" />
 
-            <div className="mx-auto w-full max-w-5xl px-4 py-8 md:px-6 md:py-10">
+            <div className="neo-page py-8 md:py-10">
                 <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
                     <div className="max-w-2xl">
                         <span className="neo-label">Tahap 02</span>
@@ -113,7 +113,7 @@ export default function AssessmentPage({
                         </p>
                     </div>
 
-                    <div className="neo-card-flat flex items-center gap-3 px-4 py-3 text-sm font-black">
+                    <div className="neo-surface flex items-center gap-3 px-4 py-3 text-sm font-black">
                         <Clock3 className="size-5" />±{' '}
                         {assessment.duration_minutes} menit
                     </div>
@@ -127,12 +127,13 @@ export default function AssessmentPage({
                                     Pertanyaan {index + 1} dari{' '}
                                     {assessment.questions.length}
                                 </p>
+
                                 <p className="mt-1 text-sm font-bold">
                                     {question.skill.name}
                                 </p>
                             </div>
 
-                            <span className="rounded-full border-2 border-foreground bg-[#79D7FF] px-3 py-1 text-xs font-black text-[#171717]">
+                            <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-blue)] px-3 py-1 text-xs font-black text-[#171717]">
                                 {question.skill.category}
                             </span>
                         </div>
@@ -152,15 +153,16 @@ export default function AssessmentPage({
                                             key={key}
                                             type="button"
                                             onClick={() => selectAnswer(key)}
-                                            className={`flex items-start gap-4 rounded-xl border-2 border-foreground p-4 text-left text-sm font-semibold transition-transform ${
+                                            className={`flex items-start gap-4 rounded-[12px] border-2 border-foreground p-4 text-left text-sm font-semibold transition-[transform,box-shadow,background-color] ${
                                                 selected
-                                                    ? 'translate-x-1 translate-y-1 bg-secondary text-[#171717]'
-                                                    : 'bg-card shadow-[3px_3px_0_var(--neo-shadow-color)] hover:-translate-y-0.5'
+                                                    ? 'translate-x-[2px] translate-y-[2px] bg-secondary text-[#171717] shadow-none'
+                                                    : 'bg-card shadow-[3px_3px_0_var(--neo-shadow-color)] hover:-translate-y-[1px]'
                                             }`}
                                         >
-                                            <span className="flex size-7 shrink-0 items-center justify-center rounded-lg border-2 border-foreground bg-background font-mono text-xs font-black text-foreground">
+                                            <span className="flex size-7 shrink-0 items-center justify-center rounded-[8px] border-2 border-foreground bg-background font-mono text-xs font-black text-foreground">
                                                 {key}
                                             </span>
+
                                             <span className="pt-1 leading-relaxed">
                                                 {value}
                                             </span>
@@ -170,15 +172,18 @@ export default function AssessmentPage({
                             )}
                         </div>
 
-                        <div className="mt-8 rounded-2xl border-2 border-foreground bg-muted p-5">
+                        <div className="mt-8 rounded-[14px] border-2 border-foreground bg-muted p-5">
                             <div className="flex items-center justify-between gap-4">
                                 <div>
                                     <p className="text-sm font-black">
-                                        Seberapa yakin kamu dengan skill ini?
+                                        Seberapa yakin kamu dengan kemampuan
+                                        ini?
                                     </p>
+
                                     <p className="mt-1 text-xs font-medium text-muted-foreground">
-                                        Penilaian diri hanya 30% dari skor.
-                                        Jawaban objektif tetap lebih berat.
+                                        Penilaian diri menyumbang 30% dari skor.
+                                        Jawaban asesmen tetap memiliki bobot
+                                        lebih besar.
                                     </p>
                                 </div>
 
@@ -246,6 +251,7 @@ export default function AssessmentPage({
                                 <span className="text-sm font-black">
                                     Terjawab
                                 </span>
+
                                 <span className="font-mono text-xl font-black">
                                     {progress}%
                                 </span>
@@ -265,9 +271,9 @@ export default function AssessmentPage({
                                         key={item.id}
                                         type="button"
                                         onClick={() => setIndex(itemIndex)}
-                                        className={`flex aspect-square items-center justify-center rounded-lg border-2 border-foreground text-xs font-black ${
+                                        className={`flex aspect-square items-center justify-center rounded-[8px] border-2 border-foreground text-xs font-black ${
                                             itemIndex === index
-                                                ? 'bg-[#79D7FF] text-[#171717]'
+                                                ? 'bg-[var(--neo-blue)] text-[#171717]'
                                                 : form.data.answers[item.id]
                                                   ? 'bg-secondary text-[#171717]'
                                                   : 'bg-card'
@@ -279,7 +285,7 @@ export default function AssessmentPage({
                             </div>
                         </div>
 
-                        <div className="rounded-2xl border-2 border-foreground bg-[#FFCE5C] p-5 text-sm leading-relaxed font-bold text-[#171717]">
+                        <div className="rounded-[14px] border-2 border-[#171717] bg-[var(--neo-yellow)] p-5 text-sm leading-relaxed font-bold text-[#171717]">
                             {statusText}
                         </div>
                     </aside>

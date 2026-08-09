@@ -19,7 +19,7 @@ export default function AuthSimpleLayout({
                         href="/"
                         className="flex w-fit items-center gap-3 text-xl font-black tracking-tight"
                     >
-                        <span className="flex size-12 items-center justify-center rounded-xl border-2 border-[#171717] bg-[#fffdf7] shadow-[4px_4px_0_#171717]">
+                        <span className="flex size-12 items-center justify-center rounded-[12px] border-2 border-[#171717] bg-[#fffdf7] shadow-[4px_4px_0_#171717]">
                             <AppLogoIcon className="size-7 text-[#171717]" />
                         </span>
 
@@ -28,36 +28,41 @@ export default function AuthSimpleLayout({
 
                     <div className="max-w-xl">
                         <span className="mb-5 inline-flex rounded-full border-2 border-[#171717] bg-[#fffdf7] px-4 py-2 text-xs font-black tracking-[0.15em] text-[#171717] uppercase shadow-[3px_3px_0_#171717]">
-                            Roadmap bukan generik
+                            Belajar sesuai kebutuhanmu
                         </span>
 
                         <h2 className="max-w-xl text-[clamp(2.8rem,5vw,5.5rem)] leading-[0.9] font-black tracking-[-0.065em]">
-                            Tahu apa yang kurang. Belajar yang memang perlu.
+                            Tahu posisi sekarang. Jadi tahu harus mulai dari
+                            mana.
                         </h2>
 
                         <p className="mt-6 max-w-lg text-base leading-7 font-semibold xl:text-lg">
-                            SkillPath membandingkan kemampuan Anda dengan
-                            kebutuhan karier, kemudian membangun urutan belajar
-                            berdasarkan data skill dan prasyarat.
+                            Pilih tujuan karier, cek kemampuan saat ini, lalu
+                            ikuti urutan belajar yang paling masuk akal untukmu.
                         </p>
                     </div>
 
                     <div className="flex flex-wrap gap-2 text-xs font-black uppercase">
                         <span className="border-2 border-[#171717] bg-[#fffdf7] px-3 py-2 text-[#171717]">
-                            Asesmen
+                            Cek kemampuan
                         </span>
+
                         <span className="border-2 border-[#171717] bg-[#fffdf7] px-3 py-2 text-[#171717]">
-                            Bandingkan
+                            Lihat kekurangan
                         </span>
-                        <span className="border-2 border-[#171717] bg-[#fffdf7] px-3 py-2 text-[#171717]">
-                            Rekomendasi
-                        </span>
+
                         <span className="border-2 border-[#171717] bg-[#fffdf7] px-3 py-2 text-[#171717]">
                             Belajar
                         </span>
+
                         <span className="border-2 border-[#171717] bg-[#fffdf7] px-3 py-2 text-[#171717]">
-                            Bangun
+                            Latihan
                         </span>
+
+                        <span className="border-2 border-[#171717] bg-[#fffdf7] px-3 py-2 text-[#171717]">
+                            Buat proyek
+                        </span>
+
                         <span className="border-2 border-[#171717] bg-[#fffdf7] px-3 py-2 text-[#171717]">
                             Evaluasi
                         </span>
@@ -71,7 +76,7 @@ export default function AuthSimpleLayout({
                         href="/"
                         className="mb-8 flex w-fit items-center gap-3 font-black lg:hidden"
                     >
-                        <span className="flex size-11 items-center justify-center rounded-xl border-2 border-foreground bg-secondary shadow-[3px_3px_0_var(--neo-shadow-color)]">
+                        <span className="flex size-11 items-center justify-center rounded-[11px] border-2 border-foreground bg-secondary shadow-[3px_3px_0_var(--neo-shadow-color)]">
                             <AppLogoIcon className="size-6 text-[#171717]" />
                         </span>
 

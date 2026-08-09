@@ -55,6 +55,7 @@
     --sidebar-ring: #171717;
 
     --neo-shadow-color: #171717;
+    --neo-shadow-xs: 2px 2px 0 var(--neo-shadow-color);
     --neo-shadow-sm: 3px 3px 0 var(--neo-shadow-color);
     --neo-shadow: 5px 5px 0 var(--neo-shadow-color);
     --neo-shadow-lg: 8px 8px 0 var(--neo-shadow-color);
@@ -142,6 +143,7 @@
 
 @layer base {
     * {
+        box-sizing: border-box;
         border-color: var(--border);
     }
 
@@ -164,16 +166,18 @@
             BlinkMacSystemFont,
             'Segoe UI',
             sans-serif;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
 
         background-image:
             linear-gradient(
                 to right,
-                color-mix(in srgb, var(--foreground) 3.5%, transparent) 1px,
+                color-mix(in srgb, var(--foreground) 3%, transparent) 1px,
                 transparent 1px
             ),
             linear-gradient(
                 to bottom,
-                color-mix(in srgb, var(--foreground) 3.5%, transparent) 1px,
+                color-mix(in srgb, var(--foreground) 3%, transparent) 1px,
                 transparent 1px
             );
 
@@ -209,6 +213,11 @@
     svg {
         max-width: 100%;
     }
+
+    button,
+    a {
+        -webkit-tap-highlight-color: transparent;
+    }
 }
 
 @layer components {
@@ -219,6 +228,7 @@
 
     .neo-card {
         min-width: 0;
+        overflow: hidden;
         border: 2px solid var(--border);
         border-radius: 16px;
         background: var(--card);
@@ -239,6 +249,7 @@
         border: 2px solid var(--border);
         border-radius: 14px;
         background: var(--card);
+        color: var(--card-foreground);
         box-shadow: var(--neo-shadow-sm);
     }
 
@@ -248,6 +259,7 @@
         border: 2px solid var(--border);
         border-radius: 18px;
         background: var(--card);
+        color: var(--card-foreground);
         box-shadow: var(--neo-shadow);
         padding: clamp(1.25rem, 3vw, 2.5rem);
     }
@@ -260,12 +272,12 @@
         border: 2px solid #171717;
         border-radius: 999px;
         background: var(--secondary);
-        padding: 0.35rem 0.7rem;
+        padding: 0.38rem 0.75rem;
         color: #171717;
         font-size: 0.68rem;
         font-weight: 900;
         line-height: 1.2;
-        letter-spacing: 0.07em;
+        letter-spacing: 0.075em;
         text-transform: uppercase;
     }
 
@@ -290,7 +302,7 @@
         height: 100%;
         border-right: 2px solid #171717;
         background: var(--secondary);
-        transition: width 300ms ease;
+        transition: width 300ms cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .neo-divider {
@@ -329,6 +341,18 @@
         text-align: center;
     }
 
+    .neo-interactive {
+        transition:
+            transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+            box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1),
+            background-color 180ms ease;
+    }
+
+    .neo-interactive:active {
+        transform: translate(2px, 2px);
+        box-shadow: none;
+    }
+
     .neo-accent-lime {
         background: var(--neo-lime);
         color: #171717;
@@ -352,6 +376,32 @@
     .neo-accent-pink {
         background: var(--neo-pink);
         color: #171717;
+    }
+}
+
+[data-slot='sidebar'][data-state] > div {
+    transition-duration: 320ms !important;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+[data-slot='sidebar-inset'] {
+    transition:
+        margin 320ms cubic-bezier(0.22, 1, 0.36, 1),
+        width 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-sidebar='menu-button'] {
+    transition:
+        transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1),
+        background-color 180ms ease,
+        border-color 180ms ease,
+        color 180ms ease;
+}
+
+@media (hover: hover) {
+    .neo-interactive:hover {
+        transform: translateY(-2px);
     }
 }
 

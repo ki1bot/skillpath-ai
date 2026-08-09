@@ -50,12 +50,12 @@ export default function CareerShow({ career }: { career: Career }) {
 
             <main>
                 <section
-                    className="border-b-2 border-foreground"
+                    className="border-b-2 border-[#171717]"
                     style={{
                         backgroundColor: career.accent,
                     }}
                 >
-                    <div className="mx-auto max-w-7xl px-4 py-14 text-[#171717] sm:px-6 lg:px-8 lg:py-20">
+                    <div className="neo-page py-14 text-[#171717] lg:py-20">
                         <Link
                             href="/karier"
                             className="inline-flex items-center gap-2 text-sm font-black"
@@ -69,37 +69,43 @@ export default function CareerShow({ career }: { career: Career }) {
                                 <p className="text-xs font-black tracking-[0.18em] uppercase">
                                     Jalur karier
                                 </p>
+
                                 <h1 className="mt-3 text-5xl font-black tracking-[-0.05em] sm:text-7xl">
                                     {career.name}
                                 </h1>
+
                                 <p className="mt-5 max-w-3xl text-xl leading-relaxed font-bold">
                                     {career.tagline}
                                 </p>
                             </div>
 
-                            <div className="rounded-2xl border-2 border-[#171717] bg-[#fffdf7] p-6 shadow-[5px_5px_0_#171717]">
+                            <div className="rounded-[16px] border-2 border-[#171717] bg-[#fffdf7] p-6 shadow-[5px_5px_0_#171717]">
                                 <p className="text-sm leading-relaxed font-semibold text-[#56524c]">
                                     {career.description}
                                 </p>
 
                                 <div className="mt-5 grid grid-cols-2 gap-3">
-                                    <div className="rounded-xl border-2 border-[#171717] p-3">
+                                    <div className="rounded-[11px] border-2 border-[#171717] p-3">
                                         <Gauge className="size-5" />
+
                                         <p className="mt-3 text-xs font-black uppercase">
                                             Kesulitan
                                         </p>
+
                                         <p className="font-bold">
                                             {career.difficulty}
                                         </p>
                                     </div>
 
-                                    <div className="rounded-xl border-2 border-[#171717] p-3">
+                                    <div className="rounded-[11px] border-2 border-[#171717] p-3">
                                         <Target className="size-5" />
+
                                         <p className="mt-3 text-xs font-black uppercase">
-                                            Standar
+                                            Kemampuan
                                         </p>
+
                                         <p className="font-bold">
-                                            {career.skills.length} skill
+                                            {career.skills.length} keahlian
                                         </p>
                                     </div>
                                 </div>
@@ -108,7 +114,7 @@ export default function CareerShow({ career }: { career: Career }) {
                     </div>
                 </section>
 
-                <section className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.75fr_1.25fr] lg:px-8 lg:py-20">
+                <section className="neo-page grid gap-10 py-16 lg:grid-cols-[0.75fr_1.25fr] lg:py-20">
                     <div>
                         <span className="neo-label">
                             <BriefcaseBusiness className="size-3.5" />
@@ -131,10 +137,11 @@ export default function CareerShow({ career }: { career: Career }) {
                     <div>
                         <div className="mb-6">
                             <p className="text-xs font-black tracking-[0.16em] text-muted-foreground uppercase">
-                                Standar skill
+                                Kemampuan yang dibutuhkan
                             </p>
+
                             <h2 className="mt-1 text-3xl font-black tracking-tight">
-                                Apa yang perlu dikuasai
+                                Apa yang perlu dikuasai?
                             </h2>
                         </div>
 
@@ -167,8 +174,8 @@ export default function CareerShow({ career }: { career: Career }) {
                     </div>
                 </section>
 
-                <section className="border-y-2 border-foreground bg-[#FFCE5C] py-16 text-[#171717]">
-                    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <section className="border-y-2 border-[#171717] bg-[var(--neo-yellow)] py-16 text-[#171717]">
+                    <div className="neo-page">
                         <h2 className="text-3xl font-black tracking-tight">
                             Contoh proyek portofolio
                         </h2>
@@ -177,7 +184,7 @@ export default function CareerShow({ career }: { career: Career }) {
                             {career.projects.map((project) => (
                                 <div
                                     key={project.id}
-                                    className="rounded-2xl border-2 border-[#171717] bg-[#fffdf7] p-6 shadow-[4px_4px_0_#171717]"
+                                    className="rounded-[16px] border-2 border-[#171717] bg-[#fffdf7] p-6 shadow-[4px_4px_0_#171717]"
                                 >
                                     <div className="flex items-center justify-between text-xs font-black uppercase">
                                         <span>{project.difficulty}</span>
@@ -201,16 +208,17 @@ export default function CareerShow({ career }: { career: Career }) {
 
                 <section className="mx-auto max-w-4xl px-4 py-20 text-center sm:px-6 lg:px-8">
                     <p className="text-xs font-black tracking-[0.18em] text-muted-foreground uppercase">
-                        Jangan tebak kecocokanmu
+                        Belum tahu posisi kemampuanmu?
                     </p>
 
                     <h2 className="mt-3 text-4xl font-black tracking-[-0.045em]">
-                        Ukur posisi awal sebelum menyusun target belajar.
+                        Cek kemampuan sebelum menentukan apa yang perlu
+                        dipelajari.
                     </h2>
 
                     <Button asChild size="lg" className="mt-7">
                         <Link href="/register">
-                            Mulai dari asesmen
+                            Mulai penilaian
                             <ArrowRight />
                         </Link>
                     </Button>

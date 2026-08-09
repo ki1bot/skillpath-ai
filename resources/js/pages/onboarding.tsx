@@ -58,14 +58,14 @@ export default function Onboarding({
 
                     <h1 className="mt-5 max-w-4xl text-4xl font-black tracking-[-0.045em] sm:text-5xl">
                         {editing
-                            ? 'Perbarui konteks belajarmu.'
-                            : 'Berikan konteks yang benar kepada sistem.'}
+                            ? 'Perbarui profil belajarmu.'
+                            : 'Ceritakan posisi belajarmu sekarang.'}
                     </h1>
 
                     <p className="mt-4 max-w-3xl text-sm leading-7 font-semibold sm:text-base">
-                        Waktu belajar memengaruhi estimasi roadmap. Target
-                        karier menentukan standar skill yang dibandingkan. Isi
-                        berdasarkan kondisi saat ini, bukan versi ideal.
+                        Waktu belajar membantu menentukan estimasi penyelesaian.
+                        Target karier menentukan kemampuan yang akan
+                        dibandingkan. Isi sesuai keadaanmu sekarang.
                     </p>
                 </section>
 
@@ -157,7 +157,7 @@ export default function Onboarding({
 
                             <label className="block">
                                 <span className="mb-2 block text-sm font-black">
-                                    Bidang yang membuatmu penasaran
+                                    Bidang yang membuatmu tertarik
                                 </span>
 
                                 <Input
@@ -168,7 +168,7 @@ export default function Onboarding({
                                             event.target.value,
                                         )
                                     }
-                                    placeholder="Contoh: backend, data, produk web"
+                                    placeholder="Contoh: backend, data, aplikasi web"
                                 />
                             </label>
 
@@ -186,7 +186,7 @@ export default function Onboarding({
                                         )
                                     }
                                     rows={6}
-                                    placeholder="Ceritakan proyek, tools, teknologi, atau materi yang pernah kamu kerjakan."
+                                    placeholder="Ceritakan proyek, teknologi, atau materi yang pernah kamu kerjakan."
                                 />
 
                                 {form.errors.experience && (
@@ -210,14 +210,14 @@ export default function Onboarding({
                                 </p>
 
                                 <h2 className="text-xl font-black">
-                                    Target karier pertama
+                                    Target karier
                                 </h2>
                             </div>
                         </div>
 
                         <p className="mt-3 text-sm leading-6 font-medium text-muted-foreground">
-                            Target dapat diubah nanti. Asesmen dan roadmap akan
-                            selalu mengikuti target yang sedang aktif.
+                            Target dapat diganti nanti. Asesmen dan jalur
+                            belajar akan mengikuti target yang sedang aktif.
                         </p>
 
                         <div className="mt-6 space-y-4">
@@ -302,9 +302,9 @@ export default function Onboarding({
                         )}
 
                         <div className="mt-7 rounded-[12px] border-2 border-[#171717] bg-[var(--neo-yellow)] p-4 text-sm leading-6 font-bold text-[#171717]">
-                            Sesudah langkah ini kamu akan mengerjakan asesmen
-                            singkat. Roadmap baru dibuat setelah sistem memiliki
-                            data kemampuan awal.
+                            Setelah ini kamu akan mengerjakan asesmen singkat.
+                            Jalur belajar dibuat setelah kemampuan awalmu sudah
+                            diketahui.
                         </div>
 
                         <Button

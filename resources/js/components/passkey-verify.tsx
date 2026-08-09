@@ -53,7 +53,7 @@ export default function PasskeyVerify({
 
                     {isLoading
                         ? (loadingLabel ?? 'Memverifikasi...')
-                        : (label ?? 'Masuk menggunakan passkey')}
+                        : (label ?? 'Masuk dengan kunci akses')}
                 </Button>
 
                 {error && (

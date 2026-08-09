@@ -57,12 +57,12 @@ export function QuestionForm({
                         </SelectField>
 
                         <SelectField
-                            label="Skill"
+                            label="Keahlian"
                             name="skill_id"
                             defaultValue={question?.skill_id ?? ''}
                             required
                         >
-                            <option value="">Pilih skill</option>
+                            <option value="">Pilih keahlian</option>
 
                             {skills.map((skill) => (
                                 <option key={skill.id} value={skill.id}>

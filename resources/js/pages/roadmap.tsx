@@ -85,14 +85,14 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
 
     return (
         <>
-            <Head title="Roadmap" />
+            <Head title="Jalur Belajar" />
 
-            <div className="mx-auto w-full max-w-6xl px-4 py-8 md:px-6 md:py-10">
+            <div className="neo-page py-8 md:py-10">
                 <section className="neo-card overflow-hidden">
                     <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-end">
                         <div>
                             <span className="neo-label">
-                                Roadmap v{roadmap.version}
+                                Jalur belajar v{roadmap.version}
                             </span>
 
                             <h1 className="neo-heading mt-5 text-4xl sm:text-5xl">
@@ -100,15 +100,16 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                             </h1>
 
                             <p className="mt-4 max-w-2xl text-sm leading-relaxed font-medium text-muted-foreground">
-                                Dibuat dari {roadmap.reason}. Estimasi sekitar{' '}
-                                {roadmap.estimated_weeks} minggu berdasarkan
-                                waktu belajar yang tersedia.
+                                Jalur ini dibuat dari {roadmap.reason}. Estimasi
+                                penyelesaian sekitar {roadmap.estimated_weeks}{' '}
+                                minggu berdasarkan waktu belajar yang tersedia.
                             </p>
                         </div>
 
                         <div className="min-w-56">
                             <div className="flex justify-between text-xs font-black">
-                                <span>Progres</span>
+                                <span>Perkembangan</span>
+
                                 <span>
                                     {completed}/{roadmap.items.length}
                                 </span>
@@ -133,7 +134,7 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                     {stages.map((stage, stageIndex) => (
                         <section key={stage.title}>
                             <div className="mb-5 flex items-center gap-3">
-                                <span className="flex size-9 items-center justify-center rounded-xl border-2 border-foreground bg-secondary font-mono text-sm font-black text-[#171717] shadow-[3px_3px_0_var(--neo-shadow-color)]">
+                                <span className="flex size-9 items-center justify-center rounded-[10px] border-2 border-[#171717] bg-secondary font-mono text-sm font-black text-[#171717] shadow-[3px_3px_0_var(--neo-shadow-color)]">
                                     {stageIndex + 1}
                                 </span>
 
@@ -141,6 +142,7 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                                     <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
                                         Tahap {stageIndex + 1}
                                     </p>
+
                                     <h2 className="text-2xl font-black tracking-tight">
                                         {stage.title}
                                     </h2>
@@ -151,7 +153,7 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                                 {stage.items.map((item) => {
                                     const locked = item.status === 'locked';
 
-                                    const completed =
+                                    const itemCompleted =
                                         item.status === 'completed';
 
                                     return (
@@ -162,16 +164,16 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                                             }`}
                                         >
                                             <div className="absolute top-8 -left-[31px] flex size-6 items-center justify-center rounded-full border-2 border-foreground bg-background sm:-left-[43px]">
-                                                {completed ? (
+                                                {itemCompleted ? (
                                                     <CheckCircle2 className="size-4 fill-secondary" />
                                                 ) : locked ? (
                                                     <LockKeyhole className="size-3.5" />
                                                 ) : (
-                                                    <Circle className="size-3.5 fill-[#79D7FF]" />
+                                                    <Circle className="size-3.5 fill-[var(--neo-blue)]" />
                                                 )}
                                             </div>
 
-                                            <div className="hidden size-12 items-center justify-center rounded-xl border-2 border-foreground bg-muted font-mono text-sm font-black md:flex">
+                                            <div className="hidden size-12 items-center justify-center rounded-[11px] border-2 border-foreground bg-muted font-mono text-sm font-black md:flex">
                                                 {String(item.position).padStart(
                                                     2,
                                                     '0',
@@ -189,8 +191,8 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
 
                                                     {item.status ===
                                                         'needs_reinforcement' && (
-                                                        <span className="rounded-full border-2 border-foreground bg-[#FF8FAB] px-2 py-0.5 text-[10px] font-black text-[#171717] uppercase">
-                                                            ulang
+                                                        <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-pink)] px-2 py-0.5 text-[10px] font-black text-[#171717] uppercase">
+                                                            Ulangi
                                                         </span>
                                                     )}
                                                 </div>
@@ -211,12 +213,14 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                                                         }{' '}
                                                         menit
                                                     </span>
+
                                                     <span>
                                                         {
                                                             item.material
                                                                 .difficulty
                                                         }
                                                     </span>
+
                                                     <span>
                                                         {
                                                             statusLabel[
@@ -231,7 +235,9 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                                                 {locked ? (
                                                     <div className="text-xs font-bold text-muted-foreground">
                                                         <LockKeyhole className="mb-2 inline size-4" />
+
                                                         <br />
+
                                                         {item.material.skill
                                                             .prerequisites
                                                             .length > 0
@@ -249,7 +255,7 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                                                     <Button
                                                         asChild
                                                         variant={
-                                                            completed
+                                                            itemCompleted
                                                                 ? 'outline'
                                                                 : 'default'
                                                         }
@@ -258,9 +264,10 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                                                         <Link
                                                             href={`/roadmap/materials/${item.material.slug}`}
                                                         >
-                                                            {completed
+                                                            {itemCompleted
                                                                 ? 'Tinjau ulang'
-                                                                : 'Buka'}
+                                                                : 'Buka materi'}
+
                                                             {item.status ===
                                                             'needs_reinforcement' ? (
                                                                 <RotateCcw />
@@ -286,7 +293,7 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
 RoadmapPage.layout = {
     breadcrumbs: [
         {
-            title: 'Roadmap',
+            title: 'Jalur Belajar',
             href: '/roadmap',
         },
     ],

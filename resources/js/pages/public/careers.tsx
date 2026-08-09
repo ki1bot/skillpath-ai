@@ -28,18 +28,18 @@ export default function Careers({ careers }: { careers: Career[] }) {
         <>
             <Head title="Jalur Karier" />
 
-            <main className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
+            <main className="neo-page py-14 lg:py-20">
                 <div className="max-w-3xl">
                     <span className="neo-label">Jelajahi karier</span>
 
                     <h1 className="neo-heading mt-6 text-5xl sm:text-6xl">
-                        Pilih berdasarkan pekerjaannya, bukan namanya.
+                        Pahami pekerjaannya sebelum memilih jalurnya.
                     </h1>
 
                     <p className="mt-5 text-lg leading-relaxed font-medium text-muted-foreground">
-                        Lihat tanggung jawab dan standar skill lebih dulu.
-                        Setelah asesmen, SkillPath akan menunjukkan kecocokan
-                        berdasarkan data kemampuanmu.
+                        Lihat tanggung jawab dan kemampuan yang dibutuhkan.
+                        Setelah asesmen, kamu bisa melihat seberapa jauh posisi
+                        sekarang dari target yang dipilih.
                     </p>
                 </div>
 
@@ -50,19 +50,20 @@ export default function Careers({ careers }: { careers: Career[] }) {
                             className="neo-card grid overflow-hidden lg:grid-cols-[220px_1fr_auto]"
                         >
                             <div
-                                className="flex min-h-44 flex-col justify-between border-b-2 border-foreground p-6 text-[#171717] lg:border-r-2 lg:border-b-0"
+                                className="flex min-h-44 flex-col justify-between border-b-2 border-[#171717] p-6 text-[#171717] lg:border-r-2 lg:border-b-0"
                                 style={{
                                     backgroundColor: career.accent,
                                 }}
                             >
                                 <span className="font-mono text-sm font-black">
-                                    0{index + 1}
+                                    {String(index + 1).padStart(2, '0')}
                                 </span>
 
                                 <div>
                                     <p className="text-xs font-black tracking-[0.14em] uppercase">
-                                        Kesulitan
+                                        Tingkat kesulitan
                                     </p>
+
                                     <p className="mt-1 text-xl font-black">
                                         {career.difficulty}
                                     </p>
@@ -104,7 +105,7 @@ export default function Careers({ careers }: { careers: Career[] }) {
                             <div className="flex items-end p-6 pt-0 lg:p-8 lg:pl-0">
                                 <Link
                                     href={`/karier/${career.slug}`}
-                                    className="inline-flex items-center gap-2 text-sm font-black underline decoration-2 underline-offset-4"
+                                    className="inline-flex items-center gap-2 border-b-2 border-foreground pb-1 text-sm font-black"
                                 >
                                     Lihat detail
                                     <ArrowRight className="size-4" />

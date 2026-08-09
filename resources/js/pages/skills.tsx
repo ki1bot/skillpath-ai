@@ -48,13 +48,13 @@ const statusMap = {
         icon: CheckCircle2,
     },
     kesenjangan_tinggi: {
-        label: 'Gap tinggi',
-        className: 'bg-[#FF8FAB]',
+        label: 'Kesenjangan besar',
+        className: 'bg-[var(--neo-pink)]',
         icon: TriangleAlert,
     },
     perlu_ditingkatkan: {
-        label: 'Perlu naik',
-        className: 'bg-[#FFCE5C]',
+        label: 'Perlu ditingkatkan',
+        className: 'bg-[var(--neo-yellow)]',
         icon: ArrowRight,
     },
 };
@@ -75,28 +75,28 @@ export default function Skills({
 
     return (
         <>
-            <Head title="Skill & Kesenjangan" />
+            <Head title="Keahlian & Kesenjangan" />
 
-            <div className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6 md:py-10">
+            <div className="neo-page py-8 md:py-10">
                 <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
                     <div className="max-w-3xl">
-                        <span className="neo-label">Peta skill</span>
+                        <span className="neo-label">Peta kemampuan</span>
 
                         <h1 className="neo-heading mt-5 text-4xl sm:text-5xl">
-                            Gap menuju {career.name}
+                            Kesenjangan menuju {career.name}
                         </h1>
 
                         <p className="mt-4 leading-relaxed font-medium text-muted-foreground">
-                            Target bukan nilai sempurna. Ia adalah standar
-                            internal SkillPath untuk membandingkan posisi
-                            sekarang dengan kebutuhan jalur ini.
+                            Nilai target bukan nilai sempurna. Angka tersebut
+                            digunakan sebagai patokan untuk melihat jarak antara
+                            kemampuanmu sekarang dan kebutuhan jalur karier ini.
                         </p>
                     </div>
 
                     <Button asChild variant="outline">
                         <Link href="/assessment">
                             <RotateCcw />
-                            Ulang asesmen
+                            Ulangi asesmen
                         </Link>
                     </Button>
                 </div>
@@ -106,14 +106,15 @@ export default function Skills({
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                    Penguasaan berbobot
+                                    Penguasaan kemampuan
                                 </p>
+
                                 <p className="mt-1 text-4xl font-black">
                                     {averageMastery}%
                                 </p>
                             </div>
 
-                            <div className="flex size-14 items-center justify-center rounded-full border-2 border-foreground bg-secondary">
+                            <div className="flex size-14 items-center justify-center rounded-full border-2 border-[#171717] bg-secondary">
                                 <BrainCircuit className="size-6 text-[#171717]" />
                             </div>
                         </div>
@@ -125,6 +126,7 @@ export default function Skills({
                                         stroke="currentColor"
                                         opacity={0.25}
                                     />
+
                                     <PolarAngleAxis
                                         dataKey="skill"
                                         tick={{
@@ -133,6 +135,7 @@ export default function Skills({
                                             fontWeight: 700,
                                         }}
                                     />
+
                                     <Radar
                                         dataKey="target"
                                         stroke="currentColor"
@@ -140,6 +143,7 @@ export default function Skills({
                                         fillOpacity={0.08}
                                         strokeWidth={2}
                                     />
+
                                     <Radar
                                         dataKey="current"
                                         stroke="#5A9E2D"
@@ -154,14 +158,15 @@ export default function Skills({
 
                     <section className="neo-card p-6">
                         <div className="flex items-start gap-4">
-                            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border-2 border-foreground bg-[#79D7FF]">
+                            <div className="flex size-10 shrink-0 items-center justify-center rounded-[10px] border-2 border-[#171717] bg-[var(--neo-blue)]">
                                 <BrainCircuit className="size-5 text-[#171717]" />
                             </div>
 
                             <div>
                                 <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                    Penjelasan hasil
+                                    Ringkasan hasil
                                 </p>
+
                                 <p className="mt-2 leading-relaxed font-semibold">
                                     {summary}
                                 </p>
@@ -172,16 +177,18 @@ export default function Skills({
                             {priorities.map((item, index) => (
                                 <div
                                     key={item.skill_id}
-                                    className="rounded-xl border-2 border-foreground bg-muted p-4"
+                                    className="rounded-[12px] border-2 border-foreground bg-muted p-4"
                                 >
                                     <span className="font-mono text-xs font-black">
-                                        0{index + 1}
+                                        {String(index + 1).padStart(2, '0')}
                                     </span>
+
                                     <h3 className="mt-5 leading-tight font-black">
                                         {item.name}
                                     </h3>
+
                                     <p className="mt-2 text-xs font-semibold text-muted-foreground">
-                                        Gap {item.gap} poin
+                                        Selisih {item.gap} poin
                                     </p>
                                 </div>
                             ))}
@@ -199,17 +206,17 @@ export default function Skills({
                 <section className="mt-8">
                     <div className="mb-5">
                         <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                            Rekomendasi yang dapat dijelaskan
+                            Alasan di balik rekomendasi
                         </p>
+
                         <h2 className="mt-1 text-2xl font-black">
-                            Kenapa setiap skill berada di posisi ini
+                            Mengapa setiap kemampuan berada di urutan ini?
                         </h2>
                     </div>
 
                     <div className="space-y-4">
                         {skills.map((item) => {
                             const state = statusMap[item.status];
-
                             const Icon = state.icon;
 
                             return (
@@ -224,7 +231,7 @@ export default function Skills({
                                             </h3>
 
                                             <span
-                                                className={`inline-flex items-center gap-1.5 rounded-full border-2 border-foreground px-2.5 py-1 text-[10px] font-black text-[#171717] uppercase ${state.className}`}
+                                                className={`inline-flex items-center gap-1.5 rounded-full border-2 border-[#171717] px-2.5 py-1 text-[10px] font-black text-[#171717] uppercase ${state.className}`}
                                             >
                                                 <Icon className="size-3" />
                                                 {state.label}
@@ -257,7 +264,7 @@ export default function Skills({
 
                                         <div className="mt-2 h-4 overflow-hidden rounded-full border-2 border-foreground bg-muted">
                                             <div
-                                                className="h-full border-r-2 border-foreground bg-[#79D7FF]"
+                                                className="h-full border-r-2 border-[#171717] bg-[var(--neo-blue)]"
                                                 style={{
                                                     width: `${Math.min(
                                                         item.current,
@@ -268,7 +275,7 @@ export default function Skills({
                                         </div>
 
                                         <div className="mt-2 text-right font-mono text-xs font-black">
-                                            prioritas {item.priority}
+                                            Prioritas {item.priority}
                                         </div>
                                     </div>
                                 </article>
@@ -284,7 +291,7 @@ export default function Skills({
 Skills.layout = {
     breadcrumbs: [
         {
-            title: 'Skill',
+            title: 'Keahlian',
             href: '/skills',
         },
     ],

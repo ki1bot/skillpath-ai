@@ -34,12 +34,12 @@ export function AppSidebar() {
             icon: LayoutDashboard,
         },
         {
-            title: 'Roadmap',
+            title: 'Jalur Belajar',
             href: '/roadmap',
             icon: Map,
         },
         {
-            title: 'Skill',
+            title: 'Keahlian',
             href: '/skills',
             icon: Target,
         },
@@ -49,7 +49,7 @@ export function AppSidebar() {
             icon: FolderKanban,
         },
         {
-            title: 'Progres',
+            title: 'Perkembangan',
             href: '/progress',
             icon: Activity,
         },
@@ -62,7 +62,7 @@ export function AppSidebar() {
 
     if (auth.user.role === 'admin') {
         items.push({
-            title: 'Administrator',
+            title: 'Kelola Sistem',
             href: '/admin',
             icon: ShieldCheck,
         });
@@ -70,17 +70,17 @@ export function AppSidebar() {
 
     return (
         <Sidebar
-            collapsible="icon"
-            variant="sidebar"
-            className="border-r-2 border-sidebar-border bg-sidebar"
+            collapsible="offcanvas"
+            variant="floating"
+            className="duration-300 ease-out [&_[data-sidebar=sidebar]]:overflow-hidden [&_[data-sidebar=sidebar]]:rounded-[18px] [&_[data-sidebar=sidebar]]:border-2 [&_[data-sidebar=sidebar]]:border-sidebar-border [&_[data-sidebar=sidebar]]:bg-sidebar [&_[data-sidebar=sidebar]]:shadow-[5px_5px_0_var(--neo-shadow-color)]"
         >
-            <SidebarHeader className="border-b-2 border-sidebar-border bg-sidebar p-4">
+            <SidebarHeader className="border-b-2 border-sidebar-border bg-sidebar p-3">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
                             size="lg"
                             asChild
-                            className="h-auto min-h-12 rounded-[11px]"
+                            className="h-auto min-h-14 rounded-[12px] border-2 border-transparent px-2 hover:border-sidebar-border hover:bg-muted"
                         >
                             <Link href="/dashboard" prefetch>
                                 <AppLogo />
@@ -90,7 +90,7 @@ export function AppSidebar() {
                 </SidebarMenu>
             </SidebarHeader>
 
-            <SidebarContent className="py-3">
+            <SidebarContent className="bg-sidebar px-1 py-3">
                 <NavMain items={items} />
             </SidebarContent>
 

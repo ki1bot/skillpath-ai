@@ -18,7 +18,7 @@ export function ProjectsSection({ projects, careers, skills }: Props) {
     return (
         <AdminPanel
             title="Proyek portofolio"
-            description="Proyek menjadi bukti penerapan skill, bukan pengganti asesmen kemampuan."
+            description="Proyek digunakan sebagai bukti penerapan kemampuan, bukan sebagai pengganti asesmen."
             accentClass="bg-[var(--neo-lime)] text-[#171717]"
         >
             <AdminDetails title="Tambah proyek baru">
@@ -30,14 +30,14 @@ export function ProjectsSection({ projects, careers, skills }: Props) {
                     <AdminDetails
                         key={project.id}
                         title={project.title}
-                        meta={`${project.career?.name ?? 'Tanpa karier'} · ${project.skills.length} kebutuhan skill`}
+                        meta={`${project.career?.name ?? 'Tanpa karier'} · ${project.skills.length} kebutuhan kemampuan`}
                     >
                         <div className="grid gap-7">
                             <ProjectForm project={project} careers={careers} />
 
                             <div className="border-t-2 border-foreground/15 pt-6">
                                 <h3 className="font-black">
-                                    Kebutuhan skill proyek
+                                    Kebutuhan kemampuan proyek
                                 </h3>
 
                                 <Form
@@ -48,13 +48,13 @@ export function ProjectsSection({ projects, careers, skills }: Props) {
                                     {({ processing }) => (
                                         <>
                                             <SelectField
-                                                label="Skill"
+                                                label="Keahlian"
                                                 name="skill_id"
                                                 defaultValue=""
                                                 required
                                             >
                                                 <option value="">
-                                                    Pilih skill
+                                                    Pilih keahlian
                                                 </option>
 
                                                 {skills.map((skill) => (
@@ -68,7 +68,7 @@ export function ProjectsSection({ projects, careers, skills }: Props) {
                                             </SelectField>
 
                                             <InputField
-                                                label="Level minimum"
+                                                label="Tingkat minimum"
                                                 type="number"
                                                 name="required_level"
                                                 min={1}
@@ -103,7 +103,7 @@ export function ProjectsSection({ projects, careers, skills }: Props) {
                                     {project.skills.map((skill) => (
                                         <div
                                             key={skill.id}
-                                            className="flex max-w-full items-center gap-2 rounded-xl border-2 border-foreground bg-muted px-3 py-2 text-xs font-black"
+                                            className="flex max-w-full items-center gap-2 rounded-[11px] border-2 border-foreground bg-muted px-3 py-2 text-xs font-black"
                                         >
                                             <span className="min-w-0 break-words">
                                                 {skill.name} · minimum{' '}

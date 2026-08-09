@@ -29,10 +29,11 @@ export default function PasskeyRegistration({ onSuccess }: Props) {
             { pattern: /Windows/, name: 'Windows' },
         ].find(({ pattern }) => pattern.test(ua))?.name;
 
-        return [browser, os].filter(Boolean).join(' on ') || '';
+        return [browser, os].filter(Boolean).join(' di ') || '';
     });
 
     const [showForm, setShowForm] = useState(false);
+
     const { register, isLoading, error, isSupported } = usePasskeyRegister({
         onSuccess: () => {
             setName('');
@@ -41,8 +42,8 @@ export default function PasskeyRegistration({ onSuccess }: Props) {
         },
     });
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSubmit = async (event: React.FormEvent) => {
+        event.preventDefault();
 
         if (!name.trim()) {
             return;
@@ -59,7 +60,7 @@ export default function PasskeyRegistration({ onSuccess }: Props) {
     if (!isSupported) {
         return (
             <div className="text-sm text-muted-foreground">
-                Browser ini belum mendukung passkey.
+                Browser ini belum mendukung kunci akses.
             </div>
         );
     }
@@ -67,7 +68,7 @@ export default function PasskeyRegistration({ onSuccess }: Props) {
     if (!showForm) {
         return (
             <Button variant="outline" onClick={() => setShowForm(true)}>
-                Tambah passkey
+                Tambah kunci akses
             </Button>
         );
     }
@@ -75,30 +76,33 @@ export default function PasskeyRegistration({ onSuccess }: Props) {
     return (
         <form
             onSubmit={handleSubmit}
-            className="space-y-4 rounded-lg border border-border bg-muted/50 p-4"
+            className="space-y-4 rounded-[12px] border-2 border-foreground bg-muted/50 p-4"
         >
             <div className="grid gap-2">
-                <Label htmlFor="passkey-name">Nama passkey</Label>
+                <Label htmlFor="passkey-name">Nama kunci akses</Label>
+
                 <Input
                     id="passkey-name"
                     type="text"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g., MacBook Pro, iPhone"
-                    className="mt-1 block w-full border-foreground/20"
+                    onChange={(event) => setName(event.target.value)}
+                    placeholder="Contoh: Laptop pribadi"
                     autoFocus
                 />
+
                 <p className="text-xs text-muted-foreground">
-                    Nama membantu Anda mengenali passkey ini nanti.
+                    Gunakan nama yang memudahkanmu mengenali perangkat ini
+                    nanti.
                 </p>
             </div>
 
             {error && <InputError message={error} />}
 
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
                 <Button type="submit" disabled={isLoading || !name.trim()}>
-                    {isLoading ? 'Mendaftarkan...' : 'Daftarkan passkey'}
+                    {isLoading ? 'Mendaftarkan...' : 'Daftarkan kunci akses'}
                 </Button>
+
                 <Button type="button" variant="ghost" onClick={handleBatal}>
                     Batal
                 </Button>

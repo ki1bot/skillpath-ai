@@ -35,16 +35,15 @@ export default function AdminIndex({
                                 </span>
 
                                 <h1 className="mt-5 text-4xl font-black tracking-[-0.045em] sm:text-5xl">
-                                    Kelola standar sistem dengan struktur yang
-                                    jelas.
+                                    Kelola data utama SkillPath dari satu
+                                    tempat.
                                 </h1>
 
                                 <p className="mt-4 max-w-3xl text-sm leading-7 font-semibold sm:text-base">
-                                    Karier, skill, hubungan prasyarat, asesmen,
-                                    materi belajar, dan proyek portofolio
-                                    dikelola dari satu tempat tanpa
-                                    mencampurkannya dengan hasil individual
-                                    mahasiswa.
+                                    Karier, keahlian, prasyarat, asesmen, materi
+                                    belajar, dan proyek portofolio dapat
+                                    dikelola tanpa mencampurkannya dengan hasil
+                                    belajar masing-masing mahasiswa.
                                 </p>
                             </div>
                         </div>
@@ -54,7 +53,7 @@ export default function AdminIndex({
 
                             <div>
                                 <p className="text-[10px] font-black tracking-[0.14em] uppercase">
-                                    Sumber utama
+                                    Basis data utama
                                 </p>
 
                                 <p className="text-sm font-black">PostgreSQL</p>

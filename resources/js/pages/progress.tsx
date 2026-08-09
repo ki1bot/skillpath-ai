@@ -101,11 +101,53 @@ interface RoadmapHistory {
     } | null;
 }
 
+const triggerLabels: Record<string, string> = {
+    assessment_completed: 'Asesmen selesai',
+    assessment_updated: 'Asesmen diperbarui',
+    roadmap_created: 'Jalur belajar dibuat',
+    roadmap_regenerated: 'Jalur belajar diperbarui',
+    material_completed: 'Materi selesai',
+    material_evaluated: 'Materi dievaluasi',
+    project_started: 'Proyek dimulai',
+    project_updated: 'Proyek diperbarui',
+    project_completed: 'Proyek selesai',
+    progress_updated: 'Perkembangan diperbarui',
+};
+
+const activityLabels: Record<string, string> = {
+    study: 'Belajar',
+    learning: 'Belajar',
+    material_study: 'Mempelajari materi',
+    practice: 'Latihan',
+    evaluation: 'Evaluasi',
+    project: 'Mengerjakan proyek',
+    review: 'Mengulang materi',
+};
+
+const projectStatusLabels: Record<string, string> = {
+    not_started: 'Belum dimulai',
+    in_progress: 'Sedang dikerjakan',
+    paused: 'Dijeda',
+    completed: 'Selesai',
+};
+
 function formatDate(value: string) {
     return new Intl.DateTimeFormat('id-ID', {
         dateStyle: 'medium',
         timeStyle: 'short',
     }).format(new Date(value));
+}
+
+function formatTrigger(value: string) {
+    return triggerLabels[value] ?? 'Perkembangan diperbarui';
+}
+
+function formatActivity(value: string) {
+    return activityLabels[value] ?? 'Aktivitas belajar';
+}
+
+function formatProjectStatus(value: string) {
+    return projectStatusLabels[value] ?? 'Sedang dikerjakan';
 }
 
 export default function Progress({
@@ -131,36 +173,45 @@ export default function Progress({
             month: 'short',
         }).format(new Date(snapshot.created_at)),
         score: snapshot.score,
-        trigger: snapshot.trigger.replaceAll('_', ' '),
+        trigger: formatTrigger(snapshot.trigger),
     }));
+
+    const readinessItems = [
+        ['Keahlian', readiness.skill_mastery, Activity],
+        ['Jalur belajar', readiness.roadmap_completion, Route],
+        ['Proyek', readiness.project_score, Trophy],
+        ['Konsistensi', readiness.consistency, Clock3],
+        ['Evaluasi', readiness.evaluation_score, BookCheck],
+    ] as const;
 
     return (
         <>
-            <Head title="Progress" />
+            <Head title="Perkembangan" />
 
-            <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 p-4 md:p-8">
-                <section className="neo-card bg-[var(--neo-yellow)] p-6 md:p-8">
+            <div className="neo-page flex flex-1 flex-col gap-6 py-6 md:py-8">
+                <section className="neo-hero neo-accent-yellow border-[#171717]">
                     <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
                         <div>
-                            <span className="neo-label bg-white">
-                                Career readiness history
+                            <span className="neo-label bg-[#fffdf7]">
+                                Riwayat kesiapan karier
                             </span>
 
-                            <h1 className="neo-heading mt-4 text-4xl md:text-5xl">
-                                Lihat perubahan, bukan perasaan.
+                            <h1 className="mt-5 text-4xl font-black tracking-[-0.045em] md:text-5xl">
+                                Lihat perkembangan dari hasil yang tercatat.
                             </h1>
 
-                            <p className="mt-3 max-w-2xl text-sm leading-6 font-medium">
-                                Riwayat ini menyimpan asesmen, evaluasi,
-                                roadmap, aktivitas belajar, dan proyek agar
-                                perkembangan Anda dapat ditelusuri kembali.
+                            <p className="mt-3 max-w-2xl text-sm leading-6 font-semibold">
+                                Asesmen, evaluasi, jalur belajar, waktu belajar,
+                                dan proyek disimpan agar kamu bisa melihat
+                                perubahan dari waktu ke waktu.
                             </p>
                         </div>
 
-                        <div className="border-2 border-black bg-white px-5 py-4 text-center shadow-[4px_4px_0_#111]">
+                        <div className="rounded-[12px] border-2 border-[#171717] bg-[#fffdf7] px-5 py-4 text-center text-[#171717] shadow-[4px_4px_0_#171717]">
                             <p className="text-xs font-black tracking-[0.18em] uppercase">
-                                Readiness sekarang
+                                Kesiapan saat ini
                             </p>
+
                             <p className="mt-1 text-5xl font-black">
                                 {Math.round(readiness.score)}
                             </p>
@@ -169,37 +220,27 @@ export default function Progress({
                 </section>
 
                 <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-                    {[
-                        ['Skill', readiness.skill_mastery, Activity],
-                        ['Roadmap', readiness.roadmap_completion, Route],
-                        ['Project', readiness.project_score, Trophy],
-                        ['Consistency', readiness.consistency, Clock3],
-                        ['Evaluation', readiness.evaluation_score, BookCheck],
-                    ].map(([label, value, Icon]) => {
-                        const IconComponent = Icon as typeof Activity;
+                    {readinessItems.map(([label, value, Icon]) => (
+                        <Card key={label}>
+                            <CardContent className="pt-6">
+                                <Icon className="size-5" />
 
-                        return (
-                            <Card key={String(label)}>
-                                <CardContent className="pt-6">
-                                    <IconComponent className="size-5" />
+                                <p className="mt-4 text-3xl font-black">
+                                    {Math.round(Number(value))}%
+                                </p>
 
-                                    <p className="mt-4 text-3xl font-black">
-                                        {Math.round(Number(value))}%
-                                    </p>
-
-                                    <p className="mt-1 text-xs font-black tracking-wider uppercase">
-                                        {String(label)}
-                                    </p>
-                                </CardContent>
-                            </Card>
-                        );
-                    })}
+                                <p className="mt-1 text-xs font-black tracking-wider uppercase">
+                                    {label}
+                                </p>
+                            </CardContent>
+                        </Card>
+                    ))}
                 </section>
 
                 <Card>
-                    <CardHeader className="border-b-2 border-black">
+                    <CardHeader className="border-b-2 border-foreground">
                         <CardTitle className="text-xl font-black">
-                            Tren career readiness
+                            Tren kesiapan karier
                         </CardTitle>
                     </CardHeader>
 
@@ -207,7 +248,11 @@ export default function Progress({
                         {chartData.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart data={chartData}>
-                                    <CartesianGrid strokeDasharray="4 4" />
+                                    <CartesianGrid
+                                        strokeDasharray="4 4"
+                                        opacity={0.25}
+                                    />
+
                                     <XAxis
                                         dataKey="name"
                                         tick={{
@@ -215,6 +260,7 @@ export default function Progress({
                                             fontWeight: 700,
                                         }}
                                     />
+
                                     <YAxis
                                         domain={[0, 100]}
                                         tick={{
@@ -222,7 +268,17 @@ export default function Progress({
                                             fontWeight: 700,
                                         }}
                                     />
-                                    <Tooltip />
+
+                                    <Tooltip
+                                        contentStyle={{
+                                            border: '2px solid var(--border)',
+                                            borderRadius: 12,
+                                            background: 'var(--card)',
+                                            color: 'var(--card-foreground)',
+                                            fontWeight: 700,
+                                        }}
+                                    />
+
                                     <Area
                                         type="monotone"
                                         dataKey="score"
@@ -235,14 +291,14 @@ export default function Progress({
                             </ResponsiveContainer>
                         ) : (
                             <div className="flex h-full items-center justify-center text-center text-sm font-bold">
-                                Belum ada snapshot career readiness.
+                                Belum ada riwayat skor kesiapan.
                             </div>
                         )}
                     </CardContent>
                 </Card>
 
                 <Card>
-                    <CardHeader className="border-b-2 border-black">
+                    <CardHeader className="border-b-2 border-foreground">
                         <CardTitle className="text-xl font-black">
                             Riwayat asesmen
                         </CardTitle>
@@ -258,7 +314,7 @@ export default function Progress({
                         {assessmentHistory.map((attempt, index) => (
                             <div
                                 key={attempt.attempt_uuid}
-                                className="rounded-xl border-2 border-black bg-[var(--neo-cream)] p-4"
+                                className="rounded-[12px] border-2 border-foreground bg-muted p-4"
                             >
                                 <div className="flex items-center justify-between gap-3">
                                     <p className="text-sm font-black">
@@ -266,12 +322,12 @@ export default function Progress({
                                         {assessmentHistory.length - index}
                                     </p>
 
-                                    <span className="neo-label bg-white">
+                                    <span className="neo-label bg-card">
                                         {attempt.average}
                                     </span>
                                 </div>
 
-                                <p className="mt-2 text-xs font-bold text-black/55">
+                                <p className="mt-2 text-xs font-bold text-muted-foreground">
                                     {attempt.date}
                                 </p>
 
@@ -291,14 +347,14 @@ export default function Progress({
 
                 <section className="grid gap-5 lg:grid-cols-2">
                     <Card>
-                        <CardHeader className="border-b-2 border-black bg-[var(--neo-blue)]">
+                        <CardHeader className="border-b-2 border-[#171717] bg-[var(--neo-blue)] text-[#171717]">
                             <CardTitle className="flex items-center gap-2 text-xl font-black">
                                 <History className="size-5" />
                                 Aktivitas terbaru
                             </CardTitle>
                         </CardHeader>
 
-                        <CardContent className="divide-y-2 divide-black/15 pt-2">
+                        <CardContent className="divide-y-2 divide-foreground/15 pt-2">
                             {logs.length === 0 && (
                                 <p className="py-6 text-sm font-bold">
                                     Belum ada aktivitas belajar.
@@ -310,9 +366,8 @@ export default function Progress({
                                     <div className="flex items-start justify-between gap-4">
                                         <div>
                                             <p className="text-sm font-black uppercase">
-                                                {log.activity_type.replaceAll(
-                                                    '_',
-                                                    ' ',
+                                                {formatActivity(
+                                                    log.activity_type,
                                                 )}
                                             </p>
 
@@ -320,18 +375,18 @@ export default function Progress({
                                                 {log.roadmap_item?.material
                                                     ?.title ??
                                                     log.notes ??
-                                                    'Aktivitas SkillPath AI'}
+                                                    'Aktivitas belajar'}
                                             </p>
                                         </div>
 
                                         {log.minutes_spent > 0 && (
-                                            <span className="neo-label bg-[var(--neo-cream)]">
-                                                {log.minutes_spent}m
+                                            <span className="neo-label bg-muted">
+                                                {log.minutes_spent} menit
                                             </span>
                                         )}
                                     </div>
 
-                                    <p className="mt-2 text-xs font-bold text-black/55">
+                                    <p className="mt-2 text-xs font-bold text-muted-foreground">
                                         {formatDate(log.logged_at)}
                                     </p>
                                 </div>
@@ -340,13 +395,13 @@ export default function Progress({
                     </Card>
 
                     <Card>
-                        <CardHeader className="border-b-2 border-black bg-[var(--neo-lime)]">
+                        <CardHeader className="border-b-2 border-[#171717] bg-[var(--neo-lime)] text-[#171717]">
                             <CardTitle className="text-xl font-black">
-                                Evaluasi terakhir
+                                Evaluasi terbaru
                             </CardTitle>
                         </CardHeader>
 
-                        <CardContent className="divide-y-2 divide-black/15 pt-2">
+                        <CardContent className="divide-y-2 divide-foreground/15 pt-2">
                             {evaluations.length === 0 && (
                                 <p className="py-6 text-sm font-bold">
                                     Belum ada evaluasi.
@@ -363,7 +418,8 @@ export default function Progress({
                                             {evaluation.roadmap_item?.material
                                                 ?.title ?? 'Evaluasi materi'}
                                         </p>
-                                        <p className="mt-1 text-xs font-bold text-black/55">
+
+                                        <p className="mt-1 text-xs font-bold text-muted-foreground">
                                             {formatDate(evaluation.created_at)}
                                         </p>
                                     </div>
@@ -376,7 +432,7 @@ export default function Progress({
                                         }`}
                                     >
                                         {evaluation.score} ·{' '}
-                                        {evaluation.passed ? 'Lulus' : 'Ulang'}
+                                        {evaluation.passed ? 'Lulus' : 'Ulangi'}
                                     </span>
                                 </div>
                             ))}
@@ -386,13 +442,13 @@ export default function Progress({
 
                 <section className="grid gap-5 lg:grid-cols-2">
                     <Card>
-                        <CardHeader className="border-b-2 border-black">
+                        <CardHeader className="border-b-2 border-foreground">
                             <CardTitle className="text-xl font-black">
                                 Riwayat proyek
                             </CardTitle>
                         </CardHeader>
 
-                        <CardContent className="divide-y-2 divide-black/15 pt-2">
+                        <CardContent className="divide-y-2 divide-foreground/15 pt-2">
                             {projects.length === 0 && (
                                 <p className="py-6 text-sm font-bold">
                                     Belum ada proyek yang dimulai.
@@ -409,8 +465,8 @@ export default function Progress({
                                             {item.project?.title}
                                         </p>
 
-                                        <p className="mt-1 text-xs font-bold text-black/55 uppercase">
-                                            {item.status.replaceAll('_', ' ')}
+                                        <p className="mt-1 text-xs font-bold text-muted-foreground uppercase">
+                                            {formatProjectStatus(item.status)}
                                         </p>
                                     </div>
 
@@ -418,8 +474,7 @@ export default function Progress({
                                         href={`/projects/${item.project?.slug}`}
                                         className="flex items-center gap-1 text-sm font-black"
                                     >
-                                        {item.progress_percentage}
-                                        %
+                                        {item.progress_percentage}%
                                         <ArrowUpRight className="size-4" />
                                     </Link>
                                 </div>
@@ -428,18 +483,24 @@ export default function Progress({
                     </Card>
 
                     <Card>
-                        <CardHeader className="border-b-2 border-black">
+                        <CardHeader className="border-b-2 border-foreground">
                             <CardTitle className="text-xl font-black">
-                                Versi roadmap
+                                Versi jalur belajar
                             </CardTitle>
                         </CardHeader>
 
-                        <CardContent className="divide-y-2 divide-black/15 pt-2">
+                        <CardContent className="divide-y-2 divide-foreground/15 pt-2">
+                            {roadmaps.length === 0 && (
+                                <p className="py-6 text-sm font-bold">
+                                    Belum ada riwayat jalur belajar.
+                                </p>
+                            )}
+
                             {roadmaps.map((roadmap) => (
                                 <div key={roadmap.id} className="py-4">
                                     <div className="flex flex-wrap items-center justify-between gap-3">
                                         <p className="text-sm font-black">
-                                            {roadmap.career?.name} · v
+                                            {roadmap.career?.name} · versi{' '}
                                             {roadmap.version}
                                         </p>
 
@@ -454,7 +515,7 @@ export default function Progress({
                                         {roadmap.reason}
                                     </p>
 
-                                    <p className="mt-2 text-xs font-bold text-black/55">
+                                    <p className="mt-2 text-xs font-bold text-muted-foreground">
                                         {formatDate(roadmap.created_at)} ·
                                         estimasi {roadmap.estimated_weeks}{' '}
                                         minggu
@@ -472,7 +533,7 @@ export default function Progress({
 Progress.layout = {
     breadcrumbs: [
         {
-            title: 'Progress',
+            title: 'Perkembangan',
             href: '/progress',
         },
     ],

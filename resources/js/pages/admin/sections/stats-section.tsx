@@ -29,7 +29,7 @@ export function StatsSection({ stats }: { stats: AdminStats }) {
             accent: 'bg-[var(--neo-blue)]',
         },
         {
-            label: 'Skill',
+            label: 'Keahlian',
             value: stats.skills,
             icon: Layers3,
             accent: 'bg-[var(--neo-yellow)]',
@@ -59,7 +59,7 @@ export function StatsSection({ stats }: { stats: AdminStats }) {
             {items.map(({ label, value, icon: Icon, accent }) => (
                 <article
                     key={label}
-                    className={`min-w-0 rounded-[14px] border-2 border-[#171717] p-5 text-[#171717] shadow-[4px_4px_0_var(--neo-shadow-color)] ${accent}`}
+                    className={`neo-interactive min-w-0 rounded-[14px] border-2 border-[#171717] p-5 text-[#171717] shadow-[4px_4px_0_var(--neo-shadow-color)] ${accent}`}
                 >
                     <div className="flex items-start justify-between gap-3">
                         <span className="flex size-10 items-center justify-center rounded-[9px] border-2 border-[#171717] bg-[#fffdf7]">

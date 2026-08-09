@@ -17,7 +17,7 @@ export function SkillForm({ skill }: { skill?: Skill }) {
                 <>
                     <div className="grid gap-4 md:grid-cols-3">
                         <InputField
-                            label="Nama skill"
+                            label="Nama keahlian"
                             name="name"
                             defaultValue={skill?.name}
                             required
@@ -53,7 +53,7 @@ export function SkillForm({ skill }: { skill?: Skill }) {
                             <Plus className="size-4" />
                         )}
 
-                        {skill ? 'Simpan perubahan' : 'Tambah skill'}
+                        {skill ? 'Simpan perubahan' : 'Tambah keahlian'}
                     </Button>
                 </>
             )}

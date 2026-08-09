@@ -98,7 +98,7 @@ export default function Dashboard({
 
     return (
         <>
-            <Head title="Dasbor" />
+            <Head title="Dashboard" />
 
             <div className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6 md:py-10">
                 <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
@@ -489,7 +489,7 @@ export default function Dashboard({
 Dashboard.layout = {
     breadcrumbs: [
         {
-            title: 'Dasbor',
+            title: 'Dashboard',
             href: '/dashboard',
         },
     ],

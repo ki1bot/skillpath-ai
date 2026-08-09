@@ -26,22 +26,25 @@ export default function PasskeyItem({ passkey, onDelete }: Props) {
     };
 
     return (
-        <div className="flex items-center justify-between border-b p-4 last:border-b-0">
-            <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted">
-                    <KeyRound className="h-5 w-5 text-muted-foreground" />
+        <div className="flex items-center justify-between gap-4 border-b-2 border-foreground/15 p-4 last:border-b-0">
+            <div className="flex min-w-0 items-center gap-4">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-[10px] border-2 border-foreground bg-muted">
+                    <KeyRound className="size-5" />
                 </div>
-                <div className="space-y-1">
-                    <div className="flex items-center gap-2.5">
-                        <p className="font-medium tracking-tight">
+
+                <div className="min-w-0 space-y-1">
+                    <div className="flex flex-wrap items-center gap-2.5">
+                        <p className="truncate font-black tracking-tight">
                             {passkey.name}
                         </p>
+
                         {passkey.authenticator && (
-                            <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-[11px] font-medium tracking-wide text-muted-foreground uppercase ring-1 ring-border ring-inset">
+                            <span className="inline-flex items-center gap-1 rounded-full border-2 border-foreground/20 bg-muted px-2 py-0.5 text-[10px] font-black tracking-wide uppercase">
                                 {passkey.authenticator}
                             </span>
                         )}
                     </div>
+
                     <p className="text-sm text-muted-foreground">
                         Ditambahkan {passkey.created_at_diff}
                         {passkey.last_used_at_diff && (
@@ -60,30 +63,34 @@ export default function PasskeyItem({ passkey, onDelete }: Props) {
                 <DialogTrigger asChild>
                     <Button
                         variant="ghost"
-                        size="sm"
-                        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        size="icon-sm"
+                        className="shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
                     >
-                        <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">Hapus</span>
+                        <Trash2 className="size-4" />
+                        <span className="sr-only">Hapus kunci akses</span>
                     </Button>
                 </DialogTrigger>
+
                 <DialogContent>
-                    <DialogTitle>Hapus passkey</DialogTitle>
+                    <DialogTitle>Hapus kunci akses</DialogTitle>
+
                     <DialogDescription>
-                        Are you sure you want to remove the "{passkey.name}"
-                        passkey? You will no longer be able to use it to sign
-                        in.
+                        Yakin ingin menghapus kunci akses &quot;{passkey.name}
+                        &quot;? Setelah dihapus, kunci ini tidak dapat digunakan
+                        lagi untuk masuk.
                     </DialogDescription>
+
                     <DialogFooter className="gap-2">
                         <DialogClose asChild>
                             <Button variant="secondary">Batal</Button>
                         </DialogClose>
+
                         <Button
                             variant="destructive"
                             onClick={handleDelete}
                             disabled={isDeleting}
                         >
-                            {isDeleting ? 'Menghapus...' : 'Hapus passkey'}
+                            {isDeleting ? 'Menghapus...' : 'Hapus kunci akses'}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
