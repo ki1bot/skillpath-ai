@@ -1,0 +1,86 @@
+import { Head } from '@inertiajs/react';
+import { Bot, Database, GitBranch, ShieldCheck } from 'lucide-react';
+
+export default function About() {
+    return (
+        <>
+            <Head title="Tentang SkillPath AI" />
+
+            <main className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
+                <div className="max-w-4xl">
+                    <span className="neo-label">Tentang sistem</span>
+
+                    <h1 className="neo-heading mt-6 text-5xl sm:text-6xl">
+                        AI membantu menjelaskan. Data dan aturan tetap
+                        memutuskan.
+                    </h1>
+
+                    <p className="mt-6 text-lg leading-relaxed font-medium text-muted-foreground">
+                        SkillPath AI dibuat untuk mahasiswa yang tahu ingin
+                        berkembang, tetapi belum punya cara objektif untuk
+                        menentukan apa yang perlu dipelajari lebih dulu.
+                    </p>
+                </div>
+
+                <div className="mt-12 grid gap-5 md:grid-cols-2">
+                    {[
+                        [
+                            Database,
+                            'Database skill yang nyata',
+                            'Profesi, target skill, bobot, prasyarat, materi, dan proyek disimpan sebagai data yang dapat dikelola administrator.',
+                        ],
+                        [
+                            GitBranch,
+                            'Roadmap mengikuti dependency',
+                            'Skill fondasi ditempatkan lebih awal ketika dibutuhkan oleh skill lain. Urutan tidak dibuat dari prompt kosong.',
+                        ],
+                        [
+                            ShieldCheck,
+                            'Progress perlu evidence',
+                            'Tombol selesai tidak cukup. Evaluasi dan aktivitas belajar ikut menentukan apakah skill benar-benar bergerak.',
+                        ],
+                        [
+                            Bot,
+                            'AI punya batas',
+                            'AI dipakai untuk merangkum dan menjelaskan hasil. Jika API tidak tersedia, asesmen, gap, roadmap, proyek, dan readiness tetap berjalan.',
+                        ],
+                    ].map(([Icon, title, text]) => {
+                        const IconComponent = Icon as typeof Database;
+
+                        return (
+                            <article
+                                key={String(title)}
+                                className="neo-card p-6"
+                            >
+                                <IconComponent className="size-7" />
+                                <h2 className="mt-7 text-2xl font-black tracking-tight">
+                                    {title}
+                                </h2>
+                                <p className="mt-3 text-sm leading-relaxed font-medium text-muted-foreground">
+                                    {text}
+                                </p>
+                            </article>
+                        );
+                    })}
+                </div>
+
+                <div className="mt-12 rounded-2xl border-2 border-foreground bg-secondary p-7 text-[#171717] shadow-[5px_5px_0_#171717] sm:p-9">
+                    <p className="text-xs font-black tracking-[0.16em] uppercase">
+                        Batas interpretasi
+                    </p>
+
+                    <h2 className="mt-2 text-3xl font-black tracking-tight">
+                        Career Readiness Score bukan prediksi diterima kerja.
+                    </h2>
+
+                    <p className="mt-3 max-w-3xl leading-relaxed font-semibold">
+                        Skor 0–100 hanya indikator internal berdasarkan
+                        penguasaan skill, penyelesaian roadmap, proyek,
+                        konsistensi belajar, dan evaluasi. Ia berguna untuk
+                        melihat perubahan, bukan memberi janji karier.
+                    </p>
+                </div>
+            </main>
+        </>
+    );
+}

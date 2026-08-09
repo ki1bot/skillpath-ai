@@ -3,6 +3,19 @@ export type User = {
     name: string;
     email: string;
     avatar?: string;
+    role: 'student' | 'admin';
+    study_program?: string | null;
+    semester?: number | null;
+    interest_area?: string | null;
+    experience?: string | null;
+    weekly_study_hours?: number;
+    target_career_id?: number | null;
+    target_career?: {
+        id: number;
+        name: string;
+        slug: string;
+    } | null;
+    onboarding_completed_at?: string | null;
     email_verified_at: string | null;
     two_factor_enabled?: boolean;
     created_at: string;
@@ -14,7 +27,6 @@ export type Auth = {
     user: User;
 };
 
-/* @chisel-passkeys */
 export type Passkey = {
     id: number;
     name: string;
@@ -22,7 +34,6 @@ export type Passkey = {
     created_at_diff: string;
     last_used_at_diff: string | null;
 };
-/* @end-chisel-passkeys */
 
 export type TwoFactorSetupData = {
     svg: string;
