@@ -8,9 +8,7 @@ use App\Models\User;
 
 class CareerReadinessService
 {
-    public function __construct(private readonly SkillGapService $skillGapService)
-    {
-    }
+    public function __construct(private readonly SkillGapService $skillGapService) {}
 
     public function snapshot(User $user, string $trigger): ReadinessSnapshot
     {

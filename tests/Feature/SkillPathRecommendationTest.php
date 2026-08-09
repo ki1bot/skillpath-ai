@@ -120,8 +120,7 @@ class SkillPathRecommendationTest extends TestCase
             ->with('material.skill')
             ->get()
             ->keyBy(
-                fn ($item) =>
-                    $item->material->skill->slug,
+                fn ($item) => $item->material->skill->slug,
             );
 
         $this->assertLessThan(
@@ -149,11 +148,10 @@ class SkillPathRecommendationTest extends TestCase
         $material = LearningMaterial::query()
             ->whereHas(
                 'skill',
-                fn ($query) =>
-                    $query->where(
-                        'slug',
-                        'database-fundamentals',
-                    ),
+                fn ($query) => $query->where(
+                    'slug',
+                    'database-fundamentals',
+                ),
             )
             ->firstOrFail();
 
@@ -179,8 +177,7 @@ class SkillPathRecommendationTest extends TestCase
         $wrongAnswer = collect(
             array_keys($material->quiz_options),
         )->first(
-            fn ($answer) =>
-                $answer !== $material->quiz_answer,
+            fn ($answer) => $answer !== $material->quiz_answer,
         );
 
         $this->actingAs($user)
@@ -223,11 +220,10 @@ class SkillPathRecommendationTest extends TestCase
         $material = LearningMaterial::query()
             ->whereHas(
                 'skill',
-                fn ($query) =>
-                    $query->where(
-                        'slug',
-                        'database-fundamentals',
-                    ),
+                fn ($query) => $query->where(
+                    'slug',
+                    'database-fundamentals',
+                ),
             )
             ->firstOrFail();
 
@@ -268,8 +264,7 @@ class SkillPathRecommendationTest extends TestCase
                     $item,
                 ),
                 [
-                    'answer' =>
-                        $material->quiz_answer,
+                    'answer' => $material->quiz_answer,
                 ],
             )
             ->assertRedirect();

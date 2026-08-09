@@ -11,9 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class RoadmapService
 {
-    public function __construct(private readonly SkillGapService $skillGapService)
-    {
-    }
+    public function __construct(private readonly SkillGapService $skillGapService) {}
 
     public function regenerate(User $user, string $reason = 'Asesmen awal'): Roadmap
     {
