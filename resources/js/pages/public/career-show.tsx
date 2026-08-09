@@ -67,7 +67,7 @@ export default function CareerShow({ career }: { career: Career }) {
                         <div className="mt-10 grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
                             <div>
                                 <p className="text-xs font-black tracking-[0.18em] uppercase">
-                                    Career path
+                                    Jalur karier
                                 </p>
                                 <h1 className="mt-3 text-5xl font-black tracking-[-0.05em] sm:text-7xl">
                                     {career.name}
@@ -131,7 +131,7 @@ export default function CareerShow({ career }: { career: Career }) {
                     <div>
                         <div className="mb-6">
                             <p className="text-xs font-black tracking-[0.16em] text-muted-foreground uppercase">
-                                Skill standard
+                                Standar skill
                             </p>
                             <h2 className="mt-1 text-3xl font-black tracking-tight">
                                 Apa yang perlu dikuasai

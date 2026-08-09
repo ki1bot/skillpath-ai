@@ -11,23 +11,23 @@ type Principle = {
 const principles: Principle[] = [
     {
         icon: Database,
-        title: 'Database skill yang nyata',
+        title: 'Basis data skill yang nyata',
         text: 'Profesi, target skill, bobot, prasyarat, materi, dan proyek disimpan sebagai data yang dapat dikelola administrator.',
     },
     {
         icon: GitBranch,
-        title: 'Roadmap mengikuti dependency',
+        title: 'Roadmap mengikuti dependensi',
         text: 'Skill fondasi ditempatkan lebih awal ketika dibutuhkan oleh skill lain. Urutan tidak dibuat dari prompt kosong.',
     },
     {
         icon: ShieldCheck,
-        title: 'Progress perlu evidence',
+        title: 'Progres memerlukan bukti',
         text: 'Tombol selesai tidak cukup. Evaluasi dan aktivitas belajar ikut menentukan apakah skill benar-benar bergerak.',
     },
     {
         icon: Bot,
         title: 'AI punya batas',
-        text: 'AI dipakai untuk merangkum dan menjelaskan hasil. Jika API tidak tersedia, asesmen, gap, roadmap, proyek, dan readiness tetap berjalan.',
+        text: 'AI dipakai untuk merangkum dan menjelaskan hasil. Jika API tidak tersedia, asesmen, gap, roadmap, proyek, dan perhitungan kesiapan tetap berjalan.',
     },
 ];
 
@@ -74,7 +74,7 @@ export default function About() {
                     </p>
 
                     <h2 className="mt-2 text-3xl font-black tracking-tight">
-                        Career Readiness Score bukan prediksi diterima kerja.
+                        Skor Kesiapan Karier bukan prediksi diterima kerja.
                     </h2>
 
                     <p className="mt-3 max-w-3xl leading-relaxed font-semibold">

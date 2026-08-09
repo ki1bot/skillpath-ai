@@ -174,7 +174,7 @@ export default function MaterialPage({
 
                         <section className="neo-card p-6">
                             <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                Evidence check
+                                Pemeriksaan bukti
                             </p>
 
                             <h2 className="mt-2 text-2xl font-black">
@@ -261,7 +261,7 @@ export default function MaterialPage({
                     <aside className="space-y-5 lg:sticky lg:top-24 lg:self-start">
                         <form onSubmit={saveProgress} className="neo-card p-5">
                             <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                Study log
+                                Catatan belajar
                             </p>
 
                             <h2 className="mt-1 text-xl font-black">
@@ -271,7 +271,7 @@ export default function MaterialPage({
                             <div className="mt-5 space-y-4">
                                 <label className="block">
                                     <span className="mb-2 block text-xs font-black">
-                                        Progress maksimum 95%
+                                        Progres maksimum 95%
                                     </span>
                                     <Input
                                         type="number"
@@ -376,7 +376,7 @@ export default function MaterialPage({
                         </form>
 
                         <div className="rounded-2xl border-2 border-foreground bg-[#FFCE5C] p-5 text-sm leading-relaxed font-bold text-[#171717]">
-                            Progress manual dibatasi sampai 95%. Status 100%
+                            Progres manual dibatasi sampai 95%. Status 100%
                             hanya diberikan ketika evaluasi materi lulus.
                         </div>
                     </aside>

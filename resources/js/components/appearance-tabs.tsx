@@ -46,8 +46,8 @@ export default function AppearanceToggleTab({
                     className={cn(
                         'flex min-w-0 items-center justify-center gap-2 rounded-xl border-2 border-foreground px-3 py-2.5 text-sm font-black transition-[transform,box-shadow,background-color] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none',
                         appearance === value
-                            ? 'bg-secondary text-[#171717] shadow-[3px_3px_0_var(--foreground)]'
-                            : 'bg-card text-foreground shadow-[3px_3px_0_var(--foreground)] hover:bg-muted',
+                            ? 'bg-secondary text-[#171717] shadow-[3px_3px_0_var(--neo-shadow-color)]'
+                            : 'bg-card text-foreground shadow-[3px_3px_0_var(--neo-shadow-color)] hover:bg-muted',
                     )}
                 >
                     <Icon className="size-4 shrink-0" />

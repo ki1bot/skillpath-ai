@@ -71,7 +71,7 @@ export default function AuthSimpleLayout({
                         href="/"
                         className="mb-8 flex w-fit items-center gap-3 font-black lg:hidden"
                     >
-                        <span className="flex size-11 items-center justify-center rounded-xl border-2 border-foreground bg-secondary shadow-[3px_3px_0_var(--foreground)]">
+                        <span className="flex size-11 items-center justify-center rounded-xl border-2 border-foreground bg-secondary shadow-[3px_3px_0_var(--neo-shadow-color)]">
                             <AppLogoIcon className="size-6 text-[#171717]" />
                         </span>
 

@@ -75,12 +75,12 @@ export default function Skills({
 
     return (
         <>
-            <Head title="Skills & Gap" />
+            <Head title="Skill & Kesenjangan" />
 
             <div className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6 md:py-10">
                 <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
                     <div className="max-w-3xl">
-                        <span className="neo-label">Skill map</span>
+                        <span className="neo-label">Peta skill</span>
 
                         <h1 className="neo-heading mt-5 text-4xl sm:text-5xl">
                             Gap menuju {career.name}
@@ -106,7 +106,7 @@ export default function Skills({
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                    Weighted mastery
+                                    Penguasaan berbobot
                                 </p>
                                 <p className="mt-1 text-4xl font-black">
                                     {averageMastery}%
@@ -199,7 +199,7 @@ export default function Skills({
                 <section className="mt-8">
                     <div className="mb-5">
                         <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                            Explainable recommendation
+                            Rekomendasi yang dapat dijelaskan
                         </p>
                         <h2 className="mt-1 text-2xl font-black">
                             Kenapa setiap skill berada di posisi ini
@@ -268,7 +268,7 @@ export default function Skills({
                                         </div>
 
                                         <div className="mt-2 text-right font-mono text-xs font-black">
-                                            priority {item.priority}
+                                            prioritas {item.priority}
                                         </div>
                                     </div>
                                 </article>
@@ -284,7 +284,7 @@ export default function Skills({
 Skills.layout = {
     breadcrumbs: [
         {
-            title: 'Skills',
+            title: 'Skill',
             href: '/skills',
         },
     ],

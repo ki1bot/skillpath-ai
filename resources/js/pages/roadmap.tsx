@@ -108,7 +108,7 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
 
                         <div className="min-w-56">
                             <div className="flex justify-between text-xs font-black">
-                                <span>Progress</span>
+                                <span>Progres</span>
                                 <span>
                                     {completed}/{roadmap.items.length}
                                 </span>
@@ -133,7 +133,7 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                     {stages.map((stage, stageIndex) => (
                         <section key={stage.title}>
                             <div className="mb-5 flex items-center gap-3">
-                                <span className="flex size-9 items-center justify-center rounded-xl border-2 border-foreground bg-secondary font-mono text-sm font-black text-[#171717] shadow-[3px_3px_0_var(--foreground)]">
+                                <span className="flex size-9 items-center justify-center rounded-xl border-2 border-foreground bg-secondary font-mono text-sm font-black text-[#171717] shadow-[3px_3px_0_var(--neo-shadow-color)]">
                                     {stageIndex + 1}
                                 </span>
 
@@ -259,7 +259,7 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                                                             href={`/roadmap/materials/${item.material.slug}`}
                                                         >
                                                             {completed
-                                                                ? 'Review'
+                                                                ? 'Tinjau ulang'
                                                                 : 'Buka'}
                                                             {item.status ===
                                                             'needs_reinforcement' ? (

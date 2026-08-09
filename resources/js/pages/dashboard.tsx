@@ -98,13 +98,13 @@ export default function Dashboard({
 
     return (
         <>
-            <Head title="Dashboard" />
+            <Head title="Dasbor" />
 
             <div className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6 md:py-10">
                 <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
                     <div>
                         <p className="text-xs font-black tracking-[0.16em] text-muted-foreground uppercase">
-                            Current target
+                            Target saat ini
                         </p>
 
                         <h1 className="neo-heading mt-2 text-4xl sm:text-5xl">
@@ -128,7 +128,7 @@ export default function Dashboard({
                     <div className="neo-card bg-secondary p-5 text-[#171717]">
                         <div className="flex items-start justify-between">
                             <p className="text-xs font-black tracking-[0.14em] uppercase">
-                                Career readiness
+                                Kesiapan karier
                             </p>
                             <Trophy className="size-5" />
                         </div>
@@ -314,7 +314,7 @@ export default function Dashboard({
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                        Project pulse
+                                        Progres proyek
                                     </p>
                                     <h2 className="mt-1 text-xl font-black">
                                         {activeProject?.project.title ??
@@ -378,7 +378,7 @@ export default function Dashboard({
                 <section className="mt-6 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
                     <div className="neo-card p-6">
                         <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                            Readiness breakdown
+                            Rincian kesiapan
                         </p>
                         <h2 className="mt-1 text-2xl font-black">
                             Skor ini datang dari mana?
@@ -489,7 +489,7 @@ export default function Dashboard({
 Dashboard.layout = {
     breadcrumbs: [
         {
-            title: 'Dashboard',
+            title: 'Dasbor',
             href: '/dashboard',
         },
     ],

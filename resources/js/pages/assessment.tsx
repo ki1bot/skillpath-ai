@@ -102,7 +102,7 @@ export default function AssessmentPage({
             <div className="mx-auto w-full max-w-5xl px-4 py-8 md:px-6 md:py-10">
                 <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
                     <div className="max-w-2xl">
-                        <span className="neo-label">Setup 02</span>
+                        <span className="neo-label">Tahap 02</span>
 
                         <h1 className="neo-heading mt-5 text-4xl sm:text-5xl">
                             {assessment.title}
@@ -155,7 +155,7 @@ export default function AssessmentPage({
                                             className={`flex items-start gap-4 rounded-xl border-2 border-foreground p-4 text-left text-sm font-semibold transition-transform ${
                                                 selected
                                                     ? 'translate-x-1 translate-y-1 bg-secondary text-[#171717]'
-                                                    : 'bg-card shadow-[3px_3px_0_var(--foreground)] hover:-translate-y-0.5'
+                                                    : 'bg-card shadow-[3px_3px_0_var(--neo-shadow-color)] hover:-translate-y-0.5'
                                             }`}
                                         >
                                             <span className="flex size-7 shrink-0 items-center justify-center rounded-lg border-2 border-foreground bg-background font-mono text-xs font-black text-foreground">
@@ -177,8 +177,8 @@ export default function AssessmentPage({
                                         Seberapa yakin kamu dengan skill ini?
                                     </p>
                                     <p className="mt-1 text-xs font-medium text-muted-foreground">
-                                        Self-rating hanya 30% dari skor. Jawaban
-                                        objektif tetap lebih berat.
+                                        Penilaian diri hanya 30% dari skor.
+                                        Jawaban objektif tetap lebih berat.
                                     </p>
                                 </div>
 
@@ -292,7 +292,7 @@ export default function AssessmentPage({
 AssessmentPage.layout = {
     breadcrumbs: [
         {
-            title: 'Assessment',
+            title: 'Asesmen',
             href: '/assessment',
         },
     ],

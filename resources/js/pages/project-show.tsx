@@ -125,7 +125,7 @@ export default function ProjectShow({
                     >
                         <CardHeader>
                             <CardTitle className="text-lg font-black uppercase">
-                                Project readiness
+                                Kesiapan proyek
                             </CardTitle>
                         </CardHeader>
 
@@ -188,7 +188,7 @@ export default function ProjectShow({
                     <Card>
                         <CardHeader className="border-b-2 border-black">
                             <CardTitle className="text-xl font-black">
-                                Definition of done
+                                Kriteria selesai
                             </CardTitle>
                         </CardHeader>
 
@@ -256,7 +256,7 @@ export default function ProjectShow({
                         <CardContent className="flex flex-col justify-between gap-5 pt-6 md:flex-row md:items-center">
                             <div>
                                 <p className="text-xl font-black">
-                                    Siap masuk mode build?
+                                    Siap mulai pengerjaan?
                                 </p>
                                 <p className="mt-1 text-sm font-medium">
                                     Memulai proyek tidak mengubah skor skill.
@@ -315,7 +315,7 @@ export default function ProjectShow({
                                 </label>
 
                                 <label className="grid gap-2 text-sm font-black">
-                                    Repository / evidence URL
+                                    URL repositori / bukti
                                     <div className="relative">
                                         <Input
                                             value={
@@ -373,7 +373,7 @@ export default function ProjectShow({
 ProjectShow.layout = {
     breadcrumbs: [
         {
-            title: 'Projects',
+            title: 'Proyek',
             href: '/projects',
         },
         {

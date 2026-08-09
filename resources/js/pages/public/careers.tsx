@@ -30,7 +30,7 @@ export default function Careers({ careers }: { careers: Career[] }) {
 
             <main className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
                 <div className="max-w-3xl">
-                    <span className="neo-label">Career explorer</span>
+                    <span className="neo-label">Jelajahi karier</span>
 
                     <h1 className="neo-heading mt-6 text-5xl sm:text-6xl">
                         Pilih berdasarkan pekerjaannya, bukan namanya.

@@ -21,7 +21,7 @@ export function FlashMessage() {
     return (
         <div className="px-4 pt-4 md:px-6">
             <div
-                className={`flex items-start gap-3 rounded-xl border-2 border-foreground p-3 text-sm font-bold shadow-[3px_3px_0_var(--foreground)] ${
+                className={`flex items-start gap-3 rounded-xl border-2 border-foreground p-3 text-sm font-bold shadow-[3px_3px_0_var(--neo-shadow-color)] ${
                     success
                         ? 'bg-secondary text-[#171717]'
                         : 'bg-destructive text-white'

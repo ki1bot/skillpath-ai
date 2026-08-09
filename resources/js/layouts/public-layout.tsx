@@ -31,7 +31,7 @@ export default function PublicLayout({
                         className="flex min-w-0 items-center gap-3 font-black tracking-tight"
                         onClick={closeMenu}
                     >
-                        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border-2 border-foreground bg-secondary text-[#171717] shadow-[3px_3px_0_var(--foreground)]">
+                        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border-2 border-foreground bg-secondary text-[#171717] shadow-[3px_3px_0_var(--neo-shadow-color)]">
                             <AppLogoIcon className="size-6" />
                         </span>
 
@@ -107,7 +107,7 @@ export default function PublicLayout({
                             <Link
                                 href="/karier"
                                 onClick={closeMenu}
-                                className="rounded-xl border-2 border-foreground bg-card px-4 py-3 text-sm font-black shadow-[3px_3px_0_var(--foreground)] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                                className="rounded-xl border-2 border-foreground bg-card px-4 py-3 text-sm font-black shadow-[3px_3px_0_var(--neo-shadow-color)] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
                             >
                                 Jalur Karier
                             </Link>
@@ -115,7 +115,7 @@ export default function PublicLayout({
                             <Link
                                 href="/tentang"
                                 onClick={closeMenu}
-                                className="rounded-xl border-2 border-foreground bg-card px-4 py-3 text-sm font-black shadow-[3px_3px_0_var(--foreground)] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                                className="rounded-xl border-2 border-foreground bg-card px-4 py-3 text-sm font-black shadow-[3px_3px_0_var(--neo-shadow-color)] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
                             >
                                 Tentang
                             </Link>

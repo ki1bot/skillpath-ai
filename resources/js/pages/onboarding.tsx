@@ -1,7 +1,8 @@
 import { Head, useForm } from '@inertiajs/react';
-import { ArrowRight, Clock3, GraduationCap, Target } from 'lucide-react';
+import { ArrowRight, Check, Clock3, GraduationCap, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 type Career = {
     id: number;
@@ -47,37 +48,46 @@ export default function Onboarding({
 
     return (
         <>
-            <Head title="Onboarding" />
+            <Head title="Profil Belajar" />
 
-            <div className="mx-auto w-full max-w-6xl px-4 py-8 md:px-6 md:py-10">
-                <div className="max-w-3xl">
-                    <span className="neo-label">
-                        {editing ? 'Learning profile' : 'Setup 01'}
+            <div className="neo-page py-6 sm:py-8 lg:py-10">
+                <section className="neo-hero neo-accent-blue border-[#171717]">
+                    <span className="neo-label bg-[#fffdf7]">
+                        {editing ? 'Profil belajar' : 'Tahap 01'}
                     </span>
 
-                    <h1 className="neo-heading mt-5 text-4xl sm:text-5xl">
+                    <h1 className="mt-5 max-w-4xl text-4xl font-black tracking-[-0.045em] sm:text-5xl">
                         {editing
                             ? 'Perbarui konteks belajarmu.'
-                            : 'Kasih sistem konteks yang benar.'}
+                            : 'Berikan konteks yang benar kepada sistem.'}
                     </h1>
 
-                    <p className="mt-4 text-base leading-relaxed font-medium text-muted-foreground">
+                    <p className="mt-4 max-w-3xl text-sm leading-7 font-semibold sm:text-base">
                         Waktu belajar memengaruhi estimasi roadmap. Target
                         karier menentukan standar skill yang dibandingkan. Isi
-                        sesuai kondisi sekarang, bukan versi idealmu.
+                        berdasarkan kondisi saat ini, bukan versi ideal.
                     </p>
-                </div>
+                </section>
 
                 <form
                     onSubmit={submit}
-                    className="mt-9 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]"
+                    className="mt-7 grid gap-6 lg:grid-cols-[0.92fr_1.08fr]"
                 >
-                    <section className="neo-card p-6">
+                    <section className="neo-card p-5 sm:p-6">
                         <div className="flex items-center gap-3">
-                            <GraduationCap className="size-6" />
-                            <h2 className="text-xl font-black">
-                                Profil belajar
-                            </h2>
+                            <span className="flex size-10 items-center justify-center rounded-[10px] border-2 border-[#171717] bg-[var(--neo-yellow)] text-[#171717]">
+                                <GraduationCap className="size-5" />
+                            </span>
+
+                            <div>
+                                <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
+                                    Tentang kamu
+                                </p>
+
+                                <h2 className="text-xl font-black">
+                                    Profil belajar
+                                </h2>
+                            </div>
                         </div>
 
                         <div className="mt-6 space-y-5">
@@ -85,6 +95,7 @@ export default function Onboarding({
                                 <span className="mb-2 block text-sm font-black">
                                     Program studi
                                 </span>
+
                                 <Input
                                     value={form.data.study_program}
                                     onChange={(event) =>
@@ -95,6 +106,7 @@ export default function Onboarding({
                                     }
                                     placeholder="Contoh: Sistem Informasi"
                                 />
+
                                 {form.errors.study_program && (
                                     <p className="mt-2 text-xs font-bold text-destructive">
                                         {form.errors.study_program}
@@ -107,6 +119,7 @@ export default function Onboarding({
                                     <span className="mb-2 block text-sm font-black">
                                         Semester
                                     </span>
+
                                     <Input
                                         type="number"
                                         min={1}
@@ -124,8 +137,9 @@ export default function Onboarding({
                                 <label className="block">
                                     <span className="mb-2 flex items-center gap-2 text-sm font-black">
                                         <Clock3 className="size-4" />
-                                        Jam belajar / minggu
+                                        Jam belajar per minggu
                                     </span>
+
                                     <Input
                                         type="number"
                                         min={1}
@@ -145,6 +159,7 @@ export default function Onboarding({
                                 <span className="mb-2 block text-sm font-black">
                                     Bidang yang membuatmu penasaran
                                 </span>
+
                                 <Input
                                     value={form.data.interest_area}
                                     onChange={(event) =>
@@ -162,7 +177,7 @@ export default function Onboarding({
                                     Pengalaman sejauh ini
                                 </span>
 
-                                <textarea
+                                <Textarea
                                     value={form.data.experience}
                                     onChange={(event) =>
                                         form.setData(
@@ -170,9 +185,8 @@ export default function Onboarding({
                                             event.target.value,
                                         )
                                     }
-                                    rows={5}
-                                    className="w-full resize-none rounded-xl border-2 border-foreground bg-card p-3 text-sm font-medium shadow-[3px_3px_0_var(--foreground)] outline-none focus:ring-2 focus:ring-secondary"
-                                    placeholder="Ceritakan project, tools, atau materi yang pernah kamu kerjakan."
+                                    rows={6}
+                                    placeholder="Ceritakan proyek, tools, teknologi, atau materi yang pernah kamu kerjakan."
                                 />
 
                                 {form.errors.experience && (
@@ -184,17 +198,26 @@ export default function Onboarding({
                         </div>
                     </section>
 
-                    <section className="neo-card p-6">
+                    <section className="neo-card p-5 sm:p-6">
                         <div className="flex items-center gap-3">
-                            <Target className="size-6" />
-                            <h2 className="text-xl font-black">
-                                Target karier pertama
-                            </h2>
+                            <span className="flex size-10 items-center justify-center rounded-[10px] border-2 border-[#171717] bg-secondary text-[#171717]">
+                                <Target className="size-5" />
+                            </span>
+
+                            <div>
+                                <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
+                                    Tujuan utama
+                                </p>
+
+                                <h2 className="text-xl font-black">
+                                    Target karier pertama
+                                </h2>
+                            </div>
                         </div>
 
-                        <p className="mt-2 text-sm leading-relaxed font-medium text-muted-foreground">
-                            Target bisa diubah nanti, tetapi asesmen dan roadmap
-                            akan mengikuti target aktif.
+                        <p className="mt-3 text-sm leading-6 font-medium text-muted-foreground">
+                            Target dapat diubah nanti. Asesmen dan roadmap akan
+                            selalu mengikuti target yang sedang aktif.
                         </p>
 
                         <div className="mt-6 space-y-4">
@@ -212,10 +235,10 @@ export default function Onboarding({
                                                 career.id,
                                             )
                                         }
-                                        className={`w-full rounded-2xl border-2 border-foreground p-5 text-left transition-transform ${
+                                        className={`w-full rounded-[14px] border-2 p-5 text-left transition-[transform,box-shadow] ${
                                             selected
-                                                ? 'translate-x-1 translate-y-1 shadow-none'
-                                                : 'bg-card shadow-[4px_4px_0_var(--foreground)] hover:-translate-y-0.5'
+                                                ? 'translate-x-[2px] translate-y-[2px] border-[#171717] text-[#171717] shadow-none'
+                                                : 'border-foreground bg-card text-foreground shadow-[4px_4px_0_var(--neo-shadow-color)] hover:-translate-y-[1px]'
                                         }`}
                                         style={
                                             selected
@@ -227,22 +250,45 @@ export default function Onboarding({
                                         }
                                     >
                                         <div className="flex items-start justify-between gap-4">
-                                            <div>
-                                                <h3 className="text-lg font-black">
-                                                    {career.name}
-                                                </h3>
-                                                <p className="mt-2 text-sm leading-relaxed font-semibold text-muted-foreground">
+                                            <div className="min-w-0">
+                                                <div className="flex flex-wrap items-center gap-2">
+                                                    <h3 className="text-lg font-black">
+                                                        {career.name}
+                                                    </h3>
+
+                                                    <span
+                                                        className={`rounded-full border px-2 py-0.5 text-[10px] font-black uppercase ${
+                                                            selected
+                                                                ? 'border-[#171717]/30 text-[#171717]/70'
+                                                                : 'border-foreground/25 text-muted-foreground'
+                                                        }`}
+                                                    >
+                                                        {career.difficulty}
+                                                    </span>
+                                                </div>
+
+                                                <p
+                                                    className={`mt-2 text-sm leading-6 font-semibold ${
+                                                        selected
+                                                            ? 'text-[#171717]/75'
+                                                            : 'text-muted-foreground'
+                                                    }`}
+                                                >
                                                     {career.tagline}
                                                 </p>
                                             </div>
 
                                             <span
-                                                className={`mt-1 size-5 shrink-0 rounded-full border-2 border-foreground ${
+                                                className={`mt-1 flex size-6 shrink-0 items-center justify-center rounded-full border-2 ${
                                                     selected
-                                                        ? 'bg-foreground'
-                                                        : 'bg-card'
+                                                        ? 'border-[#171717] bg-[#171717] text-white'
+                                                        : 'border-foreground bg-card'
                                                 }`}
-                                            />
+                                            >
+                                                {selected && (
+                                                    <Check className="size-3.5" />
+                                                )}
+                                            </span>
                                         </div>
                                     </button>
                                 );
@@ -255,9 +301,10 @@ export default function Onboarding({
                             </p>
                         )}
 
-                        <div className="mt-7 rounded-xl border-2 border-foreground bg-muted p-4 text-sm leading-relaxed font-semibold">
-                            Sesudah ini kamu akan mengerjakan asesmen singkat.
-                            Roadmap baru dibuat setelah ada data kemampuan awal.
+                        <div className="mt-7 rounded-[12px] border-2 border-[#171717] bg-[var(--neo-yellow)] p-4 text-sm leading-6 font-bold text-[#171717]">
+                            Sesudah langkah ini kamu akan mengerjakan asesmen
+                            singkat. Roadmap baru dibuat setelah sistem memiliki
+                            data kemampuan awal.
                         </div>
 
                         <Button
@@ -279,7 +326,7 @@ export default function Onboarding({
 Onboarding.layout = {
     breadcrumbs: [
         {
-            title: 'Onboarding',
+            title: 'Profil Belajar',
             href: '/onboarding',
         },
     ],

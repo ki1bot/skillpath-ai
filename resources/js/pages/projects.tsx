@@ -38,14 +38,14 @@ interface Project {
 export default function Projects({ projects }: { projects: Project[] }) {
     return (
         <>
-            <Head title="Projects" />
+            <Head title="Proyek" />
 
             <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-8 p-4 md:p-8">
                 <section className="neo-card bg-[var(--neo-blue)] p-6 md:p-8">
                     <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
                         <div className="max-w-2xl">
                             <span className="neo-label bg-white">
-                                Portfolio lab
+                                Lab portofolio
                             </span>
 
                             <h1 className="neo-heading mt-4 text-4xl md:text-5xl">
@@ -62,7 +62,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
 
                         <div className="neo-card-flat w-full max-w-xs bg-white p-4">
                             <p className="text-xs font-black tracking-[0.18em] uppercase">
-                                Cara membaca readiness
+                                Cara membaca kesiapan
                             </p>
                             <p className="mt-2 text-sm leading-6">
                                 100% bukan berarti proyek pasti mudah. Artinya
@@ -174,7 +174,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
                                         ) : (
                                             <LockKeyhole className="size-4" />
                                         )}
-                                        Lihat detail & readiness
+                                        Lihat detail & kesiapan
                                         <ArrowRight className="size-4" />
                                     </Link>
                                 </CardContent>
@@ -190,7 +190,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
 Projects.layout = {
     breadcrumbs: [
         {
-            title: 'Projects',
+            title: 'Proyek',
             href: '/projects',
         },
     ],

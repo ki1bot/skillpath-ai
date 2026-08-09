@@ -8,31 +8,43 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+    --neo-ink: #171717;
+    --neo-paper: #fffdf7;
     --neo-cream: #f4efe5;
     --neo-lime: #c7ff5e;
     --neo-blue: #79d7ff;
     --neo-yellow: #ffd95a;
     --neo-orange: #ff9f68;
     --neo-pink: #ff8fab;
+
     --background: #f4efe5;
     --foreground: #171717;
+
     --card: #fffdf7;
     --card-foreground: #171717;
+
     --popover: #fffdf7;
     --popover-foreground: #171717;
+
     --primary: #171717;
     --primary-foreground: #fffdf7;
+
     --secondary: #c7ff5e;
     --secondary-foreground: #171717;
-    --muted: #e7e1d5;
-    --muted-foreground: #625e56;
+
+    --muted: #e6dfd2;
+    --muted-foreground: #625d55;
+
     --accent: #79d7ff;
     --accent-foreground: #171717;
+
     --destructive: #ef4d4d;
     --destructive-foreground: #fffdf7;
+
     --border: #171717;
     --input: #171717;
     --ring: #171717;
+
     --sidebar: #fffdf7;
     --sidebar-foreground: #171717;
     --sidebar-primary: #171717;
@@ -41,44 +53,61 @@
     --sidebar-accent-foreground: #171717;
     --sidebar-border: #171717;
     --sidebar-ring: #171717;
-    --neo-shadow: 5px 5px 0 var(--foreground);
-    --neo-shadow-sm: 3px 3px 0 var(--foreground);
+
+    --neo-shadow-color: #171717;
+    --neo-shadow-sm: 3px 3px 0 var(--neo-shadow-color);
+    --neo-shadow: 5px 5px 0 var(--neo-shadow-color);
+    --neo-shadow-lg: 8px 8px 0 var(--neo-shadow-color);
 }
 
 .dark {
+    --neo-ink: #111111;
+    --neo-paper: #f7f1e7;
     --neo-cream: #242424;
     --neo-lime: #bdf653;
-    --neo-blue: #6bcef4;
-    --neo-yellow: #f0cd4e;
-    --neo-orange: #ea9062;
+    --neo-blue: #6ecdf2;
+    --neo-yellow: #f3cd4f;
+    --neo-orange: #ed9264;
     --neo-pink: #ec839d;
-    --background: #171717;
-    --foreground: #f8f4e9;
-    --card: #242424;
-    --card-foreground: #f8f4e9;
+
+    --background: #151515;
+    --foreground: #f5eee2;
+
+    --card: #232323;
+    --card-foreground: #f5eee2;
+
     --popover: #242424;
-    --popover-foreground: #f8f4e9;
-    --primary: #f8f4e9;
+    --popover-foreground: #f5eee2;
+
+    --primary: #f5eee2;
     --primary-foreground: #171717;
+
     --secondary: #bdf653;
     --secondary-foreground: #171717;
+
     --muted: #303030;
-    --muted-foreground: #c7c0b5;
-    --accent: #6bcef4;
+    --muted-foreground: #c3baad;
+
+    --accent: #6ecdf2;
     --accent-foreground: #171717;
+
     --destructive: #ff6868;
     --destructive-foreground: #171717;
-    --border: #f8f4e9;
-    --input: #f8f4e9;
-    --ring: #f8f4e9;
-    --sidebar: #202020;
-    --sidebar-foreground: #f8f4e9;
-    --sidebar-primary: #f8f4e9;
+
+    --border: #eee5d8;
+    --input: #eee5d8;
+    --ring: #bdf653;
+
+    --sidebar: #1b1b1b;
+    --sidebar-foreground: #f5eee2;
+    --sidebar-primary: #f5eee2;
     --sidebar-primary-foreground: #171717;
     --sidebar-accent: #bdf653;
     --sidebar-accent-foreground: #171717;
-    --sidebar-border: #f8f4e9;
-    --sidebar-ring: #f8f4e9;
+    --sidebar-border: #484848;
+    --sidebar-ring: #bdf653;
+
+    --neo-shadow-color: #050505;
 }
 
 @theme inline {
@@ -117,8 +146,8 @@
     }
 
     html {
-        scroll-behavior: smooth;
         overflow-x: hidden;
+        scroll-behavior: smooth;
     }
 
     body {
@@ -127,6 +156,7 @@
         background-color: var(--background);
         color: var(--foreground);
         font-family:
+            'Instrument Sans',
             Inter,
             ui-sans-serif,
             system-ui,
@@ -134,18 +164,20 @@
             BlinkMacSystemFont,
             'Segoe UI',
             sans-serif;
+
         background-image:
             linear-gradient(
                 to right,
-                color-mix(in srgb, var(--foreground) 5%, transparent) 1px,
+                color-mix(in srgb, var(--foreground) 3.5%, transparent) 1px,
                 transparent 1px
             ),
             linear-gradient(
                 to bottom,
-                color-mix(in srgb, var(--foreground) 5%, transparent) 1px,
+                color-mix(in srgb, var(--foreground) 3.5%, transparent) 1px,
                 transparent 1px
             );
-        background-size: 32px 32px;
+
+        background-size: 40px 40px;
     }
 
     ::selection {
@@ -180,17 +212,44 @@
 }
 
 @layer components {
+    .neo-page {
+        width: min(calc(100% - 2rem), 88rem);
+        margin-inline: auto;
+    }
+
     .neo-card {
-        border: 2px solid var(--foreground);
-        border-radius: 18px;
+        min-width: 0;
+        border: 2px solid var(--border);
+        border-radius: 16px;
         background: var(--card);
+        color: var(--card-foreground);
         box-shadow: var(--neo-shadow);
     }
 
     .neo-card-flat {
-        border: 2px solid var(--foreground);
-        border-radius: 16px;
+        min-width: 0;
+        border: 2px solid var(--border);
+        border-radius: 14px;
         background: var(--card);
+        color: var(--card-foreground);
+    }
+
+    .neo-surface {
+        min-width: 0;
+        border: 2px solid var(--border);
+        border-radius: 14px;
+        background: var(--card);
+        box-shadow: var(--neo-shadow-sm);
+    }
+
+    .neo-hero {
+        min-width: 0;
+        overflow: hidden;
+        border: 2px solid var(--border);
+        border-radius: 18px;
+        background: var(--card);
+        box-shadow: var(--neo-shadow);
+        padding: clamp(1.25rem, 3vw, 2.5rem);
     }
 
     .neo-label {
@@ -203,10 +262,10 @@
         background: var(--secondary);
         padding: 0.35rem 0.7rem;
         color: #171717;
-        font-size: 0.7rem;
+        font-size: 0.68rem;
         font-weight: 900;
         line-height: 1.2;
-        letter-spacing: 0.055em;
+        letter-spacing: 0.07em;
         text-transform: uppercase;
     }
 
@@ -219,9 +278,9 @@
     }
 
     .neo-progress {
-        height: 1rem;
+        height: 0.875rem;
         overflow: hidden;
-        border: 2px solid var(--foreground);
+        border: 2px solid var(--border);
         border-radius: 999px;
         background: var(--muted);
     }
@@ -229,30 +288,19 @@
     .neo-progress > span {
         display: block;
         height: 100%;
-        border-right: 2px solid var(--foreground);
+        border-right: 2px solid #171717;
         background: var(--secondary);
         transition: width 300ms ease;
     }
 
-    .neo-surface {
-        border: 2px solid var(--foreground);
-        border-radius: 16px;
-        background: var(--card);
-        box-shadow: var(--neo-shadow-sm);
-    }
-
     .neo-divider {
-        border-color: color-mix(in srgb, var(--foreground) 20%, transparent);
-    }
-
-    .neo-scroll {
-        overflow-x: auto;
-        overscroll-behavior-inline: contain;
+        border-color: color-mix(in srgb, var(--foreground) 18%, transparent);
     }
 
     .neo-details {
-        border: 2px solid var(--foreground);
-        border-radius: 16px;
+        min-width: 0;
+        border: 2px solid var(--border);
+        border-radius: 14px;
         background: var(--card);
     }
 
@@ -260,22 +308,81 @@
         cursor: pointer;
         font-weight: 900;
     }
+
+    .neo-scroll {
+        overflow-x: auto;
+        overscroll-behavior-inline: contain;
+        scrollbar-width: thin;
+    }
+
+    .neo-empty {
+        display: flex;
+        min-height: 11rem;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border: 2px dashed
+            color-mix(in srgb, var(--foreground) 40%, transparent);
+        border-radius: 14px;
+        background: color-mix(in srgb, var(--muted) 45%, transparent);
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .neo-accent-lime {
+        background: var(--neo-lime);
+        color: #171717;
+    }
+
+    .neo-accent-blue {
+        background: var(--neo-blue);
+        color: #171717;
+    }
+
+    .neo-accent-yellow {
+        background: var(--neo-yellow);
+        color: #171717;
+    }
+
+    .neo-accent-orange {
+        background: var(--neo-orange);
+        color: #171717;
+    }
+
+    .neo-accent-pink {
+        background: var(--neo-pink);
+        color: #171717;
+    }
+}
+
+@media (min-width: 640px) {
+    .neo-page {
+        width: min(calc(100% - 3rem), 88rem);
+    }
+}
+
+@media (min-width: 1024px) {
+    .neo-page {
+        width: min(calc(100% - 4rem), 88rem);
+    }
 }
 
 @media (max-width: 639px) {
     body {
-        background-size: 24px 24px;
+        background-size: 28px 28px;
     }
 
-    .neo-card {
-        border-radius: 14px;
+    .neo-card,
+    .neo-hero {
+        border-radius: 13px;
         box-shadow: var(--neo-shadow-sm);
     }
 
     .neo-card-flat,
     .neo-surface,
-    .neo-details {
-        border-radius: 14px;
+    .neo-details,
+    .neo-empty {
+        border-radius: 12px;
     }
 
     .neo-heading {
@@ -283,7 +390,7 @@
     }
 
     .neo-label {
-        font-size: 0.65rem;
+        font-size: 0.63rem;
     }
 }
 

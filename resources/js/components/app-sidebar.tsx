@@ -23,7 +23,9 @@ import {
 import type { Auth, NavItem } from '@/types';
 
 export function AppSidebar() {
-    const { auth } = usePage().props as { auth: Auth };
+    const { auth } = usePage().props as {
+        auth: Auth;
+    };
 
     const items: NavItem[] = [
         {
@@ -69,13 +71,17 @@ export function AppSidebar() {
     return (
         <Sidebar
             collapsible="icon"
-            variant="inset"
-            className="border-r-2 border-sidebar-border"
+            variant="sidebar"
+            className="border-r-2 border-sidebar-border bg-sidebar"
         >
-            <SidebarHeader className="border-b-2 border-sidebar-border p-3">
+            <SidebarHeader className="border-b-2 border-sidebar-border bg-sidebar p-4">
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild>
+                        <SidebarMenuButton
+                            size="lg"
+                            asChild
+                            className="h-auto min-h-12 rounded-[11px]"
+                        >
                             <Link href="/dashboard" prefetch>
                                 <AppLogo />
                             </Link>
@@ -88,7 +94,7 @@ export function AppSidebar() {
                 <NavMain items={items} />
             </SidebarContent>
 
-            <SidebarFooter className="border-t-2 border-sidebar-border p-3">
+            <SidebarFooter className="border-t-2 border-sidebar-border bg-sidebar p-3">
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

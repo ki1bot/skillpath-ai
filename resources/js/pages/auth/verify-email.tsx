@@ -9,12 +9,12 @@ import { send } from '@/routes/verification';
 export default function VerifyEmail({ status }: { status?: string }) {
     return (
         <>
-            <Head title="Email verification" />
+            <Head title="Verifikasi email" />
 
             {status === 'verification-link-sent' && (
                 <div className="mb-4 text-center text-sm font-medium text-green-600">
-                    A new verification link has been sent to the email address
-                    you provided during registration.
+                    Tautan verifikasi baru telah dikirim ke alamat email yang
+                    Anda gunakan saat mendaftar.
                 </div>
             )}
 
@@ -23,14 +23,14 @@ export default function VerifyEmail({ status }: { status?: string }) {
                     <>
                         <Button disabled={processing} variant="secondary">
                             {processing && <Spinner />}
-                            Resend verification email
+                            Kirim ulang email verifikasi
                         </Button>
 
                         <TextLink
                             href={logout()}
                             className="mx-auto block text-sm"
                         >
-                            Log out
+                            Keluar
                         </TextLink>
                     </>
                 )}
@@ -40,7 +40,7 @@ export default function VerifyEmail({ status }: { status?: string }) {
 }
 
 VerifyEmail.layout = {
-    title: 'Email verification',
+    title: 'Verifikasi email',
     description:
-        'Please verify your email address by clicking on the link we just emailed to you.',
+        'Verifikasikan alamat email Anda melalui tautan yang telah kami kirim.',
 };

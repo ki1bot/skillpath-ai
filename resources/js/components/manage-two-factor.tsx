@@ -48,8 +48,8 @@ export default function ManageTwoFactor(props: Props) {
         <div className="space-y-6">
             <Heading
                 variant="small"
-                title="Two-factor authentication"
-                description="Manage your two-factor authentication settings"
+                title="Autentikasi dua faktor"
+                description="Kelola perlindungan autentikasi dua faktor"
             />
             {twoFactorEnabled ? (
                 <div className="flex flex-col items-start justify-start space-y-4">
@@ -67,7 +67,7 @@ export default function ManageTwoFactor(props: Props) {
                                     type="submit"
                                     disabled={processing}
                                 >
-                                    Disable 2FA
+                                    Nonaktifkan 2FA
                                 </Button>
                             )}
                         </Form>
@@ -92,7 +92,7 @@ export default function ManageTwoFactor(props: Props) {
                         {hasSetupData ? (
                             <Button onClick={() => setShowSetupModal(true)}>
                                 <ShieldCheck />
-                                Continue setup
+                                Lanjutkan pengaturan
                             </Button>
                         ) : (
                             <Form
@@ -101,7 +101,7 @@ export default function ManageTwoFactor(props: Props) {
                             >
                                 {({ processing }) => (
                                     <Button type="submit" disabled={processing}>
-                                        Enable 2FA
+                                        Aktifkan 2FA
                                     </Button>
                                 )}
                             </Form>

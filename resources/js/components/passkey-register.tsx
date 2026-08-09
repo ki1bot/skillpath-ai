@@ -51,7 +51,7 @@ export default function PasskeyRegistration({ onSuccess }: Props) {
         await register(name);
     };
 
-    const handleCancel = () => {
+    const handleBatal = () => {
         setShowForm(false);
         setName('');
     };
@@ -59,7 +59,7 @@ export default function PasskeyRegistration({ onSuccess }: Props) {
     if (!isSupported) {
         return (
             <div className="text-sm text-muted-foreground">
-                Passkeys are not supported in this browser.
+                Browser ini belum mendukung passkey.
             </div>
         );
     }
@@ -67,7 +67,7 @@ export default function PasskeyRegistration({ onSuccess }: Props) {
     if (!showForm) {
         return (
             <Button variant="outline" onClick={() => setShowForm(true)}>
-                Add passkey
+                Tambah passkey
             </Button>
         );
     }
@@ -78,7 +78,7 @@ export default function PasskeyRegistration({ onSuccess }: Props) {
             className="space-y-4 rounded-lg border border-border bg-muted/50 p-4"
         >
             <div className="grid gap-2">
-                <Label htmlFor="passkey-name">Passkey name</Label>
+                <Label htmlFor="passkey-name">Nama passkey</Label>
                 <Input
                     id="passkey-name"
                     type="text"
@@ -89,7 +89,7 @@ export default function PasskeyRegistration({ onSuccess }: Props) {
                     autoFocus
                 />
                 <p className="text-xs text-muted-foreground">
-                    A name helps you identify this passkey later.
+                    Nama membantu Anda mengenali passkey ini nanti.
                 </p>
             </div>
 
@@ -97,10 +97,10 @@ export default function PasskeyRegistration({ onSuccess }: Props) {
 
             <div className="flex gap-2">
                 <Button type="submit" disabled={isLoading || !name.trim()}>
-                    {isLoading ? 'Registering...' : 'Register passkey'}
+                    {isLoading ? 'Mendaftarkan...' : 'Daftarkan passkey'}
                 </Button>
-                <Button type="button" variant="ghost" onClick={handleCancel}>
-                    Cancel
+                <Button type="button" variant="ghost" onClick={handleBatal}>
+                    Batal
                 </Button>
             </div>
         </form>
