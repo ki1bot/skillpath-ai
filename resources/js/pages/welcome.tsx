@@ -9,8 +9,8 @@ import {
     Sparkles,
     Target,
     TimerReset,
-    type LucideIcon,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 type Career = {

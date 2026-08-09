@@ -1,11 +1,6 @@
 import { Head } from '@inertiajs/react';
-import {
-    Bot,
-    Database,
-    GitBranch,
-    ShieldCheck,
-    type LucideIcon,
-} from 'lucide-react';
+import { Bot, Database, GitBranch, ShieldCheck } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 type Principle = {
     icon: LucideIcon;
