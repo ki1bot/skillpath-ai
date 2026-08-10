@@ -29,7 +29,7 @@ export function AppSidebar() {
 
     const items: NavItem[] = [
         {
-            title: 'Dasbor',
+            title: 'Dasboard',
             href: '/dashboard',
             icon: LayoutDashboard,
         },
