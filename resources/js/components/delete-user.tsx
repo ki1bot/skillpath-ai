@@ -1,6 +1,7 @@
 import { Form } from '@inertiajs/react';
 import { useRef } from 'react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
+import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import { Button } from '@/components/ui/button';
@@ -19,26 +20,20 @@ export default function DeleteUser() {
     const passwordInput = useRef<HTMLInputElement>(null);
 
     return (
-        <div className="rounded-[10px] border-2 border-red-400/60 bg-red-50 p-4 text-red-950 sm:p-5 dark:border-red-400/30 dark:bg-red-950/40 dark:text-red-100">
-            <div className="space-y-1">
-                <p className="font-bold">Hapus akun</p>
+        <div className="space-y-6">
+            <Heading
+                variant="small"
+                title="Hapus akun"
+                description="Hapus akun beserta seluruh data yang terkait"
+            />
+            <div className="space-y-4 rounded-lg border border-red-100 bg-red-50 p-4 dark:border-red-200/10 dark:bg-red-700/10">
+                <div className="relative space-y-0.5 text-red-600 dark:text-red-100">
+                    <p className="font-medium">Peringatan</p>
+                    <p className="text-sm">
+                        Tindakan ini tidak dapat dibatalkan.
+                    </p>
+                </div>
 
-                <p className="text-sm text-red-800 dark:text-red-200">
-                    Hapus akun beserta seluruh data yang terkait
-                </p>
-            </div>
-
-            <div className="my-4 border-t border-red-300 dark:border-red-300/20" />
-
-            <div className="space-y-1">
-                <p className="font-bold">Peringatan</p>
-
-                <p className="text-sm text-red-800 dark:text-red-200">
-                    Tindakan ini tidak dapat dibatalkan.
-                </p>
-            </div>
-
-            <div className="mt-4">
                 <Dialog>
                     <DialogTrigger asChild>
                         <Button
@@ -48,12 +43,10 @@ export default function DeleteUser() {
                             Hapus akun
                         </Button>
                     </DialogTrigger>
-
                     <DialogContent>
                         <DialogTitle>
                             Apakah Anda yakin ingin menghapus akun?
                         </DialogTitle>
-
                         <DialogDescription>
                             Setelah akun dihapus, seluruh data terkait juga akan
                             dihapus secara permanen. Masukkan kata sandi untuk

@@ -3,8 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Career;
-use App\Models\LearningMaterial;
-use App\Models\Skill;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -12,17 +11,32 @@ class PublicPageController extends Controller
 {
     public function home(): Response
     {
+        $stats = (array) DB::selectOne(
+            'SELECT
+                (SELECT COUNT(*) FROM careers WHERE is_active = TRUE) AS careers,
+                (SELECT COUNT(*) FROM skills) AS skills,
+                (SELECT COUNT(*) FROM learning_materials) AS materials',
+        );
+
         return Inertia::render('welcome', [
             'careers' => Career::query()
+                ->select([
+                    'id',
+                    'name',
+                    'slug',
+                    'tagline',
+                    'difficulty',
+                    'accent',
+                ])
                 ->where('is_active', true)
                 ->withCount('skills')
                 ->orderBy('id')
                 ->limit(3)
                 ->get(),
             'stats' => [
-                'careers' => Career::query()->where('is_active', true)->count(),
-                'skills' => Skill::query()->count(),
-                'materials' => LearningMaterial::query()->count(),
+                'careers' => (int) ($stats['careers'] ?? 0),
+                'skills' => (int) ($stats['skills'] ?? 0),
+                'materials' => (int) ($stats['materials'] ?? 0),
             ],
         ]);
     }

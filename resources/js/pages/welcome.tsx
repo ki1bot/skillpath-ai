@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import {
     ArrowRight,
     BarChart3,
@@ -151,14 +151,16 @@ export default function Welcome({ careers, stats }: Props) {
 
                         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                             <Button asChild size="lg">
-                                <Link href="/register">
+                                <Link href="/register" prefetch>
                                     Mulai Assesment
                                     <ArrowRight />
                                 </Link>
                             </Button>
 
                             <Button asChild size="lg" variant="outline">
-                                <Link href="/karier">Lihat jalur karier</Link>
+                                <Link href="/karier" prefetch>
+                                    Lihat jalur karier
+                                </Link>
                             </Button>
                         </div>
 
@@ -338,7 +340,7 @@ export default function Welcome({ careers, stats }: Props) {
                                 variant="outline"
                                 className="border-[#171717] bg-[#fffdf7] text-[#171717]"
                             >
-                                <Link href="/karier">
+                                <Link href="/karier" prefetch>
                                     Lihat semuanya
                                     <ArrowRight />
                                 </Link>
@@ -350,6 +352,7 @@ export default function Welcome({ careers, stats }: Props) {
                                 <Link
                                     key={career.id}
                                     href={`/karier/${career.slug}`}
+                                    prefetch
                                     className="group rounded-[14px] border-2 border-[#171717] bg-[#fffdf7] p-5 text-[#171717] shadow-[4px_4px_0_#171717] transition-transform hover:-translate-y-1 sm:p-6"
                                 >
                                     <div className="flex items-center justify-between">
@@ -402,7 +405,7 @@ export default function Welcome({ careers, stats }: Props) {
                             </p>
 
                             <Button asChild size="lg" className="mt-7">
-                                <Link href="/register">
+                                <Link href="/register" prefetch>
                                     Buat akun
                                     <ArrowRight />
                                 </Link>

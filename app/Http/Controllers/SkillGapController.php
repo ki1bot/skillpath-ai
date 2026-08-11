@@ -16,19 +16,39 @@ class SkillGapController extends Controller
         SkillGapService $skillGapService,
         AiExplanationService $aiExplanationService,
     ): Response|RedirectResponse {
-        $user = $request->user()->load('targetCareer');
+        $user = $request
+            ->user()
+            ->load('targetCareer');
 
         if (! $user->targetCareer) {
-            return redirect()->route('onboarding.show');
+            return redirect()->route(
+                'onboarding.show',
+            );
         }
 
-        $analysis = $skillGapService->analyze($user);
+        $analysis = $skillGapService
+            ->analyze($user);
 
-        return Inertia::render('skills', [
-            'career' => $user->targetCareer,
-            'skills' => $analysis,
-            'summary' => $aiExplanationService->skillGapSummary($user, $analysis),
-            'averageMastery' => $skillGapService->averageMastery($user),
-        ]);
+        return Inertia::render(
+            'skills',
+            [
+                'career' => $user
+                    ->targetCareer,
+
+                'skills' => $analysis,
+
+                'summary' => $aiExplanationService
+                    ->skillGapSummary(
+                        $user,
+                        $analysis,
+                    ),
+
+                'averageMastery' => $skillGapService
+                    ->averageMastery(
+                        $user,
+                        $analysis,
+                    ),
+            ],
+        );
     }
 }

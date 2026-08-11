@@ -37,8 +37,6 @@ class HandleInertiaRequests extends Middleware
     {
         $user = $request->user();
 
-        $user?->loadMissing('targetCareer');
-
         return [
             ...parent::share($request),
             'name' => config('app.name'),

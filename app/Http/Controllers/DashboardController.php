@@ -31,10 +31,18 @@ class DashboardController extends Controller
         }
 
         $roadmap = Roadmap::query()
+            ->select([
+                'id',
+                'user_id',
+                'version',
+                'estimated_weeks',
+            ])
             ->where('user_id', $user->id)
             ->where('is_active', true)
             ->with([
-                'items.material.skill',
+                'items:id,roadmap_id,learning_material_id,status,progress_percentage,position',
+                'items.material:id,skill_id,title,slug',
+                'items.material.skill:id,name',
             ])
             ->first();
 
@@ -58,36 +66,53 @@ class DashboardController extends Controller
             ->progressLogs()
             ->sum('minutes_spent');
 
+        $today = now()->startOfDay();
+
+        $activityStart = $today
+            ->copy()
+            ->subDays(13);
+
+        $activityByDate = $user
+            ->progressLogs()
+            ->where(
+                'logged_at',
+                '>=',
+                $activityStart,
+            )
+            ->selectRaw(
+                'DATE(logged_at) AS activity_date, SUM(minutes_spent) AS total_minutes',
+            )
+            ->groupByRaw(
+                'DATE(logged_at)',
+            )
+            ->pluck(
+                'total_minutes',
+                'activity_date',
+            );
+
         $activity = collect(
             range(13, 0),
         )->map(
             function (
                 int $daysAgo,
-            ) use ($user) {
-                $date = now()
-                    ->subDays($daysAgo)
-                    ->startOfDay();
-
-                $minutes = (int) $user
-                    ->progressLogs()
-                    ->whereBetween(
-                        'logged_at',
-                        [
-                            $date,
-                            $date
-                                ->copy()
-                                ->endOfDay(),
-                        ],
-                    )
-                    ->sum(
-                        'minutes_spent',
-                    );
+            ) use (
+                $today,
+                $activityByDate,
+            ) {
+                $date = $today
+                    ->copy()
+                    ->subDays($daysAgo);
 
                 return [
                     'date' => $date->format(
                         'd M',
                     ),
-                    'minutes' => $minutes,
+                    'minutes' => (int) (
+                        $activityByDate[
+                            $date->toDateString()
+                        ]
+                        ?? 0
+                    ),
                 ];
             },
         );
@@ -99,7 +124,11 @@ class DashboardController extends Controller
                     ->targetCareer,
 
                 'readiness' => $careerReadinessService
-                    ->calculate($user),
+                    ->calculate(
+                        $user,
+                        $analysis,
+                        $roadmap,
+                    ),
 
                 'priorities' => collect(
                     $analysis,
