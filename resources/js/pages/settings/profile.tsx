@@ -109,7 +109,7 @@ export default function Profile() {
                         </div>
 
                         {user.email_verified_at ? (
-                            <span className="inline-flex w-fit shrink-0 rounded-full border-2 border-foreground bg-secondary px-3 py-1 text-xs font-bold">
+                            <span className="inline-flex w-fit shrink-0 rounded-full border-2 border-[#171717] bg-secondary px-3 py-1 text-xs font-bold text-secondary-foreground shadow-[2px_2px_0_var(--neo-shadow-color)]">
                                 Terverifikasi
                             </span>
                         ) : (

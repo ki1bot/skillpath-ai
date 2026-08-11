@@ -7,6 +7,7 @@ use App\Concerns\ProfileValidationRules;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
 class CreateNewUser implements CreatesNewUsers
@@ -25,10 +26,25 @@ class CreateNewUser implements CreatesNewUsers
             trim((string) ($input['email'] ?? '')),
         );
 
-        Validator::make($input, [
-            ...$this->profileRules(),
-            'password' => $this->passwordRules(),
-        ])->validate();
+        Validator::make(
+            $input,
+            [
+                ...$this->profileRules(),
+                'email' => [
+                    'required',
+                    'string',
+                    'email:rfc,dns',
+                    'max:255',
+                    Rule::unique(User::class),
+                ],
+                'password' => $this->passwordRules(),
+            ],
+            [
+                'email.required' => 'Alamat email wajib diisi.',
+                'email.email' => 'Email tersebut tidak valid atau domain email tidak terdaftar.',
+                'email.unique' => 'Email tersebut sudah terdaftar pada SkillPath AI.',
+            ],
+        )->validate();
 
         return User::create([
             'name' => $input['name'],

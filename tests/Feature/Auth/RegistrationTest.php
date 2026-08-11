@@ -34,7 +34,7 @@ class RegistrationTest extends TestCase
 
         $response = $this->post(route('register.store'), [
             'name' => 'Test User',
-            'email' => 'TEST.USER@EXAMPLE.COM',
+            'email' => 'test.user@gmail.com',
             'password' => 'password',
             'password_confirmation' => 'password',
             'role' => 'admin',
@@ -51,7 +51,7 @@ class RegistrationTest extends TestCase
         $this->assertGuest();
 
         $user = User::query()
-            ->where('email', 'test.user@example.com')
+            ->where('email', 'test.user@gmail.com')
             ->firstOrFail();
 
         $this->assertNull($user->email_verified_at);
@@ -59,5 +59,25 @@ class RegistrationTest extends TestCase
 
         Mail::assertNothingSent();
         Notification::assertNothingSent();
+    }
+
+    public function test_registration_rejects_email_with_invalid_mail_domain(): void
+    {
+        $response = $this->post(route('register.store'), [
+            'name' => 'Invalid Email User',
+            'email' => 'user@domain-yang-tidak-ada.invalid',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $response->assertSessionHasErrors([
+            'email' => 'Email tersebut tidak valid atau domain email tidak terdaftar.',
+        ]);
+
+        $this->assertDatabaseMissing('users', [
+            'email' => 'user@domain-yang-tidak-ada.invalid',
+        ]);
+
+        $this->assertGuest();
     }
 }

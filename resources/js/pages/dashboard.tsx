@@ -244,10 +244,6 @@ export default function Dashboard({
                         <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
                                 <span className="neo-label">Dashboard</span>
-
-                                <span className="rounded-full border-2 border-foreground bg-card px-3 py-1 text-xs font-black">
-                                    Roadmap v{roadmap?.version ?? '—'}
-                                </span>
                             </div>
 
                             <h1 className="neo-heading mt-4 max-w-4xl text-3xl sm:text-4xl lg:text-5xl">

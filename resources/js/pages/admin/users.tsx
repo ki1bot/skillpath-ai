@@ -47,6 +47,7 @@ export default function Users({ users }: Props) {
                         <div className="flex flex-wrap items-center justify-between gap-3">
                             <div>
                                 <p className="font-bold">Daftar pengguna</p>
+
                                 <p className="mt-1 text-sm text-muted-foreground">
                                     Total {users.total} akun terdaftar
                                 </p>
@@ -61,12 +62,15 @@ export default function Users({ users }: Props) {
                                     <th className="px-5 py-3 text-sm font-bold">
                                         Nama
                                     </th>
+
                                     <th className="px-5 py-3 text-sm font-bold">
                                         Email
                                     </th>
+
                                     <th className="px-5 py-3 text-sm font-bold">
                                         Role
                                     </th>
+
                                     <th className="px-5 py-3 text-sm font-bold">
                                         Ubah role
                                     </th>
@@ -90,7 +94,7 @@ export default function Users({ users }: Props) {
                                         </td>
 
                                         <td className="px-5 py-4">
-                                            <span className="inline-flex rounded-full border-2 border-foreground bg-secondary px-3 py-1 text-xs font-bold capitalize">
+                                            <span className="inline-flex rounded-full border-2 border-[#171717] bg-secondary px-3 py-1 text-xs font-bold text-secondary-foreground capitalize shadow-[2px_2px_0_var(--neo-shadow-color)]">
                                                 {user.role}
                                             </span>
                                         </td>
@@ -112,11 +116,12 @@ export default function Users({ users }: Props) {
                                                                 defaultValue={
                                                                     user.role
                                                                 }
-                                                                className="h-10 min-w-32 rounded-[10px] border-2 border-foreground bg-background px-3 text-sm font-bold outline-none focus:ring-2 focus:ring-ring"
+                                                                className="h-10 min-w-32 rounded-[10px] border-2 border-foreground bg-card px-3 text-sm font-bold text-card-foreground outline-none focus:ring-2 focus:ring-ring"
                                                             >
                                                                 <option value="student">
                                                                     Student
                                                                 </option>
+
                                                                 <option value="admin">
                                                                     Admin
                                                                 </option>
@@ -156,13 +161,14 @@ export default function Users({ users }: Props) {
                             <div key={user.id} className="space-y-4 p-5">
                                 <div>
                                     <p className="font-bold">{user.name}</p>
+
                                     <p className="mt-1 text-sm break-all text-muted-foreground">
                                         {user.email}
                                     </p>
                                 </div>
 
-                                <div className="flex items-center justify-between gap-3">
-                                    <span className="inline-flex rounded-full border-2 border-foreground bg-secondary px-3 py-1 text-xs font-bold capitalize">
+                                <div>
+                                    <span className="inline-flex rounded-full border-2 border-[#171717] bg-secondary px-3 py-1 text-xs font-bold text-secondary-foreground capitalize shadow-[2px_2px_0_var(--neo-shadow-color)]">
                                         {user.role}
                                     </span>
                                 </div>
@@ -180,11 +186,12 @@ export default function Users({ users }: Props) {
                                             <select
                                                 name="role"
                                                 defaultValue={user.role}
-                                                className="h-10 w-full rounded-[10px] border-2 border-foreground bg-background px-3 text-sm font-bold outline-none focus:ring-2 focus:ring-ring"
+                                                className="h-10 w-full rounded-[10px] border-2 border-foreground bg-card px-3 text-sm font-bold text-card-foreground outline-none focus:ring-2 focus:ring-ring"
                                             >
                                                 <option value="student">
                                                     Student
                                                 </option>
+
                                                 <option value="admin">
                                                     Admin
                                                 </option>
