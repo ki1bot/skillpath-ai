@@ -243,9 +243,7 @@ export default function Dashboard({
                     <section className="mb-6 flex flex-col gap-5 border-b-2 border-foreground/15 pb-6 lg:flex-row lg:items-end lg:justify-between">
                         <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
-                                <span className="neo-label">
-                                    Dashboard
-                                </span>
+                                <span className="neo-label">Dashboard</span>
 
                                 <span className="rounded-full border-2 border-foreground bg-card px-3 py-1 text-xs font-black">
                                     Roadmap v{roadmap?.version ?? '—'}

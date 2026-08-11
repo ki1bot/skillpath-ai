@@ -93,7 +93,7 @@ export function AppSidebar() {
                         <SidebarMenuButton
                             size="lg"
                             asChild
-                            className="h-auto min-h-14 rounded-[10px] border-2 border-transparent px-2 group-data-[collapsible=icon]:size-10! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0! hover:border-sidebar-border hover:bg-muted"
+                            className="h-auto min-h-14 rounded-[10px] border-2 border-transparent px-2 text-sidebar-foreground group-data-[collapsible=icon]:size-10! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0! hover:border-sidebar-border hover:bg-muted hover:text-sidebar-foreground"
                         >
                             <Link href="/dashboard" prefetch>
                                 <AppLogo />

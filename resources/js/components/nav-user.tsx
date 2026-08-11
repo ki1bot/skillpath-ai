@@ -30,7 +30,7 @@ export function NavUser() {
                     <DropdownMenuTrigger asChild>
                         <SidebarMenuButton
                             size="lg"
-                            className="h-auto min-h-14 rounded-[10px] border-2 border-transparent px-2.5 text-sidebar-foreground group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-10! group-data-[collapsible=icon]:min-h-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0! hover:border-sidebar-border hover:bg-muted data-[state=open]:border-[#171717] data-[state=open]:bg-sidebar-accent data-[state=open]:text-[#171717]"
+                            className="h-auto min-h-14 rounded-[10px] border-2 border-transparent px-2.5 text-sidebar-foreground group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-10! group-data-[collapsible=icon]:min-h-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0! hover:border-sidebar-border hover:bg-muted hover:text-sidebar-foreground data-[state=open]:border-[#171717] data-[state=open]:bg-sidebar-accent data-[state=open]:text-[#171717] data-[state=open]:hover:text-[#171717]"
                             data-test="sidebar-menu-button"
                         >
                             <UserInfo user={auth.user} hideDetailsOnCollapsed />

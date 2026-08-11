@@ -84,14 +84,16 @@ export default function ProjectShow({
                 </Link>
 
                 <section className="grid gap-5 lg:grid-cols-[1.3fr_.7fr]">
-                    <div className="neo-card bg-white p-6 md:p-8">
+                    <div className="neo-card p-6 md:p-8">
                         <div className="flex flex-wrap gap-2">
                             <span className="neo-label bg-[var(--neo-yellow)]">
                                 {project.career.name}
                             </span>
-                            <span className="neo-label bg-[var(--neo-cream)]">
+
+                            <span className="neo-label bg-[var(--neo-cream)] dark:border-foreground dark:bg-muted dark:text-foreground">
                                 {project.difficulty}
                             </span>
+
                             <span className="neo-label bg-[var(--neo-blue)]">
                                 ± {project.estimated_hours} jam
                             </span>
@@ -105,10 +107,11 @@ export default function ProjectShow({
                             {project.summary}
                         </p>
 
-                        <div className="mt-6 border-l-4 border-black pl-4">
+                        <div className="mt-6 border-l-4 border-foreground pl-4">
                             <p className="text-xs font-black tracking-[0.18em] uppercase">
                                 Masalah yang diselesaikan
                             </p>
+
                             <p className="mt-2 text-sm leading-6">
                                 {project.problem_statement}
                             </p>
@@ -118,8 +121,8 @@ export default function ProjectShow({
                     <Card
                         className={
                             readiness.ready
-                                ? 'bg-[var(--neo-lime)]'
-                                : 'bg-[var(--neo-orange)]'
+                                ? 'bg-[var(--neo-lime)] text-[#171717]'
+                                : 'bg-[var(--neo-orange)] text-[#171717]'
                         }
                     >
                         <CardHeader>
@@ -144,7 +147,7 @@ export default function ProjectShow({
 
                 <section className="grid gap-5 lg:grid-cols-2">
                     <Card>
-                        <CardHeader className="border-b-2 border-black">
+                        <CardHeader className="border-b-2 border-foreground">
                             <CardTitle className="text-xl font-black">
                                 Cek prasyarat skill
                             </CardTitle>
@@ -185,7 +188,7 @@ export default function ProjectShow({
                     </Card>
 
                     <Card>
-                        <CardHeader className="border-b-2 border-black">
+                        <CardHeader className="border-b-2 border-foreground">
                             <CardTitle className="text-xl font-black">
                                 Kriteria selesai
                             </CardTitle>
@@ -197,9 +200,10 @@ export default function ProjectShow({
                                     key={criterion}
                                     className="flex gap-3 text-sm leading-6 font-medium"
                                 >
-                                    <span className="mt-1 flex size-5 shrink-0 items-center justify-center border-2 border-black bg-[var(--neo-lime)] text-[10px] font-black">
+                                    <span className="mt-1 flex size-5 shrink-0 items-center justify-center border-2 border-[#171717] bg-[var(--neo-lime)] text-[10px] font-black text-[#171717]">
                                         ✓
                                     </span>
+
                                     <span>{criterion}</span>
                                 </div>
                             ))}
@@ -209,7 +213,7 @@ export default function ProjectShow({
 
                 <section className="grid gap-5 lg:grid-cols-2">
                     <Card>
-                        <CardHeader className="border-b-2 border-black bg-[var(--neo-blue)]">
+                        <CardHeader className="border-b-2 border-[#171717] bg-[var(--neo-blue)] text-[#171717]">
                             <CardTitle className="text-xl font-black">
                                 Fitur minimum
                             </CardTitle>
@@ -221,7 +225,8 @@ export default function ProjectShow({
                                     key={feature}
                                     className="flex items-start gap-3 text-sm font-bold"
                                 >
-                                    <span className="mt-0.5 size-4 shrink-0 border-2 border-black bg-white" />
+                                    <span className="mt-0.5 size-4 shrink-0 border-2 border-foreground bg-background" />
+
                                     <span>{feature}</span>
                                 </div>
                             ))}
@@ -229,7 +234,7 @@ export default function ProjectShow({
                     </Card>
 
                     <Card>
-                        <CardHeader className="border-b-2 border-black bg-[var(--neo-yellow)]">
+                        <CardHeader className="border-b-2 border-[#171717] bg-[var(--neo-yellow)] text-[#171717]">
                             <CardTitle className="flex items-center gap-2 text-xl font-black">
                                 Fitur pengembangan
                             </CardTitle>
@@ -241,7 +246,8 @@ export default function ProjectShow({
                                     key={feature}
                                     className="flex items-start gap-3 text-sm font-bold"
                                 >
-                                    <span className="mt-0.5 size-4 shrink-0 border-2 border-black bg-white" />
+                                    <span className="mt-0.5 size-4 shrink-0 border-2 border-foreground bg-background" />
+
                                     <span>{feature}</span>
                                 </div>
                             ))}
@@ -250,12 +256,13 @@ export default function ProjectShow({
                 </section>
 
                 {!userProject ? (
-                    <Card className="bg-[var(--neo-lime)]">
+                    <Card className="bg-[var(--neo-lime)] text-[#171717]">
                         <CardContent className="flex flex-col justify-between gap-5 pt-6 md:flex-row md:items-center">
                             <div>
                                 <p className="text-xl font-black">
                                     Siap mulai pengerjaan?
                                 </p>
+
                                 <p className="mt-1 text-sm font-medium">
                                     Memulai proyek tidak mengubah skor skill.
                                     Progres proyek dicatat sebagai bukti
@@ -278,7 +285,7 @@ export default function ProjectShow({
                     </Card>
                 ) : (
                     <Card>
-                        <CardHeader className="border-b-2 border-black bg-[var(--neo-lime)]">
+                        <CardHeader className="border-b-2 border-[#171717] bg-[var(--neo-lime)] text-[#171717]">
                             <CardTitle className="text-xl font-black">
                                 Catat progres proyek
                             </CardTitle>
@@ -308,7 +315,7 @@ export default function ProjectShow({
                                                 Number(event.target.value),
                                             )
                                         }
-                                        className="accent-black"
+                                        className="accent-secondary"
                                     />
                                 </label>
 
@@ -327,10 +334,11 @@ export default function ProjectShow({
                                             }
                                             placeholder="https://github.com/..."
                                         />
+
                                         <ExternalLink className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2" />
                                     </div>
                                     {progressForm.errors.repository_url && (
-                                        <span className="text-xs text-red-700">
+                                        <span className="text-xs text-destructive">
                                             {progressForm.errors.repository_url}
                                         </span>
                                     )}
@@ -347,7 +355,7 @@ export default function ProjectShow({
                                             )
                                         }
                                         rows={5}
-                                        className="w-full resize-y border-2 border-black bg-white p-3 text-sm font-medium outline-none focus:shadow-[3px_3px_0_#111]"
+                                        className="w-full resize-y rounded-[10px] border-2 border-foreground bg-card p-3 text-sm font-medium text-foreground shadow-[2px_2px_0_var(--neo-shadow-color)] transition-[box-shadow,border-color,background-color] outline-none placeholder:font-medium placeholder:text-muted-foreground focus:border-foreground focus:bg-card focus:ring-2 focus:ring-secondary"
                                         placeholder="Apa yang selesai, apa yang masih menghambat?"
                                     />
                                 </label>
