@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AssessmentController;
@@ -163,6 +164,27 @@ Route::middleware([
             'index',
         ],
     )->name('progress.index');
+
+    Route::prefix('admin')
+        ->middleware('user-manager')
+        ->name('admin.')
+        ->group(function () {
+            Route::get(
+                '/users',
+                [
+                    UserManagementController::class,
+                    'index',
+                ],
+            )->name('users.index');
+
+            Route::patch(
+                '/users/{user}/role',
+                [
+                    UserManagementController::class,
+                    'updateRole',
+                ],
+            )->name('users.role.update');
+        });
 
     Route::prefix('admin')
         ->middleware('admin')

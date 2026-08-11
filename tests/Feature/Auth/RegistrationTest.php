@@ -37,6 +37,7 @@ class RegistrationTest extends TestCase
             'email' => 'TEST.USER@EXAMPLE.COM',
             'password' => 'password',
             'password_confirmation' => 'password',
+            'role' => 'admin',
         ]);
 
         $response
@@ -54,6 +55,7 @@ class RegistrationTest extends TestCase
             ->firstOrFail();
 
         $this->assertNull($user->email_verified_at);
+        $this->assertSame('student', $user->role);
 
         Mail::assertNothingSent();
         Notification::assertNothingSent();

@@ -8,6 +8,7 @@ import {
     ShieldCheck,
     Target,
     UserRound,
+    UsersRound,
 } from 'lucide-react';
 import { useEffect } from 'react';
 import AppLogo from '@/components/app-logo';
@@ -23,10 +24,14 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from '@/components/ui/sidebar';
-import type { NavItem } from '@/types';
+import type { Auth, NavItem } from '@/types';
+
+type PageProps = {
+    auth: Auth;
+};
 
 export function AppSidebar() {
-    const { auth } = usePage().props;
+    const { auth } = usePage<PageProps>().props;
     const { isMobile, setOpenMobile } = useSidebar();
     const user = auth.user;
 
@@ -93,8 +98,19 @@ export function AppSidebar() {
         },
     ];
 
-    const items =
-        user.role === 'admin' ? [...mainItems, ...adminItems] : mainItems;
+    const userManagementItems: NavItem[] = [
+        {
+            title: 'Pengguna',
+            href: '/admin/users',
+            icon: UsersRound,
+        },
+    ];
+
+    const items: NavItem[] = [
+        ...mainItems,
+        ...(user.role === 'admin' ? adminItems : []),
+        ...(auth.canManageUsers ? userManagementItems : []),
+    ];
 
     return (
         <Sidebar collapsible="icon" variant="sidebar">

