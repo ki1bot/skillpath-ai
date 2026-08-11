@@ -45,7 +45,6 @@ Route::middleware([
 
 Route::middleware([
     'auth',
-    'verified',
     'idle',
 ])->group(function () {
     Route::get(

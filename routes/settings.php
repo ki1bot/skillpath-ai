@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Settings\EmailVerificationController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SecurityController;
 use Illuminate\Auth\Middleware\RequirePassword;
@@ -17,9 +18,26 @@ Route::middleware(['auth', 'idle'])->group(function () {
         'settings/profile',
         [ProfileController::class, 'update'],
     )->name('profile.update');
-});
 
-Route::middleware(['auth', 'verified', 'idle'])->group(function () {
+    Route::get(
+        'settings/profile/verify-email',
+        [EmailVerificationController::class, 'show'],
+    )->name('email-verification.show');
+
+    Route::post(
+        'settings/profile/verify-email/send',
+        [EmailVerificationController::class, 'send'],
+    )
+        ->middleware('throttle:3,1')
+        ->name('email-verification.send');
+
+    Route::post(
+        'settings/profile/verify-email',
+        [EmailVerificationController::class, 'verify'],
+    )
+        ->middleware('throttle:10,1')
+        ->name('email-verification.verify');
+
     Route::delete(
         'settings/profile',
         [ProfileController::class, 'destroy'],
