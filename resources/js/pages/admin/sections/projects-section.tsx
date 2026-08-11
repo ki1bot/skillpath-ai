@@ -18,7 +18,7 @@ export function ProjectsSection({ projects, careers, skills }: Props) {
     return (
         <AdminPanel
             title="Proyek portofolio"
-            description="Proyek digunakan sebagai bukti penerapan kemampuan, bukan sebagai pengganti penilaian."
+            description="Proyek digunakan sebagai bukti penerapan kemampuan, bukan sebagai pengganti assesment."
             accentClass="bg-[var(--neo-lime)] text-[#171717]"
         >
             <AdminDetails title="Tambah proyek baru">

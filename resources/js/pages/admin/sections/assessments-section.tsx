@@ -14,8 +14,8 @@ type Props = {
 export function AssessmentsSection({ assessments, careers, skills }: Props) {
     return (
         <AdminPanel
-            title="Penilaian & soal"
-            description="Kelola instrumen penilaian yang menjadi sumber utama skor kemampuan awal mahasiswa."
+            title="Assesment & soal"
+            description="Kelola instrumen assesment yang menjadi sumber utama skor kemampuan awal mahasiswa."
             accentClass="bg-[var(--neo-orange)] text-[#171717]"
         >
             <AdminDetails title="Tambah tugas baru">

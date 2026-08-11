@@ -218,7 +218,7 @@ export default function CareerShow({ career }: { career: Career }) {
 
                     <Button asChild size="lg" className="mt-7">
                         <Link href="/register">
-                            Mulai penilaian
+                            Mulai Assesment
                             <ArrowRight />
                         </Link>
                     </Button>

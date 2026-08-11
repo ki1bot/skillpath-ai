@@ -62,7 +62,7 @@ export default function AuthSimpleLayout({
                     </div>
 
                     <p className="max-w-md text-xs leading-5 font-medium text-background/50">
-                        Rekomendasi dibuat dari data skill, hasil Penilaian, dan
+                        Rekomendasi dibuat dari data skill, hasil Assesment, dan
                         progres yang tercatat di sistem.
                     </p>
                 </div>

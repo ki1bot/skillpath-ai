@@ -154,7 +154,7 @@ export default function Welcome({ careers, stats }: Props) {
                         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                             <Button asChild size="lg">
                                 <Link href="/register">
-                                    Mulai Penilaian
+                                    Mulai Assesment
                                     <ArrowRight />
                                 </Link>
                             </Button>
@@ -187,7 +187,7 @@ export default function Welcome({ careers, stats }: Props) {
                             <div className="mb-7 flex items-start justify-between gap-4">
                                 <div>
                                     <p className="text-xs font-black tracking-[0.16em] text-muted-foreground uppercase">
-                                        Contoh hasil Penilaian
+                                        Contoh hasil Assesment
                                     </p>
 
                                     <h2 className="mt-1 text-2xl font-black tracking-tight">

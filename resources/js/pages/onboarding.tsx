@@ -216,7 +216,7 @@ export default function Onboarding({
                         </div>
 
                         <p className="mt-3 text-sm leading-6 font-medium text-muted-foreground">
-                            Target dapat diganti nanti. Penilaian dan jalur
+                            Target dapat diganti nanti. Assesment dan jalur
                             belajar akan mengikuti target yang sedang aktif.
                         </p>
 
@@ -313,7 +313,7 @@ export default function Onboarding({
                             className="mt-6 w-full"
                             disabled={form.processing}
                         >
-                            {editing ? 'Simpan profil' : 'Lanjut ke penilaian'}
+                            {editing ? 'Simpan profil' : 'Lanjut ke Assesment'}
                             <ArrowRight />
                         </Button>
                     </section>

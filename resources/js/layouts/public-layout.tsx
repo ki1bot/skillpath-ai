@@ -150,7 +150,7 @@ export default function PublicLayout({
                     </p>
 
                     <p className="max-w-xl text-background/65 md:text-right">
-                        Gunakan hasil Penilaian dan progres sebagai panduan,
+                        Gunakan hasil Assesment dan progres sebagai panduan,
                         bukan sebagai jaminan hasil rekrutmen.
                     </p>
                 </div>

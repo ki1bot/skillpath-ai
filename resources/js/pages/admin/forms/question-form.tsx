@@ -35,7 +35,7 @@ export function QuestionForm({
                 <>
                     <div className="grid gap-4 md:grid-cols-3">
                         <SelectField
-                            label="Penilaian"
+                            label="Assesment"
                             name="assessment_id"
                             defaultValue={
                                 question?.assessment_id ??
@@ -44,7 +44,7 @@ export function QuestionForm({
                             }
                             required
                         >
-                            <option value="">Pilih Penilaian</option>
+                            <option value="">Pilih Assesment</option>
 
                             {assessments.map((assessment) => (
                                 <option

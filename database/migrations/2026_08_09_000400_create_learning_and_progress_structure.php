@@ -32,7 +32,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('career_id')->constrained()->cascadeOnDelete();
             $table->unsignedInteger('version')->default(1);
-            $table->string('reason')->default('Penilaian awal');
+            $table->string('reason')->default('Assesment awal');
             $table->unsignedSmallInteger('estimated_weeks')->default(1);
             $table->boolean('is_active')->default(true);
             $table->timestamps();

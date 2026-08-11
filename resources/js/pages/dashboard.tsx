@@ -2,17 +2,26 @@ import { Head, Link } from '@inertiajs/react';
 import {
     Activity,
     ArrowRight,
+    BookOpen,
     BookOpenCheck,
+    BriefcaseBusiness,
+    CalendarDays,
+    CheckCircle2,
     Clock3,
     FolderKanban,
+    Gauge,
     Map,
+    Sparkles,
     Target,
     Trophy,
 } from 'lucide-react';
 import {
     Area,
     AreaChart,
+    Bar,
+    BarChart,
     CartesianGrid,
+    Legend,
     ResponsiveContainer,
     Tooltip,
     XAxis,
@@ -39,6 +48,12 @@ type Priority = {
     reason: string;
 };
 
+type SkillChartItem = {
+    skill: string;
+    current: number;
+    target: number;
+};
+
 type Props = {
     career: {
         name: string;
@@ -47,11 +62,7 @@ type Props = {
     };
     readiness: Readiness;
     priorities: Priority[];
-    skillChart: {
-        skill: string;
-        current: number;
-        target: number;
-    }[];
+    skillChart: SkillChartItem[];
     roadmap: {
         version: number;
         estimated_weeks: number;
@@ -81,10 +92,102 @@ type Props = {
     } | null;
 };
 
+function clampPercent(value: number) {
+    return Math.min(Math.max(value, 0), 100);
+}
+
+function ReadinessIndicator({
+    label,
+    value,
+    weight,
+}: {
+    label: string;
+    value: number;
+    weight: string;
+}) {
+    const percentage = clampPercent(value);
+
+    return (
+        <div>
+            <div className="mb-2 flex items-center justify-between gap-4">
+                <div className="min-w-0">
+                    <span className="text-sm font-extrabold">{label}</span>
+                    <span className="ml-2 text-xs font-bold text-muted-foreground">
+                        {weight}
+                    </span>
+                </div>
+
+                <span className="shrink-0 font-mono text-xs font-black">
+                    {percentage}%
+                </span>
+            </div>
+
+            <div className="h-3 overflow-hidden rounded-full border-2 border-foreground bg-muted">
+                <div
+                    className="h-full border-r-2 border-foreground bg-secondary transition-[width] duration-300"
+                    style={{
+                        width: `${percentage}%`,
+                    }}
+                />
+            </div>
+        </div>
+    );
+}
+
+function DashboardStat({
+    icon: Icon,
+    label,
+    value,
+    description,
+    accent,
+}: {
+    icon: typeof Activity;
+    label: string;
+    value: string;
+    description: string;
+    accent: 'lime' | 'blue' | 'yellow' | 'orange';
+}) {
+    const accentClass = {
+        lime: 'neo-accent-lime',
+        blue: 'neo-accent-blue',
+        yellow: 'neo-accent-yellow',
+        orange: 'neo-accent-orange',
+    }[accent];
+
+    return (
+        <div className="neo-card group relative p-5 sm:p-6">
+            <div className="flex items-start justify-between gap-4">
+                <div
+                    className={`flex size-11 shrink-0 items-center justify-center rounded-[10px] border-2 border-foreground ${accentClass}`}
+                >
+                    <Icon className="size-5" />
+                </div>
+
+                <span className="font-mono text-[10px] font-black tracking-[0.14em] text-muted-foreground uppercase">
+                    Ringkasan
+                </span>
+            </div>
+
+            <p className="mt-6 text-xs font-black tracking-[0.12em] text-muted-foreground uppercase">
+                {label}
+            </p>
+
+            <p className="mt-1 text-3xl font-black tracking-[-0.04em] sm:text-4xl">
+                {value}
+            </p>
+
+            <p className="mt-2 text-xs leading-relaxed font-semibold text-muted-foreground">
+                {description}
+            </p>
+        </div>
+    );
+}
+
 export default function Dashboard({
     career,
     readiness,
     priorities,
+    skillChart,
     roadmap,
     nextItem,
     totalStudyMinutes,
@@ -96,197 +199,518 @@ export default function Dashboard({
             ? Math.round((roadmap.completed / roadmap.total) * 100)
             : 0;
 
+    const studyHours = Math.floor(totalStudyMinutes / 60);
+    const studyMinutes = totalStudyMinutes % 60;
+
+    const totalActivityMinutes = activity.reduce(
+        (total, item) => total + item.minutes,
+        0,
+    );
+
+    const readinessIndicators = [
+        {
+            label: 'Penguasaan skill',
+            value: readiness.skill_mastery,
+            weight: '45%',
+        },
+        {
+            label: 'Roadmap',
+            value: readiness.roadmap_completion,
+            weight: '20%',
+        },
+        {
+            label: 'Proyek',
+            value: readiness.project_score,
+            weight: '20%',
+        },
+        {
+            label: 'Konsistensi',
+            value: readiness.consistency,
+            weight: '10%',
+        },
+        {
+            label: 'Evaluasi',
+            value: readiness.evaluation_score,
+            weight: '5%',
+        },
+    ];
+
     return (
         <>
             <Head title="Dashboard" />
 
-            <div className="mx-auto w-full max-w-7xl px-4 py-8 md:px-6 md:py-10">
-                <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
-                    <div>
-                        <p className="text-xs font-black tracking-[0.16em] text-muted-foreground uppercase">
-                            Target saat ini
-                        </p>
+            <main className="w-full pb-14">
+                <div className="mx-auto w-full max-w-[1500px] px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
+                    <section className="mb-6 flex flex-col gap-5 border-b-2 border-foreground/15 pb-6 lg:flex-row lg:items-end lg:justify-between">
+                        <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <span className="neo-label">
+                                    <Sparkles className="size-3.5" />
+                                    Dashboard
+                                </span>
 
-                        <h1 className="neo-heading mt-2 text-4xl sm:text-5xl">
-                            {career.name}
-                        </h1>
-
-                        <p className="mt-3 max-w-2xl leading-relaxed font-medium text-muted-foreground">
-                            {career.tagline}
-                        </p>
-                    </div>
-
-                    <Button asChild variant="outline">
-                        <Link href="/skills">
-                            <Target />
-                            Lihat skill gap
-                        </Link>
-                    </Button>
-                </div>
-
-                <section className="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-                    <div className="neo-card bg-secondary p-5 text-[#171717]">
-                        <div className="flex items-start justify-between">
-                            <p className="text-xs font-black tracking-[0.14em] uppercase">
-                                Kesiapan karier
-                            </p>
-                            <Trophy className="size-5" />
-                        </div>
-
-                        <p className="mt-7 text-5xl font-black tracking-tight">
-                            {readiness.score}
-                            <span className="text-xl">/100</span>
-                        </p>
-
-                        <p className="mt-2 text-xs font-bold">
-                            Indikator internal, bukan prediksi diterima kerja.
-                        </p>
-                    </div>
-
-                    <div className="neo-card p-5">
-                        <div className="flex items-start justify-between">
-                            <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                Roadmap
-                            </p>
-                            <Map className="size-5" />
-                        </div>
-
-                        <p className="mt-7 text-4xl font-black">
-                            {roadmapPercent}%
-                        </p>
-
-                        <p className="mt-2 text-sm font-semibold text-muted-foreground">
-                            {roadmap
-                                ? `${roadmap.completed}/${roadmap.total} langkah · ±${roadmap.estimated_weeks} minggu`
-                                : 'Belum dibuat'}
-                        </p>
-                    </div>
-
-                    <div className="neo-card p-5">
-                        <div className="flex items-start justify-between">
-                            <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                Waktu belajar
-                            </p>
-                            <Clock3 className="size-5" />
-                        </div>
-
-                        <p className="mt-7 text-4xl font-black">
-                            {Math.floor(totalStudyMinutes / 60)}j{' '}
-                            {totalStudyMinutes % 60}m
-                        </p>
-
-                        <p className="mt-2 text-sm font-semibold text-muted-foreground">
-                            Tercatat dari aktivitas belajar.
-                        </p>
-                    </div>
-
-                    <div className="neo-card p-5">
-                        <div className="flex items-start justify-between">
-                            <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                Konsistensi
-                            </p>
-                            <Activity className="size-5" />
-                        </div>
-
-                        <p className="mt-7 text-4xl font-black">
-                            {readiness.active_days_28}
-                            <span className="text-lg"> hari</span>
-                        </p>
-
-                        <p className="mt-2 text-sm font-semibold text-muted-foreground">
-                            Aktif dalam 28 hari terakhir.
-                        </p>
-                    </div>
-                </section>
-
-                <section className="mt-6 grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-                    <div className="neo-card p-6">
-                        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
-                            <div>
-                                <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                    Aktivitas 14 hari
-                                </p>
-                                <h2 className="mt-1 text-2xl font-black">
-                                    Belajar yang benar-benar tercatat
-                                </h2>
+                                <span className="rounded-full border-2 border-foreground bg-card px-3 py-1 text-xs font-black">
+                                    Roadmap v{roadmap?.version ?? '—'}
+                                </span>
                             </div>
 
-                            <span className="rounded-full border-2 border-foreground bg-muted px-3 py-1 text-xs font-black">
-                                menit / hari
-                            </span>
+                            <h1 className="neo-heading mt-4 max-w-4xl text-3xl sm:text-4xl lg:text-5xl">
+                                Perjalanan menuju{' '}
+                                <span className="underline decoration-secondary decoration-[5px] underline-offset-[6px]">
+                                    {career.name}
+                                </span>
+                            </h1>
+
+                            <p className="mt-4 max-w-3xl text-sm leading-7 font-semibold text-muted-foreground sm:text-base">
+                                {career.tagline}
+                            </p>
                         </div>
 
-                        <div className="mt-6 h-[280px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={activity}>
-                                    <CartesianGrid
-                                        strokeDasharray="3 3"
-                                        opacity={0.2}
-                                    />
-                                    <XAxis
-                                        dataKey="date"
-                                        tick={{
-                                            fontSize: 10,
-                                            fontWeight: 700,
-                                        }}
-                                        tickLine={false}
-                                        axisLine={false}
-                                    />
-                                    <YAxis
-                                        tick={{
-                                            fontSize: 10,
-                                            fontWeight: 700,
-                                        }}
-                                        tickLine={false}
-                                        axisLine={false}
-                                        width={30}
-                                    />
-                                    <Tooltip
-                                        contentStyle={{
-                                            border: '2px solid #171717',
-                                            borderRadius: 12,
-                                            fontWeight: 700,
-                                        }}
-                                    />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="minutes"
-                                        stroke="#171717"
-                                        fill="#79D7FF"
-                                        strokeWidth={3}
-                                    />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
+                        <div className="flex shrink-0 flex-wrap gap-2">
+                            <Button asChild variant="outline">
+                                <Link href="/skills">
+                                    <Target />
+                                    Analisis skill
+                                </Link>
+                            </Button>
 
-                    <div className="space-y-6">
+                            <Button asChild>
+                                <Link href="/roadmap">
+                                    <Map />
+                                    Buka roadmap
+                                </Link>
+                            </Button>
+                        </div>
+                    </section>
+
+                    <section className="grid gap-5 xl:grid-cols-[1.55fr_0.75fr]">
                         <div className="neo-card overflow-hidden">
-                            <div className="border-b-2 border-foreground bg-[#79D7FF] p-5 text-[#171717]">
-                                <p className="text-xs font-black tracking-[0.14em] uppercase">
-                                    Langkah berikutnya
-                                </p>
+                            <div className="grid min-h-full lg:grid-cols-[1.05fr_0.95fr]">
+                                <div className="flex flex-col justify-between bg-foreground p-6 text-background sm:p-8">
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <Gauge className="size-5" />
+
+                                            <p className="text-xs font-black tracking-[0.14em] uppercase">
+                                                Career readiness
+                                            </p>
+                                        </div>
+
+                                        <div className="mt-8 flex items-end gap-2">
+                                            <span className="text-7xl font-black tracking-[-0.08em] sm:text-8xl">
+                                                {readiness.score}
+                                            </span>
+
+                                            <span className="mb-3 text-xl font-black text-background/50">
+                                                /100
+                                            </span>
+                                        </div>
+
+                                        <p className="mt-4 max-w-md text-sm leading-6 font-semibold text-background/65">
+                                            Nilai kesiapan dihitung dari skill,
+                                            roadmap, proyek, konsistensi, dan
+                                            hasil evaluasi Anda.
+                                        </p>
+                                    </div>
+
+                                    <div className="mt-8 flex flex-wrap gap-2">
+                                        <span className="rounded-full border-2 border-background/30 px-3 py-1 text-xs font-black">
+                                            {readiness.active_days_28} hari
+                                            aktif
+                                        </span>
+
+                                        <span className="rounded-full border-2 border-background/30 px-3 py-1 text-xs font-black">
+                                            {roadmapPercent}% roadmap
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="bg-secondary p-6 text-[#171717] sm:p-8">
+                                    <div className="flex items-start justify-between gap-5">
+                                        <div>
+                                            <p className="text-xs font-black tracking-[0.13em] uppercase">
+                                                Fokus sekarang
+                                            </p>
+
+                                            <h2 className="mt-2 text-2xl font-black tracking-[-0.035em]">
+                                                Jangan kerjakan semuanya
+                                                sekaligus.
+                                            </h2>
+                                        </div>
+
+                                        <Trophy className="size-7 shrink-0" />
+                                    </div>
+
+                                    {priorities.length > 0 ? (
+                                        <div className="mt-7 space-y-3">
+                                            {priorities
+                                                .slice(0, 3)
+                                                .map((item, index) => (
+                                                    <div
+                                                        key={item.skill_id}
+                                                        className="flex items-center gap-3 rounded-[10px] border-2 border-[#171717] bg-[#fffdf8] p-3 shadow-[2px_2px_0_#171717]"
+                                                    >
+                                                        <span className="flex size-8 shrink-0 items-center justify-center rounded-[8px] border-2 border-[#171717] bg-[#171717] font-mono text-xs font-black text-white">
+                                                            {String(
+                                                                index + 1,
+                                                            ).padStart(2, '0')}
+                                                        </span>
+
+                                                        <div className="min-w-0 flex-1">
+                                                            <div className="flex items-center justify-between gap-3">
+                                                                <p className="truncate text-sm font-black">
+                                                                    {item.name}
+                                                                </p>
+
+                                                                <span className="shrink-0 font-mono text-[11px] font-black">
+                                                                    gap{' '}
+                                                                    {item.gap}
+                                                                </span>
+                                                            </div>
+
+                                                            <div className="mt-2 h-2 overflow-hidden rounded-full border border-[#171717] bg-[#e8e2d7]">
+                                                                <div
+                                                                    className="h-full bg-[#aac8f5]"
+                                                                    style={{
+                                                                        width: `${clampPercent(
+                                                                            item.current,
+                                                                        )}%`,
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                        </div>
+                                    ) : (
+                                        <div className="mt-7 rounded-[10px] border-2 border-[#171717] bg-[#fffdf8] p-5">
+                                            <CheckCircle2 className="size-7" />
+
+                                            <p className="mt-3 font-black">
+                                                Tidak ada gap prioritas.
+                                            </p>
+
+                                            <p className="mt-1 text-xs font-semibold opacity-70">
+                                                Pertahankan progres dan
+                                                lanjutkan roadmap Anda.
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    <Button
+                                        asChild
+                                        variant="outline"
+                                        className="mt-6 border-[#171717] bg-[#fffdf8] text-[#171717]"
+                                    >
+                                        <Link href="/skills">
+                                            Lihat semua gap
+                                            <ArrowRight />
+                                        </Link>
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="neo-card flex flex-col justify-between p-6">
+                            <div>
+                                <div className="flex items-start justify-between">
+                                    <div>
+                                        <p className="text-xs font-black tracking-[0.13em] text-muted-foreground uppercase">
+                                            Roadmap
+                                        </p>
+
+                                        <h2 className="mt-1 text-2xl font-black">
+                                            Progres belajar
+                                        </h2>
+                                    </div>
+
+                                    <div className="flex size-11 items-center justify-center rounded-[10px] border-2 border-foreground bg-accent text-[#171717]">
+                                        <Map className="size-5" />
+                                    </div>
+                                </div>
+
+                                <div className="mt-8 flex items-end justify-between gap-4">
+                                    <div>
+                                        <p className="text-5xl font-black tracking-[-0.05em]">
+                                            {roadmapPercent}%
+                                        </p>
+
+                                        <p className="mt-1 text-xs font-bold text-muted-foreground">
+                                            progres keseluruhan
+                                        </p>
+                                    </div>
+
+                                    {roadmap && (
+                                        <p className="text-right text-xs leading-5 font-bold text-muted-foreground">
+                                            {roadmap.completed} dari{' '}
+                                            {roadmap.total} materi
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div className="neo-progress mt-6 h-5">
+                                    <span
+                                        style={{
+                                            width: `${roadmapPercent}%`,
+                                        }}
+                                    />
+                                </div>
+
+                                <div className="mt-6 grid grid-cols-2 gap-3">
+                                    <div className="rounded-[10px] border-2 border-foreground bg-muted/60 p-3">
+                                        <CalendarDays className="size-4" />
+
+                                        <p className="mt-3 text-xl font-black">
+                                            {roadmap
+                                                ? `±${roadmap.estimated_weeks}`
+                                                : '—'}
+                                        </p>
+
+                                        <p className="mt-1 text-[11px] font-bold text-muted-foreground">
+                                            estimasi minggu
+                                        </p>
+                                    </div>
+
+                                    <div className="rounded-[10px] border-2 border-foreground bg-muted/60 p-3">
+                                        <BookOpenCheck className="size-4" />
+
+                                        <p className="mt-3 text-xl font-black">
+                                            {roadmap ? roadmap.total : '—'}
+                                        </p>
+
+                                        <p className="mt-1 text-[11px] font-bold text-muted-foreground">
+                                            total materi
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div className="p-6">
+                            <Button asChild className="mt-6 w-full">
+                                <Link href="/roadmap">
+                                    Lanjutkan roadmap
+                                    <ArrowRight />
+                                </Link>
+                            </Button>
+                        </div>
+                    </section>
+
+                    <section className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                        <DashboardStat
+                            icon={Clock3}
+                            label="Total waktu belajar"
+                            value={`${studyHours}j ${studyMinutes}m`}
+                            description="Akumulasi dari seluruh aktivitas belajar yang sudah dicatat."
+                            accent="blue"
+                        />
+
+                        <DashboardStat
+                            icon={Activity}
+                            label="Aktif 28 hari"
+                            value={`${readiness.active_days_28} hari`}
+                            description="Jumlah hari dengan aktivitas belajar selama empat minggu terakhir."
+                            accent="lime"
+                        />
+
+                        <DashboardStat
+                            icon={BookOpen}
+                            label="Aktivitas 14 hari"
+                            value={`${totalActivityMinutes} mnt`}
+                            description="Total waktu belajar yang tercatat selama dua minggu terakhir."
+                            accent="yellow"
+                        />
+
+                        <DashboardStat
+                            icon={FolderKanban}
+                            label="Proyek aktif"
+                            value={
+                                activeProject
+                                    ? `${activeProject.progress_percentage}%`
+                                    : 'Belum ada'
+                            }
+                            description={
+                                activeProject
+                                    ? 'Progres proyek portofolio yang sedang Anda kerjakan.'
+                                    : 'Mulai proyek untuk membuktikan skill melalui portofolio.'
+                            }
+                            accent="orange"
+                        />
+                    </section>
+
+                    <section className="mt-5 grid gap-5 xl:grid-cols-[1.35fr_0.65fr]">
+                        <div className="neo-card p-5 sm:p-6">
+                            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                                <div>
+                                    <p className="text-xs font-black tracking-[0.13em] text-muted-foreground uppercase">
+                                        Aktivitas belajar
+                                    </p>
+
+                                    <h2 className="mt-1 text-2xl font-black tracking-[-0.035em]">
+                                        Ritme 14 hari terakhir
+                                    </h2>
+
+                                    <p className="mt-2 max-w-xl text-sm font-medium text-muted-foreground">
+                                        Grafik ini hanya menampilkan waktu
+                                        belajar yang benar-benar tercatat pada
+                                        sistem.
+                                    </p>
+                                </div>
+
+                                <span className="w-fit rounded-full border-2 border-foreground bg-muted px-3 py-1 text-xs font-black">
+                                    menit / hari
+                                </span>
+                            </div>
+
+                            <div className="mt-6 h-[280px] w-full sm:h-[330px]">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart
+                                        data={activity}
+                                        margin={{
+                                            top: 10,
+                                            right: 8,
+                                            left: -20,
+                                            bottom: 0,
+                                        }}
+                                    >
+                                        <defs>
+                                            <linearGradient
+                                                id="activityGradient"
+                                                x1="0"
+                                                y1="0"
+                                                x2="0"
+                                                y2="1"
+                                            >
+                                                <stop
+                                                    offset="5%"
+                                                    stopColor="#aac8f5"
+                                                    stopOpacity={0.85}
+                                                />
+                                                <stop
+                                                    offset="95%"
+                                                    stopColor="#aac8f5"
+                                                    stopOpacity={0.08}
+                                                />
+                                            </linearGradient>
+                                        </defs>
+
+                                        <CartesianGrid
+                                            strokeDasharray="4 4"
+                                            vertical={false}
+                                            opacity={0.18}
+                                        />
+
+                                        <XAxis
+                                            dataKey="date"
+                                            tick={{
+                                                fontSize: 10,
+                                                fontWeight: 700,
+                                            }}
+                                            tickLine={false}
+                                            axisLine={false}
+                                        />
+
+                                        <YAxis
+                                            tick={{
+                                                fontSize: 10,
+                                                fontWeight: 700,
+                                            }}
+                                            tickLine={false}
+                                            axisLine={false}
+                                            allowDecimals={false}
+                                        />
+
+                                        <Tooltip
+                                            cursor={{
+                                                stroke: '#1f1f1c',
+                                                strokeDasharray: '4 4',
+                                            }}
+                                            contentStyle={{
+                                                border: '2px solid #1f1f1c',
+                                                borderRadius: 10,
+                                                boxShadow: '3px 3px 0 #1f1f1c',
+                                                background: '#fffdf8',
+                                                color: '#1f1f1c',
+                                                fontWeight: 800,
+                                            }}
+                                            formatter={(value) => [
+                                                `${value} menit`,
+                                                'Belajar',
+                                            ]}
+                                        />
+
+                                        <Area
+                                            type="monotone"
+                                            dataKey="minutes"
+                                            stroke="#1f1f1c"
+                                            strokeWidth={3}
+                                            fill="url(#activityGradient)"
+                                            activeDot={{
+                                                r: 5,
+                                                stroke: '#1f1f1c',
+                                                strokeWidth: 2,
+                                                fill: '#d7e6b2',
+                                            }}
+                                        />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
+
+                        <div className="neo-card overflow-hidden">
+                            <div className="border-b-2 border-foreground bg-accent p-5 text-[#171717] sm:p-6">
+                                <div className="flex items-center justify-between gap-3">
+                                    <div>
+                                        <p className="text-xs font-black tracking-[0.13em] uppercase">
+                                            Berikutnya
+                                        </p>
+
+                                        <h2 className="mt-1 text-2xl font-black">
+                                            Prioritas hari ini
+                                        </h2>
+                                    </div>
+
+                                    <BookOpenCheck className="size-7" />
+                                </div>
+                            </div>
+
+                            <div className="p-5 sm:p-6">
                                 {nextItem ? (
                                     <>
-                                        <span className="rounded-full border-2 border-foreground bg-muted px-3 py-1 text-xs font-black">
+                                        <span className="inline-flex rounded-full border-2 border-foreground bg-secondary px-3 py-1 text-xs font-black text-[#171717]">
                                             {nextItem.skill}
                                         </span>
 
-                                        <h2 className="mt-5 text-2xl font-black tracking-tight">
+                                        <h3 className="mt-5 text-2xl font-black tracking-[-0.035em]">
                                             {nextItem.title}
-                                        </h2>
+                                        </h3>
 
-                                        <p className="mt-2 text-sm font-medium text-muted-foreground">
+                                        <p className="mt-3 text-sm leading-6 font-medium text-muted-foreground">
                                             {nextItem.status ===
                                             'needs_reinforcement'
-                                                ? 'Evaluasi sebelumnya belum lulus. Kembali ke materi penguatan sebelum lanjut.'
-                                                : `Progres saat ini ${nextItem.progress}%.`}
+                                                ? 'Materi ini perlu diperkuat karena evaluasi sebelumnya belum memenuhi batas kelulusan.'
+                                                : 'Lanjutkan materi ini untuk menjaga progres roadmap Anda tetap bergerak.'}
                                         </p>
 
-                                        <Button asChild className="mt-6">
+                                        <div className="mt-6">
+                                            <div className="mb-2 flex items-center justify-between text-xs font-black">
+                                                <span>Progres</span>
+
+                                                <span>
+                                                    {nextItem.progress}%
+                                                </span>
+                                            </div>
+
+                                            <div className="neo-progress h-4">
+                                                <span
+                                                    style={{
+                                                        width: `${clampPercent(
+                                                            nextItem.progress,
+                                                        )}%`,
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <Button asChild className="mt-6 w-full">
                                             <Link
                                                 href={`/roadmap/materials/${nextItem.slug}`}
                                             >
@@ -296,192 +720,396 @@ export default function Dashboard({
                                         </Button>
                                     </>
                                 ) : (
-                                    <>
-                                        <BookOpenCheck className="size-8" />
-                                        <h2 className="mt-5 text-xl font-black">
-                                            Tidak ada materi aktif.
-                                        </h2>
-                                        <p className="mt-2 text-sm font-medium text-muted-foreground">
-                                            Selesaikan Penilaian atau cek
-                                            roadmap terbaru.
+                                    <div className="neo-empty min-h-[250px]">
+                                        <BookOpenCheck className="size-9" />
+
+                                        <h3 className="mt-4 text-lg font-black">
+                                            Tidak ada materi aktif
+                                        </h3>
+
+                                        <p className="mt-2 max-w-sm text-sm font-medium text-muted-foreground">
+                                            Periksa roadmap atau selesaikan
+                                            Assesment untuk mendapatkan langkah
+                                            belajar berikutnya.
                                         </p>
-                                    </>
+
+                                        <Button
+                                            asChild
+                                            variant="outline"
+                                            size="sm"
+                                            className="mt-5"
+                                        >
+                                            <Link href="/roadmap">
+                                                Buka roadmap
+                                            </Link>
+                                        </Button>
+                                    </div>
                                 )}
                             </div>
                         </div>
+                    </section>
 
-                        <div className="neo-card p-6">
-                            <div className="flex items-center justify-between">
+                    <section className="mt-5 grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
+                        <div className="neo-card p-5 sm:p-6">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                                 <div>
-                                    <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                        Progres proyek
+                                    <p className="text-xs font-black tracking-[0.13em] text-muted-foreground uppercase">
+                                        Skill profile
                                     </p>
-                                    <h2 className="mt-1 text-xl font-black">
-                                        {activeProject?.project.title ??
-                                            'Belum ada proyek aktif'}
+
+                                    <h2 className="mt-1 text-2xl font-black tracking-[-0.035em]">
+                                        Posisi skill Anda sekarang
                                     </h2>
+
+                                    <p className="mt-2 text-sm font-medium text-muted-foreground">
+                                        Bandingkan level sekarang dengan target
+                                        untuk {career.name}.
+                                    </p>
                                 </div>
-                                <FolderKanban className="size-6" />
-                            </div>
 
-                            {activeProject ? (
-                                <>
-                                    <div className="neo-progress mt-5 h-4">
-                                        <span
-                                            style={{
-                                                width: `${activeProject.progress_percentage}%`,
-                                            }}
-                                        />
-                                    </div>
-
-                                    <div className="mt-2 flex justify-between text-xs font-black">
-                                        <span>
-                                            {activeProject.status.replace(
-                                                '_',
-                                                ' ',
-                                            )}
-                                        </span>
-                                        <span>
-                                            {activeProject.progress_percentage}%
-                                        </span>
-                                    </div>
-
-                                    <Button
-                                        asChild
-                                        variant="outline"
-                                        size="sm"
-                                        className="mt-5"
-                                    >
-                                        <Link
-                                            href={`/projects/${activeProject.project.slug}`}
-                                        >
-                                            Lanjut proyek
-                                        </Link>
-                                    </Button>
-                                </>
-                            ) : (
-                                <Button
-                                    asChild
-                                    variant="outline"
-                                    size="sm"
-                                    className="mt-5"
-                                >
-                                    <Link href="/projects">
-                                        Lihat rekomendasi
+                                <Button asChild variant="ghost" size="sm">
+                                    <Link href="/skills">
+                                        Detail skill
+                                        <ArrowRight />
                                     </Link>
                                 </Button>
-                            )}
-                        </div>
-                    </div>
-                </section>
-
-                <section className="mt-6 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-                    <div className="neo-card p-6">
-                        <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                            Rincian kesiapan
-                        </p>
-                        <h2 className="mt-1 text-2xl font-black">
-                            Skor ini datang dari mana?
-                        </h2>
-
-                        <div className="mt-6 space-y-4">
-                            {[
-                                [
-                                    'Penguasaan skill',
-                                    readiness.skill_mastery,
-                                    '45%',
-                                ],
-                                [
-                                    'Penyelesaian roadmap',
-                                    readiness.roadmap_completion,
-                                    '20%',
-                                ],
-                                [
-                                    'Proyek portofolio',
-                                    readiness.project_score,
-                                    '20%',
-                                ],
-                                ['Konsistensi', readiness.consistency, '10%'],
-                                ['Evaluasi', readiness.evaluation_score, '5%'],
-                            ].map(([label, value, weight]) => (
-                                <div key={String(label)}>
-                                    <div className="mb-2 flex justify-between text-xs font-black">
-                                        <span>
-                                            {label}{' '}
-                                            <span className="text-muted-foreground">
-                                                ({weight})
-                                            </span>
-                                        </span>
-                                        <span>{value}%</span>
-                                    </div>
-
-                                    <div className="h-3 overflow-hidden rounded-full border-2 border-foreground bg-muted">
-                                        <div
-                                            className="h-full border-r-2 border-foreground bg-secondary"
-                                            style={{
-                                                width: `${Math.min(
-                                                    Number(value),
-                                                    100,
-                                                )}%`,
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="neo-card p-6">
-                        <div className="flex items-end justify-between">
-                            <div>
-                                <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                    Gap tertinggi
-                                </p>
-                                <h2 className="mt-1 text-2xl font-black">
-                                    Jangan dikerjakan semuanya sekaligus.
-                                </h2>
                             </div>
 
-                            <Button asChild variant="ghost" size="sm">
+                            {skillChart.length > 0 ? (
+                                <div className="mt-6 h-[320px] w-full">
+                                    <ResponsiveContainer
+                                        width="100%"
+                                        height="100%"
+                                    >
+                                        <BarChart
+                                            data={skillChart}
+                                            layout="vertical"
+                                            margin={{
+                                                top: 0,
+                                                right: 15,
+                                                left: 10,
+                                                bottom: 0,
+                                            }}
+                                            barGap={4}
+                                        >
+                                            <CartesianGrid
+                                                horizontal={false}
+                                                strokeDasharray="4 4"
+                                                opacity={0.15}
+                                            />
+
+                                            <XAxis
+                                                type="number"
+                                                domain={[0, 100]}
+                                                tick={{
+                                                    fontSize: 10,
+                                                    fontWeight: 700,
+                                                }}
+                                                tickLine={false}
+                                                axisLine={false}
+                                            />
+
+                                            <YAxis
+                                                type="category"
+                                                dataKey="skill"
+                                                width={95}
+                                                tick={{
+                                                    fontSize: 10,
+                                                    fontWeight: 800,
+                                                }}
+                                                tickLine={false}
+                                                axisLine={false}
+                                            />
+
+                                            <Tooltip
+                                                contentStyle={{
+                                                    border: '2px solid #1f1f1c',
+                                                    borderRadius: 10,
+                                                    boxShadow:
+                                                        '3px 3px 0 #1f1f1c',
+                                                    background: '#fffdf8',
+                                                    color: '#1f1f1c',
+                                                    fontWeight: 800,
+                                                }}
+                                            />
+
+                                            <Legend
+                                                wrapperStyle={{
+                                                    fontSize: 11,
+                                                    fontWeight: 800,
+                                                }}
+                                            />
+
+                                            <Bar
+                                                dataKey="current"
+                                                name="Saat ini"
+                                                fill="#aac8f5"
+                                                stroke="#1f1f1c"
+                                                strokeWidth={2}
+                                                radius={[0, 5, 5, 0]}
+                                                maxBarSize={18}
+                                            />
+
+                                            <Bar
+                                                dataKey="target"
+                                                name="Target"
+                                                fill="#d7e6b2"
+                                                stroke="#1f1f1c"
+                                                strokeWidth={2}
+                                                radius={[0, 5, 5, 0]}
+                                                maxBarSize={18}
+                                            />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            ) : (
+                                <div className="neo-empty mt-6">
+                                    <Target className="size-8" />
+
+                                    <p className="mt-3 font-black">
+                                        Data skill belum tersedia.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="neo-card p-5 sm:p-6">
+                            <div className="flex items-start justify-between gap-4">
+                                <div>
+                                    <p className="text-xs font-black tracking-[0.13em] text-muted-foreground uppercase">
+                                        Komposisi readiness
+                                    </p>
+
+                                    <h2 className="mt-1 text-2xl font-black tracking-[-0.035em]">
+                                        Dari mana skor berasal?
+                                    </h2>
+                                </div>
+
+                                <Gauge className="size-6 shrink-0" />
+                            </div>
+
+                            <div className="mt-7 space-y-5">
+                                {readinessIndicators.map((item) => (
+                                    <ReadinessIndicator
+                                        key={item.label}
+                                        label={item.label}
+                                        value={item.value}
+                                        weight={item.weight}
+                                    />
+                                ))}
+                            </div>
+
+                            <div className="mt-7 rounded-[10px] border-2 border-foreground bg-muted/50 p-4">
+                                <p className="text-xs leading-5 font-semibold text-muted-foreground">
+                                    Skor readiness adalah indikator internal
+                                    SkillPath AI untuk membantu menentukan
+                                    prioritas belajar. Angka ini bukan jaminan
+                                    diterima bekerja.
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section className="mt-5 grid gap-5 lg:grid-cols-2">
+                        <div className="neo-card p-5 sm:p-6">
+                            <div className="flex items-start justify-between gap-4">
+                                <div>
+                                    <p className="text-xs font-black tracking-[0.13em] text-muted-foreground uppercase">
+                                        Skill gaps
+                                    </p>
+
+                                    <h2 className="mt-1 text-2xl font-black tracking-[-0.035em]">
+                                        Yang perlu dikejar
+                                    </h2>
+                                </div>
+
+                                <Target className="size-6 shrink-0" />
+                            </div>
+
+                            <div className="mt-6 space-y-3">
+                                {priorities.length > 0 ? (
+                                    priorities.map((item, index) => (
+                                        <div
+                                            key={item.skill_id}
+                                            className="rounded-[11px] border-2 border-foreground bg-muted/45 p-4"
+                                        >
+                                            <div className="flex gap-3">
+                                                <span className="flex size-9 shrink-0 items-center justify-center rounded-[9px] border-2 border-foreground bg-card font-mono text-xs font-black">
+                                                    {String(index + 1).padStart(
+                                                        2,
+                                                        '0',
+                                                    )}
+                                                </span>
+
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="flex flex-wrap items-center justify-between gap-2">
+                                                        <h3 className="font-black">
+                                                            {item.name}
+                                                        </h3>
+
+                                                        <span className="rounded-full border-2 border-foreground bg-accent px-2.5 py-0.5 font-mono text-[10px] font-black text-[#171717]">
+                                                            GAP {item.gap}
+                                                        </span>
+                                                    </div>
+
+                                                    <p className="mt-2 text-xs leading-5 font-medium text-muted-foreground">
+                                                        {item.reason}
+                                                    </p>
+
+                                                    <div className="mt-4 grid grid-cols-2 gap-2">
+                                                        <div className="rounded-lg border border-foreground/20 bg-card px-3 py-2">
+                                                            <p className="text-[10px] font-black tracking-wide text-muted-foreground uppercase">
+                                                                Sekarang
+                                                            </p>
+
+                                                            <p className="mt-1 font-mono text-sm font-black">
+                                                                {item.current}
+                                                            </p>
+                                                        </div>
+
+                                                        <div className="rounded-lg border border-foreground/20 bg-card px-3 py-2">
+                                                            <p className="text-[10px] font-black tracking-wide text-muted-foreground uppercase">
+                                                                Target
+                                                            </p>
+
+                                                            <p className="mt-1 font-mono text-sm font-black">
+                                                                {item.target}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="neo-empty">
+                                        <CheckCircle2 className="size-8" />
+
+                                        <h3 className="mt-3 font-black">
+                                            Tidak ada gap utama
+                                        </h3>
+
+                                        <p className="mt-1 text-sm font-medium text-muted-foreground">
+                                            Skill utama Anda sudah memenuhi
+                                            target saat ini.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+
+                            <Button
+                                asChild
+                                variant="outline"
+                                className="mt-5 w-full"
+                            >
                                 <Link href="/skills">
-                                    Detail
+                                    Buka analisis lengkap
                                     <ArrowRight />
                                 </Link>
                             </Button>
                         </div>
 
-                        <div className="mt-6 space-y-3">
-                            {priorities.map((item, index) => (
-                                <div
-                                    key={item.skill_id}
-                                    className="rounded-xl border-2 border-foreground bg-muted p-4"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg border-2 border-foreground bg-card font-mono text-xs font-black">
-                                            0{index + 1}
+                        <div className="neo-card overflow-hidden">
+                            <div className="border-b-2 border-foreground bg-[#e8a16e] p-5 text-[#171717] sm:p-6">
+                                <div className="flex items-center justify-between gap-3">
+                                    <div>
+                                        <p className="text-xs font-black tracking-[0.13em] uppercase">
+                                            Portfolio
+                                        </p>
+
+                                        <h2 className="mt-1 text-2xl font-black">
+                                            Proyek aktif
+                                        </h2>
+                                    </div>
+
+                                    <BriefcaseBusiness className="size-7" />
+                                </div>
+                            </div>
+
+                            <div className="p-5 sm:p-6">
+                                {activeProject ? (
+                                    <>
+                                        <div className="flex size-12 items-center justify-center rounded-[10px] border-2 border-foreground bg-muted">
+                                            <FolderKanban className="size-6" />
+                                        </div>
+
+                                        <h3 className="mt-5 text-2xl font-black tracking-[-0.035em]">
+                                            {activeProject.project.title}
+                                        </h3>
+
+                                        <span className="mt-3 inline-flex rounded-full border-2 border-foreground bg-muted px-3 py-1 text-xs font-black capitalize">
+                                            {activeProject.status.replace(
+                                                /_/g,
+                                                ' ',
+                                            )}
                                         </span>
 
-                                        <div className="min-w-0 flex-1">
-                                            <div className="flex justify-between gap-3">
-                                                <p className="font-black">
-                                                    {item.name}
-                                                </p>
-                                                <span className="font-mono text-xs font-black">
-                                                    gap {item.gap}
+                                        <div className="mt-7">
+                                            <div className="mb-2 flex items-center justify-between text-xs font-black">
+                                                <span>Progres proyek</span>
+
+                                                <span>
+                                                    {
+                                                        activeProject.progress_percentage
+                                                    }
+                                                    %
                                                 </span>
                                             </div>
 
-                                            <p className="mt-1 line-clamp-2 text-xs leading-relaxed font-medium text-muted-foreground">
-                                                {item.reason}
-                                            </p>
+                                            <div className="neo-progress h-5">
+                                                <span
+                                                    style={{
+                                                        width: `${clampPercent(
+                                                            activeProject.progress_percentage,
+                                                        )}%`,
+                                                    }}
+                                                />
+                                            </div>
                                         </div>
+
+                                        <p className="mt-5 text-sm leading-6 font-medium text-muted-foreground">
+                                            Gunakan proyek ini untuk menerapkan
+                                            skill yang sudah dipelajari dan
+                                            membangun bukti kompetensi yang
+                                            dapat dimasukkan ke portofolio.
+                                        </p>
+
+                                        <Button asChild className="mt-6 w-full">
+                                            <Link
+                                                href={`/projects/${activeProject.project.slug}`}
+                                            >
+                                                Lanjutkan proyek
+                                                <ArrowRight />
+                                            </Link>
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <div className="neo-empty min-h-[300px]">
+                                        <FolderKanban className="size-9" />
+
+                                        <h3 className="mt-4 text-xl font-black">
+                                            Belum ada proyek aktif
+                                        </h3>
+
+                                        <p className="mt-2 max-w-sm text-sm leading-6 font-medium text-muted-foreground">
+                                            Pilih proyek rekomendasi yang sesuai
+                                            dengan gap skill dan target karier
+                                            Anda.
+                                        </p>
+
+                                        <Button asChild className="mt-5">
+                                            <Link href="/projects">
+                                                Cari proyek
+                                                <ArrowRight />
+                                            </Link>
+                                        </Button>
                                     </div>
-                                </div>
-                            ))}
+                                )}
+                            </div>
                         </div>
-                    </div>
-                </section>
-            </div>
+                    </section>
+                </div>
+            </main>
         </>
     );
 }

@@ -72,8 +72,8 @@ export default function AssessmentPage({
     const statusText = useMemo(
         () =>
             latestAttempt
-                ? 'Hasil penilaian terbaru akan menjadi dasar kemampuan aktifmu.'
-                : 'Ini penilaian pertamamu. Jawab sesuai kemampuan tanpa membuka referensi.',
+                ? 'Hasil Assesment terbaru akan menjadi dasar kemampuan aktifmu.'
+                : 'Ini Assesment pertamamu. Jawab sesuai kemampuan tanpa membuka referensi.',
         [latestAttempt],
     );
 
@@ -97,7 +97,7 @@ export default function AssessmentPage({
 
     return (
         <>
-            <Head title="Penilaian Awal" />
+            <Head title="Assesment Awal" />
 
             <div className="neo-page py-8 md:py-10">
                 <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
@@ -182,7 +182,7 @@ export default function AssessmentPage({
 
                                     <p className="mt-1 text-xs font-medium text-muted-foreground">
                                         Penilaian diri menyumbang 30% dari skor.
-                                        Jawaban Penilaian tetap memiliki bobot
+                                        Jawaban Assesment tetap memiliki bobot
                                         lebih besar.
                                     </p>
                                 </div>
@@ -239,7 +239,7 @@ export default function AssessmentPage({
                                     onClick={submit}
                                 >
                                     <CheckCircle2 />
-                                    Selesaikan Penilaian
+                                    Selesaikan Assesment
                                 </Button>
                             )}
                         </div>
@@ -298,8 +298,8 @@ export default function AssessmentPage({
 AssessmentPage.layout = {
     breadcrumbs: [
         {
-            title: 'Penilaian',
-            href: '/penilaian',
+            title: 'Assesment',
+            href: '/assessment',
         },
     ],
 };

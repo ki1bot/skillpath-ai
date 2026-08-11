@@ -96,7 +96,7 @@ export default function Skills({
                     <Button asChild variant="outline">
                         <Link href="/assessment">
                             <RotateCcw />
-                            Ulangi Penilaian
+                            Ulangi Assesment
                         </Link>
                     </Button>
                 </div>
