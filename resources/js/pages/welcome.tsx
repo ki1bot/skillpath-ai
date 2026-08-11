@@ -132,8 +132,6 @@ export default function Welcome({ careers, stats }: Props) {
 
     return (
         <>
-            <Head title="Jalur belajar yang sesuai kemampuanmu" />
-
             <main className="pb-12 sm:pb-16">
                 <section className="neo-page grid gap-10 pt-10 sm:pt-14 lg:grid-cols-[1.03fr_0.97fr] lg:items-center lg:gap-14 lg:pt-16">
                     <div>

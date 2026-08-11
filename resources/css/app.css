@@ -386,6 +386,24 @@
         color 150ms ease;
 }
 
+.dark .neo-label.bg-card {
+    border-color: #171717;
+    background-color: #fffdf8;
+    color: #171717;
+}
+
+.dark .bg-secondary [data-slot='button'][data-variant='outline'] {
+    border-color: #171717;
+    background-color: #fffdf8;
+    color: #171717;
+}
+
+.dark .bg-secondary [data-slot='button'][data-variant='outline']:hover {
+    border-color: #171717;
+    background-color: #f3efe6;
+    color: #171717;
+}
+
 @media (hover: hover) {
     .neo-interactive:hover {
         transform: translate(-1px, -1px);
