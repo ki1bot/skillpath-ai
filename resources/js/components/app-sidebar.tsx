@@ -30,7 +30,9 @@ export function AppSidebar() {
         return null;
     }
 
-    const items: NavItem[] = [
+    const isAdmin = user.role === 'admin';
+
+    const studentItems: NavItem[] = [
         {
             title: 'Dashboard',
             href: '/dashboard',
@@ -63,13 +65,22 @@ export function AppSidebar() {
         },
     ];
 
-    if (user.role === 'admin') {
-        items.push({
+    const adminItems: NavItem[] = [
+        {
+            title: 'Dashboard',
+            href: '/admin/dashboard',
+            icon: LayoutDashboard,
+        },
+        {
             title: 'Kelola Sistem',
             href: '/admin',
             icon: ShieldCheck,
-        });
-    }
+        },
+    ];
+
+    const items = isAdmin ? adminItems : studentItems;
+
+    const homeHref = isAdmin ? '/admin/dashboard' : '/dashboard';
 
     return (
         <Sidebar collapsible="icon" variant="sidebar">
@@ -81,7 +92,7 @@ export function AppSidebar() {
                             asChild
                             className="h-auto min-h-14 rounded-[10px] border-2 border-transparent px-2 group-data-[collapsible=icon]:size-10! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0! hover:border-sidebar-border hover:bg-muted"
                         >
-                            <Link href="/dashboard" prefetch>
+                            <Link href={homeHref} prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>

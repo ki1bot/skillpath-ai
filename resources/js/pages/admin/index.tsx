@@ -19,7 +19,7 @@ export default function AdminIndex({
 }: AdminPageProps) {
     return (
         <>
-            <Head title="Administrator" />
+            <Head title="Kelola Sistem" />
 
             <div className="neo-page flex flex-col gap-7 py-6 sm:py-8 lg:py-10">
                 <section className="neo-hero neo-accent-orange border-[#171717]">
@@ -31,7 +31,7 @@ export default function AdminIndex({
 
                             <div>
                                 <span className="neo-label bg-[#fffdf7]">
-                                    Ruang kerja administrator
+                                    Kelola Sistem
                                 </span>
 
                                 <h1 className="mt-5 text-4xl font-black tracking-[-0.045em] sm:text-5xl">
@@ -77,7 +77,7 @@ export default function AdminIndex({
 AdminIndex.layout = {
     breadcrumbs: [
         {
-            title: 'Administrator',
+            title: 'Kelola Sistem',
             href: '/admin',
         },
     ],

@@ -20,27 +20,69 @@ class EnforceIdleTimeout
             return $next($request);
         }
 
-        $timeoutMinutes = max(1, (int) config('security.idle_timeout_minutes', 10));
+        $timeoutMinutes = max(
+            1,
+            (int) config('security.idle_timeout_minutes', 10),
+        );
+
         $timeoutSeconds = $timeoutMinutes * 60;
-        $now = now()->timestamp;
-        $sessionActivity = (int) $request->session()->get('auth.last_activity', 0);
-        $cookieActivity = (int) $request->cookie(self::ACTIVITY_COOKIE, 0);
-        $lastActivity = max($sessionActivity, $cookieActivity);
+        $now = now()->getTimestamp();
 
-        if ($lastActivity === 0 && Auth::guard('web')->viaRemember()) {
-            return $this->logout($request, $timeoutMinutes);
+        $sessionValue = $request->session()->get(
+            'auth.last_activity',
+        );
+
+        $sessionActivity = is_numeric($sessionValue)
+            ? (int) $sessionValue
+            : 0;
+
+        $cookieValue = $request->cookie(
+            self::ACTIVITY_COOKIE,
+            '0',
+        );
+
+        $cookieActivity = is_string($cookieValue)
+            && is_numeric($cookieValue)
+                ? (int) $cookieValue
+                : 0;
+
+        $lastActivity = max(
+            $sessionActivity,
+            $cookieActivity,
+        );
+
+        if (
+            $lastActivity === 0
+            && Auth::guard('web')->viaRemember()
+        ) {
+            return $this->logout(
+                $request,
+                $timeoutMinutes,
+            );
         }
 
-        if ($lastActivity > 0 && ($now - $lastActivity) >= $timeoutSeconds) {
-            return $this->logout($request, $timeoutMinutes);
+        if (
+            $lastActivity > 0
+            && ($now - $lastActivity) >= $timeoutSeconds
+        ) {
+            return $this->logout(
+                $request,
+                $timeoutMinutes,
+            );
         }
 
-        $request->session()->put('auth.last_activity', $now);
+        $request->session()->put(
+            'auth.last_activity',
+            $now,
+        );
 
         $response = $next($request);
 
         return $response->withCookie(
-            $this->activityCookie($now, $timeoutMinutes),
+            $this->activityCookie(
+                $now,
+                $timeoutMinutes,
+            ),
         );
     }
 
@@ -59,7 +101,11 @@ class EnforceIdleTimeout
                 'status',
                 "Sesi Anda berakhir karena tidak ada aktivitas selama {$timeoutMinutes} menit. Silakan masuk kembali.",
             )
-            ->withCookie(Cookie::forget(self::ACTIVITY_COOKIE));
+            ->withCookie(
+                Cookie::forget(
+                    self::ACTIVITY_COOKIE,
+                ),
+            );
     }
 
     private function activityCookie(
@@ -70,12 +116,21 @@ class EnforceIdleTimeout
             self::ACTIVITY_COOKIE,
             (string) $timestamp,
             $timeoutMinutes,
-            (string) config('session.path', '/'),
+            (string) config(
+                'session.path',
+                '/',
+            ),
             config('session.domain'),
-            (bool) config('session.secure', false),
+            (bool) config(
+                'session.secure',
+                false,
+            ),
             true,
             false,
-            config('session.same_site', 'lax'),
+            config(
+                'session.same_site',
+                'lax',
+            ),
         );
     }
 }

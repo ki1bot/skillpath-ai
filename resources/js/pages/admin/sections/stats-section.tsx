@@ -47,7 +47,7 @@ export function StatsSection({ stats }: { stats: AdminStats }) {
             accent: 'bg-[var(--neo-pink)]',
         },
         {
-            label: 'Percobaan Assesment',
+            label: 'Percobaan Assessment',
             value: stats.assessmentAttempts,
             icon: Database,
             accent: 'bg-[#fffdf7]',
