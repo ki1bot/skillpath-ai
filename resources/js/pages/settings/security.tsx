@@ -3,8 +3,6 @@ import { useRef } from 'react';
 import SecurityController from '@/actions/App/Http/Controllers/Settings/SecurityController';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
-import type { Props as ManagePasskeysProps } from '@/components/manage-passkeys';
-import ManagePasskeys from '@/components/manage-passkeys';
 import type { Props as ManageTwoFactorProps } from '@/components/manage-two-factor';
 import ManageTwoFactor from '@/components/manage-two-factor';
 import PasswordInput from '@/components/password-input';
@@ -14,11 +12,11 @@ import { edit } from '@/routes/security';
 
 type Props = {
     passwordRules: string;
-} & ManagePasskeysProps &
-    ManageTwoFactorProps;
+} & ManageTwoFactorProps;
 
 export default function Security(props: Props) {
     const passwordInput = useRef<HTMLInputElement>(null);
+
     const currentPasswordInput = useRef<HTMLInputElement>(null);
 
     return (
@@ -31,7 +29,7 @@ export default function Security(props: Props) {
                 <Heading
                     variant="small"
                     title="Perbarui kata sandi"
-                    description="Gunakan kata sandi minimal 8 karakter dan jangan membagikannya kepada orang lain"
+                    description="Gunakan kata sandi yang kuat dan berbeda dari akun lain yang Anda miliki."
                 />
 
                 <Form
@@ -67,9 +65,8 @@ export default function Security(props: Props) {
                                     id="current_password"
                                     ref={currentPasswordInput}
                                     name="current_password"
-                                    className="mt-1 block w-full"
                                     autoComplete="current-password"
-                                    placeholder="Kata sandi saat ini"
+                                    placeholder="Masukkan kata sandi saat ini"
                                 />
 
                                 <InputError message={errors.current_password} />
@@ -84,9 +81,8 @@ export default function Security(props: Props) {
                                     id="password"
                                     ref={passwordInput}
                                     name="password"
-                                    className="mt-1 block w-full"
                                     autoComplete="new-password"
-                                    placeholder="Kata sandi baru"
+                                    placeholder="Masukkan kata sandi baru"
                                     passwordrules={props.passwordRules}
                                 />
 
@@ -101,9 +97,8 @@ export default function Security(props: Props) {
                                 <PasswordInput
                                     id="password_confirmation"
                                     name="password_confirmation"
-                                    className="mt-1 block w-full"
                                     autoComplete="new-password"
-                                    placeholder="Konfirmasi kata sandi"
+                                    placeholder="Ulangi kata sandi baru"
                                     passwordrules={props.passwordRules}
                                 />
 
@@ -112,14 +107,14 @@ export default function Security(props: Props) {
                                 />
                             </div>
 
-                            <div className="flex items-center gap-4">
-                                <Button
-                                    disabled={processing}
-                                    data-test="update-password-button"
-                                >
-                                    Save
-                                </Button>
-                            </div>
+                            <Button
+                                disabled={processing}
+                                data-test="update-password-button"
+                            >
+                                {processing
+                                    ? 'Menyimpan...'
+                                    : 'Simpan kata sandi'}
+                            </Button>
                         </>
                     )}
                 </Form>
@@ -129,11 +124,6 @@ export default function Security(props: Props) {
                 canManageTwoFactor={props.canManageTwoFactor}
                 requiresConfirmation={props.requiresConfirmation}
                 twoFactorEnabled={props.twoFactorEnabled}
-            />
-
-            <ManagePasskeys
-                canManagePasskeys={props.canManagePasskeys}
-                passkeys={props.passkeys}
             />
         </>
     );

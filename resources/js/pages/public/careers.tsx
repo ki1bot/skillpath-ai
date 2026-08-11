@@ -38,8 +38,8 @@ export default function Careers({ careers }: { careers: Career[] }) {
 
                     <p className="mt-5 text-lg leading-relaxed font-medium text-muted-foreground">
                         Lihat tanggung jawab dan kemampuan yang dibutuhkan.
-                        Setelah asesmen, kamu bisa melihat seberapa jauh posisi
-                        sekarang dari target yang dipilih.
+                        Setelah penilaian, kamu bisa melihat seberapa jauh
+                        posisi sekarang dari target yang dipilih.
                     </p>
                 </div>
 

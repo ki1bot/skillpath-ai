@@ -40,23 +40,11 @@ export default function AdminIndex({
                                 </h1>
 
                                 <p className="mt-4 max-w-3xl text-sm leading-7 font-semibold sm:text-base">
-                                    Karier, keahlian, prasyarat, asesmen, materi
-                                    belajar, dan proyek portofolio dapat
+                                    Karier, keahlian, prasyarat, penilaian,
+                                    materi belajar, dan proyek portofolio dapat
                                     dikelola tanpa mencampurkannya dengan hasil
                                     belajar masing-masing mahasiswa.
                                 </p>
-                            </div>
-                        </div>
-
-                        <div className="flex w-fit items-center gap-3 rounded-[12px] border-2 border-[#171717] bg-[#fffdf7] px-4 py-3 text-[#171717]">
-                            <Database className="size-5" />
-
-                            <div>
-                                <p className="text-[10px] font-black tracking-[0.14em] uppercase">
-                                    Basis data utama
-                                </p>
-
-                                <p className="text-sm font-black">PostgreSQL</p>
                             </div>
                         </div>
                     </div>

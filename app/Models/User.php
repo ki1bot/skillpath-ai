@@ -9,8 +9,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Fortify\Contracts\PasskeyUser;
-use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
 #[Fillable([
@@ -26,10 +24,15 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
     'target_career_id',
     'onboarding_completed_at',
 ])]
-#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
-class User extends Authenticatable implements PasskeyUser
+#[Hidden([
+    'password',
+    'two_factor_secret',
+    'two_factor_recovery_codes',
+    'remember_token',
+])]
+class User extends Authenticatable
 {
-    use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+    use HasFactory, Notifiable, TwoFactorAuthenticatable;
 
     protected function casts(): array
     {
@@ -43,7 +46,10 @@ class User extends Authenticatable implements PasskeyUser
 
     public function targetCareer(): BelongsTo
     {
-        return $this->belongsTo(Career::class, 'target_career_id');
+        return $this->belongsTo(
+            Career::class,
+            'target_career_id',
+        );
     }
 
     public function userSkills(): HasMany
@@ -53,7 +59,9 @@ class User extends Authenticatable implements PasskeyUser
 
     public function assessmentResults(): HasMany
     {
-        return $this->hasMany(AssessmentResult::class);
+        return $this->hasMany(
+            AssessmentResult::class,
+        );
     }
 
     public function roadmaps(): HasMany
@@ -78,7 +86,9 @@ class User extends Authenticatable implements PasskeyUser
 
     public function readinessSnapshots(): HasMany
     {
-        return $this->hasMany(ReadinessSnapshot::class);
+        return $this->hasMany(
+            ReadinessSnapshot::class,
+        );
     }
 
     public function isAdmin(): bool

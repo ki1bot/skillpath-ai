@@ -27,7 +27,7 @@ const principles: Principle[] = [
     {
         icon: Bot,
         title: 'AI hanya membantu menjelaskan',
-        text: 'AI membantu merangkum hasil agar lebih mudah dipahami. Asesmen, perhitungan kemampuan, jalur belajar, proyek, dan skor kesiapan tetap berasal dari data dan aturan sistem.',
+        text: 'AI membantu merangkum hasil agar lebih mudah dipahami. Penilaian, perhitungan kemampuan, jalur belajar, proyek, dan skor kesiapan tetap berasal dari data dan aturan sistem.',
     },
 ];
 

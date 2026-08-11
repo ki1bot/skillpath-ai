@@ -232,7 +232,6 @@ export default function ProjectShow({
                     <Card>
                         <CardHeader className="border-b-2 border-black bg-[var(--neo-yellow)]">
                             <CardTitle className="flex items-center gap-2 text-xl font-black">
-                                <Sparkles className="size-5" />
                                 Fitur pengembangan
                             </CardTitle>
                         </CardHeader>

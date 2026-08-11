@@ -216,7 +216,7 @@ export default function Onboarding({
                         </div>
 
                         <p className="mt-3 text-sm leading-6 font-medium text-muted-foreground">
-                            Target dapat diganti nanti. Asesmen dan jalur
+                            Target dapat diganti nanti. Penilaian dan jalur
                             belajar akan mengikuti target yang sedang aktif.
                         </p>
 
@@ -302,7 +302,7 @@ export default function Onboarding({
                         )}
 
                         <div className="mt-7 rounded-[12px] border-2 border-[#171717] bg-[var(--neo-yellow)] p-4 text-sm leading-6 font-bold text-[#171717]">
-                            Setelah ini kamu akan mengerjakan asesmen singkat.
+                            Setelah ini kamu akan mengerjakan tugas singkat.
                             Jalur belajar dibuat setelah kemampuan awalmu sudah
                             diketahui.
                         </div>
@@ -313,7 +313,7 @@ export default function Onboarding({
                             className="mt-6 w-full"
                             disabled={form.processing}
                         >
-                            {editing ? 'Simpan profil' : 'Lanjut ke asesmen'}
+                            {editing ? 'Simpan profil' : 'Lanjut ke penilaian'}
                             <ArrowRight />
                         </Button>
                     </section>

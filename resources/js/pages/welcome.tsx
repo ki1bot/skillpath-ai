@@ -45,7 +45,7 @@ const processSteps: ProcessStep[] = [
         icon: Target,
         number: '01',
         title: 'Cek kemampuan',
-        text: 'Jawab asesmen singkat untuk melihat kemampuan yang sudah kamu punya.',
+        text: 'Jawab tugas singkat untuk melihat kemampuan yang sudah kamu punya.',
         accent: 'bg-[var(--neo-lime)]',
     },
     {
@@ -139,7 +139,6 @@ export default function Welcome({ careers, stats }: Props) {
                 <section className="neo-page grid gap-10 pt-10 sm:pt-14 lg:grid-cols-[1.03fr_0.97fr] lg:items-center lg:gap-14 lg:pt-16">
                     <div>
                         <span className="neo-label">
-                            <Sparkles className="size-3.5" />
                             Belajar sesuai kebutuhanmu
                         </span>
 
@@ -156,7 +155,7 @@ export default function Welcome({ careers, stats }: Props) {
                         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                             <Button asChild size="lg">
                                 <Link href="/register">
-                                    Mulai asesmen
+                                    Mulai Penilaian
                                     <ArrowRight />
                                 </Link>
                             </Button>
@@ -189,7 +188,7 @@ export default function Welcome({ careers, stats }: Props) {
                             <div className="mb-7 flex items-start justify-between gap-4">
                                 <div>
                                     <p className="text-xs font-black tracking-[0.16em] text-muted-foreground uppercase">
-                                        Contoh hasil asesmen
+                                        Contoh hasil Penilaian
                                     </p>
 
                                     <h2 className="mt-1 text-2xl font-black tracking-tight">
@@ -400,9 +399,9 @@ export default function Welcome({ careers, stats }: Props) {
                             </h2>
 
                             <p className="mt-5 max-w-2xl leading-7 font-semibold text-muted-foreground">
-                                Buat akun, pilih target karier, kerjakan
-                                asesmen, lalu lihat bagian mana yang sebaiknya
-                                dikerjakan lebih dahulu.
+                                Buat akun, pilih target karier, kerjakan tugas,
+                                lalu lihat bagian mana yang sebaiknya dikerjakan
+                                lebih dahulu.
                             </p>
 
                             <Button asChild size="lg" className="mt-7">

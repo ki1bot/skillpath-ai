@@ -1,13 +1,16 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useInitials } from '@/hooks/use-initials';
+import { cn } from '@/lib/utils';
 import type { User } from '@/types';
 
 export function UserInfo({
     user,
     showEmail = false,
+    hideDetailsOnCollapsed = false,
 }: {
     user: User;
     showEmail?: boolean;
+    hideDetailsOnCollapsed?: boolean;
 }) {
     const getInitials = useInitials();
 
@@ -21,7 +24,13 @@ export function UserInfo({
                 </AvatarFallback>
             </Avatar>
 
-            <div className="grid min-w-0 flex-1 text-left leading-tight">
+            <div
+                className={cn(
+                    'grid min-w-0 flex-1 text-left leading-tight',
+                    hideDetailsOnCollapsed &&
+                        'group-data-[collapsible=icon]:hidden',
+                )}
+            >
                 <span className="truncate text-sm font-extrabold">
                     {user.name}
                 </span>

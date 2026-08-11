@@ -66,7 +66,7 @@ class AssessmentController extends Controller
                 || ! array_key_exists($question->id, $validated['self_ratings'])
             ) {
                 throw ValidationException::withMessages([
-                    'answers' => 'Semua pertanyaan dan self-rating harus diisi sebelum asesmen dikirim.',
+                    'answers' => 'Semua pertanyaan dan self-rating harus diisi sebelum penilaian dikirim.',
                 ]);
             }
         }
@@ -107,7 +107,7 @@ class AssessmentController extends Controller
 
         $roadmapService->regenerate(
             $freshUser,
-            'Hasil asesmen '.now()->format('d M Y'),
+            'Hasil Penilaian '.now()->format('d M Y'),
         );
 
         $readinessService->snapshot(
@@ -117,6 +117,6 @@ class AssessmentController extends Controller
 
         return redirect()
             ->route('skills.index')
-            ->with('success', 'Asesmen selesai. Skill gap dan roadmap Anda sudah diperbarui.');
+            ->with('success', 'Penilaian selesai. Skill gap dan roadmap Anda sudah diperbarui.');
     }
 }

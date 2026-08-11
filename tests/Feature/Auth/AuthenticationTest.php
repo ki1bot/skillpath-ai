@@ -14,7 +14,9 @@ class AuthenticationTest extends TestCase
 
     public function test_login_screen_can_be_rendered()
     {
-        $response = $this->get(route('login'));
+        $response = $this->get(
+            route('login'),
+        );
 
         $response->assertOk();
     }
@@ -23,33 +25,85 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->post(route('login.store'), [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
+        $response = $this->post(
+            route('login.store'),
+            [
+                'email' => $user->email,
+                'password' => 'password',
+            ],
+        );
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+
+        $response->assertRedirect(
+            route(
+                'dashboard',
+                absolute: false,
+            ),
+        );
+    }
+
+    public function test_users_can_choose_to_be_remembered()
+    {
+        $user = User::factory()->create();
+
+        $response = $this->post(
+            route('login.store'),
+            [
+                'email' => $user->email,
+                'password' => 'password',
+                'remember' => '1',
+            ],
+        );
+
+        $response->assertRedirect(
+            route(
+                'dashboard',
+                absolute: false,
+            ),
+        );
+
+        $this->assertAuthenticated();
+
+        $this->assertNotEmpty(
+            $user
+                ->fresh()
+                ->getRememberToken(),
+        );
     }
 
     public function test_users_with_two_factor_enabled_are_redirected_to_two_factor_challenge()
     {
-        $this->skipUnlessFortifyHas(Features::twoFactorAuthentication());
+        $this->skipUnlessFortifyHas(
+            Features::twoFactorAuthentication(),
+        );
 
         Features::twoFactorAuthentication([
             'confirm' => true,
             'confirmPassword' => true,
         ]);
 
-        $user = User::factory()->withTwoFactor()->create();
+        $user = User::factory()
+            ->withTwoFactor()
+            ->create();
 
-        $response = $this->post(route('login'), [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
+        $response = $this->post(
+            route('login'),
+            [
+                'email' => $user->email,
+                'password' => 'password',
+            ],
+        );
 
-        $response->assertRedirect(route('two-factor.login'));
-        $response->assertSessionHas('login.id', $user->id);
+        $response->assertRedirect(
+            route('two-factor.login'),
+        );
+
+        $response->assertSessionHas(
+            'login.id',
+            $user->id,
+        );
+
         $this->assertGuest();
     }
 
@@ -57,10 +111,13 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->post(route('login.store'), [
-            'email' => $user->email,
-            'password' => 'wrong-password',
-        ]);
+        $this->post(
+            route('login.store'),
+            [
+                'email' => $user->email,
+                'password' => 'wrong-password',
+            ],
+        );
 
         $this->assertGuest();
     }
@@ -69,9 +126,13 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->post(route('logout'));
+        $response = $this
+            ->actingAs($user)
+            ->post(route('logout'));
 
-        $response->assertRedirect(route('home'));
+        $response->assertRedirect(
+            route('home'),
+        );
 
         $this->assertGuest();
     }
@@ -80,12 +141,26 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create();
 
-        RateLimiter::increment(md5('login'.implode('|', [$user->email, '127.0.0.1'])), amount: 5);
+        RateLimiter::increment(
+            md5(
+                'login'.implode(
+                    '|',
+                    [
+                        $user->email,
+                        '127.0.0.1',
+                    ],
+                ),
+            ),
+            amount: 5,
+        );
 
-        $response = $this->post(route('login.store'), [
-            'email' => $user->email,
-            'password' => 'wrong-password',
-        ]);
+        $response = $this->post(
+            route('login.store'),
+            [
+                'email' => $user->email,
+                'password' => 'wrong-password',
+            ],
+        );
 
         $response->assertTooManyRequests();
     }

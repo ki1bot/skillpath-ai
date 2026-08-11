@@ -298,7 +298,7 @@ class AssessmentSeeder extends Seeder
             $assessment = Assessment::updateOrCreate(
                 ['career_id' => $career->id],
                 [
-                    'title' => 'Asesmen Awal '.$career->name,
+                    'title' => 'Penilaian Awal '.$career->name,
                     'description' => 'Jawab berdasarkan kemampuan saat ini. Skor objektif digabung dengan penilaian diri agar sistem memiliki titik awal yang lebih masuk akal.',
                     'duration_minutes' => 20,
                     'is_active' => true,

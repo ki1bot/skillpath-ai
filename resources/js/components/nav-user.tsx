@@ -16,6 +16,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 export function NavUser() {
     const { auth } = usePage().props;
+
     const isMobile = useIsMobile();
 
     if (!auth.user) {
@@ -29,17 +30,17 @@ export function NavUser() {
                     <DropdownMenuTrigger asChild>
                         <SidebarMenuButton
                             size="lg"
-                            className="h-auto min-h-14 rounded-[12px] border-2 border-transparent px-2.5 text-sidebar-foreground hover:border-sidebar-border hover:bg-muted data-[state=open]:border-[#171717] data-[state=open]:bg-sidebar-accent data-[state=open]:text-[#171717]"
+                            className="h-auto min-h-14 rounded-[10px] border-2 border-transparent px-2.5 text-sidebar-foreground group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-10! group-data-[collapsible=icon]:min-h-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0! hover:border-sidebar-border hover:bg-muted data-[state=open]:border-[#171717] data-[state=open]:bg-sidebar-accent data-[state=open]:text-[#171717]"
                             data-test="sidebar-menu-button"
                         >
-                            <UserInfo user={auth.user} />
+                            <UserInfo user={auth.user} hideDetailsOnCollapsed />
 
-                            <ChevronsUpDown className="ml-auto size-4 shrink-0" />
+                            <ChevronsUpDown className="ml-auto size-4 shrink-0 group-data-[collapsible=icon]:hidden" />
                         </SidebarMenuButton>
                     </DropdownMenuTrigger>
 
                     <DropdownMenuContent
-                        className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-[12px] border-2 border-foreground bg-popover shadow-[4px_4px_0_var(--neo-shadow-color)]"
+                        className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-[10px] border-2 border-foreground bg-popover shadow-[3px_3px_0_var(--neo-shadow-color)]"
                         align="end"
                         side={isMobile ? 'bottom' : 'right'}
                     >

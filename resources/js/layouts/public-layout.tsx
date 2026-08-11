@@ -4,20 +4,13 @@ import { useState } from 'react';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { Button } from '@/components/ui/button';
 
-type PublicProps = {
-    auth: {
-        user?: {
-            id: number;
-        } | null;
-    };
-};
-
 export default function PublicLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    const { auth } = usePage().props as PublicProps;
+    const { auth } = usePage().props;
+
     const [mobileOpen, setMobileOpen] = useState(false);
 
     const closeMenu = () => setMobileOpen(false);
@@ -25,14 +18,14 @@ export default function PublicLayout({
     return (
         <div className="min-h-screen overflow-x-hidden">
             <header className="sticky top-0 z-40 border-b-2 border-foreground bg-background/95 backdrop-blur-md">
-                <div className="neo-page flex min-h-18 items-center justify-between gap-3">
+                <div className="neo-page flex min-h-17 items-center justify-between gap-3">
                     <Link
                         href="/"
-                        className="flex min-w-0 items-center gap-3 font-black tracking-tight"
+                        className="flex min-w-0 items-center gap-3 font-extrabold tracking-tight"
                         onClick={closeMenu}
                     >
-                        <span className="flex size-10 shrink-0 items-center justify-center rounded-[11px] border-2 border-foreground bg-secondary text-[#171717] shadow-[3px_3px_0_var(--neo-shadow-color)]">
-                            <AppLogoIcon className="size-6" />
+                        <span className="flex size-9 shrink-0 items-center justify-center rounded-[9px] border-2 border-foreground bg-secondary text-[#171717] shadow-[2px_2px_0_var(--neo-shadow-color)]">
+                            <AppLogoIcon className="size-5" />
                         </span>
 
                         <span className="truncate text-base sm:text-lg">
@@ -40,24 +33,24 @@ export default function PublicLayout({
                         </span>
                     </Link>
 
-                    <nav className="hidden items-center gap-2 text-sm font-black md:flex">
+                    <nav className="hidden items-center gap-1 text-sm font-bold md:flex">
                         <Link
                             href="/karier"
-                            className="rounded-[9px] border-2 border-transparent px-3 py-2 transition-colors hover:border-foreground hover:bg-card"
+                            className="rounded-[8px] border-2 border-transparent px-3 py-2 transition-colors hover:border-foreground/30 hover:bg-card"
                         >
                             Jalur Karier
                         </Link>
 
                         <Link
                             href="/tentang"
-                            className="rounded-[9px] border-2 border-transparent px-3 py-2 transition-colors hover:border-foreground hover:bg-card"
+                            className="rounded-[8px] border-2 border-transparent px-3 py-2 transition-colors hover:border-foreground/30 hover:bg-card"
                         >
                             Tentang
                         </Link>
                     </nav>
 
-                    <div className="hidden items-center gap-3 md:flex">
-                        {auth?.user ? (
+                    <div className="hidden items-center gap-2 md:flex">
+                        {auth.user ? (
                             <Button asChild size="sm">
                                 <Link href="/dashboard">
                                     Dashboard
@@ -66,15 +59,12 @@ export default function PublicLayout({
                             </Button>
                         ) : (
                             <>
-                                <Button asChild variant="outline" size="sm">
+                                <Button asChild variant="ghost" size="sm">
                                     <Link href="/login">Masuk</Link>
                                 </Button>
 
                                 <Button asChild size="sm">
-                                    <Link href="/register">
-                                        Buat akun
-                                        <ArrowRight />
-                                    </Link>
+                                    <Link href="/register">Buat akun</Link>
                                 </Button>
                             </>
                         )}
@@ -101,13 +91,13 @@ export default function PublicLayout({
                 {mobileOpen && (
                     <div
                         id="public-mobile-menu"
-                        className="animate-in border-t-2 border-foreground bg-background px-4 py-4 duration-200 fade-in slide-in-from-top-2 md:hidden"
+                        className="animate-in border-t-2 border-foreground bg-background px-4 py-4 duration-150 fade-in slide-in-from-top-1 md:hidden"
                     >
-                        <nav className="mx-auto grid max-w-7xl gap-3">
+                        <nav className="mx-auto grid max-w-7xl gap-2.5">
                             <Link
                                 href="/karier"
                                 onClick={closeMenu}
-                                className="rounded-[11px] border-2 border-foreground bg-card px-4 py-3 text-sm font-black shadow-[3px_3px_0_var(--neo-shadow-color)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                                className="rounded-[9px] border-2 border-foreground bg-card px-4 py-3 text-sm font-bold shadow-[2px_2px_0_var(--neo-shadow-color)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
                             >
                                 Jalur Karier
                             </Link>
@@ -115,20 +105,20 @@ export default function PublicLayout({
                             <Link
                                 href="/tentang"
                                 onClick={closeMenu}
-                                className="rounded-[11px] border-2 border-foreground bg-card px-4 py-3 text-sm font-black shadow-[3px_3px_0_var(--neo-shadow-color)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                                className="rounded-[9px] border-2 border-foreground bg-card px-4 py-3 text-sm font-bold shadow-[2px_2px_0_var(--neo-shadow-color)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
                             >
                                 Tentang
                             </Link>
 
-                            {auth?.user ? (
+                            {auth.user ? (
                                 <Button asChild className="mt-1 w-full">
                                     <Link href="/dashboard" onClick={closeMenu}>
-                                        Dashboard
+                                        Buka Dashboard
                                         <ArrowRight />
                                     </Link>
                                 </Button>
                             ) : (
-                                <div className="mt-1 grid grid-cols-2 gap-3">
+                                <div className="mt-1 grid grid-cols-2 gap-2.5">
                                     <Button asChild variant="outline">
                                         <Link href="/login" onClick={closeMenu}>
                                             Masuk
@@ -153,15 +143,15 @@ export default function PublicLayout({
             {children}
 
             <footer className="mt-16 border-t-2 border-foreground bg-foreground text-background sm:mt-20">
-                <div className="neo-page flex flex-col gap-4 py-8 text-sm md:flex-row md:items-center md:justify-between">
+                <div className="neo-page flex flex-col gap-3 py-8 text-sm md:flex-row md:items-center md:justify-between">
                     <p className="font-bold">
-                        SkillPath AI — belajar lebih terarah, satu langkah pada
-                        satu waktu.
+                        SkillPath AI — bantu tentukan langkah belajar
+                        berikutnya.
                     </p>
 
-                    <p className="max-w-xl text-background/70 md:text-right">
-                        Skor kesiapan membantu melihat perkembangan, bukan
-                        menjamin hasil rekrutmen.
+                    <p className="max-w-xl text-background/65 md:text-right">
+                        Gunakan hasil Penilaian dan progres sebagai panduan,
+                        bukan sebagai jaminan hasil rekrutmen.
                     </p>
                 </div>
             </footer>

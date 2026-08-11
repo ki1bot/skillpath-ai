@@ -33,7 +33,7 @@ class RoadmapController extends Controller
         if (! $roadmap) {
             return redirect()
                 ->route('assessment.show')
-                ->with('error', 'Selesaikan asesmen untuk membuat roadmap personal.');
+                ->with('error', 'Selesaikan tugas untuk membuat roadmap personal.');
         }
 
         return Inertia::render('roadmap', [

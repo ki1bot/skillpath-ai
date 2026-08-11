@@ -4,13 +4,16 @@ import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
+type PasswordInputProps = Omit<ComponentProps<'input'>, 'type'> & {
+    ref?: Ref<HTMLInputElement>;
+    passwordrules?: string;
+};
+
 export default function PasswordInput({
     className,
     ref,
     ...props
-}: Omit<ComponentProps<'input'>, 'type'> & {
-    ref?: Ref<HTMLInputElement>;
-}) {
+}: PasswordInputProps) {
     const [showPassword, setShowPassword] = useState(false);
 
     return (

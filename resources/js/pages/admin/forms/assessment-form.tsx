@@ -43,7 +43,7 @@ export function AssessmentForm({ assessment, careers }: Props) {
                         </SelectField>
 
                         <InputField
-                            label="Durasi asesmen"
+                            label="Durasi Penilaian"
                             type="number"
                             name="duration_minutes"
                             min={5}
@@ -86,7 +86,7 @@ export function AssessmentForm({ assessment, careers }: Props) {
                             <Plus className="size-4" />
                         )}
 
-                        {assessment ? 'Simpan asesmen' : 'Tambah asesmen'}
+                        {assessment ? 'Simpan penilaian' : 'Tambah penilaian'}
                     </Button>
                 </>
             )}

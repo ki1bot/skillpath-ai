@@ -302,8 +302,8 @@ export default function Dashboard({
                                             Tidak ada materi aktif.
                                         </h2>
                                         <p className="mt-2 text-sm font-medium text-muted-foreground">
-                                            Selesaikan asesmen atau cek roadmap
-                                            terbaru.
+                                            Selesaikan Penilaian atau cek
+                                            roadmap terbaru.
                                         </p>
                                     </>
                                 )}

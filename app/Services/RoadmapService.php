@@ -13,7 +13,7 @@ class RoadmapService
 {
     public function __construct(private readonly SkillGapService $skillGapService) {}
 
-    public function regenerate(User $user, string $reason = 'Asesmen awal'): Roadmap
+    public function regenerate(User $user, string $reason = 'Penilaian awal'): Roadmap
     {
         $user->loadMissing('targetCareer');
 

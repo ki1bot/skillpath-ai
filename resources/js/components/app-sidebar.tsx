@@ -20,16 +20,19 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import type { Auth, NavItem } from '@/types';
+import type { NavItem } from '@/types';
 
 export function AppSidebar() {
-    const { auth } = usePage().props as {
-        auth: Auth;
-    };
+    const { auth } = usePage().props;
+    const user = auth.user;
+
+    if (!user) {
+        return null;
+    }
 
     const items: NavItem[] = [
         {
-            title: 'Dasboard',
+            title: 'Dashboard',
             href: '/dashboard',
             icon: LayoutDashboard,
         },
@@ -60,7 +63,7 @@ export function AppSidebar() {
         },
     ];
 
-    if (auth.user.role === 'admin') {
+    if (user.role === 'admin') {
         items.push({
             title: 'Kelola Sistem',
             href: '/admin',
@@ -69,18 +72,14 @@ export function AppSidebar() {
     }
 
     return (
-        <Sidebar
-            collapsible="offcanvas"
-            variant="floating"
-            className="duration-300 ease-out [&_[data-sidebar=sidebar]]:overflow-hidden [&_[data-sidebar=sidebar]]:rounded-[18px] [&_[data-sidebar=sidebar]]:border-2 [&_[data-sidebar=sidebar]]:border-sidebar-border [&_[data-sidebar=sidebar]]:bg-sidebar [&_[data-sidebar=sidebar]]:shadow-[5px_5px_0_var(--neo-shadow-color)]"
-        >
+        <Sidebar collapsible="icon" variant="sidebar">
             <SidebarHeader className="border-b-2 border-sidebar-border bg-sidebar p-3">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
                             size="lg"
                             asChild
-                            className="h-auto min-h-14 rounded-[12px] border-2 border-transparent px-2 hover:border-sidebar-border hover:bg-muted"
+                            className="h-auto min-h-14 rounded-[10px] border-2 border-transparent px-2 group-data-[collapsible=icon]:size-10! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0! hover:border-sidebar-border hover:bg-muted"
                         >
                             <Link href="/dashboard" prefetch>
                                 <AppLogo />

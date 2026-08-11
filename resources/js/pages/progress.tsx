@@ -102,8 +102,8 @@ interface RoadmapHistory {
 }
 
 const triggerLabels: Record<string, string> = {
-    assessment_completed: 'Asesmen selesai',
-    assessment_updated: 'Asesmen diperbarui',
+    assessment_completed: 'Penilaian selesai',
+    assessment_updated: 'Penilaian diperbarui',
     roadmap_created: 'Jalur belajar dibuat',
     roadmap_regenerated: 'Jalur belajar diperbarui',
     material_completed: 'Materi selesai',
@@ -201,9 +201,9 @@ export default function Progress({
                             </h1>
 
                             <p className="mt-3 max-w-2xl text-sm leading-6 font-semibold">
-                                Asesmen, evaluasi, jalur belajar, waktu belajar,
-                                dan proyek disimpan agar kamu bisa melihat
-                                perubahan dari waktu ke waktu.
+                                Penilaian, evaluasi, jalur belajar, waktu
+                                belajar, dan proyek disimpan agar kamu bisa
+                                melihat perubahan dari waktu ke waktu.
                             </p>
                         </div>
 
@@ -300,14 +300,14 @@ export default function Progress({
                 <Card>
                     <CardHeader className="border-b-2 border-foreground">
                         <CardTitle className="text-xl font-black">
-                            Riwayat asesmen
+                            Riwayat Penilaian
                         </CardTitle>
                     </CardHeader>
 
                     <CardContent className="grid gap-3 pt-6 md:grid-cols-2">
                         {assessmentHistory.length === 0 && (
                             <p className="text-sm font-bold">
-                                Belum ada riwayat asesmen.
+                                Belum ada riwayat Penilaian.
                             </p>
                         )}
 
@@ -318,7 +318,7 @@ export default function Progress({
                             >
                                 <div className="flex items-center justify-between gap-3">
                                     <p className="text-sm font-black">
-                                        Asesmen #
+                                        Penilaian #
                                         {assessmentHistory.length - index}
                                     </p>
 

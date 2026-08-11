@@ -8,107 +8,107 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-    --neo-ink: #171717;
-    --neo-paper: #fffdf7;
-    --neo-cream: #f4efe5;
-    --neo-lime: #c7ff5e;
-    --neo-blue: #79d7ff;
-    --neo-yellow: #ffd95a;
-    --neo-orange: #ff9f68;
-    --neo-pink: #ff8fab;
+    --neo-ink: #1f1f1c;
+    --neo-paper: #fffdf8;
+    --neo-cream: #f3efe6;
+    --neo-lime: #d7e6b2;
+    --neo-blue: #aac8f5;
+    --neo-yellow: #f2cf77;
+    --neo-orange: #e8a16e;
+    --neo-pink: #dda7bb;
 
-    --background: #f4efe5;
-    --foreground: #171717;
+    --background: #f3efe6;
+    --foreground: #1f1f1c;
 
-    --card: #fffdf7;
-    --card-foreground: #171717;
+    --card: #fffdf8;
+    --card-foreground: #1f1f1c;
 
-    --popover: #fffdf7;
-    --popover-foreground: #171717;
+    --popover: #fffdf8;
+    --popover-foreground: #1f1f1c;
 
-    --primary: #171717;
-    --primary-foreground: #fffdf7;
+    --primary: #1f1f1c;
+    --primary-foreground: #fffdf8;
 
-    --secondary: #c7ff5e;
+    --secondary: #d7e6b2;
     --secondary-foreground: #171717;
 
-    --muted: #e6dfd2;
-    --muted-foreground: #625d55;
+    --muted: #e8e2d7;
+    --muted-foreground: #676158;
 
-    --accent: #79d7ff;
+    --accent: #aac8f5;
     --accent-foreground: #171717;
 
-    --destructive: #ef4d4d;
-    --destructive-foreground: #fffdf7;
+    --destructive: #dc5d56;
+    --destructive-foreground: #fffdf8;
 
-    --border: #171717;
-    --input: #171717;
-    --ring: #171717;
+    --border: #1f1f1c;
+    --input: #1f1f1c;
+    --ring: #1f1f1c;
 
-    --sidebar: #fffdf7;
-    --sidebar-foreground: #171717;
-    --sidebar-primary: #171717;
-    --sidebar-primary-foreground: #fffdf7;
-    --sidebar-accent: #c7ff5e;
+    --sidebar: #fffdf8;
+    --sidebar-foreground: #1f1f1c;
+    --sidebar-primary: #1f1f1c;
+    --sidebar-primary-foreground: #fffdf8;
+    --sidebar-accent: #d7e6b2;
     --sidebar-accent-foreground: #171717;
-    --sidebar-border: #171717;
-    --sidebar-ring: #171717;
+    --sidebar-border: #1f1f1c;
+    --sidebar-ring: #1f1f1c;
 
-    --neo-shadow-color: #171717;
-    --neo-shadow-xs: 2px 2px 0 var(--neo-shadow-color);
-    --neo-shadow-sm: 3px 3px 0 var(--neo-shadow-color);
-    --neo-shadow: 5px 5px 0 var(--neo-shadow-color);
-    --neo-shadow-lg: 8px 8px 0 var(--neo-shadow-color);
+    --neo-shadow-color: #1f1f1c;
+    --neo-shadow-xs: 1px 1px 0 var(--neo-shadow-color);
+    --neo-shadow-sm: 2px 2px 0 var(--neo-shadow-color);
+    --neo-shadow: 4px 4px 0 var(--neo-shadow-color);
+    --neo-shadow-lg: 6px 6px 0 var(--neo-shadow-color);
 }
 
 .dark {
-    --neo-ink: #111111;
-    --neo-paper: #f7f1e7;
-    --neo-cream: #242424;
-    --neo-lime: #bdf653;
-    --neo-blue: #6ecdf2;
-    --neo-yellow: #f3cd4f;
-    --neo-orange: #ed9264;
-    --neo-pink: #ec839d;
+    --neo-ink: #131313;
+    --neo-paper: #f4efe5;
+    --neo-cream: #1d1d1b;
+    --neo-lime: #bdd28e;
+    --neo-blue: #8eb3e6;
+    --neo-yellow: #d9b85f;
+    --neo-orange: #cf8c5e;
+    --neo-pink: #c78ea5;
 
-    --background: #151515;
-    --foreground: #f5eee2;
+    --background: #181816;
+    --foreground: #f3eee4;
 
-    --card: #232323;
-    --card-foreground: #f5eee2;
+    --card: #232320;
+    --card-foreground: #f3eee4;
 
-    --popover: #242424;
-    --popover-foreground: #f5eee2;
+    --popover: #232320;
+    --popover-foreground: #f3eee4;
 
-    --primary: #f5eee2;
+    --primary: #f3eee4;
     --primary-foreground: #171717;
 
-    --secondary: #bdf653;
+    --secondary: #bdd28e;
     --secondary-foreground: #171717;
 
-    --muted: #303030;
-    --muted-foreground: #c3baad;
+    --muted: #30302c;
+    --muted-foreground: #bcb5aa;
 
-    --accent: #6ecdf2;
+    --accent: #8eb3e6;
     --accent-foreground: #171717;
 
-    --destructive: #ff6868;
+    --destructive: #ec7168;
     --destructive-foreground: #171717;
 
-    --border: #eee5d8;
-    --input: #eee5d8;
-    --ring: #bdf653;
+    --border: #e9e2d7;
+    --input: #e9e2d7;
+    --ring: #bdd28e;
 
-    --sidebar: #1b1b1b;
-    --sidebar-foreground: #f5eee2;
-    --sidebar-primary: #f5eee2;
+    --sidebar: #20201d;
+    --sidebar-foreground: #f3eee4;
+    --sidebar-primary: #f3eee4;
     --sidebar-primary-foreground: #171717;
-    --sidebar-accent: #bdf653;
+    --sidebar-accent: #bdd28e;
     --sidebar-accent-foreground: #171717;
-    --sidebar-border: #484848;
-    --sidebar-ring: #bdf653;
+    --sidebar-border: #4b4a45;
+    --sidebar-ring: #bdd28e;
 
-    --neo-shadow-color: #050505;
+    --neo-shadow-color: #070706;
 }
 
 @theme inline {
@@ -168,20 +168,6 @@
             sans-serif;
         text-rendering: optimizeLegibility;
         -webkit-font-smoothing: antialiased;
-
-        background-image:
-            linear-gradient(
-                to right,
-                color-mix(in srgb, var(--foreground) 3%, transparent) 1px,
-                transparent 1px
-            ),
-            linear-gradient(
-                to bottom,
-                color-mix(in srgb, var(--foreground) 3%, transparent) 1px,
-                transparent 1px
-            );
-
-        background-size: 40px 40px;
     }
 
     ::selection {
@@ -204,7 +190,7 @@
     select:focus-visible,
     textarea:focus-visible,
     summary:focus-visible {
-        outline: 3px solid var(--ring);
+        outline: 2px solid var(--ring);
     }
 
     img,
@@ -222,7 +208,7 @@
 
 @layer components {
     .neo-page {
-        width: min(calc(100% - 2rem), 88rem);
+        width: min(calc(100% - 2rem), 86rem);
         margin-inline: auto;
     }
 
@@ -230,7 +216,7 @@
         min-width: 0;
         overflow: hidden;
         border: 2px solid var(--border);
-        border-radius: 16px;
+        border-radius: 14px;
         background: var(--card);
         color: var(--card-foreground);
         box-shadow: var(--neo-shadow);
@@ -239,7 +225,7 @@
     .neo-card-flat {
         min-width: 0;
         border: 2px solid var(--border);
-        border-radius: 14px;
+        border-radius: 12px;
         background: var(--card);
         color: var(--card-foreground);
     }
@@ -247,7 +233,7 @@
     .neo-surface {
         min-width: 0;
         border: 2px solid var(--border);
-        border-radius: 14px;
+        border-radius: 12px;
         background: var(--card);
         color: var(--card-foreground);
         box-shadow: var(--neo-shadow-sm);
@@ -257,7 +243,7 @@
         min-width: 0;
         overflow: hidden;
         border: 2px solid var(--border);
-        border-radius: 18px;
+        border-radius: 15px;
         background: var(--card);
         color: var(--card-foreground);
         box-shadow: var(--neo-shadow);
@@ -272,12 +258,12 @@
         border: 2px solid #171717;
         border-radius: 999px;
         background: var(--secondary);
-        padding: 0.38rem 0.75rem;
+        padding: 0.34rem 0.7rem;
         color: #171717;
         font-size: 0.68rem;
-        font-weight: 900;
+        font-weight: 800;
         line-height: 1.2;
-        letter-spacing: 0.075em;
+        letter-spacing: 0.07em;
         text-transform: uppercase;
     }
 
@@ -285,8 +271,8 @@
         max-width: 100%;
         overflow-wrap: anywhere;
         font-weight: 900;
-        letter-spacing: -0.045em;
-        line-height: 0.98;
+        letter-spacing: -0.042em;
+        line-height: 1;
     }
 
     .neo-progress {
@@ -302,7 +288,7 @@
         height: 100%;
         border-right: 2px solid #171717;
         background: var(--secondary);
-        transition: width 300ms cubic-bezier(0.22, 1, 0.36, 1);
+        transition: width 260ms cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .neo-divider {
@@ -312,13 +298,13 @@
     .neo-details {
         min-width: 0;
         border: 2px solid var(--border);
-        border-radius: 14px;
+        border-radius: 12px;
         background: var(--card);
     }
 
     .neo-details > summary {
         cursor: pointer;
-        font-weight: 900;
+        font-weight: 800;
     }
 
     .neo-scroll {
@@ -334,18 +320,19 @@
         align-items: center;
         justify-content: center;
         border: 2px dashed
-            color-mix(in srgb, var(--foreground) 40%, transparent);
-        border-radius: 14px;
-        background: color-mix(in srgb, var(--muted) 45%, transparent);
+            color-mix(in srgb, var(--foreground) 36%, transparent);
+        border-radius: 12px;
+        background: color-mix(in srgb, var(--muted) 52%, transparent);
         padding: 1.5rem;
         text-align: center;
     }
 
     .neo-interactive {
         transition:
-            transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
-            box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1),
-            background-color 180ms ease;
+            transform 160ms cubic-bezier(0.22, 1, 0.36, 1),
+            box-shadow 160ms cubic-bezier(0.22, 1, 0.36, 1),
+            background-color 160ms ease,
+            border-color 160ms ease;
     }
 
     .neo-interactive:active {
@@ -380,51 +367,48 @@
 }
 
 [data-slot='sidebar'][data-state] > div {
-    transition-duration: 320ms !important;
+    transition-duration: 220ms !important;
     transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
 
 [data-slot='sidebar-inset'] {
     transition:
-        margin 320ms cubic-bezier(0.22, 1, 0.36, 1),
-        width 320ms cubic-bezier(0.22, 1, 0.36, 1);
+        margin 220ms cubic-bezier(0.22, 1, 0.36, 1),
+        width 220ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 [data-sidebar='menu-button'] {
     transition:
-        transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
-        box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1),
-        background-color 180ms ease,
-        border-color 180ms ease,
-        color 180ms ease;
+        transform 150ms cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 150ms cubic-bezier(0.22, 1, 0.36, 1),
+        background-color 150ms ease,
+        border-color 150ms ease,
+        color 150ms ease;
 }
 
 @media (hover: hover) {
     .neo-interactive:hover {
-        transform: translateY(-2px);
+        transform: translate(-1px, -1px);
+        box-shadow: 3px 3px 0 var(--neo-shadow-color);
     }
 }
 
 @media (min-width: 640px) {
     .neo-page {
-        width: min(calc(100% - 3rem), 88rem);
+        width: min(calc(100% - 3rem), 86rem);
     }
 }
 
 @media (min-width: 1024px) {
     .neo-page {
-        width: min(calc(100% - 4rem), 88rem);
+        width: min(calc(100% - 4rem), 86rem);
     }
 }
 
-@media (max-width: 639px) {
-    body {
-        background-size: 28px 28px;
-    }
-
+@media (max-width: 767px) {
     .neo-card,
     .neo-hero {
-        border-radius: 13px;
+        border-radius: 12px;
         box-shadow: var(--neo-shadow-sm);
     }
 
@@ -432,15 +416,11 @@
     .neo-surface,
     .neo-details,
     .neo-empty {
-        border-radius: 12px;
+        border-radius: 10px;
     }
 
     .neo-heading {
-        line-height: 1;
-    }
-
-    .neo-label {
-        font-size: 0.63rem;
+        letter-spacing: -0.035em;
     }
 }
 
