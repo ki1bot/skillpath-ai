@@ -11,7 +11,6 @@ import {
     FolderKanban,
     Gauge,
     Map,
-    Sparkles,
     Target,
     Trophy,
 } from 'lucide-react';
@@ -245,7 +244,6 @@ export default function Dashboard({
                         <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
                                 <span className="neo-label">
-                                    <Sparkles className="size-3.5" />
                                     Dashboard
                                 </span>
 

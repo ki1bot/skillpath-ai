@@ -21,12 +21,6 @@ class DashboardController extends Controller
             ->user()
             ->load('targetCareer');
 
-        if ($user->isAdmin()) {
-            return redirect()->route(
-                'admin.dashboard',
-            );
-        }
-
         if (
             ! $user->onboarding_completed_at
             || ! $user->targetCareer

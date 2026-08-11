@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Career;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -69,7 +70,7 @@ class AdminDashboardTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function test_admin_visiting_student_dashboard_is_redirected_to_admin_dashboard(): void
+    public function test_admin_without_learning_profile_is_sent_to_onboarding(): void
     {
         $admin = User::factory()->create([
             'role' => 'admin',
@@ -81,7 +82,51 @@ class AdminDashboardTest extends TestCase
             ->get(route('dashboard'));
 
         $response->assertRedirect(
-            route('admin.dashboard'),
+            route('onboarding.show'),
         );
+    }
+
+    public function test_admin_with_learning_profile_can_visit_student_dashboard(): void
+    {
+        $career = Career::create([
+            'name' => 'Backend Developer',
+            'slug' => 'backend-developer',
+            'tagline' => 'Bangun layanan backend yang dapat diandalkan.',
+            'description' => 'Jalur karier untuk pengembangan backend.',
+            'responsibilities' => [
+                'Merancang API',
+                'Mengelola database',
+            ],
+            'difficulty' => 'Menengah',
+            'accent' => '#C7FF5E',
+            'is_active' => true,
+        ]);
+
+        $admin = User::factory()->create([
+            'role' => 'admin',
+            'email_verified_at' => now(),
+            'study_program' => 'Sistem Informasi',
+            'semester' => 5,
+            'interest_area' => 'Backend',
+            'experience' => 'Administrator pengujian.',
+            'weekly_study_hours' => 8,
+            'target_career_id' => $career->id,
+            'onboarding_completed_at' => now(),
+        ]);
+
+        $response = $this
+            ->actingAs($admin)
+            ->get(route('dashboard'));
+
+        $response
+            ->assertOk()
+            ->assertInertia(
+                fn (Assert $page) => $page
+                    ->component('dashboard')
+                    ->has('career')
+                    ->has('readiness')
+                    ->has('priorities')
+                    ->has('skillChart'),
+            );
     }
 }

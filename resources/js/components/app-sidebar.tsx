@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     Activity,
+    ClipboardCheck,
     FolderKanban,
     LayoutDashboard,
     Map,
@@ -30,13 +31,21 @@ export function AppSidebar() {
         return null;
     }
 
-    const isAdmin = user.role === 'admin';
-
-    const studentItems: NavItem[] = [
+    const mainItems: NavItem[] = [
         {
             title: 'Dashboard',
             href: '/dashboard',
             icon: LayoutDashboard,
+        },
+        {
+            title: 'Profil Belajar',
+            href: '/onboarding',
+            icon: UserRound,
+        },
+        {
+            title: 'Assessment',
+            href: '/assessment',
+            icon: ClipboardCheck,
         },
         {
             title: 'Jalur Belajar',
@@ -58,16 +67,11 @@ export function AppSidebar() {
             href: '/progress',
             icon: Activity,
         },
-        {
-            title: 'Profil Belajar',
-            href: '/onboarding',
-            icon: UserRound,
-        },
     ];
 
     const adminItems: NavItem[] = [
         {
-            title: 'Dashboard',
+            title: 'Dashboard Admin',
             href: '/admin/dashboard',
             icon: LayoutDashboard,
         },
@@ -78,9 +82,8 @@ export function AppSidebar() {
         },
     ];
 
-    const items = isAdmin ? adminItems : studentItems;
-
-    const homeHref = isAdmin ? '/admin/dashboard' : '/dashboard';
+    const items =
+        user.role === 'admin' ? [...mainItems, ...adminItems] : mainItems;
 
     return (
         <Sidebar collapsible="icon" variant="sidebar">
@@ -92,7 +95,7 @@ export function AppSidebar() {
                             asChild
                             className="h-auto min-h-14 rounded-[10px] border-2 border-transparent px-2 group-data-[collapsible=icon]:size-10! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0! hover:border-sidebar-border hover:bg-muted"
                         >
-                            <Link href={homeHref} prefetch>
+                            <Link href="/dashboard" prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>

@@ -1,5 +1,5 @@
-import { Link, usePage } from '@inertiajs/react';
-import { ArrowRight, Menu, X } from 'lucide-react';
+import { Link } from '@inertiajs/react';
+import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { Button } from '@/components/ui/button';
@@ -9,8 +9,6 @@ export default function PublicLayout({
 }: {
     children: React.ReactNode;
 }) {
-    const { auth } = usePage().props;
-
     const [mobileOpen, setMobileOpen] = useState(false);
 
     const closeMenu = () => setMobileOpen(false);
@@ -50,24 +48,13 @@ export default function PublicLayout({
                     </nav>
 
                     <div className="hidden items-center gap-2 md:flex">
-                        {auth.user ? (
-                            <Button asChild size="sm">
-                                <Link href="/dashboard">
-                                    Dashboard
-                                    <ArrowRight />
-                                </Link>
-                            </Button>
-                        ) : (
-                            <>
-                                <Button asChild variant="ghost" size="sm">
-                                    <Link href="/login">Masuk</Link>
-                                </Button>
+                        <Button asChild variant="ghost" size="sm">
+                            <Link href="/login">Masuk</Link>
+                        </Button>
 
-                                <Button asChild size="sm">
-                                    <Link href="/register">Buat akun</Link>
-                                </Button>
-                            </>
-                        )}
+                        <Button asChild size="sm">
+                            <Link href="/register">Buat akun</Link>
+                        </Button>
                     </div>
 
                     <Button
@@ -110,31 +97,19 @@ export default function PublicLayout({
                                 Tentang
                             </Link>
 
-                            {auth.user ? (
-                                <Button asChild className="mt-1 w-full">
-                                    <Link href="/dashboard" onClick={closeMenu}>
-                                        Buka Dashboard
-                                        <ArrowRight />
+                            <div className="mt-1 grid grid-cols-2 gap-2.5">
+                                <Button asChild variant="outline">
+                                    <Link href="/login" onClick={closeMenu}>
+                                        Masuk
                                     </Link>
                                 </Button>
-                            ) : (
-                                <div className="mt-1 grid grid-cols-2 gap-2.5">
-                                    <Button asChild variant="outline">
-                                        <Link href="/login" onClick={closeMenu}>
-                                            Masuk
-                                        </Link>
-                                    </Button>
 
-                                    <Button asChild>
-                                        <Link
-                                            href="/register"
-                                            onClick={closeMenu}
-                                        >
-                                            Buat akun
-                                        </Link>
-                                    </Button>
-                                </div>
-                            )}
+                                <Button asChild>
+                                    <Link href="/register" onClick={closeMenu}>
+                                        Buat akun
+                                    </Link>
+                                </Button>
+                            </div>
                         </nav>
                     </div>
                 )}
@@ -145,12 +120,15 @@ export default function PublicLayout({
             <footer className="mt-16 border-t-2 border-foreground bg-foreground text-background sm:mt-20">
                 <div className="neo-page flex flex-col gap-3 py-8 text-sm md:flex-row md:items-center md:justify-between">
                     <p className="font-bold">
-                        SkillPath AI — bantu tentukan langkah belajar
-                        berikutnya.
+                        © {new Date().getFullYear()} All rights reserved.
+                        <div>
+                            SkillPath AI — membantu tentukan langkah belajar
+                            berikutnya.
+                        </div>
                     </p>
 
                     <p className="max-w-xl text-background/65 md:text-right">
-                        Gunakan hasil Assesment dan progres sebagai panduan,
+                        Gunakan hasil Assessment dan progres sebagai panduan,
                         bukan sebagai jaminan hasil rekrutmen.
                     </p>
                 </div>
