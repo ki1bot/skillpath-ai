@@ -148,13 +148,13 @@
     }
 
     html {
-        overflow-x: hidden;
+        overflow-x: clip;
         scroll-behavior: smooth;
     }
 
     body {
         min-height: 100vh;
-        overflow-x: hidden;
+        overflow-x: clip;
         background-color: var(--background);
         color: var(--foreground);
         font-family:

@@ -1,4 +1,4 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import {
     Activity,
     ClipboardCheck,
@@ -9,6 +9,7 @@ import {
     Target,
     UserRound,
 } from 'lucide-react';
+import { useEffect } from 'react';
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -20,12 +21,22 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    useSidebar,
 } from '@/components/ui/sidebar';
 import type { NavItem } from '@/types';
 
 export function AppSidebar() {
     const { auth } = usePage().props;
+    const { isMobile, setOpenMobile } = useSidebar();
     const user = auth.user;
+
+    useEffect(() => {
+        return router.on('navigate', () => {
+            if (isMobile) {
+                setOpenMobile(false);
+            }
+        });
+    }, [isMobile, setOpenMobile]);
 
     if (!user) {
         return null;

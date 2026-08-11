@@ -12,9 +12,10 @@ export default function AppSidebarLayout({
     return (
         <AppShell variant="sidebar">
             <AppSidebar />
+
             <AppContent
                 variant="sidebar"
-                className="overflow-x-hidden bg-background"
+                className="overflow-x-clip bg-background"
             >
                 <AppSidebarHeader breadcrumbs={breadcrumbs} />
                 <FlashMessage />

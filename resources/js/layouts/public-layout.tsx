@@ -14,7 +14,7 @@ export default function PublicLayout({
     const closeMenu = () => setMobileOpen(false);
 
     return (
-        <div className="min-h-screen overflow-x-hidden">
+        <div className="min-h-screen overflow-x-clip">
             <header className="sticky top-0 z-40 border-b-2 border-foreground bg-background/95 backdrop-blur-md">
                 <div className="neo-page flex min-h-17 items-center justify-between gap-3">
                     <Link
