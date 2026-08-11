@@ -1,5 +1,5 @@
 import { Head } from '@inertiajs/react';
-import { Database, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { AssessmentsSection } from './sections/assessments-section';
 import { CareersSection } from './sections/careers-section';
 import { MaterialsSection } from './sections/materials-section';

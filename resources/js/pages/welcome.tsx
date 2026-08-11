@@ -6,7 +6,6 @@ import {
     Check,
     GitBranch,
     Layers3,
-    Sparkles,
     Target,
     TimerReset,
 } from 'lucide-react';
