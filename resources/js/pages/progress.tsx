@@ -276,7 +276,7 @@ export default function Progress({
                                 }`}
                             >
                                 {aiInsights.generatedByAi
-                                    ? `OpenAI · ${aiInsights.model ?? 'model aktif'}`
+                                    ? `AI · ${aiInsights.model ?? 'model aktif'}`
                                     : 'Fallback sistem'}
                             </span>
                         </div>

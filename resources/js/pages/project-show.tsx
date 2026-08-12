@@ -170,7 +170,7 @@ export default function ProjectShow({
                                 }`}
                             >
                                 {aiFeedback.generatedByAi
-                                    ? `OpenAI · ${aiFeedback.model ?? 'model aktif'}`
+                                    ? `AI · ${aiFeedback.model ?? 'model aktif'}`
                                     : 'Fallback sistem'}
                             </span>
                         </div>
@@ -343,8 +343,7 @@ export default function ProjectShow({
                             >
                                 <label className="grid gap-2 text-sm font-black">
                                     Progres:{' '}
-                                    {progressForm.data.progress_percentage}
-                                    %
+                                    {progressForm.data.progress_percentage}%
                                     <input
                                         type="range"
                                         min="0"

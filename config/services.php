@@ -24,7 +24,10 @@ return [
 
     'openrouter' => [
         'key' => env('OPENROUTER_API_KEY'),
-        'model' => env('OPENROUTER_MODEL', 'openrouter/free'),
+        'model' => env(
+            'OPENROUTER_MODEL',
+            'openrouter/free',
+        ),
         'base_url' => env(
             'OPENROUTER_BASE_URL',
             'https://openrouter.ai/api/v1',
@@ -43,4 +46,5 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+
 ];

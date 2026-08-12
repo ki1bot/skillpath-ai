@@ -206,6 +206,7 @@ export default function MaterialPage({
                             <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-[#171717] bg-[var(--neo-blue)] p-5 text-[#171717]">
                                 <div className="flex items-center gap-3">
                                     <BrainCircuit className="size-5" />
+
                                     <h2 className="text-xl font-black">
                                         Variasi latihan AI
                                     </h2>
@@ -219,7 +220,7 @@ export default function MaterialPage({
                                     }`}
                                 >
                                     {aiExercise.generatedByAi
-                                        ? `OpenAI · ${aiExercise.model ?? 'model aktif'}`
+                                        ? `AI · ${aiExercise.model ?? 'model aktif'}`
                                         : 'Fallback sistem'}
                                 </span>
                             </div>
@@ -252,6 +253,7 @@ export default function MaterialPage({
                                     <p className="font-mono text-xl font-black">
                                         80
                                     </p>
+
                                     <p className="mt-1 text-xs font-bold">
                                         Pemahaman konsep
                                     </p>
@@ -261,6 +263,7 @@ export default function MaterialPage({
                                     <p className="font-mono text-xl font-black">
                                         10
                                     </p>
+
                                     <p className="mt-1 text-xs font-bold">
                                         Bukti praktik
                                     </p>
@@ -270,6 +273,7 @@ export default function MaterialPage({
                                     <p className="font-mono text-xl font-black">
                                         10
                                     </p>
+
                                     <p className="mt-1 text-xs font-bold">
                                         Refleksi belajar
                                     </p>

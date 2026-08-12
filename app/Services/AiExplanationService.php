@@ -31,13 +31,37 @@ class AiExplanationService
         );
 
         $key = config(
-            'services.openai.key',
+            'services.openrouter.key',
+        );
+
+        $model = config(
+            'services.openrouter.model',
+            'openrouter/free',
+        );
+
+        $baseUrl = config(
+            'services.openrouter.base_url',
+            'https://openrouter.ai/api/v1',
         );
 
         if (
             ! is_string($key)
-            || $key === ''
+            || trim($key) === ''
+            || ! is_string($model)
+            || trim($model) === ''
+            || ! is_string($baseUrl)
+            || trim($baseUrl) === ''
         ) {
+            return $fallback;
+        }
+
+        $cachePayload = json_encode(
+            $priorities->all(),
+            JSON_UNESCAPED_UNICODE
+                | JSON_UNESCAPED_SLASHES,
+        );
+
+        if (! is_string($cachePayload)) {
             return $fallback;
         }
 
@@ -45,65 +69,86 @@ class AiExplanationService
             .$user->id
             .':'
             .sha1(
-                json_encode(
-                    $priorities->all(),
-                ),
+                $baseUrl
+                    .'|'
+                    .$model
+                    .'|'
+                    .$cachePayload,
             );
 
-        return Cache::remember(
+        $cached = Cache::get(
             $cacheKey,
-            now()->addDay(),
-            function () use (
-                $user,
-                $priorities,
-                $fallback,
-                $key,
-            ) {
-                try {
-                    $payload = $priorities
-                        ->map(
-                            fn (array $item) => [
-                                'skill' => $item[
-                                    'name'
-                                ],
-                                'current' => $item[
-                                    'current'
-                                ],
-                                'target' => $item[
-                                    'target'
-                                ],
-                                'gap' => $item[
-                                    'gap'
-                                ],
-                                'priority' => $item[
-                                    'priority'
-                                ],
-                                'prerequisites' => collect(
-                                    $item[
-                                        'prerequisites'
-                                    ],
-                                )
-                                    ->pluck('name')
-                                    ->all(),
+        );
+
+        if (
+            is_string($cached)
+            && trim($cached) !== ''
+        ) {
+            return $cached;
+        }
+
+        try {
+            $payload = $priorities
+                ->map(
+                    fn (array $item) => [
+                        'skill' => $item[
+                            'name'
+                        ],
+                        'current' => $item[
+                            'current'
+                        ],
+                        'target' => $item[
+                            'target'
+                        ],
+                        'gap' => $item[
+                            'gap'
+                        ],
+                        'priority' => $item[
+                            'priority'
+                        ],
+                        'prerequisites' => collect(
+                            $item[
+                                'prerequisites'
                             ],
                         )
-                        ->all();
+                            ->pluck('name')
+                            ->all(),
+                    ],
+                )
+                ->all();
 
-                    $response = Http::withToken(
-                        $key,
-                    )
-                        ->acceptJson()
-                        ->connectTimeout(2)
-                        ->timeout(12)
-                        ->post(
-                            'https://api.openai.com/v1/responses',
+            $payloadJson = json_encode(
+                $payload,
+                JSON_UNESCAPED_UNICODE
+                    | JSON_UNESCAPED_SLASHES,
+            );
+
+            if (! is_string($payloadJson)) {
+                return $fallback;
+            }
+
+            $response = Http::withToken(
+                $key,
+            )
+                ->acceptJson()
+                ->asJson()
+                ->connectTimeout(3)
+                ->timeout(20)
+                ->post(
+                    rtrim(
+                        $baseUrl,
+                        '/',
+                    ).'/chat/completions',
+                    [
+                        'model' => $model,
+                        'messages' => [
                             [
-                                'model' => config(
-                                    'services.openai.model',
-                                    'gpt-5-mini',
-                                ),
-                                'instructions' => 'Anda adalah pendamping belajar SkillPath AI. Jelaskan data yang diberikan saja. Jangan membuat skill, nilai, atau roadmap baru. Gunakan Bahasa Indonesia yang ringkas, konkret, dan tidak berlebihan.',
-                                'input' => 'Target karier: '
+                                'role' => 'system',
+                                'content' => 'Anda adalah pendamping belajar SkillPath AI. Jelaskan data yang diberikan saja. Jangan membuat skill, nilai, atau roadmap baru. Gunakan Bahasa Indonesia yang ringkas, konkret, dan tidak berlebihan.',
+                            ],
+                            [
+                                'role' => 'user',
+                                'content' => 'Target karier: '
                                     .(
                                         $user
                                             ->targetCareer
@@ -111,43 +156,42 @@ class AiExplanationService
                                         ?? '-'
                                     )
                                     ."\nData prioritas: "
-                                    .json_encode(
-                                        $payload,
-                                        JSON_UNESCAPED_UNICODE,
-                                    ),
-                                'max_output_tokens' => 260,
+                                    .$payloadJson,
                             ],
-                        );
+                        ],
+                        'max_tokens' => 260,
+                    ],
+                );
 
-                    if (! $response->successful()) {
-                        return $fallback;
-                    }
+            if (! $response->successful()) {
+                return $fallback;
+            }
 
-                    $text = collect(
-                        $response->json(
-                            'output',
-                            [],
-                        ),
-                    )
-                        ->flatMap(
-                            fn (array $item) => $item[
-                                'content'
-                            ] ?? [],
-                        )
-                        ->firstWhere(
-                            'type',
-                            'output_text',
-                        )['text'] ?? null;
+            $text = $response->json(
+                'choices.0.message.content',
+            );
 
-                    return is_string($text)
-                        && trim($text) !== ''
-                        ? trim($text)
-                        : $fallback;
-                } catch (Throwable) {
-                    return $fallback;
-                }
-            },
-        );
+            if (
+                ! is_string($text)
+                || trim($text) === ''
+            ) {
+                return $fallback;
+            }
+
+            $text = trim(
+                $text,
+            );
+
+            Cache::put(
+                $cacheKey,
+                $text,
+                now()->addDay(),
+            );
+
+            return $text;
+        } catch (Throwable) {
+            return $fallback;
+        }
     }
 
     private function fallback(

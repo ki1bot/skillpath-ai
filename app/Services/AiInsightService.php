@@ -289,12 +289,17 @@ class AiInsightService
         int $maxTokens,
     ): ?array {
         $key = config(
-            'services.openai.key',
+            'services.openrouter.key',
         );
 
         $model = config(
-            'services.openai.model',
-            'gpt-5-mini',
+            'services.openrouter.model',
+            'openrouter/free',
+        );
+
+        $baseUrl = config(
+            'services.openrouter.base_url',
+            'https://openrouter.ai/api/v1',
         );
 
         if (
@@ -302,6 +307,8 @@ class AiInsightService
             || trim($key) === ''
             || ! is_string($model)
             || trim($model) === ''
+            || ! is_string($baseUrl)
+            || trim($baseUrl) === ''
         ) {
             return null;
         }
@@ -321,7 +328,13 @@ class AiInsightService
             .':'
             .$user->id
             .':'
-            .sha1($json);
+            .sha1(
+                $baseUrl
+                    .'|'
+                    .$model
+                    .'|'
+                    .$json,
+            );
 
         $cached = Cache::get(
             $cacheKey,
@@ -348,17 +361,29 @@ class AiInsightService
                 $key,
             )
                 ->acceptJson()
-                ->connectTimeout(2)
-                ->timeout(12)
+                ->asJson()
+                ->connectTimeout(3)
+                ->timeout(20)
                 ->post(
-                    'https://api.openai.com/v1/responses',
+                    rtrim(
+                        $baseUrl,
+                        '/',
+                    ).'/chat/completions',
                     [
                         'model' => $model,
-                        'instructions' => 'Anda adalah fitur AI pendukung SkillPath AI. Gunakan hanya data internal yang diberikan. Jangan mengubah skor, hasil asesmen, status progres, atau keputusan roadmap. Jika data tidak cukup, nyatakan keterbatasannya. Gunakan Bahasa Indonesia yang ringkas. '
-                            .$task,
-                        'input' => 'Data internal SkillPath AI: '
-                            .$json,
-                        'max_output_tokens' => $maxTokens,
+                        'messages' => [
+                            [
+                                'role' => 'system',
+                                'content' => 'Anda adalah fitur AI pendukung SkillPath AI. Gunakan hanya data internal yang diberikan. Jangan mengubah skor, hasil asesmen, status progres, atau keputusan roadmap. Jika data tidak cukup, nyatakan keterbatasannya. Gunakan Bahasa Indonesia yang ringkas. '
+                                    .$task,
+                            ],
+                            [
+                                'role' => 'user',
+                                'content' => 'Data internal SkillPath AI: '
+                                    .$json,
+                            ],
+                        ],
+                        'max_tokens' => $maxTokens,
                     ],
                 );
 
@@ -366,22 +391,37 @@ class AiInsightService
                 return null;
             }
 
-            $content = $this->outputText(
-                $response->json(
-                    'output',
-                    [],
-                ),
+            $content = $response->json(
+                'choices.0.message.content',
             );
 
-            if ($content === null) {
+            if (
+                ! is_string($content)
+                || trim($content) === ''
+            ) {
                 return null;
             }
+
+            $responseModel = $response->json(
+                'model',
+            );
+
+            $resolvedModel = is_string(
+                $responseModel,
+            )
+                && trim($responseModel) !== ''
+                    ? trim($responseModel)
+                    : $model;
+
+            $content = trim(
+                $content,
+            );
 
             Cache::put(
                 $cacheKey,
                 [
                     'content' => $content,
-                    'model' => $model,
+                    'model' => $resolvedModel,
                 ],
                 now()->addHours(12),
             );
@@ -389,50 +429,11 @@ class AiInsightService
             return [
                 'content' => $content,
                 'generated_by_ai' => true,
-                'model' => $model,
+                'model' => $resolvedModel,
             ];
         } catch (Throwable) {
             return null;
         }
-    }
-
-    private function outputText(
-        mixed $output,
-    ): ?string {
-        if (! is_array($output)) {
-            return null;
-        }
-
-        foreach ($output as $item) {
-            if (! is_array($item)) {
-                continue;
-            }
-
-            $content = $item['content'] ?? [];
-
-            if (! is_array($content)) {
-                continue;
-            }
-
-            foreach ($content as $part) {
-                if (! is_array($part)) {
-                    continue;
-                }
-
-                $type = $part['type'] ?? null;
-                $text = $part['text'] ?? null;
-
-                if (
-                    $type === 'output_text'
-                    && is_string($text)
-                    && trim($text) !== ''
-                ) {
-                    return trim($text);
-                }
-            }
-        }
-
-        return null;
     }
 
     /**
