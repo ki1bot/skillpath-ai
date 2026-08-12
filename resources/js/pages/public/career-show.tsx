@@ -30,6 +30,20 @@ type Project = {
     estimated_hours: number;
 };
 
+type Compatibility = {
+    score: number;
+    label: string;
+    assessed_skills: number;
+    total_skills: number;
+    top_gaps: {
+        skill_id: number;
+        name: string;
+        current: number;
+        target: number;
+        gap: number;
+    }[];
+};
+
 type Career = {
     id: number;
     name: string;
@@ -41,6 +55,7 @@ type Career = {
     accent: string;
     skills: Skill[];
     projects: Project[];
+    compatibility?: Compatibility | null;
 };
 
 export default function CareerShow({ career }: { career: Career }) {
@@ -77,6 +92,26 @@ export default function CareerShow({ career }: { career: Career }) {
                                 <p className="mt-5 max-w-3xl text-xl leading-relaxed font-bold">
                                     {career.tagline}
                                 </p>
+
+                                {career.compatibility && (
+                                    <div className="mt-7 inline-flex items-center gap-4 rounded-[14px] border-2 border-[#171717] bg-[#fffdf7] px-5 py-4 shadow-[4px_4px_0_#171717]">
+                                        <Gauge className="size-7" />
+
+                                        <div>
+                                            <p className="text-xs font-black uppercase">
+                                                Kecocokan berdasarkan Assesment
+                                            </p>
+
+                                            <p className="mt-1 font-mono text-3xl font-black">
+                                                {career.compatibility.score}%
+                                            </p>
+
+                                            <p className="text-xs font-bold">
+                                                {career.compatibility.label}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="rounded-[16px] border-2 border-[#171717] bg-[#fffdf7] p-6 shadow-[5px_5px_0_#171717]">
@@ -109,6 +144,35 @@ export default function CareerShow({ career }: { career: Career }) {
                                         </p>
                                     </div>
                                 </div>
+
+                                {career.compatibility &&
+                                    career.compatibility.top_gaps.length >
+                                        0 && (
+                                        <div className="mt-5 border-t-2 border-[#171717] pt-4">
+                                            <p className="text-xs font-black uppercase">
+                                                Prioritas gap
+                                            </p>
+
+                                            <div className="mt-3 space-y-2">
+                                                {career.compatibility.top_gaps.map(
+                                                    (gap) => (
+                                                        <div
+                                                            key={gap.skill_id}
+                                                            className="flex justify-between gap-3 text-sm font-bold"
+                                                        >
+                                                            <span>
+                                                                {gap.name}
+                                                            </span>
+
+                                                            <span className="font-mono">
+                                                                -{gap.gap}
+                                                            </span>
+                                                        </div>
+                                                    ),
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
                             </div>
                         </div>
                     </div>
@@ -208,17 +272,28 @@ export default function CareerShow({ career }: { career: Career }) {
 
                 <section className="mx-auto max-w-4xl px-4 py-20 text-center sm:px-6 lg:px-8">
                     <p className="text-xs font-black tracking-[0.18em] text-muted-foreground uppercase">
-                        Belum tahu posisi kemampuanmu?
+                        {career.compatibility
+                            ? 'Kemampuan dapat berubah'
+                            : 'Belum tahu posisi kemampuanmu?'}
                     </p>
 
                     <h2 className="mt-3 text-4xl font-black tracking-[-0.045em]">
-                        Cek kemampuan sebelum menentukan apa yang perlu
-                        dipelajari.
+                        {career.compatibility
+                            ? 'Ulangi Assesment setelah kemampuan meningkat untuk memperbarui hasil kecocokan.'
+                            : 'Cek kemampuan sebelum menentukan apa yang perlu dipelajari.'}
                     </h2>
 
                     <Button asChild size="lg" className="mt-7">
-                        <Link href="/register">
-                            Mulai Assesment
+                        <Link
+                            href={
+                                career.compatibility
+                                    ? '/assessment'
+                                    : '/register'
+                            }
+                        >
+                            {career.compatibility
+                                ? 'Ulangi Assesment'
+                                : 'Mulai Assesment'}
                             <ArrowRight />
                         </Link>
                     </Button>

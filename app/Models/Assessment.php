@@ -24,16 +24,25 @@ class Assessment extends Model
         return ['is_active' => 'boolean'];
     }
 
+    /**
+     * @return BelongsTo<Career, $this>
+     */
     public function career(): BelongsTo
     {
         return $this->belongsTo(Career::class);
     }
 
+    /**
+     * @return HasMany<AssessmentQuestion, $this>
+     */
     public function questions(): HasMany
     {
         return $this->hasMany(AssessmentQuestion::class);
     }
 
+    /**
+     * @return HasMany<AssessmentResult, $this>
+     */
     public function results(): HasMany
     {
         return $this->hasMany(AssessmentResult::class);

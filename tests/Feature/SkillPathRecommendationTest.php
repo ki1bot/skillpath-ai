@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\LearningMaterial;
 use App\Models\Roadmap;
+use App\Models\RoadmapItem;
 use App\Models\User;
 use App\Models\UserSkill;
 use App\Services\ProjectReadinessService;
@@ -30,7 +31,9 @@ class SkillPathRecommendationTest extends TestCase
 
     public function test_weak_programming_is_placed_before_advanced_backend_skills(): void
     {
-        $user = $this->user->fresh(['targetCareer']);
+        $user = $this->user->fresh([
+            'targetCareer',
+        ]);
 
         $programming = $user->targetCareer
             ->skills()
@@ -52,28 +55,42 @@ class SkillPathRecommendationTest extends TestCase
             ],
         );
 
-        $roadmap = app(RoadmapService::class)
-            ->regenerate(
-                $user->fresh(['targetCareer']),
-                'Pengujian gap pemrograman',
-            );
+        $roadmap = app(
+            RoadmapService::class,
+        )->regenerate(
+            $user->fresh([
+                'targetCareer',
+            ]),
+            'Pengujian gap pemrograman',
+        );
 
-        $first = $roadmap->items()
-            ->with('material.skill')
-            ->orderBy('position')
+        $first = $roadmap
+            ->items()
+            ->with(
+                'material.skill',
+            )
+            ->orderBy(
+                'position',
+            )
             ->firstOrFail();
 
         $this->assertSame(
             'programming-fundamentals',
-            $first->material->skill->slug,
+            $first
+                ->material
+                ->skill
+                ->slug,
         );
     }
 
     public function test_database_gap_is_prioritized_before_dependent_backend_skills(): void
     {
-        $user = $this->user->fresh(['targetCareer']);
+        $user = $this->user->fresh([
+            'targetCareer',
+        ]);
 
-        $database = $user->targetCareer
+        $database = $user
+            ->targetCareer
             ->skills()
             ->where(
                 'skills.slug',
@@ -81,7 +98,8 @@ class SkillPathRecommendationTest extends TestCase
             )
             ->firstOrFail();
 
-        $programming = $user->targetCareer
+        $programming = $user
+            ->targetCareer
             ->skills()
             ->where(
                 'skills.slug',
@@ -113,40 +131,67 @@ class SkillPathRecommendationTest extends TestCase
             ],
         );
 
-        $roadmap = app(RoadmapService::class)
-            ->regenerate(
-                $user->fresh(['targetCareer']),
-                'Pengujian gap database',
-            );
+        $roadmap = app(
+            RoadmapService::class,
+        )->regenerate(
+            $user->fresh([
+                'targetCareer',
+            ]),
+            'Pengujian gap database',
+        );
 
-        $items = $roadmap->items()
-            ->with('material.skill')
+        $items = $roadmap
+            ->items()
+            ->with(
+                'material.skill',
+            )
             ->get()
             ->keyBy(
-                fn ($item) => $item->material->skill->slug,
+                fn (RoadmapItem $item): string => $item
+                    ->material
+                    ->skill
+                    ->slug,
             );
 
         $this->assertLessThan(
-            $items['eloquent-orm']->position,
-            $items['database-fundamentals']->position,
+            $items[
+                'eloquent-orm'
+            ]->position,
+            $items[
+                'database-fundamentals'
+            ]->position,
         );
 
         $this->assertSame(
             'available',
-            $items['database-fundamentals']->status,
+            $items[
+                'database-fundamentals'
+            ]->status,
         );
 
         $this->assertSame(
             'locked',
-            $items['rest-api']->status,
+            $items[
+                'rest-api'
+            ]->status,
         );
     }
 
-    public function test_failed_evaluation_does_not_increase_skill_score(): void
+    public function test_failed_evaluation_does_not_increase_skill_score_and_adds_reinforcement(): void
     {
-        $user = $this->user->fresh(['targetCareer']);
+        $user = $this->user->fresh([
+            'targetCareer',
+        ]);
 
         $material = LearningMaterial::query()
+            ->where(
+                'material_type',
+                'core',
+            )
+            ->where(
+                'is_active',
+                true,
+            )
             ->whereHas(
                 'skill',
                 fn ($query) => $query->where(
@@ -156,10 +201,18 @@ class SkillPathRecommendationTest extends TestCase
             )
             ->firstOrFail();
 
-        $item = Roadmap::query()
-            ->where('user_id', $user->id)
-            ->where('is_active', true)
-            ->firstOrFail()
+        $roadmap = Roadmap::query()
+            ->where(
+                'user_id',
+                $user->id,
+            )
+            ->where(
+                'is_active',
+                true,
+            )
+            ->firstOrFail();
+
+        $item = $roadmap
             ->items()
             ->where(
                 'learning_material_id',
@@ -168,20 +221,34 @@ class SkillPathRecommendationTest extends TestCase
             ->firstOrFail();
 
         $before = (float) UserSkill::query()
-            ->where('user_id', $user->id)
+            ->where(
+                'user_id',
+                $user->id,
+            )
             ->where(
                 'skill_id',
                 $material->skill_id,
             )
-            ->value('score');
+            ->value(
+                'score',
+            );
 
         $wrongAnswer = collect(
-            array_keys($material->quiz_options),
+            array_keys(
+                $material->quiz_options,
+            ),
         )->first(
-            fn ($answer) => $answer !== $material->quiz_answer,
+            fn (string $answer): bool => $answer
+                !== $material->quiz_answer,
         );
 
-        $this->actingAs($user)
+        $this->assertNotNull(
+            $wrongAnswer,
+        );
+
+        $this->actingAs(
+            $user,
+        )
             ->post(
                 route(
                     'roadmap.evaluate',
@@ -191,32 +258,101 @@ class SkillPathRecommendationTest extends TestCase
                     'answer' => $wrongAnswer,
                 ],
             )
-            ->assertRedirect();
+            ->assertRedirect(
+                route(
+                    'roadmap.index',
+                ),
+            );
 
         $after = (float) UserSkill::query()
-            ->where('user_id', $user->id)
+            ->where(
+                'user_id',
+                $user->id,
+            )
             ->where(
                 'skill_id',
                 $material->skill_id,
             )
-            ->value('score');
+            ->value(
+                'score',
+            );
 
         $this->assertSame(
             $before,
             $after,
         );
 
+        $item->refresh();
+
         $this->assertSame(
-            'needs_reinforcement',
-            $item->fresh()->status,
+            'reinforcement_required',
+            $item->status,
+        );
+
+        $reinforcementItem = RoadmapItem::query()
+            ->where(
+                'roadmap_id',
+                $roadmap->id,
+            )
+            ->where(
+                'reinforcement_for_roadmap_item_id',
+                $item->id,
+            )
+            ->with(
+                'material',
+            )
+            ->first();
+
+        $this->assertNotNull(
+            $reinforcementItem,
+        );
+
+        $this->assertSame(
+            'reinforcement',
+            $reinforcementItem
+                ->material
+                ->material_type,
+        );
+
+        $this->assertSame(
+            'available',
+            $reinforcementItem
+                ->status,
+        );
+
+        $this->assertSame(
+            $material->id,
+            $reinforcementItem
+                ->material
+                ->reinforcement_for_material_id,
+        );
+
+        $this->assertGreaterThanOrEqual(
+            1,
+            $item->reinforcement_count,
+        );
+
+        $this->assertGreaterThanOrEqual(
+            1,
+            $item->evaluation_attempts,
         );
     }
 
     public function test_passing_database_evaluation_unlocks_beginner_backend_project(): void
     {
-        $user = $this->user->fresh(['targetCareer']);
+        $user = $this->user->fresh([
+            'targetCareer',
+        ]);
 
         $material = LearningMaterial::query()
+            ->where(
+                'material_type',
+                'core',
+            )
+            ->where(
+                'is_active',
+                true,
+            )
             ->whereHas(
                 'skill',
                 fn ($query) => $query->where(
@@ -227,8 +363,14 @@ class SkillPathRecommendationTest extends TestCase
             ->firstOrFail();
 
         $item = Roadmap::query()
-            ->where('user_id', $user->id)
-            ->where('is_active', true)
+            ->where(
+                'user_id',
+                $user->id,
+            )
+            ->where(
+                'is_active',
+                true,
+            )
             ->firstOrFail()
             ->items()
             ->where(
@@ -237,7 +379,8 @@ class SkillPathRecommendationTest extends TestCase
             )
             ->firstOrFail();
 
-        $project = $user->targetCareer
+        $project = $user
+            ->targetCareer
             ->projects()
             ->where(
                 'slug',
@@ -256,14 +399,17 @@ class SkillPathRecommendationTest extends TestCase
             )['ready'],
         );
 
-        $this->actingAs($user)
+        $this->actingAs(
+            $user,
+        )
             ->post(
                 route(
                     'roadmap.evaluate',
                     $item,
                 ),
                 [
-                    'answer' => $material->quiz_answer,
+                    'answer' => $material
+                        ->quiz_answer,
                 ],
             )
             ->assertRedirect();

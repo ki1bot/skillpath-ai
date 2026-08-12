@@ -4,6 +4,7 @@ import {
     BookOpen,
     CheckCircle2,
     ExternalLink,
+    RotateCcw,
     Save,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,7 @@ type Material = {
     practice_task: string;
     quiz_question: string;
     quiz_options: Record<string, string>;
+    material_type: 'core' | 'reinforcement';
     skill: {
         name: string;
         prerequisites: {
@@ -35,8 +37,12 @@ type Material = {
 type Evaluation = {
     id: number;
     score: number;
+    knowledge_score: number;
+    evidence_score: number;
+    reflection_score: number;
     passed: boolean;
     feedback: string;
+    created_at: string;
 };
 
 type Item = {
@@ -44,6 +50,8 @@ type Item = {
     status: string;
     progress_percentage: number;
     evaluation_score?: number | null;
+    evaluation_attempts: number;
+    reinforcement_count: number;
     evaluations: Evaluation[];
 };
 
@@ -64,6 +72,8 @@ export default function MaterialPage({
 
     const evaluationForm = useForm({
         answer: '',
+        practical_evidence_url: '',
+        reflection: '',
     });
 
     const latestEvaluation = item.evaluations?.[0];
@@ -112,6 +122,12 @@ export default function MaterialPage({
                                 <span className="rounded-full border-2 border-foreground bg-muted px-3 py-1 text-xs font-black">
                                     ± {material.estimated_minutes} menit
                                 </span>
+
+                                {material.material_type === 'reinforcement' && (
+                                    <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-pink)] px-3 py-1 text-xs font-black text-[#171717]">
+                                        Materi penguatan
+                                    </span>
+                                )}
                             </div>
 
                             <h1 className="neo-heading mt-6 text-4xl sm:text-5xl">
@@ -183,16 +199,45 @@ export default function MaterialPage({
                             </p>
 
                             <h2 className="mt-2 text-2xl font-black">
-                                Evaluasi singkat
+                                Evaluasi berbasis bukti
                             </h2>
 
-                            <p className="mt-3 leading-relaxed font-semibold">
+                            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                                <div className="neo-card-flat p-4">
+                                    <p className="font-mono text-xl font-black">
+                                        80
+                                    </p>
+                                    <p className="mt-1 text-xs font-bold">
+                                        Pemahaman konsep
+                                    </p>
+                                </div>
+
+                                <div className="neo-card-flat p-4">
+                                    <p className="font-mono text-xl font-black">
+                                        10
+                                    </p>
+                                    <p className="mt-1 text-xs font-bold">
+                                        Bukti praktik
+                                    </p>
+                                </div>
+
+                                <div className="neo-card-flat p-4">
+                                    <p className="font-mono text-xl font-black">
+                                        10
+                                    </p>
+                                    <p className="mt-1 text-xs font-bold">
+                                        Refleksi belajar
+                                    </p>
+                                </div>
+                            </div>
+
+                            <p className="mt-6 leading-relaxed font-semibold">
                                 {material.quiz_question}
                             </p>
 
                             <form
                                 onSubmit={evaluate}
-                                className="mt-5 grid gap-3"
+                                className="mt-5 grid gap-4"
                             >
                                 {Object.entries(material.quiz_options).map(
                                     ([key, text]) => (
@@ -233,6 +278,45 @@ export default function MaterialPage({
                                     ),
                                 )}
 
+                                <label className="mt-2">
+                                    <span className="mb-2 block text-sm font-black">
+                                        Bukti latihan praktik
+                                    </span>
+
+                                    <Input
+                                        type="url"
+                                        value={
+                                            evaluationForm.data
+                                                .practical_evidence_url
+                                        }
+                                        onChange={(event) =>
+                                            evaluationForm.setData(
+                                                'practical_evidence_url',
+                                                event.target.value,
+                                            )
+                                        }
+                                        placeholder="https://github.com/... atau tautan bukti lainnya"
+                                    />
+                                </label>
+
+                                <label>
+                                    <span className="mb-2 block text-sm font-black">
+                                        Refleksi hasil belajar
+                                    </span>
+
+                                    <Textarea
+                                        rows={5}
+                                        value={evaluationForm.data.reflection}
+                                        onChange={(event) =>
+                                            evaluationForm.setData(
+                                                'reflection',
+                                                event.target.value,
+                                            )
+                                        }
+                                        placeholder="Jelaskan apa yang dipahami, kesalahan yang ditemukan, dan bagaimana Anda memperbaikinya. Minimal 80 karakter untuk mendapatkan nilai refleksi penuh."
+                                    />
+                                </label>
+
                                 <Button
                                     className="mt-2 justify-self-start"
                                     disabled={
@@ -240,7 +324,7 @@ export default function MaterialPage({
                                         evaluationForm.processing
                                     }
                                 >
-                                    Kirim jawaban
+                                    Kirim evaluasi
                                 </Button>
                             </form>
 
@@ -257,7 +341,15 @@ export default function MaterialPage({
                                         /100
                                     </p>
 
-                                    <p className="mt-1">
+                                    <p className="mt-2">
+                                        Konsep:{' '}
+                                        {latestEvaluation.knowledge_score}/80 ·
+                                        Bukti: {latestEvaluation.evidence_score}
+                                        /10 · Refleksi:{' '}
+                                        {latestEvaluation.reflection_score}/10
+                                    </p>
+
+                                    <p className="mt-2">
                                         {latestEvaluation.feedback}
                                     </p>
                                 </div>
@@ -385,10 +477,20 @@ export default function MaterialPage({
                             </Button>
                         </form>
 
+                        {material.material_type === 'reinforcement' && (
+                            <div className="rounded-[14px] border-2 border-[#171717] bg-[var(--neo-pink)] p-5 text-sm leading-relaxed font-bold text-[#171717]">
+                                <RotateCcw className="mb-3 size-5" />
+                                Materi ini ditambahkan karena evaluasi
+                                sebelumnya belum memenuhi standar. Selesaikan
+                                penguatan ini sebelum mencoba materi utama
+                                kembali.
+                            </div>
+                        )}
+
                         <div className="rounded-[14px] border-2 border-[#171717] bg-[var(--neo-yellow)] p-5 text-sm leading-relaxed font-bold text-[#171717]">
-                            Perkembangan manual dibatasi sampai 95%. Nilai 100%
-                            hanya diberikan setelah evaluasi materi dinyatakan
-                            lulus.
+                            Perkembangan manual tetap dibatasi sampai 95%.
+                            Materi hanya mencapai 100% setelah evaluasi
+                            dinyatakan lulus.
                         </div>
                     </aside>
                 </div>

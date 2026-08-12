@@ -17,7 +17,9 @@ class DatabaseSeeder extends Seeder
             CareerSkillSeeder::class,
             SkillPrerequisiteSeeder::class,
             LearningMaterialSeeder::class,
+            ReinforcementMaterialSeeder::class,
             AssessmentSeeder::class,
+            AssessmentEnhancementSeeder::class,
             PortfolioProjectSeeder::class,
         ]);
     }

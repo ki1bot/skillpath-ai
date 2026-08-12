@@ -19,151 +19,25 @@ parameters:
 			path: app/Http/Controllers/AdminController.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$correct_answer\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/AssessmentController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Http/Controllers/AssessmentController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$skill_id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/AssessmentController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/DashboardController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$material\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Http/Controllers/DashboardController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$progress_percentage\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/DashboardController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/DashboardController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$items\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/OnboardingController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$attempt_uuid\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProgressController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$created_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProgressController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$score\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProgressController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$skill\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProgressController.php
-
-		-
-			message: '#^Anonymous function should return array\{attempt_uuid\: mixed, date\: mixed, average\: float, skills\: Illuminate\\Support\\Collection\<int, array\{name\: mixed, score\: mixed\}\>\} but returns array\{attempt_uuid\: mixed, date\: mixed, average\: float, skills\: Illuminate\\Support\\Collection\<int, array\{name\: mixed, score\: mixed\}\>\}\.$#'
+			message: '#^Anonymous function should return array\{attempt_uuid\: string, date\: non\-falsy\-string\|null, average\: float, skills\: Illuminate\\Support\\Collection\<int, array\{name\: mixed, score\: mixed\}\>\} but returns array\{attempt_uuid\: string, date\: non\-falsy\-string\|null, average\: float, skills\: Illuminate\\Support\\Collection\<int, array\{name\: mixed, score\: mixed\}\>\}\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Http/Controllers/ProgressController.php
 
 		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<\(int\|string\),Illuminate\\Database\\Eloquent\\Collection\<int, Illuminate\\Database\\Eloquent\\Model\>\>\:\:map\(\) contains unresolvable type\.$#'
-			identifier: argument.unresolvableType
+			message: '#^Anonymous function should return array\{id\: int, stage\: int\<0, max\>, stage_title\: string, position\: int\<0, max\>, status\: string, progress_percentage\: int\<0, max\>, evaluation_score\: float\|null, evaluation_attempts\: int\<0, max\>, \.\.\.\} but returns array\{id\: int, stage\: int\<0, max\>, stage_title\: string, position\: int\<0, max\>, status\: string, progress_percentage\: int\<0, max\>, evaluation_score\: float\|null, evaluation_attempts\: int\<0, max\>, \.\.\.\}\.$#'
+			identifier: return.type
 			count: 1
-			path: app/Http/Controllers/ProgressController.php
+			path: app/Http/Controllers/RoadmapController.php
 
 		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) contains unresolvable type\.$#'
-			identifier: argument.unresolvableType
-			count: 1
-			path: app/Http/Controllers/ProgressController.php
-
-		-
-			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<\(int\|string\),Illuminate\\Database\\Eloquent\\Collection\<int, Illuminate\\Database\\Eloquent\\Model\>\>\:\:map\(\) contains unresolvable type\.$#'
+			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,array\<string, mixed\>\>\:\:values\(\) contains unresolvable type\.$#'
 			identifier: method.unresolvableReturnType
-			count: 1
-			path: app/Http/Controllers/ProgressController.php
-
-		-
-			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) contains unresolvable type\.$#'
-			identifier: method.unresolvableReturnType
-			count: 1
-			path: app/Http/Controllers/ProgressController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$quiz_answer\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/RoadmapController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$quiz_explanation\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/RoadmapController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$skill_id\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/RoadmapController.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:skills\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/Http/Controllers/RoadmapController.php
 
 		-
 			message: '#^Class App\\Models\\Assessment uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Assessment.php
-
-		-
-			message: '#^Method App\\Models\\Assessment\:\:career\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Assessment.php
-
-		-
-			message: '#^Method App\\Models\\Assessment\:\:questions\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Assessment.php
-
-		-
-			message: '#^Method App\\Models\\Assessment\:\:results\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/Assessment.php
@@ -175,37 +49,7 @@ parameters:
 			path: app/Models/AssessmentQuestion.php
 
 		-
-			message: '#^Method App\\Models\\AssessmentQuestion\:\:assessment\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/AssessmentQuestion.php
-
-		-
-			message: '#^Method App\\Models\\AssessmentQuestion\:\:skill\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/AssessmentQuestion.php
-
-		-
 			message: '#^Class App\\Models\\AssessmentResult uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/AssessmentResult.php
-
-		-
-			message: '#^Method App\\Models\\AssessmentResult\:\:assessment\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/AssessmentResult.php
-
-		-
-			message: '#^Method App\\Models\\AssessmentResult\:\:skill\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/AssessmentResult.php
-
-		-
-			message: '#^Method App\\Models\\AssessmentResult\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/AssessmentResult.php
@@ -217,61 +61,13 @@ parameters:
 			path: app/Models/Career.php
 
 		-
-			message: '#^Method App\\Models\\Career\:\:assessments\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Career.php
-
-		-
-			message: '#^Method App\\Models\\Career\:\:projects\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Career.php
-
-		-
-			message: '#^Method App\\Models\\Career\:\:skills\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Career.php
-
-		-
-			message: '#^Method App\\Models\\Career\:\:users\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Career.php
-
-		-
 			message: '#^Class App\\Models\\Evaluation uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/Evaluation.php
 
 		-
-			message: '#^Method App\\Models\\Evaluation\:\:roadmapItem\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Evaluation.php
-
-		-
-			message: '#^Method App\\Models\\Evaluation\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Evaluation.php
-
-		-
 			message: '#^Class App\\Models\\LearningMaterial uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/LearningMaterial.php
-
-		-
-			message: '#^Method App\\Models\\LearningMaterial\:\:roadmapItems\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/LearningMaterial.php
-
-		-
-			message: '#^Method App\\Models\\LearningMaterial\:\:skill\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/LearningMaterial.php
@@ -343,49 +139,7 @@ parameters:
 			path: app/Models/Roadmap.php
 
 		-
-			message: '#^Method App\\Models\\Roadmap\:\:career\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Roadmap.php
-
-		-
-			message: '#^Method App\\Models\\Roadmap\:\:items\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Roadmap.php
-
-		-
-			message: '#^Method App\\Models\\Roadmap\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Roadmap.php
-
-		-
 			message: '#^Class App\\Models\\RoadmapItem uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/RoadmapItem.php
-
-		-
-			message: '#^Method App\\Models\\RoadmapItem\:\:evaluations\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/RoadmapItem.php
-
-		-
-			message: '#^Method App\\Models\\RoadmapItem\:\:material\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/RoadmapItem.php
-
-		-
-			message: '#^Method App\\Models\\RoadmapItem\:\:progressLogs\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/RoadmapItem.php
-
-		-
-			message: '#^Method App\\Models\\RoadmapItem\:\:roadmap\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/RoadmapItem.php
@@ -397,85 +151,7 @@ parameters:
 			path: app/Models/Skill.php
 
 		-
-			message: '#^Method App\\Models\\Skill\:\:careers\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Skill.php
-
-		-
-			message: '#^Method App\\Models\\Skill\:\:dependents\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Skill.php
-
-		-
-			message: '#^Method App\\Models\\Skill\:\:materials\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Skill.php
-
-		-
-			message: '#^Method App\\Models\\Skill\:\:prerequisites\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Skill.php
-
-		-
-			message: '#^Method App\\Models\\Skill\:\:userSkills\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Skill.php
-
-		-
 			message: '#^Class App\\Models\\User uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/User.php
-
-		-
-			message: '#^Method App\\Models\\User\:\:assessmentResults\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/User.php
-
-		-
-			message: '#^Method App\\Models\\User\:\:evaluations\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/User.php
-
-		-
-			message: '#^Method App\\Models\\User\:\:progressLogs\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/User.php
-
-		-
-			message: '#^Method App\\Models\\User\:\:projects\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/User.php
-
-		-
-			message: '#^Method App\\Models\\User\:\:readinessSnapshots\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/User.php
-
-		-
-			message: '#^Method App\\Models\\User\:\:roadmaps\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/User.php
-
-		-
-			message: '#^Method App\\Models\\User\:\:targetCareer\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/User.php
-
-		-
-			message: '#^Method App\\Models\\User\:\:userSkills\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/User.php
@@ -515,12 +191,6 @@ parameters:
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/UserSkill.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Services/AiExplanationService.php
 
 		-
 			message: '#^Method App\\Services\\AiExplanationService\:\:fallback\(\) has parameter \$priorities with no value type specified in iterable type array\.$#'
@@ -571,8 +241,26 @@ parameters:
 			path: app/Services/AiExplanationService.php
 
 		-
+			message: '#^Method App\\Services\\CareerCompatibilityService\:\:userScores\(\) should return Illuminate\\Support\\Collection\<int\|string, float\> but returns Illuminate\\Support\\Collection\<int\<0, max\>, float\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Services/CareerCompatibilityService.php
+
+		-
 			message: '#^Access to an undefined property App\\Models\\Roadmap\:\:\$completed_items_count\.$#'
 			identifier: property.notFound
+			count: 1
+			path: app/Services/CareerReadinessService.php
+
+		-
+			message: '#^Called ''avg'' on Laravel collection, but could have been retrieved as a query\.$#'
+			identifier: larastan.noUnnecessaryCollectionCall
+			count: 1
+			path: app/Services/CareerReadinessService.php
+
+		-
+			message: '#^Called ''pluck'' on Laravel collection, but could have been retrieved as a query\.$#'
+			identifier: larastan.noUnnecessaryCollectionCall
 			count: 1
 			path: app/Services/CareerReadinessService.php
 
@@ -619,24 +307,6 @@ parameters:
 			path: app/Services/ProjectReadinessService.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Services/RoadmapService.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$material\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Services/RoadmapService.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Services/RoadmapService.php
-
-		-
 			message: '#^Method App\\Services\\RoadmapService\:\:depth\(\) has parameter \$memo with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -661,8 +331,26 @@ parameters:
 			path: app/Services/RoadmapService.php
 
 		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:skills\(\)\.$#'
-			identifier: method.notFound
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Relations\\Pivot\:\:\$factor\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/SkillGapService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Relations\\Pivot\:\:\$importance_weight\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/SkillGapService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Relations\\Pivot\:\:\$is_required\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/SkillGapService.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Relations\\Pivot\:\:\$target_level\.$#'
+			identifier: property.notFound
 			count: 1
 			path: app/Services/SkillGapService.php
 

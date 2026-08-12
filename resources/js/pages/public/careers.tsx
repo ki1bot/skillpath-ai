@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Gauge } from 'lucide-react';
 
 type Skill = {
     id: number;
@@ -12,6 +12,21 @@ type Skill = {
     };
 };
 
+type Compatibility = {
+    score: number;
+    label: string;
+    assessed_skills: number;
+    total_skills: number;
+    top_gaps: {
+        skill_id: number;
+        name: string;
+        current: number;
+        target: number;
+        gap: number;
+        priority: number;
+    }[];
+};
+
 type Career = {
     id: number;
     name: string;
@@ -21,6 +36,7 @@ type Career = {
     difficulty: string;
     accent: string;
     skills: Skill[];
+    compatibility?: Compatibility | null;
 };
 
 export default function Careers({ careers }: { careers: Career[] }) {
@@ -37,9 +53,9 @@ export default function Careers({ careers }: { careers: Career[] }) {
                     </h1>
 
                     <p className="mt-5 text-lg leading-relaxed font-medium text-muted-foreground">
-                        Lihat tanggung jawab dan kemampuan yang dibutuhkan.
-                        Setelah assesment, kamu bisa melihat seberapa jauh
-                        posisi sekarang dari target yang dipilih.
+                        Lihat tanggung jawab, kemampuan yang dibutuhkan, dan
+                        kecocokan berdasarkan hasil Assesment yang sudah
+                        tersimpan.
                     </p>
                 </div>
 
@@ -60,13 +76,35 @@ export default function Careers({ careers }: { careers: Career[] }) {
                                 </span>
 
                                 <div>
-                                    <p className="text-xs font-black tracking-[0.14em] uppercase">
-                                        Tingkat kesulitan
-                                    </p>
+                                    {career.compatibility ? (
+                                        <>
+                                            <div className="flex items-center gap-2">
+                                                <Gauge className="size-5" />
 
-                                    <p className="mt-1 text-xl font-black">
-                                        {career.difficulty}
-                                    </p>
+                                                <p className="text-xs font-black tracking-[0.14em] uppercase">
+                                                    Kecocokan
+                                                </p>
+                                            </div>
+
+                                            <p className="mt-1 font-mono text-3xl font-black">
+                                                {career.compatibility.score}%
+                                            </p>
+
+                                            <p className="mt-1 text-xs font-bold">
+                                                {career.compatibility.label}
+                                            </p>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <p className="text-xs font-black tracking-[0.14em] uppercase">
+                                                Tingkat kesulitan
+                                            </p>
+
+                                            <p className="mt-1 text-xl font-black">
+                                                {career.difficulty}
+                                            </p>
+                                        </>
+                                    )}
                                 </div>
                             </div>
 
@@ -100,6 +138,22 @@ export default function Careers({ careers }: { careers: Career[] }) {
                                         </span>
                                     )}
                                 </div>
+
+                                {career.compatibility &&
+                                    career.compatibility.top_gaps.length >
+                                        0 && (
+                                        <div className="mt-5 rounded-[12px] border-2 border-foreground bg-muted p-4">
+                                            <p className="text-xs font-black tracking-wide uppercase">
+                                                Gap utama
+                                            </p>
+
+                                            <p className="mt-2 text-sm font-semibold">
+                                                {career.compatibility.top_gaps
+                                                    .map((gap) => gap.name)
+                                                    .join(' · ')}
+                                            </p>
+                                        </div>
+                                    )}
                             </div>
 
                             <div className="flex items-end p-6 pt-0 lg:p-8 lg:pl-0">

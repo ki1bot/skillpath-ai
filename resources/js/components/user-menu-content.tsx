@@ -1,5 +1,5 @@
 import { Link, router } from '@inertiajs/react';
-import { LogOut, Settings } from 'lucide-react';
+import { LogOut, MessageSquareText, Settings } from 'lucide-react';
 import {
     DropdownMenuGroup,
     DropdownMenuItem,
@@ -44,6 +44,18 @@ export function UserMenuContent({ user }: Props) {
                     >
                         <Settings className="mr-2 text-current" />
                         Pengaturan
+                    </Link>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem asChild>
+                    <Link
+                        className="block w-full cursor-pointer"
+                        href="/feedback"
+                        prefetch
+                        onClick={cleanup}
+                    >
+                        <MessageSquareText className="mr-2 text-current" />
+                        Masukan
                     </Link>
                 </DropdownMenuItem>
             </DropdownMenuGroup>

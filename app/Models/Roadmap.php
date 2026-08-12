@@ -22,21 +22,34 @@ class Roadmap extends Model
 
     protected function casts(): array
     {
-        return ['is_active' => 'boolean'];
+        return [
+            'is_active' => 'boolean',
+        ];
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return BelongsTo<Career, $this>
+     */
     public function career(): BelongsTo
     {
         return $this->belongsTo(Career::class);
     }
 
+    /**
+     * @return HasMany<RoadmapItem, $this>
+     */
     public function items(): HasMany
     {
-        return $this->hasMany(RoadmapItem::class)->orderBy('position');
+        return $this
+            ->hasMany(RoadmapItem::class)
+            ->orderBy('position');
     }
 }

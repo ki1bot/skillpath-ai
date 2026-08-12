@@ -32,7 +32,10 @@ export type Question = {
     id: number;
     assessment_id: number;
     skill_id: number;
+    question_type: 'multiple_choice' | 'case' | 'practical';
     prompt: string;
+    practical_instructions?: string | null;
+    evidence_required: boolean;
     options: Record<'A' | 'B' | 'C' | 'D', string>;
     correct_answer: 'A' | 'B' | 'C' | 'D';
     explanation?: string | null;
@@ -54,6 +57,9 @@ export type Assessment = {
 export type Material = {
     id: number;
     skill_id: number;
+    material_type: 'core' | 'reinforcement';
+    reinforcement_for_material_id?: number | null;
+    is_active: boolean;
     title: string;
     slug: string;
     summary: string;

@@ -1,5 +1,6 @@
 import { Form } from '@inertiajs/react';
 import { Plus, Save } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     InputField,
@@ -25,6 +26,10 @@ export function QuestionForm({
         ? `/admin/questions/${question.id}`
         : '/admin/questions';
 
+    const [questionType, setQuestionType] = useState<
+        'multiple_choice' | 'case' | 'practical'
+    >(question?.question_type ?? 'multiple_choice');
+
     return (
         <Form
             action={action}
@@ -33,7 +38,7 @@ export function QuestionForm({
         >
             {({ processing }) => (
                 <>
-                    <div className="grid gap-4 md:grid-cols-3">
+                    <div className="grid gap-4 md:grid-cols-4">
                         <SelectField
                             label="Assesment"
                             name="assessment_id"
@@ -71,6 +76,27 @@ export function QuestionForm({
                             ))}
                         </SelectField>
 
+                        <SelectField
+                            label="Jenis soal"
+                            name="question_type"
+                            value={questionType}
+                            onChange={(event) =>
+                                setQuestionType(
+                                    event.target.value as
+                                        | 'multiple_choice'
+                                        | 'case'
+                                        | 'practical',
+                                )
+                            }
+                            required
+                        >
+                            <option value="multiple_choice">
+                                Pilihan ganda
+                            </option>
+                            <option value="case">Studi kasus</option>
+                            <option value="practical">Tugas praktik</option>
+                        </SelectField>
+
                         <InputField
                             label="Tingkat kesulitan"
                             name="difficulty"
@@ -80,12 +106,56 @@ export function QuestionForm({
                     </div>
 
                     <TextareaField
-                        label="Pertanyaan"
+                        label={
+                            questionType === 'case'
+                                ? 'Skenario kasus'
+                                : 'Pertanyaan'
+                        }
                         name="prompt"
                         rows={4}
                         defaultValue={question?.prompt}
                         required
                     />
+
+                    {questionType === 'practical' && (
+                        <div className="grid gap-4">
+                            <TextareaField
+                                label="Instruksi tugas praktik"
+                                name="practical_instructions"
+                                rows={5}
+                                defaultValue={
+                                    question?.practical_instructions ?? ''
+                                }
+                                required
+                            />
+
+                            <label className="flex items-center gap-3 rounded-[12px] border-2 border-foreground bg-muted p-4 text-sm font-black">
+                                <input
+                                    type="hidden"
+                                    name="evidence_required"
+                                    value="0"
+                                />
+                                <input
+                                    type="checkbox"
+                                    name="evidence_required"
+                                    value="1"
+                                    defaultChecked={
+                                        question?.evidence_required ?? true
+                                    }
+                                    className="size-4 accent-black"
+                                />
+                                Wajib melampirkan tautan bukti praktik
+                            </label>
+                        </div>
+                    )}
+
+                    {questionType !== 'practical' && (
+                        <input
+                            type="hidden"
+                            name="evidence_required"
+                            value="0"
+                        />
+                    )}
 
                     <div className="grid gap-4 sm:grid-cols-2">
                         {(['A', 'B', 'C', 'D'] as const).map((letter) => (

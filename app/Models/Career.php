@@ -35,25 +35,44 @@ class Career extends Model
         return 'slug';
     }
 
+    /**
+     * @return BelongsToMany<Skill, $this>
+     */
     public function skills(): BelongsToMany
     {
         return $this->belongsToMany(Skill::class)
-            ->withPivot(['target_level', 'importance_weight', 'is_required'])
+            ->withPivot([
+                'target_level',
+                'importance_weight',
+                'is_required',
+            ])
             ->withTimestamps();
     }
 
+    /**
+     * @return HasMany<Assessment, $this>
+     */
     public function assessments(): HasMany
     {
         return $this->hasMany(Assessment::class);
     }
 
+    /**
+     * @return HasMany<PortfolioProject, $this>
+     */
     public function projects(): HasMany
     {
         return $this->hasMany(PortfolioProject::class);
     }
 
+    /**
+     * @return HasMany<User, $this>
+     */
     public function users(): HasMany
     {
-        return $this->hasMany(User::class, 'target_career_id');
+        return $this->hasMany(
+            User::class,
+            'target_career_id',
+        );
     }
 }

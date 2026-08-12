@@ -5,6 +5,7 @@ import {
     FolderKanban,
     LayoutDashboard,
     Map,
+    MessageSquareText,
     ShieldCheck,
     Target,
     UserRound,
@@ -95,6 +96,11 @@ export function AppSidebar() {
             title: 'Kelola Sistem',
             href: '/admin',
             icon: ShieldCheck,
+        },
+        {
+            title: 'Masukan Pengguna',
+            href: '/admin/feedback',
+            icon: MessageSquareText,
         },
     ];
 

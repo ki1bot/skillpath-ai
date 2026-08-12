@@ -45,6 +45,9 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * @return BelongsTo<Career, $this>
+     */
     public function targetCareer(): BelongsTo
     {
         return $this->belongsTo(
@@ -53,11 +56,17 @@ class User extends Authenticatable
         );
     }
 
+    /**
+     * @return HasMany<UserSkill, $this>
+     */
     public function userSkills(): HasMany
     {
         return $this->hasMany(UserSkill::class);
     }
 
+    /**
+     * @return HasMany<AssessmentResult, $this>
+     */
     public function assessmentResults(): HasMany
     {
         return $this->hasMany(
@@ -65,31 +74,54 @@ class User extends Authenticatable
         );
     }
 
+    /**
+     * @return HasMany<Roadmap, $this>
+     */
     public function roadmaps(): HasMany
     {
         return $this->hasMany(Roadmap::class);
     }
 
+    /**
+     * @return HasMany<ProgressLog, $this>
+     */
     public function progressLogs(): HasMany
     {
         return $this->hasMany(ProgressLog::class);
     }
 
+    /**
+     * @return HasMany<UserProject, $this>
+     */
     public function projects(): HasMany
     {
         return $this->hasMany(UserProject::class);
     }
 
+    /**
+     * @return HasMany<Evaluation, $this>
+     */
     public function evaluations(): HasMany
     {
         return $this->hasMany(Evaluation::class);
     }
 
+    /**
+     * @return HasMany<ReadinessSnapshot, $this>
+     */
     public function readinessSnapshots(): HasMany
     {
         return $this->hasMany(
             ReadinessSnapshot::class,
         );
+    }
+
+    /**
+     * @return HasMany<Feedback, $this>
+     */
+    public function feedbacks(): HasMany
+    {
+        return $this->hasMany(Feedback::class);
     }
 
     public function isAdmin(): bool

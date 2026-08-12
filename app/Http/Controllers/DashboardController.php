@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Roadmap;
+use App\Services\AdaptiveRoadmapService;
 use App\Services\CareerReadinessService;
 use App\Services\SkillGapService;
 use Illuminate\Http\RedirectResponse;
@@ -16,6 +17,7 @@ class DashboardController extends Controller
         Request $request,
         CareerReadinessService $careerReadinessService,
         SkillGapService $skillGapService,
+        AdaptiveRoadmapService $adaptiveRoadmapService,
     ): Response|RedirectResponse {
         $user = $request
             ->user()
@@ -25,10 +27,12 @@ class DashboardController extends Controller
             ! $user->onboarding_completed_at
             || ! $user->targetCareer
         ) {
-            return redirect()->route(
-                'onboarding.show',
-            );
+            return redirect()
+                ->route('onboarding.show');
         }
+
+        $adaptiveRoadmapService
+            ->adaptForInactivity($user);
 
         $roadmap = Roadmap::query()
             ->select([
@@ -46,11 +50,11 @@ class DashboardController extends Controller
             ])
             ->first();
 
-        $analysis = $skillGapService->analyze(
-            $user,
-        );
+        $analysis = $skillGapService
+            ->analyze($user);
 
-        $nextItem = $roadmap?->items
+        $nextItem = $roadmap
+            ?->items
             ->first(
                 fn ($item) => in_array(
                     $item->status,
@@ -66,7 +70,8 @@ class DashboardController extends Controller
             ->progressLogs()
             ->sum('minutes_spent');
 
-        $today = now()->startOfDay();
+        $today = now()
+            ->startOfDay();
 
         $activityStart = $today
             ->copy()
@@ -74,21 +79,12 @@ class DashboardController extends Controller
 
         $activityByDate = $user
             ->progressLogs()
-            ->where(
-                'logged_at',
-                '>=',
-                $activityStart,
-            )
+            ->where('logged_at', '>=', $activityStart)
             ->selectRaw(
                 'DATE(logged_at) AS activity_date, SUM(minutes_spent) AS total_minutes',
             )
-            ->groupByRaw(
-                'DATE(logged_at)',
-            )
-            ->pluck(
-                'total_minutes',
-                'activity_date',
-            );
+            ->groupByRaw('DATE(logged_at)')
+            ->pluck('total_minutes', 'activity_date');
 
         $activity = collect(
             range(13, 0),
@@ -104,9 +100,8 @@ class DashboardController extends Controller
                     ->subDays($daysAgo);
 
                 return [
-                    'date' => $date->format(
-                        'd M',
-                    ),
+                    'date' => $date
+                        ->format('d M'),
                     'minutes' => (int) (
                         $activityByDate[
                             $date->toDateString()
@@ -141,18 +136,10 @@ class DashboardController extends Controller
                     $analysis,
                 )
                     ->map(
-                        fn (
-                            array $item,
-                        ) => [
-                            'skill' => $item[
-                                'name'
-                            ],
-                            'current' => $item[
-                                'current'
-                            ],
-                            'target' => $item[
-                                'target'
-                            ],
+                        fn (array $item) => [
+                            'skill' => $item['name'],
+                            'current' => $item['current'],
+                            'target' => $item['target'],
                         ],
                     )
                     ->values(),
@@ -161,45 +148,33 @@ class DashboardController extends Controller
                     ? [
                         'version' => $roadmap
                             ->version,
-
                         'estimated_weeks' => $roadmap
                             ->estimated_weeks,
-
                         'total' => $roadmap
                             ->items
                             ->count(),
-
                         'completed' => $roadmap
                             ->items
-                            ->where(
-                                'status',
-                                'completed',
-                            )
+                            ->where('status', 'completed')
                             ->count(),
                     ]
                     : null,
 
                 'nextItem' => $nextItem
                     ? [
-                        'id' => $nextItem
-                            ->id,
-
+                        'id' => $nextItem->id,
                         'title' => $nextItem
                             ->material
                             ->title,
-
                         'slug' => $nextItem
                             ->material
                             ->slug,
-
                         'skill' => $nextItem
                             ->material
                             ->skill
                             ->name,
-
                         'status' => $nextItem
                             ->status,
-
                         'progress' => $nextItem
                             ->progress_percentage,
                     ]
@@ -219,9 +194,7 @@ class DashboardController extends Controller
                         ],
                     )
                     ->with('project')
-                    ->latest(
-                        'updated_at',
-                    )
+                    ->latest('updated_at')
                     ->first(),
             ],
         );

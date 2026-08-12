@@ -1,10 +1,13 @@
 <?php
 
+use App\Http\Controllers\Admin\AssessmentQuestionController as AdminAssessmentQuestionController;
+use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\ProjectController;
@@ -165,6 +168,22 @@ Route::middleware([
         ],
     )->name('progress.index');
 
+    Route::get(
+        '/feedback',
+        [
+            FeedbackController::class,
+            'index',
+        ],
+    )->name('feedback.index');
+
+    Route::post(
+        '/feedback',
+        [
+            FeedbackController::class,
+            'store',
+        ],
+    )->name('feedback.store');
+
     Route::prefix('admin')
         ->middleware('user-manager')
         ->name('admin.')
@@ -202,6 +221,22 @@ Route::middleware([
                     'index',
                 ],
             )->name('index');
+
+            Route::get(
+                '/feedback',
+                [
+                    AdminFeedbackController::class,
+                    'index',
+                ],
+            )->name('feedback.index');
+
+            Route::patch(
+                '/feedback/{feedback}',
+                [
+                    AdminFeedbackController::class,
+                    'update',
+                ],
+            )->name('feedback.update');
 
             Route::post(
                 '/careers',
@@ -324,24 +359,24 @@ Route::middleware([
             Route::post(
                 '/questions',
                 [
-                    AdminController::class,
-                    'storeQuestion',
+                    AdminAssessmentQuestionController::class,
+                    'store',
                 ],
             )->name('questions.store');
 
             Route::put(
                 '/questions/{question}',
                 [
-                    AdminController::class,
-                    'updateQuestion',
+                    AdminAssessmentQuestionController::class,
+                    'update',
                 ],
             )->name('questions.update');
 
             Route::delete(
                 '/questions/{question}',
                 [
-                    AdminController::class,
-                    'destroyQuestion',
+                    AdminAssessmentQuestionController::class,
+                    'destroy',
                 ],
             )->name(
                 'questions.destroy',

@@ -16,6 +16,9 @@ type RoadmapItem = {
     status: string;
     progress_percentage: number;
     evaluation_score?: number | null;
+    evaluation_attempts: number;
+    reinforcement_count: number;
+    reinforcement_for_roadmap_item_id?: number | null;
     material: {
         id: number;
         title: string;
@@ -23,6 +26,7 @@ type RoadmapItem = {
         summary: string;
         difficulty: string;
         estimated_minutes: number;
+        material_type: 'core' | 'reinforcement';
         skill: {
             id: number;
             name: string;
@@ -49,7 +53,8 @@ const statusLabel: Record<string, string> = {
     available: 'Siap dipelajari',
     locked: 'Menunggu prasyarat',
     completed: 'Dikuasai',
-    needs_reinforcement: 'Perlu penguatan',
+    needs_reinforcement: 'Perlu diulang',
+    reinforcement_required: 'Selesaikan penguatan',
 };
 
 export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
@@ -102,7 +107,8 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                             <p className="mt-4 max-w-2xl text-sm leading-relaxed font-medium text-muted-foreground">
                                 Jalur ini dibuat dari {roadmap.reason}. Estimasi
                                 penyelesaian sekitar {roadmap.estimated_weeks}{' '}
-                                minggu berdasarkan waktu belajar yang tersedia.
+                                minggu. Materi penguatan dapat ditambahkan
+                                otomatis ketika evaluasi tidak memenuhi standar.
                             </p>
                         </div>
 
@@ -132,7 +138,7 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
 
                 <div className="mt-8 space-y-10">
                     {stages.map((stage, stageIndex) => (
-                        <section key={stage.title}>
+                        <section key={`${stage.title}-${stageIndex}`}>
                             <div className="mb-5 flex items-center gap-3">
                                 <span className="flex size-9 items-center justify-center rounded-[10px] border-2 border-[#171717] bg-secondary font-mono text-sm font-black text-[#171717] shadow-[3px_3px_0_var(--neo-shadow-color)]">
                                     {stageIndex + 1}
@@ -151,21 +157,37 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
 
                             <div className="space-y-4 border-l-2 border-dashed border-foreground/35 pl-5 sm:pl-8">
                                 {stage.items.map((item) => {
-                                    const locked = item.status === 'locked';
+                                    const reinforcementRequired =
+                                        item.status ===
+                                        'reinforcement_required';
+
+                                    const locked =
+                                        item.status === 'locked' ||
+                                        reinforcementRequired;
 
                                     const itemCompleted =
                                         item.status === 'completed';
+
+                                    const reinforcement =
+                                        item.material.material_type ===
+                                        'reinforcement';
 
                                     return (
                                         <article
                                             key={item.id}
                                             className={`neo-card-flat relative grid gap-5 p-5 md:grid-cols-[auto_1fr_auto] md:items-center ${
-                                                locked ? 'opacity-60' : ''
+                                                locked ? 'opacity-65' : ''
+                                            } ${
+                                                reinforcement
+                                                    ? 'border-[var(--neo-pink)]'
+                                                    : ''
                                             }`}
                                         >
                                             <div className="absolute top-8 -left-[31px] flex size-6 items-center justify-center rounded-full border-2 border-foreground bg-background sm:-left-[43px]">
                                                 {itemCompleted ? (
                                                     <CheckCircle2 className="size-4 fill-secondary" />
+                                                ) : reinforcementRequired ? (
+                                                    <RotateCcw className="size-3.5" />
                                                 ) : locked ? (
                                                     <LockKeyhole className="size-3.5" />
                                                 ) : (
@@ -189,10 +211,16 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                                                         }
                                                     </span>
 
+                                                    {reinforcement && (
+                                                        <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-pink)] px-2 py-0.5 text-[10px] font-black text-[#171717] uppercase">
+                                                            Penguatan
+                                                        </span>
+                                                    )}
+
                                                     {item.status ===
                                                         'needs_reinforcement' && (
-                                                        <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-pink)] px-2 py-0.5 text-[10px] font-black text-[#171717] uppercase">
-                                                            Ulangi
+                                                        <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-orange)] px-2 py-0.5 text-[10px] font-black text-[#171717] uppercase">
+                                                            Ulangi evaluasi
                                                         </span>
                                                     )}
                                                 </div>
@@ -222,17 +250,33 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                                                     </span>
 
                                                     <span>
-                                                        {
-                                                            statusLabel[
-                                                                item.status
-                                                            ]
-                                                        }
+                                                        {statusLabel[
+                                                            item.status
+                                                        ] ?? item.status}
                                                     </span>
+
+                                                    {item.evaluation_attempts >
+                                                        0 && (
+                                                        <span>
+                                                            {
+                                                                item.evaluation_attempts
+                                                            }{' '}
+                                                            percobaan evaluasi
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </div>
 
                                             <div className="md:text-right">
-                                                {locked ? (
+                                                {reinforcementRequired ? (
+                                                    <div className="max-w-48 text-xs font-bold text-muted-foreground">
+                                                        <RotateCcw className="mb-2 inline size-4" />
+                                                        <br />
+                                                        Selesaikan materi
+                                                        penguatan yang muncul
+                                                        sebelum kartu ini.
+                                                    </div>
+                                                ) : item.status === 'locked' ? (
                                                     <div className="text-xs font-bold text-muted-foreground">
                                                         <LockKeyhole className="mb-2 inline size-4" />
 
@@ -266,10 +310,14 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                                                         >
                                                             {itemCompleted
                                                                 ? 'Tinjau ulang'
-                                                                : 'Buka materi'}
+                                                                : item.status ===
+                                                                    'needs_reinforcement'
+                                                                  ? 'Pelajari ulang'
+                                                                  : 'Buka materi'}
 
                                                             {item.status ===
-                                                            'needs_reinforcement' ? (
+                                                                'needs_reinforcement' ||
+                                                            reinforcement ? (
                                                                 <RotateCcw />
                                                             ) : (
                                                                 <ArrowRight />
