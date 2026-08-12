@@ -22,9 +22,13 @@ return [
         'key' => env('RESEND_API_KEY'),
     ],
 
-    'openai' => [
-        'key' => env('OPENAI_API_KEY'),
-        'model' => env('OPENAI_MODEL', 'gpt-5-mini'),
+    'openrouter' => [
+        'key' => env('OPENROUTER_API_KEY'),
+        'model' => env('OPENROUTER_MODEL', 'openrouter/free'),
+        'base_url' => env(
+            'OPENROUTER_BASE_URL',
+            'https://openrouter.ai/api/v1',
+        ),
     ],
 
     'ses' => [
