@@ -205,33 +205,15 @@ parameters:
 			path: app/Services/AiExplanationService.php
 
 		-
-			message: '#^Parameter \#1 \$string of function sha1 expects string, string\|false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Services/AiExplanationService.php
-
-		-
-			message: '#^Unable to resolve the template type TFlatMapKey in call to method Illuminate\\Support\\Collection\<\(int\|string\),mixed\>\:\:flatMap\(\)$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Services/AiExplanationService.php
-
-		-
-			message: '#^Unable to resolve the template type TFlatMapValue in call to method Illuminate\\Support\\Collection\<\(int\|string\),mixed\>\:\:flatMap\(\)$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Services/AiExplanationService.php
-
-		-
 			message: '#^Unable to resolve the template type TKey in call to function collect$#'
 			identifier: argument.templateType
-			count: 2
+			count: 1
 			path: app/Services/AiExplanationService.php
 
 		-
 			message: '#^Unable to resolve the template type TValue in call to function collect$#'
 			identifier: argument.templateType
-			count: 2
+			count: 1
 			path: app/Services/AiExplanationService.php
 
 		-
