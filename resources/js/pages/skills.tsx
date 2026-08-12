@@ -163,13 +163,27 @@ export default function Skills({
                                 <BrainCircuit className="size-5 text-[#171717]" />
                             </div>
 
-                            <div>
-                                <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                    Ringkasan hasil
+                            <div className="min-w-0 flex-1">
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
+                                        Penjelasan AI
+                                    </p>
+
+                                    <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-lime)] px-2.5 py-1 text-[10px] font-black text-[#171717] uppercase">
+                                        AI-assisted · fallback aman
+                                    </span>
+                                </div>
+
+                                <p className="mt-2 leading-relaxed font-semibold whitespace-pre-line">
+                                    {summary}
                                 </p>
 
-                                <p className="mt-2 leading-relaxed font-semibold">
-                                    {summary}
+                                <p className="mt-3 text-xs leading-5 font-bold text-muted-foreground">
+                                    AI hanya menjelaskan hasil yang sudah
+                                    dihitung oleh engine SkillPath. Jika API AI
+                                    tidak tersedia, teks fallback deterministik
+                                    tetap digunakan sehingga skor dan roadmap
+                                    tidak bergantung pada AI.
                                 </p>
                             </div>
                         </div>

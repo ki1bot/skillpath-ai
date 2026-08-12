@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\AiInsightService;
 use App\Services\CareerReadinessService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -12,6 +13,7 @@ class ProgressController extends Controller
     public function index(
         Request $request,
         CareerReadinessService $readinessService,
+        AiInsightService $aiInsightService,
     ): Response {
         $user = $request->user();
 
@@ -34,8 +36,25 @@ class ProgressController extends Controller
             })
             ->values();
 
+        $readiness = $readinessService->calculate(
+            $user,
+        );
+
+        $aiInsights = $aiInsightService
+            ->progress(
+                $user,
+                $readiness,
+            );
+
         return Inertia::render('progress', [
-            'readiness' => $readinessService->calculate($user),
+            'readiness' => $readiness,
+            'aiInsights' => [
+                'progress' => $aiInsights['progress'],
+                'schedule' => $aiInsights['schedule'],
+                'obstacles' => $aiInsights['obstacles'],
+                'generatedByAi' => $aiInsights['generated_by_ai'],
+                'model' => $aiInsights['model'],
+            ],
             'readinessHistory' => $user->readinessSnapshots()
                 ->with('career:id,name,slug')
                 ->oldest()

@@ -3,6 +3,8 @@ import {
     Activity,
     ArrowUpRight,
     BookCheck,
+    BrainCircuit,
+    CircleAlert,
     Clock3,
     History,
     Route,
@@ -26,6 +28,14 @@ interface Readiness {
     project_score: number;
     consistency: number;
     evaluation_score: number;
+}
+
+interface AiInsights {
+    progress: string;
+    schedule: string;
+    obstacles: string;
+    generatedByAi: boolean;
+    model: string | null;
 }
 
 interface ReadinessSnapshot {
@@ -112,6 +122,8 @@ const triggerLabels: Record<string, string> = {
     project_updated: 'Proyek diperbarui',
     project_completed: 'Proyek selesai',
     progress_updated: 'Perkembangan diperbarui',
+    evaluation_passed: 'Evaluasi lulus',
+    evaluation_failed: 'Evaluasi perlu diulang',
 };
 
 const activityLabels: Record<string, string> = {
@@ -120,8 +132,17 @@ const activityLabels: Record<string, string> = {
     material_study: 'Mempelajari materi',
     practice: 'Latihan',
     evaluation: 'Evaluasi',
+    evaluation_passed: 'Evaluasi lulus',
+    evaluation_failed: 'Evaluasi perlu diulang',
     project: 'Mengerjakan proyek',
+    project_progress: 'Progres proyek',
+    project_completed: 'Proyek selesai',
     review: 'Mengulang materi',
+    roadmap_reinforcement_added: 'Materi penguatan ditambahkan',
+    roadmap_reinforcement_reopened: 'Materi penguatan dibuka kembali',
+    roadmap_reinforcement_retry: 'Penguatan perlu diulang',
+    roadmap_reinforcement_completed: 'Penguatan selesai',
+    roadmap_inactivity_adjusted: 'Roadmap disesuaikan',
 };
 
 const projectStatusLabels: Record<string, string> = {
@@ -152,6 +173,7 @@ function formatProjectStatus(value: string) {
 
 export default function Progress({
     readiness,
+    aiInsights,
     readinessHistory,
     assessmentHistory,
     logs,
@@ -160,6 +182,7 @@ export default function Progress({
     roadmaps,
 }: {
     readiness: Readiness;
+    aiInsights: AiInsights;
     readinessHistory: ReadinessSnapshot[];
     assessmentHistory: Attempt[];
     logs: Log[];
@@ -236,6 +259,70 @@ export default function Progress({
                         </Card>
                     ))}
                 </section>
+
+                <Card>
+                    <CardHeader className="border-b-2 border-[#171717] bg-[var(--neo-blue)] text-[#171717]">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            <CardTitle className="flex items-center gap-2 text-xl font-black">
+                                <BrainCircuit className="size-5" />
+                                AI Learning Coach
+                            </CardTitle>
+
+                            <span
+                                className={`rounded-full border-2 border-[#171717] px-2.5 py-1 text-[10px] font-black uppercase ${
+                                    aiInsights.generatedByAi
+                                        ? 'bg-[var(--neo-lime)]'
+                                        : 'bg-[var(--neo-yellow)]'
+                                }`}
+                            >
+                                {aiInsights.generatedByAi
+                                    ? `OpenAI · ${aiInsights.model ?? 'model aktif'}`
+                                    : 'Fallback sistem'}
+                            </span>
+                        </div>
+                    </CardHeader>
+
+                    <CardContent className="grid gap-4 pt-6 lg:grid-cols-3">
+                        <div className="neo-card-flat p-5">
+                            <div className="flex items-center gap-2">
+                                <BrainCircuit className="size-5" />
+                                <h3 className="font-black">
+                                    Ringkasan perkembangan
+                                </h3>
+                            </div>
+
+                            <p className="mt-3 text-sm leading-6 font-medium whitespace-pre-line">
+                                {aiInsights.progress}
+                            </p>
+                        </div>
+
+                        <div className="neo-card-flat p-5">
+                            <div className="flex items-center gap-2">
+                                <Clock3 className="size-5" />
+                                <h3 className="font-black">
+                                    Saran jadwal belajar
+                                </h3>
+                            </div>
+
+                            <p className="mt-3 text-sm leading-6 font-medium whitespace-pre-line">
+                                {aiInsights.schedule}
+                            </p>
+                        </div>
+
+                        <div className="neo-card-flat p-5">
+                            <div className="flex items-center gap-2">
+                                <CircleAlert className="size-5" />
+                                <h3 className="font-black">
+                                    Pola kendala belajar
+                                </h3>
+                            </div>
+
+                            <p className="mt-3 text-sm leading-6 font-medium whitespace-pre-line">
+                                {aiInsights.obstacles}
+                            </p>
+                        </div>
+                    </CardContent>
+                </Card>
 
                 <Card>
                     <CardHeader className="border-b-2 border-foreground">

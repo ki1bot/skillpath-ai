@@ -1,6 +1,7 @@
 import { Form, Head, Link, useForm } from '@inertiajs/react';
 import {
     ArrowLeft,
+    BrainCircuit,
     Check,
     CircleAlert,
     ExternalLink,
@@ -43,10 +44,17 @@ interface UserProject {
     notes?: string | null;
 }
 
+interface AiFeedback {
+    content: string;
+    generatedByAi: boolean;
+    model: string | null;
+}
+
 export default function ProjectShow({
     project,
     readiness,
     userProject,
+    aiFeedback,
 }: {
     project: Project;
     readiness: {
@@ -55,6 +63,7 @@ export default function ProjectShow({
         requirements: Requirement[];
     };
     userProject: UserProject | null;
+    aiFeedback: AiFeedback;
 }) {
     const progressForm = useForm({
         progress_percentage: userProject?.progress_percentage ?? 0,
@@ -144,6 +153,42 @@ export default function ProjectShow({
                         </CardContent>
                     </Card>
                 </section>
+
+                <Card>
+                    <CardHeader className="border-b-2 border-[#171717] bg-[var(--neo-blue)] text-[#171717]">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            <CardTitle className="flex items-center gap-2 text-xl font-black">
+                                <BrainCircuit className="size-5" />
+                                Umpan balik AI proyek
+                            </CardTitle>
+
+                            <span
+                                className={`rounded-full border-2 border-[#171717] px-2.5 py-1 text-[10px] font-black uppercase ${
+                                    aiFeedback.generatedByAi
+                                        ? 'bg-[var(--neo-lime)]'
+                                        : 'bg-[var(--neo-yellow)]'
+                                }`}
+                            >
+                                {aiFeedback.generatedByAi
+                                    ? `OpenAI · ${aiFeedback.model ?? 'model aktif'}`
+                                    : 'Fallback sistem'}
+                            </span>
+                        </div>
+                    </CardHeader>
+
+                    <CardContent className="pt-6">
+                        <p className="max-w-4xl text-sm leading-7 font-semibold whitespace-pre-line">
+                            {aiFeedback.content}
+                        </p>
+
+                        <p className="mt-4 text-xs leading-5 font-bold text-muted-foreground">
+                            AI hanya membaca deskripsi proyek, readiness,
+                            progres, dan catatan yang tersimpan di SkillPath AI.
+                            Sistem tidak mengklaim membaca source code atau
+                            repository pengguna.
+                        </p>
+                    </CardContent>
+                </Card>
 
                 <section className="grid gap-5 lg:grid-cols-2">
                     <Card>

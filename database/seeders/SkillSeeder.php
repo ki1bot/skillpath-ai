@@ -18,6 +18,13 @@ class SkillSeeder extends Seeder
                 'Dasar',
             ],
             [
+                'data-structures-algorithms',
+                'Struktur Data & Algoritma Dasar',
+                'Fondasi',
+                'Memahami array, stack, queue, map, pencarian, pengurutan, kompleksitas dasar, dan cara memilih struktur data yang sesuai.',
+                'Menengah',
+            ],
+            [
                 'git-github',
                 'Git & GitHub',
                 'Alat',
@@ -53,6 +60,13 @@ class SkillSeeder extends Seeder
                 'Dasar',
             ],
             [
+                'database-performance',
+                'Performa & Indeks Basis Data',
+                'Data',
+                'Membaca execution plan dasar, memilih indeks, mengenali query mahal, dan menghindari pola akses data yang tidak efisien.',
+                'Menengah',
+            ],
+            [
                 'testing-fundamentals',
                 'Dasar Pengujian',
                 'Kualitas',
@@ -78,6 +92,13 @@ class SkillSeeder extends Seeder
                 'REST API',
                 'Backend',
                 'Merancang endpoint, resource, status code, pagination, filtering, dan kontrak API yang konsisten.',
+                'Menengah',
+            ],
+            [
+                'api-documentation',
+                'Dokumentasi API',
+                'Backend',
+                'Mendokumentasikan endpoint, parameter, skema request-response, error, autentikasi, dan contoh penggunaan API secara konsisten.',
                 'Menengah',
             ],
             [
@@ -109,6 +130,13 @@ class SkillSeeder extends Seeder
                 'Menengah',
             ],
             [
+                'caching-strategies',
+                'Strategi Caching',
+                'Backend',
+                'Memahami kapan cache berguna, memilih cache key, menentukan masa berlaku, serta menangani invalidasi tanpa membuat data basi.',
+                'Menengah',
+            ],
+            [
                 'web-security-basics',
                 'Dasar Keamanan Web',
                 'Keamanan',
@@ -137,6 +165,13 @@ class SkillSeeder extends Seeder
                 'Dasar',
             ],
             [
+                'browser-dom-events',
+                'Browser, DOM & Event',
+                'Frontend',
+                'Memahami DOM, event propagation, form event, browser storage, dan interaksi dasar dengan Web API.',
+                'Menengah',
+            ],
+            [
                 'typescript',
                 'TypeScript',
                 'Frontend',
@@ -151,10 +186,24 @@ class SkillSeeder extends Seeder
                 'Menengah',
             ],
             [
+                'component-architecture',
+                'Arsitektur Komponen',
+                'Frontend',
+                'Menyusun batas komponen, composition, reusable pattern, data flow, dan API komponen yang tetap mudah dirawat.',
+                'Menengah',
+            ],
+            [
                 'state-management',
                 'Pengelolaan State',
                 'Frontend',
                 'Memilih state lokal, server state, context, dan pola pengelolaan state tanpa menambah kerumitan yang tidak perlu.',
+                'Menengah',
+            ],
+            [
+                'frontend-testing',
+                'Pengujian Frontend',
+                'Frontend',
+                'Menguji perilaku komponen, form, state, dan interaksi pengguna dengan pendekatan yang berorientasi pada hasil yang terlihat pengguna.',
                 'Menengah',
             ],
             [
@@ -186,10 +235,24 @@ class SkillSeeder extends Seeder
                 'Dasar',
             ],
             [
+                'business-metrics-kpi',
+                'Metrik Bisnis & KPI',
+                'Analisis Data',
+                'Mendefinisikan metrik, denominator, periode, target, dan interpretasi KPI agar analisis menjawab kebutuhan keputusan.',
+                'Menengah',
+            ],
+            [
                 'data-cleaning',
                 'Pembersihan Data',
                 'Analisis Data',
                 'Menangani missing value, duplikasi, tipe data, outlier, dan inkonsistensi sebelum analisis.',
+                'Menengah',
+            ],
+            [
+                'exploratory-data-analysis',
+                'Exploratory Data Analysis',
+                'Analisis Data',
+                'Mengeksplorasi distribusi, hubungan, segmentasi, anomali, dan pola awal sebelum menyusun kesimpulan analisis.',
                 'Menengah',
             ],
             [
@@ -211,6 +274,13 @@ class SkillSeeder extends Seeder
                 'Visualisasi Data',
                 'Analisis Data',
                 'Memilih visualisasi yang sesuai dan menyampaikan pola data tanpa menyesatkan pembaca.',
+                'Menengah',
+            ],
+            [
+                'data-storytelling',
+                'Data Storytelling',
+                'Analisis Data',
+                'Menyusun narasi data yang menghubungkan pertanyaan, bukti, visualisasi, keterbatasan, dan rekomendasi secara bertanggung jawab.',
                 'Menengah',
             ],
             [

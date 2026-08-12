@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PortfolioProject;
 use App\Models\ProgressLog;
 use App\Models\UserProject;
+use App\Services\AiInsightService;
 use App\Services\CareerReadinessService;
 use App\Services\ProjectReadinessService;
 use Illuminate\Http\RedirectResponse;
@@ -49,6 +50,7 @@ class ProjectController extends Controller
         Request $request,
         PortfolioProject $portfolioProject,
         ProjectReadinessService $service,
+        AiInsightService $aiInsightService,
     ): Response {
         abort_unless(
             $portfolioProject->career_id === $request->user()->target_career_id,
@@ -57,16 +59,33 @@ class ProjectController extends Controller
 
         $portfolioProject->load(['career', 'skills']);
 
-        return Inertia::render('project-show', [
-            'project' => $portfolioProject,
-            'readiness' => $service->calculate(
+        $userProject = UserProject::query()
+            ->where('user_id', $request->user()->id)
+            ->where('portfolio_project_id', $portfolioProject->id)
+            ->first();
+
+        $readiness = $service->calculate(
+            $request->user(),
+            $portfolioProject,
+        );
+
+        $aiFeedback = $aiInsightService
+            ->projectFeedback(
                 $request->user(),
                 $portfolioProject,
-            ),
-            'userProject' => UserProject::query()
-                ->where('user_id', $request->user()->id)
-                ->where('portfolio_project_id', $portfolioProject->id)
-                ->first(),
+                $userProject,
+                $readiness,
+            );
+
+        return Inertia::render('project-show', [
+            'project' => $portfolioProject,
+            'readiness' => $readiness,
+            'userProject' => $userProject,
+            'aiFeedback' => [
+                'content' => $aiFeedback['content'],
+                'generatedByAi' => $aiFeedback['generated_by_ai'],
+                'model' => $aiFeedback['model'],
+            ],
         ]);
     }
 

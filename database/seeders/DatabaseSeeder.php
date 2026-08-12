@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             AssessmentSeeder::class,
             AssessmentEnhancementSeeder::class,
             PortfolioProjectSeeder::class,
+            ExpandedSkillDataSeeder::class,
         ]);
     }
 }

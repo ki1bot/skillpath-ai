@@ -2,6 +2,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import {
     ArrowLeft,
     BookOpen,
+    BrainCircuit,
     CheckCircle2,
     ExternalLink,
     RotateCcw,
@@ -55,12 +56,20 @@ type Item = {
     evaluations: Evaluation[];
 };
 
+type AiExercise = {
+    content: string;
+    generatedByAi: boolean;
+    model: string | null;
+};
+
 export default function MaterialPage({
     item,
     material,
+    aiExercise,
 }: {
     item: Item;
     material: Material;
+    aiExercise: AiExercise;
 }) {
     const progressForm = useForm({
         progress_percentage: Math.min(item.progress_percentage, 95),
@@ -191,6 +200,42 @@ export default function MaterialPage({
                                     </a>
                                 </Button>
                             )}
+                        </section>
+
+                        <section className="neo-card overflow-hidden">
+                            <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-[#171717] bg-[var(--neo-blue)] p-5 text-[#171717]">
+                                <div className="flex items-center gap-3">
+                                    <BrainCircuit className="size-5" />
+                                    <h2 className="text-xl font-black">
+                                        Variasi latihan AI
+                                    </h2>
+                                </div>
+
+                                <span
+                                    className={`rounded-full border-2 border-[#171717] px-2.5 py-1 text-[10px] font-black uppercase ${
+                                        aiExercise.generatedByAi
+                                            ? 'bg-[var(--neo-lime)]'
+                                            : 'bg-[var(--neo-yellow)]'
+                                    }`}
+                                >
+                                    {aiExercise.generatedByAi
+                                        ? `OpenAI · ${aiExercise.model ?? 'model aktif'}`
+                                        : 'Fallback sistem'}
+                                </span>
+                            </div>
+
+                            <div className="p-6">
+                                <p className="text-sm leading-7 font-semibold whitespace-pre-line">
+                                    {aiExercise.content}
+                                </p>
+
+                                <p className="mt-4 text-xs leading-5 font-bold text-muted-foreground">
+                                    Variasi ini tidak mengubah nilai, status
+                                    materi, atau roadmap. AI hanya membuat
+                                    variasi dari latihan yang sudah tersedia di
+                                    database.
+                                </p>
+                            </div>
                         </section>
 
                         <section className="neo-card p-6">

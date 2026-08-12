@@ -9,6 +9,7 @@ use App\Models\Roadmap;
 use App\Models\RoadmapItem;
 use App\Models\UserSkill;
 use App\Services\AdaptiveRoadmapService;
+use App\Services\AiInsightService;
 use App\Services\CareerReadinessService;
 use App\Services\RoadmapService;
 use Illuminate\Http\RedirectResponse;
@@ -138,6 +139,7 @@ class RoadmapController extends Controller
     public function material(
         Request $request,
         LearningMaterial $material,
+        AiInsightService $aiInsightService,
     ): Response {
         $item = RoadmapItem::query()
             ->where(
@@ -274,11 +276,22 @@ class RoadmapController extends Controller
                 ->values(),
         ];
 
+        $aiExercise = $aiInsightService
+            ->exerciseVariation(
+                $request->user(),
+                $item->material,
+            );
+
         return Inertia::render(
             'material',
             [
                 'item' => $itemPayload,
                 'material' => $materialPayload,
+                'aiExercise' => [
+                    'content' => $aiExercise['content'],
+                    'generatedByAi' => $aiExercise['generated_by_ai'],
+                    'model' => $aiExercise['model'],
+                ],
             ],
         );
     }
