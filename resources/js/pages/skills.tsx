@@ -2,6 +2,7 @@ import { Head, Link } from '@inertiajs/react';
 import {
     ArrowRight,
     BrainCircuit,
+    ChartNoAxesCombined,
     CheckCircle2,
     RotateCcw,
     TriangleAlert,
@@ -115,7 +116,7 @@ export default function Skills({
                             </div>
 
                             <div className="flex size-14 items-center justify-center rounded-full border-2 border-[#171717] bg-secondary">
-                                <BrainCircuit className="size-6 text-[#171717]" />
+                                <ChartNoAxesCombined className="size-6 text-[#171717]" />
                             </div>
                         </div>
 
