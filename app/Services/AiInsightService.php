@@ -17,7 +17,13 @@ class AiInsightService
 {
     /**
      * @param  array<string, mixed>  $readiness
-     * @return array{progress: string, schedule: string, obstacles: string, generated_by_ai: bool, model: string|null}
+     * @return array{
+     *     progress: string,
+     *     schedule: string,
+     *     obstacles: string,
+     *     generated_by_ai: bool,
+     *     model: string|null
+     * }
      */
     public function progress(
         User $user,
@@ -26,7 +32,11 @@ class AiInsightService
         $history = $user->readinessSnapshots()
             ->latest()
             ->limit(5)
-            ->get(['score', 'trigger', 'created_at'])
+            ->get([
+                'score',
+                'trigger',
+                'created_at',
+            ])
             ->map(fn ($item) => [
                 'score' => (float) $item->score,
                 'trigger' => $item->trigger,
@@ -38,7 +48,11 @@ class AiInsightService
         $evaluations = $user->evaluations()
             ->latest()
             ->limit(5)
-            ->get(['score', 'passed', 'created_at'])
+            ->get([
+                'score',
+                'passed',
+                'created_at',
+            ])
             ->map(fn ($item) => [
                 'score' => (float) $item->score,
                 'passed' => (bool) $item->passed,
@@ -49,38 +63,68 @@ class AiInsightService
 
         $obstacles = $user->progressLogs()
             ->whereNotNull('obstacle')
-            ->where('obstacle', '!=', '')
+            ->where(
+                'obstacle',
+                '!=',
+                '',
+            )
             ->latest('logged_at')
             ->limit(8)
             ->pluck('obstacle')
-            ->filter(fn ($value) => is_string($value) && trim($value) !== '')
-            ->map(fn ($value) => trim((string) $value))
+            ->filter(
+                fn ($value) => is_string($value)
+                    && trim($value) !== '',
+            )
+            ->map(
+                fn ($value) => trim(
+                    (string) $value,
+                ),
+            )
             ->values()
             ->all();
 
         $recentMinutes = (int) $user->progressLogs()
-            ->where('logged_at', '>=', now()->subDays(14))
+            ->where(
+                'logged_at',
+                '>=',
+                now()->subDays(14),
+            )
             ->sum('minutes_spent');
 
         $roadmap = Roadmap::query()
-            ->where('user_id', $user->id)
-            ->where('is_active', true)
-            ->with('items.material:id,title,estimated_minutes')
+            ->where(
+                'user_id',
+                $user->id,
+            )
+            ->where(
+                'is_active',
+                true,
+            )
+            ->with(
+                'items.material:id,title,estimated_minutes',
+            )
             ->first();
 
         $nextMaterials = $roadmap
             ?->items
-            ->filter(fn (RoadmapItem $item) => in_array(
-                $item->status,
-                ['available', 'needs_reinforcement'],
-                true,
-            ))
+            ->filter(
+                fn (RoadmapItem $item) => in_array(
+                    $item->status,
+                    [
+                        'available',
+                        'needs_reinforcement',
+                    ],
+                    true,
+                ),
+            )
             ->sortBy('position')
             ->take(3)
-            ->map(fn (RoadmapItem $item) => [
-                'title' => $item->material->title,
-                'minutes' => (int) $item->material->estimated_minutes,
-            ])
+            ->map(
+                fn (RoadmapItem $item) => [
+                    'title' => $item->material->title,
+                    'minutes' => (int) $item->material->estimated_minutes,
+                ],
+            )
             ->values()
             ->all() ?? [];
 
@@ -123,7 +167,9 @@ class AiInsightService
             ];
         }
 
-        $sections = $this->sections($result['content']);
+        $sections = $this->sections(
+            $result['content'],
+        );
 
         if ($sections === null) {
             return [
@@ -142,7 +188,11 @@ class AiInsightService
 
     /**
      * @param  array<string, mixed>  $readiness
-     * @return array{content: string, generated_by_ai: bool, model: string|null}
+     * @return array{
+     *     content: string,
+     *     generated_by_ai: bool,
+     *     model: string|null
+     * }
      */
     public function projectFeedback(
         User $user,
@@ -188,13 +238,19 @@ class AiInsightService
     }
 
     /**
-     * @return array{content: string, generated_by_ai: bool, model: string|null}
+     * @return array{
+     *     content: string,
+     *     generated_by_ai: bool,
+     *     model: string|null
+     * }
      */
     public function exerciseVariation(
         User $user,
         LearningMaterial $material,
     ): array {
-        $fallback = "1. Variasi dasar — Kerjakan versi paling kecil dari tugas: {$material->practice_task}\n2. Variasi bukti — Ulangi tugas yang sama dan dokumentasikan langkah, hasil, serta satu keputusan penting.\n3. Variasi tantangan — Tambahkan satu edge case yang masih berada dalam konteks {$material->skill?->name}.";
+        $fallback = "1. Variasi dasar — Kerjakan versi paling kecil dari tugas: {$material->practice_task}\n"
+            ."2. Variasi bukti — Ulangi tugas yang sama dan dokumentasikan langkah, hasil, serta satu keputusan penting.\n"
+            ."3. Variasi tantangan — Tambahkan satu edge case yang masih berada dalam konteks {$material->skill?->name}.";
 
         $result = $this->ask(
             $user,
@@ -219,7 +275,11 @@ class AiInsightService
 
     /**
      * @param  array<string, mixed>  $context
-     * @return array{content: string, generated_by_ai: true, model: string}|null
+     * @return array{
+     *     content: string,
+     *     generated_by_ai: true,
+     *     model: string
+     * }|null
      */
     private function ask(
         User $user,
@@ -228,8 +288,14 @@ class AiInsightService
         array $context,
         int $maxTokens,
     ): ?array {
-        $key = config('services.openai.key');
-        $model = config('services.openai.model', 'gpt-5-mini');
+        $key = config(
+            'services.openai.key',
+        );
+
+        $model = config(
+            'services.openai.model',
+            'gpt-5-mini',
+        );
 
         if (
             ! is_string($key)
@@ -242,7 +308,8 @@ class AiInsightService
 
         $json = json_encode(
             $context,
-            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES,
+            JSON_UNESCAPED_UNICODE
+                | JSON_UNESCAPED_SLASHES,
         );
 
         if (! is_string($json)) {
@@ -256,12 +323,18 @@ class AiInsightService
             .':'
             .sha1($json);
 
-        $cached = Cache::get($cacheKey);
+        $cached = Cache::get(
+            $cacheKey,
+        );
 
         if (
             is_array($cached)
-            && is_string($cached['content'] ?? null)
-            && is_string($cached['model'] ?? null)
+            && is_string(
+                $cached['content'] ?? null,
+            )
+            && is_string(
+                $cached['model'] ?? null,
+            )
         ) {
             return [
                 'content' => $cached['content'],
@@ -271,23 +344,33 @@ class AiInsightService
         }
 
         try {
-            $response = Http::withToken($key)
+            $response = Http::withToken(
+                $key,
+            )
                 ->acceptJson()
                 ->connectTimeout(2)
                 ->timeout(12)
-                ->post('https://api.openai.com/v1/responses', [
-                    'model' => $model,
-                    'instructions' => 'Anda adalah fitur AI pendukung SkillPath AI. Gunakan hanya data internal yang diberikan. Jangan mengubah skor, hasil asesmen, status progres, atau keputusan roadmap. Jika data tidak cukup, nyatakan keterbatasannya. Gunakan Bahasa Indonesia yang ringkas. '.$task,
-                    'input' => 'Data internal SkillPath AI: '.$json,
-                    'max_output_tokens' => $maxTokens,
-                ]);
+                ->post(
+                    'https://api.openai.com/v1/responses',
+                    [
+                        'model' => $model,
+                        'instructions' => 'Anda adalah fitur AI pendukung SkillPath AI. Gunakan hanya data internal yang diberikan. Jangan mengubah skor, hasil asesmen, status progres, atau keputusan roadmap. Jika data tidak cukup, nyatakan keterbatasannya. Gunakan Bahasa Indonesia yang ringkas. '
+                            .$task,
+                        'input' => 'Data internal SkillPath AI: '
+                            .$json,
+                        'max_output_tokens' => $maxTokens,
+                    ],
+                );
 
             if (! $response->successful()) {
                 return null;
             }
 
             $content = $this->outputText(
-                $response->json('output', []),
+                $response->json(
+                    'output',
+                    [],
+                ),
             );
 
             if ($content === null) {
@@ -325,14 +408,26 @@ class AiInsightService
                 continue;
             }
 
-            foreach (($item['content'] ?? []) as $part) {
+            $content = $item['content'] ?? [];
+
+            if (! is_array($content)) {
+                continue;
+            }
+
+            foreach ($content as $part) {
+                if (! is_array($part)) {
+                    continue;
+                }
+
+                $type = $part['type'] ?? null;
+                $text = $part['text'] ?? null;
+
                 if (
-                    is_array($part)
-                    && ($part['type'] ?? null) === 'output_text'
-                    && is_string($part['text'] ?? null)
-                    && trim($part['text']) !== ''
+                    $type === 'output_text'
+                    && is_string($text)
+                    && trim($text) !== ''
                 ) {
-                    return trim($part['text']);
+                    return trim($text);
                 }
             }
         }
@@ -341,21 +436,31 @@ class AiInsightService
     }
 
     /**
-     * @return array{progress: string, schedule: string, obstacles: string}|null
+     * @return array{
+     *     progress: string,
+     *     schedule: string,
+     *     obstacles: string
+     * }|null
      */
     private function sections(
         string $content,
     ): ?array {
         $result = [];
 
-        foreach ([
-            'progress' => 'PROGRESS',
-            'schedule' => 'SCHEDULE',
-            'obstacles' => 'OBSTACLES',
-        ] as $key => $tag) {
+        foreach (
+            [
+                'progress' => 'PROGRESS',
+                'schedule' => 'SCHEDULE',
+                'obstacles' => 'OBSTACLES',
+            ] as $key => $tag
+        ) {
             if (
                 preg_match(
-                    '/<'.$tag.'>\s*(.*?)\s*<\/'.$tag.'>/si',
+                    '/<'
+                        .$tag
+                        .'>\s*(.*?)\s*<\/'
+                        .$tag
+                        .'>/si',
                     $content,
                     $matches,
                 ) !== 1
@@ -363,7 +468,15 @@ class AiInsightService
                 return null;
             }
 
-            $result[$key] = trim((string) $matches[1]);
+            $value = trim(
+                (string) $matches[1],
+            );
+
+            if ($value === '') {
+                return null;
+            }
+
+            $result[$key] = $value;
         }
 
         return [
@@ -382,15 +495,35 @@ class AiInsightService
         array $history,
         int $recentMinutes,
     ): string {
-        $current = (float) ($readiness['score'] ?? 0);
-        $oldest = end($history);
-        $oldestScore = is_array($oldest)
-            ? (float) ($oldest['score'] ?? $current)
+        $current = (float) (
+            $readiness['score'] ?? 0
+        );
+
+        $oldest = end(
+            $history,
+        );
+
+        $oldestScore = is_array(
+            $oldest,
+        )
+            ? (float) (
+                $oldest['score']
+                ?? $current
+            )
             : $current;
-        $delta = round($current - $oldestScore, 1);
+
+        $delta = round(
+            $current - $oldestScore,
+            1,
+        );
+
         $change = $delta > 0
             ? "naik {$delta} poin"
-            : ($delta < 0 ? 'turun '.abs($delta).' poin' : 'belum berubah');
+            : (
+                $delta < 0
+                    ? 'turun '.abs($delta).' poin'
+                    : 'belum berubah'
+            );
 
         return "Kesiapan karier saat ini {$current}/100 dan {$change} dibanding snapshot tertua yang tersimpan. Dalam 14 hari terakhir tercatat {$recentMinutes} menit belajar. Gunakan evaluasi dan proyek sebagai bukti utama untuk meningkatkan kesiapan berikutnya.";
     }
@@ -402,10 +535,31 @@ class AiInsightService
         int $weeklyHours,
         array $materials,
     ): string {
-        $weeklyMinutes = max($weeklyHours * 60, 60);
-        $sessions = min(max((int) ceil($weeklyMinutes / 120), 2), 6);
-        $perSession = max((int) floor($weeklyMinutes / $sessions), 30);
-        $titles = collect($materials)
+        $weeklyMinutes = max(
+            $weeklyHours * 60,
+            60,
+        );
+
+        $sessions = min(
+            max(
+                (int) ceil(
+                    $weeklyMinutes / 120,
+                ),
+                2,
+            ),
+            6,
+        );
+
+        $perSession = max(
+            (int) floor(
+                $weeklyMinutes / $sessions,
+            ),
+            30,
+        );
+
+        $titles = collect(
+            $materials,
+        )
             ->pluck('title')
             ->filter()
             ->implode(', ');
@@ -433,24 +587,70 @@ class AiInsightService
         ];
 
         foreach ($obstacles as $obstacle) {
-            $text = Str::lower($obstacle);
+            $text = Str::lower(
+                $obstacle,
+            );
 
-            if (Str::contains($text, ['error', 'bug', 'server', 'database', 'api', 'install', 'config'])) {
+            if (
+                Str::contains(
+                    $text,
+                    [
+                        'error',
+                        'bug',
+                        'server',
+                        'database',
+                        'api',
+                        'install',
+                        'config',
+                    ],
+                )
+            ) {
                 $groups['teknis']++;
-            } elseif (Str::contains($text, ['bingung', 'paham', 'konsep', 'logika', 'materi', 'query'])) {
+            } elseif (
+                Str::contains(
+                    $text,
+                    [
+                        'bingung',
+                        'paham',
+                        'konsep',
+                        'logika',
+                        'materi',
+                        'query',
+                    ],
+                )
+            ) {
                 $groups['konsep']++;
-            } elseif (Str::contains($text, ['waktu', 'sibuk', 'jadwal', 'deadline', 'capek'])) {
+            } elseif (
+                Str::contains(
+                    $text,
+                    [
+                        'waktu',
+                        'sibuk',
+                        'jadwal',
+                        'deadline',
+                        'capek',
+                    ],
+                )
+            ) {
                 $groups['waktu']++;
             } else {
                 $groups['lainnya']++;
             }
         }
 
-        arsort($groups);
-        $top = array_key_first($groups) ?? 'lainnya';
-        $count = $groups[$top] ?? 0;
+        arsort(
+            $groups,
+        );
 
-        return 'Dari '.count($obstacles)." kendala terakhir, pola terbesar adalah {$top} ({$count} catatan). Pilih satu tindakan konkret untuk kategori ini pada sesi berikutnya lalu catat apakah hambatan yang sama masih muncul.";
+        $top = array_key_first(
+            $groups,
+        );
+
+        $count = $groups[$top];
+
+        return 'Dari '
+            .count($obstacles)
+            ." kendala terakhir, pola terbesar adalah {$top} ({$count} catatan). Pilih satu tindakan konkret untuk kategori ini pada sesi berikutnya lalu catat apakah hambatan yang sama masih muncul.";
     }
 
     /**
@@ -461,12 +661,54 @@ class AiInsightService
         ?UserProject $userProject,
         array $readiness,
     ): string {
-        $missing = collect($readiness['requirements'] ?? [])
-            ->filter(fn ($item) => is_array($item) && ! ($item['ready'] ?? false))
-            ->pluck('name')
-            ->filter()
-            ->take(3)
-            ->implode(', ');
+        $requirementsValue = $readiness[
+            'requirements'
+        ] ?? [];
+
+        $missingNames = [];
+
+        if (is_array($requirementsValue)) {
+            foreach ($requirementsValue as $requirement) {
+                if (! is_array($requirement)) {
+                    continue;
+                }
+
+                $ready = (bool) (
+                    $requirement['ready']
+                    ?? false
+                );
+
+                if ($ready) {
+                    continue;
+                }
+
+                $name = $requirement['name']
+                    ?? null;
+
+                if (! is_string($name)) {
+                    continue;
+                }
+
+                $name = trim(
+                    $name,
+                );
+
+                if ($name === '') {
+                    continue;
+                }
+
+                $missingNames[] = $name;
+
+                if (count($missingNames) >= 3) {
+                    break;
+                }
+            }
+        }
+
+        $missing = implode(
+            ', ',
+            $missingNames,
+        );
 
         $risk = $missing === ''
             ? 'prasyarat utama sudah cukup kuat'
