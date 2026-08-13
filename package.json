@@ -3,7 +3,7 @@
     "private": true,
     "type": "module",
     "engines": {
-        "node": "24.x"
+        "node": "22.x"
     },
     "scripts": {
         "build": "vite build",
