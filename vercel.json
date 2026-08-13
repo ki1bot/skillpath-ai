@@ -1,7 +1,8 @@
 {
     "$schema": "https://openapi.vercel.sh/vercel.json",
     "framework": null,
-    "buildCommand": "npm run build",
+    "buildCommand": "npm run build && rm -rf vercel-static && mkdir -p vercel-static && cp -R public/. vercel-static/ && find vercel-static -type f -name '*.php' -delete && rm -f vercel-static/hot",
+    "outputDirectory": "vercel-static",
     "regions": ["sin1"],
     "functions": {
         "api/index.php": {
