@@ -10,6 +10,7 @@
 /vendor
 .DS_Store
 .env
+.env.local
 .env.vercel
 .env.backup
 .env.production
