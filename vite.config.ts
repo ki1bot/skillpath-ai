@@ -6,6 +6,8 @@ import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
 import { defineConfig } from 'vite';
 
+const skipWayfinder = process.env.SKIP_WAYFINDER === '1';
+
 export default defineConfig({
     plugins: [
         laravel({
@@ -24,8 +26,12 @@ export default defineConfig({
             },
         }),
         tailwindcss(),
-        wayfinder({
-            formVariants: true,
-        }),
+        ...(skipWayfinder
+            ? []
+            : [
+                  wayfinder({
+                      formVariants: true,
+                  }),
+              ]),
     ],
 });
