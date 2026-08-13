@@ -30,3 +30,7 @@ yarn-error.log
 
 .vercel
 .env*
+
+/resources/js/actions
+/resources/js/routes
+/resources/js/wayfinder
