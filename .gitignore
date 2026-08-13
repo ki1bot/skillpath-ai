@@ -27,3 +27,6 @@ yarn-error.log
 /.vscode
 /.zed
 /.node_modules
+
+.vercel
+.env*
