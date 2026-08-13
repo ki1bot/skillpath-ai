@@ -10,7 +10,6 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
-use Throwable;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -36,19 +35,25 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->report(function (Throwable $exception): void {
-            error_log(
-                '[SKILLPATH_EXCEPTION] '.json_encode(
-                    [
-                        'class' => $exception::class,
-                        'message' => $exception->getMessage(),
-                        'file' => $exception->getFile(),
-                        'line' => $exception->getLine(),
-                    ],
-                    JSON_UNESCAPED_SLASHES
-                    | JSON_UNESCAPED_UNICODE,
-                ),
-            );
+        $exceptions->render(function (\Throwable $exception, Request $request) {
+            if (app()->isProduction()) {
+                error_log(
+                    '[SKILLPATH_RENDER_EXCEPTION] '.json_encode(
+                        [
+                            'class' => $exception::class,
+                            'message' => $exception->getMessage(),
+                            'file' => $exception->getFile(),
+                            'line' => $exception->getLine(),
+                            'method' => $request->method(),
+                            'path' => $request->path(),
+                        ],
+                        JSON_UNESCAPED_SLASHES
+                        | JSON_UNESCAPED_UNICODE,
+                    ),
+                );
+            }
+
+            return null;
         });
 
         $exceptions->shouldRenderJsonWhen(
