@@ -75,15 +75,29 @@ register_shutdown_function(function (): void {
         return;
     }
 
+    $fatalErrors = [
+        E_ERROR,
+        E_PARSE,
+        E_CORE_ERROR,
+        E_COMPILE_ERROR,
+        E_USER_ERROR,
+        E_RECOVERABLE_ERROR,
+    ];
+
+    if (! in_array($error['type'], $fatalErrors, true)) {
+        return;
+    }
+
     error_log(
-        json_encode(
+        '[SKILLPATH_FATAL] '.json_encode(
             [
                 'type' => $error['type'],
                 'message' => $error['message'],
                 'file' => $error['file'],
                 'line' => $error['line'],
             ],
-            JSON_UNESCAPED_SLASHES,
+            JSON_UNESCAPED_SLASHES
+            | JSON_UNESCAPED_UNICODE,
         ),
     );
 });
@@ -92,14 +106,15 @@ try {
     require __DIR__.'/../public/index.php';
 } catch (Throwable $exception) {
     error_log(
-        sprintf(
-            '%s: %s in %s:%d%s%s',
-            $exception::class,
-            $exception->getMessage(),
-            $exception->getFile(),
-            $exception->getLine(),
-            PHP_EOL,
-            $exception->getTraceAsString(),
+        '[SKILLPATH_BOOTSTRAP_EXCEPTION] '.json_encode(
+            [
+                'class' => $exception::class,
+                'message' => $exception->getMessage(),
+                'file' => $exception->getFile(),
+                'line' => $exception->getLine(),
+            ],
+            JSON_UNESCAPED_SLASHES
+            | JSON_UNESCAPED_UNICODE,
         ),
     );
 
