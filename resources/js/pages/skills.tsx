@@ -97,7 +97,7 @@ export default function Skills({
                     <Button asChild variant="outline">
                         <Link href="/assessment">
                             <RotateCcw />
-                            Ulangi Assesment
+                            Ulangi Assessment
                         </Link>
                     </Button>
                 </div>
@@ -170,20 +170,21 @@ export default function Skills({
                                     </p>
 
                                     <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-lime)] px-2.5 py-1 text-[10px] font-black text-[#171717] uppercase">
-                                        AI-assisted · fallback aman
+                                        AI + data sistem
                                     </span>
                                 </div>
 
-                                <p className="mt-2 leading-relaxed font-semibold whitespace-pre-line">
+                                <p className="mt-2 leading-relaxed font-semibold">
                                     {summary}
                                 </p>
 
                                 <p className="mt-3 text-xs leading-5 font-bold text-muted-foreground">
-                                    AI hanya menjelaskan hasil yang sudah
-                                    dihitung oleh engine SkillPath. Jika API AI
-                                    tidak tersedia, teks fallback deterministik
-                                    tetap digunakan sehingga skor dan roadmap
-                                    tidak bergantung pada AI.
+                                    AI hanya merangkum hasil yang sudah dihitung
+                                    oleh SkillPath. Skor, kesenjangan,
+                                    prioritas, dan urutan roadmap tetap
+                                    ditentukan oleh sistem. Jika layanan AI
+                                    tidak tersedia, ringkasan otomatis dari data
+                                    yang sama akan digunakan.
                                 </p>
                             </div>
                         </div>

@@ -17,6 +17,8 @@ use Inertia\Response;
 
 class AssessmentController extends Controller
 {
+    private const PRACTICAL_MIN_RESPONSE_LENGTH = 20;
+
     public function show(
         Request $request,
     ): Response|RedirectResponse {
@@ -216,10 +218,10 @@ class AssessmentController extends Controller
 
                 if (
                     Str::length($response)
-                    < 40
+                    < self::PRACTICAL_MIN_RESPONSE_LENGTH
                 ) {
                     throw ValidationException::withMessages([
-                        "responses.{$question->id}" => 'Jelaskan hasil tugas praktik minimal 20 karakter.',
+                        "responses.{$question->id}" => 'Jelaskan hasil tugas praktik minimal '.self::PRACTICAL_MIN_RESPONSE_LENGTH.' karakter.',
                     ]);
                 }
 
@@ -313,7 +315,7 @@ class AssessmentController extends Controller
                     ) {
                         if (
                             Str::length($responseText)
-                            >= 40
+                            >= self::PRACTICAL_MIN_RESPONSE_LENGTH
                         ) {
                             $score += 10;
                         }
