@@ -1,10 +1,8 @@
 import { Form, Head } from '@inertiajs/react';
-import { useState } from 'react';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
@@ -18,18 +16,12 @@ type Props = {
 };
 
 export default function Login({ status, canResetPassword }: Props) {
-    const [remember, setRemember] = useState(false);
-
     return (
         <>
             <Head title="Masuk" />
 
             <Form
                 {...store.form()}
-                transform={(data) => ({
-                    ...data,
-                    remember: remember ? '1' : '0',
-                })}
                 resetOnSuccess={['password']}
                 className="flex flex-col gap-6"
             >
@@ -61,7 +53,7 @@ export default function Login({ status, canResetPassword }: Props) {
                                         <TextLink
                                             href={request()}
                                             className="text-sm"
-                                            tabIndex={5}
+                                            tabIndex={4}
                                         >
                                             Lupa kata sandi?
                                         </TextLink>
@@ -80,29 +72,11 @@ export default function Login({ status, canResetPassword }: Props) {
                                 <InputError message={errors.password} />
                             </div>
 
-                            <div className="flex items-center gap-3">
-                                <Checkbox
-                                    id="remember"
-                                    checked={remember}
-                                    onCheckedChange={(checked) =>
-                                        setRemember(checked === true)
-                                    }
-                                    tabIndex={3}
-                                />
-
-                                <Label
-                                    htmlFor="remember"
-                                    className="cursor-pointer font-semibold"
-                                >
-                                    Ingat saya
-                                </Label>
-                            </div>
-
                             <Button
                                 type="submit"
                                 className="mt-1 w-full"
                                 size="lg"
-                                tabIndex={4}
+                                tabIndex={3}
                                 disabled={processing}
                                 data-test="login-button"
                             >
@@ -114,7 +88,7 @@ export default function Login({ status, canResetPassword }: Props) {
 
                         <div className="text-center text-sm font-medium text-muted-foreground">
                             Belum punya akun?{' '}
-                            <TextLink href={register()} tabIndex={5}>
+                            <TextLink href={register()} tabIndex={4}>
                                 Buat akun
                             </TextLink>
                         </div>

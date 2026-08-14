@@ -209,7 +209,7 @@ class AiInsightService
         $result = $this->ask(
             $user,
             'project-'.$project->id,
-            'Berikan umpan balik proyek dengan tiga bagian: Kekuatan, Risiko, Langkah berikutnya. Gunakan hanya deskripsi proyek, readiness, progres, dan catatan pengguna. Jangan mengklaim membaca source code atau repository. Maksimal 140 kata.',
+            'Berikan umpan balik proyek dengan tiga bagian: Kekuatan, Risiko, Langkah berikutnya. Gunakan hanya deskripsi proyek, kesiapan, progres, dan catatan pengguna. Jangan mengklaim membaca source code atau repository. Maksimal 140 kata.',
             [
                 'project' => [
                     'title' => $project->title,
@@ -323,7 +323,7 @@ class AiInsightService
             return null;
         }
 
-        $cacheKey = 'skillpath-ai-insight:'
+        $cacheKey = 'skillpath-ai-insight:v3:'
             .$scope
             .':'
             .$user->id
@@ -335,6 +335,9 @@ class AiInsightService
                     .'|'
                     .$json,
             );
+
+        $failureCacheKey = $cacheKey
+            .':unavailable';
 
         $cached = Cache::get(
             $cacheKey,
@@ -348,6 +351,9 @@ class AiInsightService
             && is_string(
                 $cached['model'] ?? null,
             )
+            && $this->looksIndonesian(
+                $cached['content'],
+            )
         ) {
             return [
                 'content' => $cached['content'],
@@ -356,14 +362,22 @@ class AiInsightService
             ];
         }
 
+        if (
+            Cache::get(
+                $failureCacheKey,
+            ) === true
+        ) {
+            return null;
+        }
+
         try {
             $response = Http::withToken(
                 $key,
             )
                 ->acceptJson()
                 ->asJson()
-                ->connectTimeout(3)
-                ->timeout(20)
+                ->connectTimeout(1)
+                ->timeout(2)
                 ->post(
                     rtrim(
                         $baseUrl,
@@ -374,20 +388,26 @@ class AiInsightService
                         'messages' => [
                             [
                                 'role' => 'system',
-                                'content' => 'Anda adalah fitur AI pendukung SkillPath AI. Gunakan hanya data internal yang diberikan. Jangan mengubah skor, hasil asesmen, status progres, atau keputusan roadmap. Jika data tidak cukup, nyatakan keterbatasannya. Gunakan Bahasa Indonesia yang ringkas. '
+                                'content' => 'Anda adalah fitur AI pendukung SkillPath AI untuk pengguna Indonesia. Seluruh kalimat yang Anda hasilkan WAJIB menggunakan Bahasa Indonesia. Jangan menulis kalimat dalam Bahasa Inggris. Nama teknologi, framework, bahasa pemrograman, API, database, dan istilah teknis yang lazim boleh tetap menggunakan nama aslinya. Gunakan hanya data internal yang diberikan. Jangan mengubah skor, hasil asesmen, status progres, atau keputusan roadmap. Jika data tidak cukup, jelaskan keterbatasannya dalam Bahasa Indonesia. Gunakan bahasa yang ringkas, alami, jelas, dan mudah dipahami. '
                                     .$task,
                             ],
                             [
                                 'role' => 'user',
-                                'content' => 'Data internal SkillPath AI: '
+                                'content' => 'Jawab seluruh penjelasan menggunakan Bahasa Indonesia.'
+                                    ."\nData internal SkillPath AI: "
                                     .$json,
                             ],
                         ],
+                        'temperature' => 0.2,
                         'max_tokens' => $maxTokens,
                     ],
                 );
 
             if (! $response->successful()) {
+                $this->markUnavailable(
+                    $failureCacheKey,
+                );
+
                 return null;
             }
 
@@ -399,6 +419,26 @@ class AiInsightService
                 ! is_string($content)
                 || trim($content) === ''
             ) {
+                $this->markUnavailable(
+                    $failureCacheKey,
+                );
+
+                return null;
+            }
+
+            $content = trim(
+                $content,
+            );
+
+            if (
+                ! $this->looksIndonesian(
+                    $content,
+                )
+            ) {
+                $this->markUnavailable(
+                    $failureCacheKey,
+                );
+
                 return null;
             }
 
@@ -413,10 +453,6 @@ class AiInsightService
                     ? trim($responseModel)
                     : $model;
 
-            $content = trim(
-                $content,
-            );
-
             Cache::put(
                 $cacheKey,
                 [
@@ -426,14 +462,65 @@ class AiInsightService
                 now()->addHours(12),
             );
 
+            Cache::forget(
+                $failureCacheKey,
+            );
+
             return [
                 'content' => $content,
                 'generated_by_ai' => true,
                 'model' => $resolvedModel,
             ];
         } catch (Throwable) {
+            $this->markUnavailable(
+                $failureCacheKey,
+            );
+
             return null;
         }
+    }
+
+    private function looksIndonesian(
+        string $text,
+    ): bool {
+        $text = Str::lower(
+            strip_tags($text),
+        );
+
+        $indonesianMatches = [];
+        $englishMatches = [];
+
+        $indonesianCount = preg_match_all(
+            '/\b(?:yang|dan|untuk|dengan|dari|pada|adalah|karena|anda|kamu|kemampuan|belajar|prioritas|utama|saat|masih|selisih|setelah|perlu|berikutnya|kesiapan|proyek|materi|kendala|waktu|nilai|penguatan|risiko|langkah|evaluasi|jadwal|progres|perkembangan|berhasil|dibuat|dikelompokkan|kekuatan|sudah|ditingkatkan|kerjakan|tugas|hasil|buat|tambahkan|latihan|bukti|pengguna|mingguan|menit|sesi|catatan|hambatan|berikut|tercatat|gunakan|memiliki|menjadi|berada|dapat|belum|lebih|sesuai|bagian)\b/u',
+            $text,
+            $indonesianMatches,
+        );
+
+        $englishCount = preg_match_all(
+            '/\b(?:the|and|for|with|from|this|that|your|you|is|are|was|were|to|of|in|on|because|after|before|current|learning|should|needs|need|next|improve|improved|based|using|use|has|have|still|result|results|successfully|created|grouped|development|strength|risk|step|steps|weekly|minutes|recorded)\b/u',
+            $text,
+            $englishMatches,
+        );
+
+        if (
+            ! is_int($indonesianCount)
+            || ! is_int($englishCount)
+        ) {
+            return false;
+        }
+
+        return $indonesianCount >= 2
+            && $indonesianCount > $englishCount;
+    }
+
+    private function markUnavailable(
+        string $failureCacheKey,
+    ): void {
+        Cache::put(
+            $failureCacheKey,
+            true,
+            now()->addMinutes(10),
+        );
     }
 
     /**

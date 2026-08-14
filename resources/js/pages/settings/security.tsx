@@ -3,8 +3,6 @@ import { useRef } from 'react';
 import SecurityController from '@/actions/App/Http/Controllers/Settings/SecurityController';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
-import type { Props as ManageTwoFactorProps } from '@/components/manage-two-factor';
-import ManageTwoFactor from '@/components/manage-two-factor';
 import PasswordInput from '@/components/password-input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -12,9 +10,9 @@ import { edit } from '@/routes/security';
 
 type Props = {
     passwordRules: string;
-} & ManageTwoFactorProps;
+};
 
-export default function Security(props: Props) {
+export default function Security({ passwordRules }: Props) {
     const passwordInput = useRef<HTMLInputElement>(null);
 
     const currentPasswordInput = useRef<HTMLInputElement>(null);
@@ -83,7 +81,7 @@ export default function Security(props: Props) {
                                     name="password"
                                     autoComplete="new-password"
                                     placeholder="Masukkan kata sandi baru"
-                                    passwordrules={props.passwordRules}
+                                    passwordrules={passwordRules}
                                 />
 
                                 <InputError message={errors.password} />
@@ -99,7 +97,7 @@ export default function Security(props: Props) {
                                     name="password_confirmation"
                                     autoComplete="new-password"
                                     placeholder="Ulangi kata sandi baru"
-                                    passwordrules={props.passwordRules}
+                                    passwordrules={passwordRules}
                                 />
 
                                 <InputError
@@ -119,12 +117,6 @@ export default function Security(props: Props) {
                     )}
                 </Form>
             </div>
-
-            <ManageTwoFactor
-                canManageTwoFactor={props.canManageTwoFactor}
-                requiresConfirmation={props.requiresConfirmation}
-                twoFactorEnabled={props.twoFactorEnabled}
-            />
         </>
     );
 }

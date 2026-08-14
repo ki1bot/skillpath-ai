@@ -66,7 +66,7 @@ class AiExplanationService
             return $fallback;
         }
 
-        $cacheKey = 'skill-gap-explanation:v2:'
+        $cacheKey = 'skill-gap-explanation:v3:'
             .$user->id
             .':'
             .sha1(
@@ -77,6 +77,9 @@ class AiExplanationService
                     .$cachePayload,
             );
 
+        $failureCacheKey = $cacheKey
+            .':unavailable';
+
         $cached = Cache::get(
             $cacheKey,
         );
@@ -84,8 +87,17 @@ class AiExplanationService
         if (
             is_string($cached)
             && trim($cached) !== ''
+            && $this->looksIndonesian($cached)
         ) {
             return $cached;
+        }
+
+        if (
+            Cache::get(
+                $failureCacheKey,
+            ) === true
+        ) {
+            return $fallback;
         }
 
         try {
@@ -125,6 +137,10 @@ class AiExplanationService
             );
 
             if (! is_string($payloadJson)) {
+                $this->markUnavailable(
+                    $failureCacheKey,
+                );
+
                 return $fallback;
             }
 
@@ -133,8 +149,8 @@ class AiExplanationService
             )
                 ->acceptJson()
                 ->asJson()
-                ->connectTimeout(3)
-                ->timeout(20)
+                ->connectTimeout(1)
+                ->timeout(2)
                 ->post(
                     rtrim(
                         $baseUrl,
@@ -145,11 +161,12 @@ class AiExplanationService
                         'messages' => [
                             [
                                 'role' => 'system',
-                                'content' => 'Anda adalah pendamping belajar SkillPath AI. Jelaskan hanya data yang diberikan tanpa membuat skill, nilai, kesenjangan, atau roadmap baru. Gunakan Bahasa Indonesia yang alami, jelas, dan singkat. Jawaban harus berupa satu paragraf berisi 2 sampai 3 kalimat. Jangan gunakan Markdown, tabel, heading, daftar, bullet, simbol bintang, tanda pagar, garis vertikal, atau backtick. Jelaskan prioritas utama berdasarkan kemampuan saat ini, target, kesenjangan, dan prasyarat.',
+                                'content' => 'Anda adalah pendamping belajar SkillPath AI untuk pengguna Indonesia. Semua jawaban WAJIB menggunakan Bahasa Indonesia. Jangan menjawab menggunakan Bahasa Inggris, kecuali nama teknologi, framework, bahasa pemrograman, atau istilah teknis yang memang umum digunakan dalam bentuk aslinya. Jelaskan hanya data yang diberikan tanpa membuat skill, nilai, kesenjangan, atau roadmap baru. Gunakan Bahasa Indonesia yang alami, jelas, dan singkat. Jawaban harus berupa satu paragraf berisi 2 sampai 3 kalimat. Jangan gunakan Markdown, tabel, heading, daftar, bullet, simbol bintang, tanda pagar, garis vertikal, atau backtick. Jelaskan prioritas utama berdasarkan kemampuan saat ini, target, kesenjangan, dan prasyarat.',
                             ],
                             [
                                 'role' => 'user',
-                                'content' => 'Target karier: '
+                                'content' => 'Jawab hanya dalam Bahasa Indonesia.'
+                                    ."\nTarget karier: "
                                     .(
                                         $user
                                             ->targetCareer
@@ -160,11 +177,16 @@ class AiExplanationService
                                     .$payloadJson,
                             ],
                         ],
+                        'temperature' => 0.2,
                         'max_tokens' => 220,
                     ],
                 );
 
             if (! $response->successful()) {
+                $this->markUnavailable(
+                    $failureCacheKey,
+                );
+
                 return $fallback;
             }
 
@@ -176,6 +198,10 @@ class AiExplanationService
                 ! is_string($text)
                 || trim($text) === ''
             ) {
+                $this->markUnavailable(
+                    $failureCacheKey,
+                );
+
                 return $fallback;
             }
 
@@ -184,6 +210,10 @@ class AiExplanationService
             );
 
             if ($text === null) {
+                $this->markUnavailable(
+                    $failureCacheKey,
+                );
+
                 return $fallback;
             }
 
@@ -193,8 +223,16 @@ class AiExplanationService
                 now()->addDay(),
             );
 
+            Cache::forget(
+                $failureCacheKey,
+            );
+
             return $text;
         } catch (Throwable) {
+            $this->markUnavailable(
+                $failureCacheKey,
+            );
+
             return $fallback;
         }
     }
@@ -233,7 +271,12 @@ class AiExplanationService
             $normalized,
         );
 
-        if ($normalized === '') {
+        if (
+            $normalized === ''
+            || ! $this->looksIndonesian(
+                $normalized,
+            )
+        ) {
             return null;
         }
 
@@ -241,6 +284,35 @@ class AiExplanationService
             $normalized,
             650,
             '',
+        );
+    }
+
+    private function looksIndonesian(
+        string $text,
+    ): bool {
+        $text = Str::lower(
+            strip_tags($text),
+        );
+
+        $matches = [];
+
+        $result = preg_match_all(
+            '/\b(?:yang|dan|untuk|dengan|dari|pada|adalah|karena|anda|kamu|kemampuan|belajar|prioritas|utama|saat|masih|selisih|setelah|perlu|berikutnya|kesiapan|proyek|materi|kendala|waktu|target|nilai|penguatan)\b/u',
+            $text,
+            $matches,
+        );
+
+        return is_int($result)
+            && $result >= 3;
+    }
+
+    private function markUnavailable(
+        string $failureCacheKey,
+    ): void {
+        Cache::put(
+            $failureCacheKey,
+            true,
+            now()->addMinutes(10),
         );
     }
 

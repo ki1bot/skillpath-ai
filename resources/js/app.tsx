@@ -37,6 +37,13 @@ createInertiaApp({
 
     strictMode: true,
 
+    defaults: {
+        prefetch: {
+            cacheFor: '2m',
+            hoverDelay: 50,
+        },
+    },
+
     withApp(app) {
         return (
             <>
