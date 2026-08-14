@@ -26,8 +26,20 @@ class SkillGapController extends Controller
             );
         }
 
-        $analysis = $skillGapService
-            ->analyze($user);
+        $analysis = null;
+
+        $getAnalysis = function () use (
+            &$analysis,
+            $skillGapService,
+            $user,
+        ): array {
+            if ($analysis === null) {
+                $analysis = $skillGapService
+                    ->analyze($user);
+            }
+
+            return $analysis;
+        };
 
         return Inertia::render(
             'skills',
@@ -35,18 +47,20 @@ class SkillGapController extends Controller
                 'career' => $user
                     ->targetCareer,
 
-                'skills' => $analysis,
+                'skills' => fn () => $getAnalysis(),
 
-                'summary' => $aiExplanationService
-                    ->skillGapSummary(
-                        $user,
-                        $analysis,
-                    ),
+                'summary' => Inertia::defer(
+                    fn () => $aiExplanationService
+                        ->skillGapSummary(
+                            $user,
+                            $getAnalysis(),
+                        ),
+                ),
 
-                'averageMastery' => $skillGapService
+                'averageMastery' => fn () => $skillGapService
                     ->averageMastery(
                         $user,
-                        $analysis,
+                        $getAnalysis(),
                     ),
             ],
         );

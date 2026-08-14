@@ -29,7 +29,10 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                             }}
                             className="h-11 rounded-[11px] border-2 border-transparent px-3.5 font-extrabold text-sidebar-foreground hover:translate-x-[1px] hover:border-sidebar-border hover:bg-muted hover:text-sidebar-foreground data-[active=true]:border-[#171717] data-[active=true]:bg-sidebar-accent data-[active=true]:text-[#171717] data-[active=true]:shadow-[3px_3px_0_var(--neo-shadow-color)] data-[active=true]:hover:text-[#171717]"
                         >
-                            <Link href={item.href} prefetch>
+                            <Link
+                                href={item.href}
+                                prefetch={['hover', 'click']}
+                            >
                                 {item.icon && (
                                     <item.icon className="size-[18px]" />
                                 )}

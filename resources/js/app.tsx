@@ -39,8 +39,8 @@ createInertiaApp({
 
     defaults: {
         prefetch: {
-            cacheFor: '2m',
-            hoverDelay: 50,
+            cacheFor: '5m',
+            hoverDelay: 250,
         },
     },
 

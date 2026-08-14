@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Deferred, Head, Link } from '@inertiajs/react';
 import {
     ArrowRight,
     BrainCircuit,
@@ -38,7 +38,7 @@ type Props = {
         slug: string;
     };
     skills: SkillGap[];
-    summary: string;
+    summary?: string;
     averageMastery: number;
 };
 
@@ -174,9 +174,19 @@ export default function Skills({
                                     </span>
                                 </div>
 
-                                <p className="mt-2 leading-relaxed font-semibold">
-                                    {summary}
-                                </p>
+                                <Deferred
+                                    data="summary"
+                                    fallback={
+                                        <p className="mt-2 text-sm leading-relaxed font-semibold text-muted-foreground">
+                                            Menyiapkan ringkasan AI...
+                                        </p>
+                                    }
+                                >
+                                    <p className="mt-2 leading-relaxed font-semibold">
+                                        {summary ??
+                                            'Ringkasan AI belum tersedia.'}
+                                    </p>
+                                </Deferred>
 
                                 <p className="mt-3 text-xs leading-5 font-bold text-muted-foreground">
                                     AI hanya merangkum hasil yang sudah dihitung

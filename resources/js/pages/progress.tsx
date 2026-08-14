@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Deferred, Head, Link } from '@inertiajs/react';
 import {
     Activity,
     ArrowUpRight,
@@ -182,7 +182,7 @@ export default function Progress({
     roadmaps,
 }: {
     readiness: Readiness;
-    aiInsights: AiInsights;
+    aiInsights?: AiInsights;
     readinessHistory: ReadinessSnapshot[];
     assessmentHistory: Attempt[];
     logs: Log[];
@@ -260,69 +260,96 @@ export default function Progress({
                     ))}
                 </section>
 
-                <Card>
-                    <CardHeader className="border-b-2 border-[#171717] bg-[var(--neo-blue)] text-[#171717]">
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                            <CardTitle className="flex items-center gap-2 text-xl font-black">
-                                <BrainCircuit className="size-5" />
-                                AI Learning Coach
-                            </CardTitle>
+                <Deferred
+                    data="aiInsights"
+                    fallback={
+                        <Card>
+                            <CardHeader className="border-b-2 border-[#171717] bg-[var(--neo-blue)] text-[#171717]">
+                                <CardTitle className="flex items-center gap-2 text-xl font-black">
+                                    <BrainCircuit className="size-5" />
+                                    AI Learning Coach
+                                </CardTitle>
+                            </CardHeader>
 
-                            <span
-                                className={`rounded-full border-2 border-[#171717] px-2.5 py-1 text-[10px] font-black uppercase ${
-                                    aiInsights.generatedByAi
-                                        ? 'bg-[var(--neo-lime)]'
-                                        : 'bg-[var(--neo-yellow)]'
-                                }`}
-                            >
-                                {aiInsights.generatedByAi
-                                    ? `AI · ${aiInsights.model ?? 'model aktif'}`
-                                    : 'Fallback sistem'}
-                            </span>
-                        </div>
-                    </CardHeader>
+                            <CardContent className="pt-6">
+                                <div className="neo-card-flat p-5">
+                                    <p className="text-sm font-bold text-muted-foreground">
+                                        Menyiapkan analisis AI...
+                                    </p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    }
+                >
+                    {aiInsights ? (
+                        <Card>
+                            <CardHeader className="border-b-2 border-[#171717] bg-[var(--neo-blue)] text-[#171717]">
+                                <div className="flex flex-wrap items-center justify-between gap-3">
+                                    <CardTitle className="flex items-center gap-2 text-xl font-black">
+                                        <BrainCircuit className="size-5" />
+                                        AI Learning Coach
+                                    </CardTitle>
 
-                    <CardContent className="grid gap-4 pt-6 lg:grid-cols-3">
-                        <div className="neo-card-flat p-5">
-                            <div className="flex items-center gap-2">
-                                <BrainCircuit className="size-5" />
-                                <h3 className="font-black">
-                                    Ringkasan perkembangan
-                                </h3>
-                            </div>
+                                    <span
+                                        className={`rounded-full border-2 border-[#171717] px-2.5 py-1 text-[10px] font-black uppercase ${
+                                            aiInsights.generatedByAi
+                                                ? 'bg-[var(--neo-lime)]'
+                                                : 'bg-[var(--neo-yellow)]'
+                                        }`}
+                                    >
+                                        {aiInsights.generatedByAi
+                                            ? `AI · ${aiInsights.model ?? 'model aktif'}`
+                                            : 'Fallback sistem'}
+                                    </span>
+                                </div>
+                            </CardHeader>
 
-                            <p className="mt-3 text-sm leading-6 font-medium whitespace-pre-line">
-                                {aiInsights.progress}
-                            </p>
-                        </div>
+                            <CardContent className="grid gap-4 pt-6 lg:grid-cols-3">
+                                <div className="neo-card-flat p-5">
+                                    <div className="flex items-center gap-2">
+                                        <BrainCircuit className="size-5" />
 
-                        <div className="neo-card-flat p-5">
-                            <div className="flex items-center gap-2">
-                                <Clock3 className="size-5" />
-                                <h3 className="font-black">
-                                    Saran jadwal belajar
-                                </h3>
-                            </div>
+                                        <h3 className="font-black">
+                                            Ringkasan perkembangan
+                                        </h3>
+                                    </div>
 
-                            <p className="mt-3 text-sm leading-6 font-medium whitespace-pre-line">
-                                {aiInsights.schedule}
-                            </p>
-                        </div>
+                                    <p className="mt-3 text-sm leading-6 font-medium whitespace-pre-line">
+                                        {aiInsights.progress}
+                                    </p>
+                                </div>
 
-                        <div className="neo-card-flat p-5">
-                            <div className="flex items-center gap-2">
-                                <CircleAlert className="size-5" />
-                                <h3 className="font-black">
-                                    Pola kendala belajar
-                                </h3>
-                            </div>
+                                <div className="neo-card-flat p-5">
+                                    <div className="flex items-center gap-2">
+                                        <Clock3 className="size-5" />
 
-                            <p className="mt-3 text-sm leading-6 font-medium whitespace-pre-line">
-                                {aiInsights.obstacles}
-                            </p>
-                        </div>
-                    </CardContent>
-                </Card>
+                                        <h3 className="font-black">
+                                            Saran jadwal belajar
+                                        </h3>
+                                    </div>
+
+                                    <p className="mt-3 text-sm leading-6 font-medium whitespace-pre-line">
+                                        {aiInsights.schedule}
+                                    </p>
+                                </div>
+
+                                <div className="neo-card-flat p-5">
+                                    <div className="flex items-center gap-2">
+                                        <CircleAlert className="size-5" />
+
+                                        <h3 className="font-black">
+                                            Pola kendala belajar
+                                        </h3>
+                                    </div>
+
+                                    <p className="mt-3 text-sm leading-6 font-medium whitespace-pre-line">
+                                        {aiInsights.obstacles}
+                                    </p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ) : null}
+                </Deferred>
 
                 <Card>
                     <CardHeader className="border-b-2 border-foreground">

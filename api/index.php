@@ -53,11 +53,6 @@ foreach ($directories as $directory) {
 
 $runtimePaths = [
     'LARAVEL_STORAGE_PATH' => $storagePath,
-    'APP_CONFIG_CACHE' => $tempPath.DIRECTORY_SEPARATOR.'skillpath-ai-config.php',
-    'APP_EVENTS_CACHE' => $tempPath.DIRECTORY_SEPARATOR.'skillpath-ai-events.php',
-    'APP_PACKAGES_CACHE' => $tempPath.DIRECTORY_SEPARATOR.'skillpath-ai-packages.php',
-    'APP_ROUTES_CACHE' => $tempPath.DIRECTORY_SEPARATOR.'skillpath-ai-routes.php',
-    'APP_SERVICES_CACHE' => $tempPath.DIRECTORY_SEPARATOR.'skillpath-ai-services.php',
     'VIEW_COMPILED_PATH' => $viewPath,
 ];
 
