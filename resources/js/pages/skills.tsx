@@ -38,7 +38,7 @@ type Props = {
         slug: string;
     };
     skills: SkillGap[];
-    summary?: string;
+    summary?: string | null;
     averageMastery: number;
 };
 
@@ -177,24 +177,25 @@ export default function Skills({
                                 <Deferred
                                     data="summary"
                                     fallback={
-                                        <p className="mt-2 text-sm leading-relaxed font-semibold text-muted-foreground">
-                                            Menyiapkan ringkasan AI...
-                                        </p>
+                                        <div className="mt-4 space-y-2">
+                                            <div className="h-4 w-full animate-pulse rounded bg-muted" />
+                                            <div className="h-4 w-11/12 animate-pulse rounded bg-muted" />
+                                            <div className="h-4 w-8/12 animate-pulse rounded bg-muted" />
+                                        </div>
                                     }
                                 >
-                                    <p className="mt-2 leading-relaxed font-semibold">
-                                        {summary ??
-                                            'Ringkasan AI belum tersedia.'}
-                                    </p>
+                                    {summary ? (
+                                        <p className="mt-2 leading-relaxed font-semibold">
+                                            {summary}
+                                        </p>
+                                    ) : null}
                                 </Deferred>
 
                                 <p className="mt-3 text-xs leading-5 font-bold text-muted-foreground">
-                                    AI hanya merangkum hasil yang sudah dihitung
-                                    oleh SkillPath. Skor, kesenjangan,
-                                    prioritas, dan urutan roadmap tetap
-                                    ditentukan oleh sistem. Jika layanan AI
-                                    tidak tersedia, ringkasan otomatis dari data
-                                    yang sama akan digunakan.
+                                    Penjelasan berasal dari model AI berdasarkan
+                                    skor, kesenjangan, prioritas, dan data yang
+                                    telah dihitung oleh SkillPath. AI tidak
+                                    mengubah nilai atau urutan roadmap.
                                 </p>
                             </div>
                         </div>

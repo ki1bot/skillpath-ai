@@ -57,7 +57,7 @@ type Item = {
 };
 
 type AiExercise = {
-    content: string;
+    content: string | null;
     generatedByAi: boolean;
     model: string | null;
 };
@@ -86,6 +86,9 @@ export default function MaterialPage({
     });
 
     const latestEvaluation = item.evaluations?.[0];
+
+    const hasAiExercise =
+        aiExercise.generatedByAi && Boolean(aiExercise.content);
 
     const saveProgress = (event: React.FormEvent) => {
         event.preventDefault();
@@ -202,42 +205,36 @@ export default function MaterialPage({
                             )}
                         </section>
 
-                        <section className="neo-card overflow-hidden">
-                            <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-[#171717] bg-[var(--neo-blue)] p-5 text-[#171717]">
-                                <div className="flex items-center gap-3">
-                                    <BrainCircuit className="size-5" />
+                        {hasAiExercise && (
+                            <section className="neo-card overflow-hidden">
+                                <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-[#171717] bg-[var(--neo-blue)] p-5 text-[#171717]">
+                                    <div className="flex items-center gap-3">
+                                        <BrainCircuit className="size-5" />
 
-                                    <h2 className="text-xl font-black">
-                                        Variasi latihan AI
-                                    </h2>
+                                        <h2 className="text-xl font-black">
+                                            Variasi latihan AI
+                                        </h2>
+                                    </div>
+
+                                    <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-lime)] px-2.5 py-1 text-[10px] font-black uppercase">
+                                        AI · {aiExercise.model}
+                                    </span>
                                 </div>
 
-                                <span
-                                    className={`rounded-full border-2 border-[#171717] px-2.5 py-1 text-[10px] font-black uppercase ${
-                                        aiExercise.generatedByAi
-                                            ? 'bg-[var(--neo-lime)]'
-                                            : 'bg-[var(--neo-yellow)]'
-                                    }`}
-                                >
-                                    {aiExercise.generatedByAi
-                                        ? `AI · ${aiExercise.model ?? 'model aktif'}`
-                                        : 'Fallback sistem'}
-                                </span>
-                            </div>
+                                <div className="p-6">
+                                    <p className="text-sm leading-7 font-semibold whitespace-pre-line">
+                                        {aiExercise.content}
+                                    </p>
 
-                            <div className="p-6">
-                                <p className="text-sm leading-7 font-semibold whitespace-pre-line">
-                                    {aiExercise.content}
-                                </p>
-
-                                <p className="mt-4 text-xs leading-5 font-bold text-muted-foreground">
-                                    Variasi ini tidak mengubah nilai, status
-                                    materi, atau roadmap. AI hanya membuat
-                                    variasi dari latihan yang sudah tersedia di
-                                    database.
-                                </p>
-                            </div>
-                        </section>
+                                    <p className="mt-4 text-xs leading-5 font-bold text-muted-foreground">
+                                        Variasi ini tidak mengubah nilai, status
+                                        materi, atau roadmap. AI hanya membuat
+                                        variasi dari latihan yang sudah tersedia
+                                        di database.
+                                    </p>
+                                </div>
+                            </section>
+                        )}
 
                         <section className="neo-card p-6">
                             <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">

@@ -31,9 +31,9 @@ interface Readiness {
 }
 
 interface AiInsights {
-    progress: string;
-    schedule: string;
-    obstacles: string;
+    progress: string | null;
+    schedule: string | null;
+    obstacles: string | null;
     generatedByAi: boolean;
     model: string | null;
 }
@@ -207,6 +207,12 @@ export default function Progress({
         ['Evaluasi', readiness.evaluation_score, BookCheck],
     ] as const;
 
+    const hasAiInsights =
+        aiInsights?.generatedByAi === true &&
+        Boolean(aiInsights.progress) &&
+        Boolean(aiInsights.schedule) &&
+        Boolean(aiInsights.obstacles);
+
     return (
         <>
             <Head title="Perkembangan" />
@@ -271,17 +277,23 @@ export default function Progress({
                                 </CardTitle>
                             </CardHeader>
 
-                            <CardContent className="pt-6">
-                                <div className="neo-card-flat p-5">
-                                    <p className="text-sm font-bold text-muted-foreground">
-                                        Menyiapkan analisis AI...
-                                    </p>
-                                </div>
+                            <CardContent className="grid gap-4 pt-6 lg:grid-cols-3">
+                                {[1, 2, 3].map((item) => (
+                                    <div
+                                        key={item}
+                                        className="neo-card-flat space-y-3 p-5"
+                                    >
+                                        <div className="h-4 w-2/3 animate-pulse rounded bg-muted" />
+                                        <div className="h-3 w-full animate-pulse rounded bg-muted" />
+                                        <div className="h-3 w-10/12 animate-pulse rounded bg-muted" />
+                                        <div className="h-3 w-8/12 animate-pulse rounded bg-muted" />
+                                    </div>
+                                ))}
                             </CardContent>
                         </Card>
                     }
                 >
-                    {aiInsights ? (
+                    {hasAiInsights && aiInsights ? (
                         <Card>
                             <CardHeader className="border-b-2 border-[#171717] bg-[var(--neo-blue)] text-[#171717]">
                                 <div className="flex flex-wrap items-center justify-between gap-3">
@@ -290,16 +302,8 @@ export default function Progress({
                                         AI Learning Coach
                                     </CardTitle>
 
-                                    <span
-                                        className={`rounded-full border-2 border-[#171717] px-2.5 py-1 text-[10px] font-black uppercase ${
-                                            aiInsights.generatedByAi
-                                                ? 'bg-[var(--neo-lime)]'
-                                                : 'bg-[var(--neo-yellow)]'
-                                        }`}
-                                    >
-                                        {aiInsights.generatedByAi
-                                            ? `AI · ${aiInsights.model ?? 'model aktif'}`
-                                            : 'Fallback sistem'}
+                                    <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-lime)] px-2.5 py-1 text-[10px] font-black uppercase">
+                                        AI · {aiInsights.model}
                                     </span>
                                 </div>
                             </CardHeader>

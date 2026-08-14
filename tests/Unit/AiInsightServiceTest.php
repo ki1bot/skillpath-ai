@@ -12,7 +12,7 @@ class AiInsightServiceTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_ai_insights_fall_back_safely_when_api_key_is_not_configured(): void
+    public function test_ai_insights_do_not_inject_default_text_when_api_key_is_not_configured(): void
     {
         config([
             'services.openrouter.key' => null,
@@ -45,19 +45,16 @@ class AiInsightServiceTest extends TestCase
             $result['model'],
         );
 
-        $this->assertNotSame(
-            '',
-            trim($result['progress']),
+        $this->assertNull(
+            $result['progress'],
         );
 
-        $this->assertNotSame(
-            '',
-            trim($result['schedule']),
+        $this->assertNull(
+            $result['schedule'],
         );
 
-        $this->assertNotSame(
-            '',
-            trim($result['obstacles']),
+        $this->assertNull(
+            $result['obstacles'],
         );
     }
 
@@ -136,6 +133,74 @@ class AiInsightServiceTest extends TestCase
             fn ($request) => $request->url()
                 === 'https://openrouter.ai/api/v1/chat/completions'
                 && $request['model'] === 'openrouter/free',
+        );
+    }
+
+    public function test_english_ai_response_is_not_displayed(): void
+    {
+        config([
+            'services.openrouter.key' => 'test-openrouter-key',
+            'services.openrouter.model' => 'openrouter/free',
+            'services.openrouter.base_url' => 'https://openrouter.ai/api/v1',
+        ]);
+
+        Http::fake([
+            'https://openrouter.ai/api/v1/chat/completions' => Http::response(
+                [
+                    'id' => 'generation-test',
+                    'model' => 'openai/gpt-oss-120b:free',
+                    'choices' => [
+                        [
+                            'index' => 0,
+                            'message' => [
+                                'role' => 'assistant',
+                                'content' => '<PROGRESS>Your current learning progress is improving based on the recorded results.</PROGRESS>'
+                                    .'<SCHEDULE>You should use your weekly learning time for the next materials.</SCHEDULE>'
+                                    .'<OBSTACLES>Your recorded obstacles should be reviewed before the next step.</OBSTACLES>',
+                            ],
+                            'finish_reason' => 'stop',
+                        ],
+                    ],
+                ],
+                200,
+            ),
+        ]);
+
+        $user = User::factory()->create([
+            'weekly_study_hours' => 6,
+        ]);
+
+        $result = app(AiInsightService::class)
+            ->progress(
+                $user,
+                [
+                    'score' => 25,
+                    'skill_mastery' => 30,
+                    'roadmap_completion' => 10,
+                    'project_score' => 0,
+                    'consistency' => 20,
+                    'evaluation_score' => 0,
+                ],
+            );
+
+        $this->assertFalse(
+            $result['generated_by_ai'],
+        );
+
+        $this->assertNull(
+            $result['model'],
+        );
+
+        $this->assertNull(
+            $result['progress'],
+        );
+
+        $this->assertNull(
+            $result['schedule'],
+        );
+
+        $this->assertNull(
+            $result['obstacles'],
         );
     }
 }
