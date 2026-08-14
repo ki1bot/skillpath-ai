@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\AiExplanationService;
 use App\Services\SkillGapService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -15,31 +16,59 @@ class SkillGapController extends Controller
         Request $request,
         SkillGapService $skillGapService,
         AiExplanationService $aiExplanationService,
-    ): Response|RedirectResponse {
+    ): Response|RedirectResponse|JsonResponse {
         $user = $request
             ->user()
             ->load('targetCareer');
 
-        if (! $user->targetCareer) {
+        if (!$user->targetCareer) {
+            if ($request->boolean('ai')) {
+                return response()->json(
+                    [
+                        'summary' => null,
+                    ],
+                    422,
+                );
+            }
+
             return redirect()->route(
                 'onboarding.show',
             );
         }
 
-        $analysis = null;
+        $analysis = $skillGapService
+            ->analyze($user);
 
-        $getAnalysis = function () use (
-            &$analysis,
-            $skillGapService,
-            $user,
-        ): array {
-            if ($analysis === null) {
-                $analysis = $skillGapService
-                    ->analyze($user);
+        if ($request->boolean('ai')) {
+            $summary = $aiExplanationService
+                ->skillGapSummary(
+                    $user,
+                    $analysis,
+                );
+
+            if ($summary === null) {
+                return response()
+                    ->json(
+                        [
+                            'summary' => null,
+                        ],
+                        503,
+                    )
+                    ->header(
+                        'Cache-Control',
+                        'no-store',
+                    );
             }
 
-            return $analysis;
-        };
+            return response()
+                ->json([
+                    'summary' => $summary,
+                ])
+                ->header(
+                    'Cache-Control',
+                    'no-store',
+                );
+        }
 
         return Inertia::render(
             'skills',
@@ -47,20 +76,12 @@ class SkillGapController extends Controller
                 'career' => $user
                     ->targetCareer,
 
-                'skills' => fn () => $getAnalysis(),
+                'skills' => $analysis,
 
-                'summary' => Inertia::defer(
-                    fn () => $aiExplanationService
-                        ->skillGapSummary(
-                            $user,
-                            $getAnalysis(),
-                        ),
-                ),
-
-                'averageMastery' => fn () => $skillGapService
+                'averageMastery' => $skillGapService
                     ->averageMastery(
                         $user,
-                        $getAnalysis(),
+                        $analysis,
                     ),
             ],
         );

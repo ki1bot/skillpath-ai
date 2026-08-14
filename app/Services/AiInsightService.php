@@ -15,6 +15,16 @@ use Throwable;
 
 class AiInsightService
 {
+    /**
+     * @param  array<string, mixed>  $readiness
+     * @return array{
+     *     progress: string|null,
+     *     schedule: string|null,
+     *     obstacles: string|null,
+     *     generated_by_ai: bool,
+     *     model: string|null
+     * }
+     */
     public function progress(
         User $user,
         array $readiness,
@@ -172,6 +182,14 @@ class AiInsightService
         ];
     }
 
+    /**
+     * @param  array<string, mixed>  $readiness
+     * @return array{
+     *     content: string|null,
+     *     generated_by_ai: bool,
+     *     model: string|null
+     * }
+     */
     public function projectFeedback(
         User $user,
         PortfolioProject $project,
@@ -212,6 +230,13 @@ class AiInsightService
             ?? $this->emptyContent();
     }
 
+    /**
+     * @return array{
+     *     content: string|null,
+     *     generated_by_ai: bool,
+     *     model: string|null
+     * }
+     */
     public function exerciseVariation(
         User $user,
         LearningMaterial $material,
@@ -241,6 +266,15 @@ class AiInsightService
             ?? $this->emptyContent();
     }
 
+    /**
+     * @param  array<string, mixed>  $context
+     * @param  array<int, string>  $requiredTags
+     * @return array{
+     *     content: string,
+     *     generated_by_ai: true,
+     *     model: string
+     * }|null
+     */
     private function ask(
         User $user,
         string $scope,
@@ -498,6 +532,9 @@ class AiInsightService
             && $indonesianCount > $englishCount;
     }
 
+    /**
+     * @param  array<int, string>  $requiredTags
+     */
     private function hasRequiredTags(
         string $content,
         array $requiredTags,
@@ -520,6 +557,13 @@ class AiInsightService
         return true;
     }
 
+    /**
+     * @return array{
+     *     progress: string,
+     *     schedule: string,
+     *     obstacles: string
+     * }|null
+     */
     private function sections(
         string $content,
     ): ?array {
@@ -564,6 +608,15 @@ class AiInsightService
         ];
     }
 
+    /**
+     * @return array{
+     *     progress: null,
+     *     schedule: null,
+     *     obstacles: null,
+     *     generated_by_ai: false,
+     *     model: null
+     * }
+     */
     private function emptyProgress(): array
     {
         return [
@@ -575,6 +628,13 @@ class AiInsightService
         ];
     }
 
+    /**
+     * @return array{
+     *     content: null,
+     *     generated_by_ai: false,
+     *     model: null
+     * }
+     */
     private function emptyContent(): array
     {
         return [

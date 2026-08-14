@@ -1,4 +1,4 @@
-import { Deferred, Head, Link } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import {
     ArrowRight,
     BrainCircuit,
@@ -7,6 +7,7 @@ import {
     RotateCcw,
     TriangleAlert,
 } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
     PolarAngleAxis,
     PolarGrid,
@@ -38,9 +39,10 @@ type Props = {
         slug: string;
     };
     skills: SkillGap[];
-    summary?: string | null;
     averageMastery: number;
 };
+
+type AiState = 'loading' | 'ready' | 'error';
 
 const statusMap = {
     terpenuhi: {
@@ -60,12 +62,15 @@ const statusMap = {
     },
 };
 
-export default function Skills({
-    career,
-    skills,
-    summary,
-    averageMastery,
-}: Props) {
+export default function Skills({ career, skills, averageMastery }: Props) {
+    const [summary, setSummary] = useState<string | null>(null);
+
+    const [aiState, setAiState] = useState<AiState>('loading');
+
+    const requestStarted = useRef(false);
+
+    const activeController = useRef<AbortController | null>(null);
+
     const chart = skills.slice(0, 10).map((item) => ({
         skill: item.name.length > 14 ? `${item.name.slice(0, 13)}…` : item.name,
         current: item.current,
@@ -73,6 +78,79 @@ export default function Skills({
     }));
 
     const priorities = skills.filter((item) => item.gap > 0).slice(0, 3);
+
+    const loadAiSummary = useCallback(async () => {
+        activeController.current?.abort();
+
+        const controller = new AbortController();
+
+        activeController.current = controller;
+
+        const timeout = window.setTimeout(() => controller.abort(), 25000);
+
+        setSummary(null);
+        setAiState('loading');
+
+        try {
+            const response = await fetch('/skills?ai=1', {
+                method: 'GET',
+                credentials: 'same-origin',
+                cache: 'no-store',
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                signal: controller.signal,
+            });
+
+            if (!response.ok) {
+                throw new Error(
+                    `AI request failed with status ${response.status}`,
+                );
+            }
+
+            const data = (await response.json()) as {
+                summary?: unknown;
+            };
+
+            if (
+                typeof data.summary !== 'string' ||
+                data.summary.trim() === ''
+            ) {
+                throw new Error('AI response did not contain a summary');
+            }
+
+            setSummary(data.summary.trim());
+
+            setAiState('ready');
+        } catch {
+            if (!controller.signal.aborted) {
+                setAiState('error');
+            } else {
+                setAiState('error');
+            }
+        } finally {
+            window.clearTimeout(timeout);
+
+            if (activeController.current === controller) {
+                activeController.current = null;
+            }
+        }
+    }, []);
+
+    useEffect(() => {
+        if (requestStarted.current) {
+            return;
+        }
+
+        requestStarted.current = true;
+
+        void loadAiSummary();
+
+        return () => {
+            activeController.current?.abort();
+        };
+    }, [loadAiSummary]);
 
     return (
         <>
@@ -174,24 +252,40 @@ export default function Skills({
                                     </span>
                                 </div>
 
-                                <Deferred
-                                    data="summary"
-                                    fallback={
-                                        <div className="mt-4 space-y-2">
+                                <div
+                                    className="mt-3"
+                                    aria-busy={aiState === 'loading'}
+                                >
+                                    {aiState === 'loading' && (
+                                        <div className="space-y-2">
                                             <div className="h-4 w-full animate-pulse rounded bg-muted" />
                                             <div className="h-4 w-11/12 animate-pulse rounded bg-muted" />
                                             <div className="h-4 w-8/12 animate-pulse rounded bg-muted" />
                                         </div>
-                                    }
-                                >
-                                    {summary ? (
-                                        <p className="mt-2 leading-relaxed font-semibold">
+                                    )}
+
+                                    {aiState === 'ready' && summary && (
+                                        <p className="leading-relaxed font-semibold">
                                             {summary}
                                         </p>
-                                    ) : null}
-                                </Deferred>
+                                    )}
 
-                                <p className="mt-3 text-xs leading-5 font-bold text-muted-foreground">
+                                    {aiState === 'error' && (
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => {
+                                                void loadAiSummary();
+                                            }}
+                                        >
+                                            <RotateCcw />
+                                            Coba lagi
+                                        </Button>
+                                    )}
+                                </div>
+
+                                <p className="mt-4 text-xs leading-5 font-bold text-muted-foreground">
                                     Penjelasan berasal dari model AI berdasarkan
                                     skor, kesenjangan, prioritas, dan data yang
                                     telah dihitung oleh SkillPath. AI tidak
@@ -244,6 +338,7 @@ export default function Skills({
                     <div className="space-y-4">
                         {skills.map((item) => {
                             const state = statusMap[item.status];
+
                             const Icon = state.icon;
 
                             return (
@@ -286,6 +381,7 @@ export default function Skills({
                                     <div>
                                         <div className="flex justify-between text-xs font-black">
                                             <span>Sekarang {item.current}</span>
+
                                             <span>Target {item.target}</span>
                                         </div>
 
