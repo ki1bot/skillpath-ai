@@ -21,7 +21,7 @@ class SkillGapController extends Controller
             ->user()
             ->load('targetCareer');
 
-        if (!$user->targetCareer) {
+        if (! $user->targetCareer) {
             if ($request->boolean('ai')) {
                 return response()->json(
                     [

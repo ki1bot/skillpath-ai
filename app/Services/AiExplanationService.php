@@ -35,11 +35,11 @@ class AiExplanationService
         );
 
         if (
-            !is_string($key)
+            ! is_string($key)
             || trim($key) === ''
-            || !is_string($model)
+            || ! is_string($model)
             || trim($model) === ''
-            || !is_string($baseUrl)
+            || ! is_string($baseUrl)
             || trim($baseUrl) === ''
         ) {
             return null;
@@ -50,7 +50,7 @@ class AiExplanationService
         if (is_array($configuredFallbackModels)) {
             foreach ($configuredFallbackModels as $fallbackModel) {
                 if (
-                    !is_string($fallbackModel)
+                    ! is_string($fallbackModel)
                     || trim($fallbackModel) === ''
                     || trim($fallbackModel) === trim($model)
                 ) {
@@ -102,7 +102,7 @@ class AiExplanationService
                 | JSON_UNESCAPED_SLASHES,
         );
 
-        if (!is_string($contextJson)) {
+        if (! is_string($contextJson)) {
             return null;
         }
 
@@ -200,7 +200,7 @@ class AiExplanationService
                     $payload,
                 );
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 Log::warning(
                     'OpenRouter skill gap request failed.',
                     [
@@ -262,7 +262,7 @@ class AiExplanationService
     private function extractSummary(
         mixed $content,
     ): ?string {
-        if (!is_string($content)) {
+        if (! is_string($content)) {
             return null;
         }
 
@@ -280,7 +280,7 @@ class AiExplanationService
             $content,
         );
 
-        if (!is_string($content)) {
+        if (! is_string($content)) {
             return null;
         }
 
@@ -290,8 +290,8 @@ class AiExplanationService
         );
 
         if (
-            !is_array($decoded)
-            || !is_string(
+            ! is_array($decoded)
+            || ! is_string(
                 $decoded['summary'] ?? null,
             )
         ) {
@@ -309,9 +309,9 @@ class AiExplanationService
         );
 
         if (
-            !is_string($summary)
+            ! is_string($summary)
             || $summary === ''
-            || !$this->looksIndonesian(
+            || ! $this->looksIndonesian(
                 $summary,
             )
         ) {
@@ -348,8 +348,8 @@ class AiExplanationService
         );
 
         if (
-            !is_int($indonesianCount)
-            || !is_int($englishCount)
+            ! is_int($indonesianCount)
+            || ! is_int($englishCount)
         ) {
             return false;
         }
