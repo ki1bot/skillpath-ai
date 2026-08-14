@@ -1,6 +1,8 @@
+import DevTools from './DevTools'
 import Controller from './Controller'
 const Inertia = {
-    Controller: Object.assign(Controller, Controller),
+    DevTools: Object.assign(DevTools, DevTools),
+Controller: Object.assign(Controller, Controller),
 }
 
 export default Inertia

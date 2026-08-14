@@ -53,6 +53,22 @@ const typeLabels = {
     practical: 'Tugas praktik',
 };
 
+const PRACTICAL_MIN_RESPONSE_LENGTH = 40;
+
+const isValidHttpUrl = (value: string) => {
+    if (!value.trim()) {
+        return false;
+    }
+
+    try {
+        const url = new URL(value);
+
+        return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+        return false;
+    }
+};
+
 export default function AssessmentPage({
     assessment,
     latestAttempt,
@@ -83,29 +99,36 @@ export default function AssessmentPage({
         experience_evidence_urls: {},
     });
 
-    const isQuestionComplete = (item: Question) => {
+    const getQuestionIncompleteReason = (item: Question) => {
         if (!form.data.answers[item.id]) {
-            return false;
+            return 'Pilih salah satu jawaban terlebih dahulu.';
         }
 
         if (item.question_type !== 'practical') {
-            return true;
+            return null;
         }
 
         const response = form.data.responses[item.id]?.trim() ?? '';
 
-        if (response.length < 40) {
-            return false;
+        if (response.length < PRACTICAL_MIN_RESPONSE_LENGTH) {
+            return `Jelaskan hasil praktik minimal ${PRACTICAL_MIN_RESPONSE_LENGTH} karakter. Saat ini baru ${response.length} karakter.`;
         }
 
-        if (
-            item.evidence_required &&
-            !form.data.evidence_urls[item.id]?.trim()
-        ) {
-            return false;
+        const evidenceUrl = form.data.evidence_urls[item.id]?.trim() ?? '';
+
+        if (item.evidence_required && !evidenceUrl) {
+            return 'Bukti praktik wajib diisi sebelum melanjutkan.';
         }
 
-        return true;
+        if (evidenceUrl && !isValidHttpUrl(evidenceUrl)) {
+            return 'Bukti praktik harus berupa URL http:// atau https:// yang valid.';
+        }
+
+        return null;
+    };
+
+    const isQuestionComplete = (item: Question) => {
+        return getQuestionIncompleteReason(item) === null;
     };
 
     const completedCount =
@@ -117,6 +140,22 @@ export default function AssessmentPage({
             : 0;
 
     const currentRating = form.data.self_ratings[question?.id] ?? 50;
+
+    const currentResponse =
+        question?.question_type === 'practical'
+            ? (form.data.responses[question.id] ?? '').trim()
+            : '';
+
+    const currentResponseLength = currentResponse.length;
+
+    const currentEvidenceUrl =
+        question?.question_type === 'practical'
+            ? (form.data.evidence_urls[question.id] ?? '').trim()
+            : '';
+
+    const currentIncompleteReason = question
+        ? getQuestionIncompleteReason(question)
+        : null;
 
     const canMove = question ? isQuestionComplete(question) : false;
 
@@ -267,9 +306,24 @@ export default function AssessmentPage({
                         {question.question_type === 'practical' && (
                             <div className="mt-7 grid gap-4 rounded-[14px] border-2 border-foreground bg-muted p-5">
                                 <label>
-                                    <span className="mb-2 block text-sm font-black">
-                                        Jelaskan hasil praktik
-                                    </span>
+                                    <div className="mb-2 flex flex-wrap items-end justify-between gap-2">
+                                        <span className="block text-sm font-black">
+                                            Jelaskan hasil praktik
+                                        </span>
+
+                                        <span
+                                            className={`font-mono text-xs font-black ${
+                                                currentResponseLength >=
+                                                PRACTICAL_MIN_RESPONSE_LENGTH
+                                                    ? 'text-foreground'
+                                                    : 'text-muted-foreground'
+                                            }`}
+                                        >
+                                            {currentResponseLength}/
+                                            {PRACTICAL_MIN_RESPONSE_LENGTH}{' '}
+                                            karakter
+                                        </span>
+                                    </div>
 
                                     <Textarea
                                         value={
@@ -285,6 +339,12 @@ export default function AssessmentPage({
                                         rows={5}
                                         placeholder="Jelaskan apa yang dikerjakan, hasil yang diperoleh, dan bagian yang masih sulit."
                                     />
+
+                                    <p className="mt-2 text-xs leading-relaxed font-medium text-muted-foreground">
+                                        Tuliskan minimal{' '}
+                                        {PRACTICAL_MIN_RESPONSE_LENGTH} karakter
+                                        agar hasil praktik dapat dievaluasi.
+                                    </p>
                                 </label>
 
                                 <label>
@@ -310,6 +370,21 @@ export default function AssessmentPage({
                                         }
                                         placeholder="https://github.com/... atau https://..."
                                     />
+
+                                    <p className="mt-2 text-xs leading-relaxed font-medium text-muted-foreground">
+                                        Gunakan tautan repository, deployment,
+                                        dokumen, atau bukti lain yang dapat
+                                        diakses melalui HTTP atau HTTPS.
+                                    </p>
+
+                                    {currentEvidenceUrl &&
+                                        !isValidHttpUrl(currentEvidenceUrl) && (
+                                            <p className="mt-2 text-xs font-bold text-destructive">
+                                                URL belum valid. Gunakan alamat
+                                                yang diawali http:// atau
+                                                https://.
+                                            </p>
+                                        )}
                                 </label>
                             </div>
                         )}
@@ -401,6 +476,15 @@ export default function AssessmentPage({
                                 />
                             </div>
                         </div>
+
+                        {currentIncompleteReason && (
+                            <div className="mt-6 rounded-[12px] border-2 border-[#171717] bg-[var(--neo-yellow)] p-4 text-sm leading-relaxed font-bold text-[#171717]">
+                                <span className="font-black">
+                                    Belum bisa melanjutkan:
+                                </span>{' '}
+                                {currentIncompleteReason}
+                            </div>
+                        )}
 
                         {Object.keys(form.errors).length > 0 && (
                             <div className="mt-6 rounded-[12px] border-2 border-[#171717] bg-[var(--neo-pink)] p-4 text-sm font-bold text-[#171717]">
