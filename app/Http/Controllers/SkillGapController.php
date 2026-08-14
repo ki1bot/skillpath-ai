@@ -23,12 +23,19 @@ class SkillGapController extends Controller
 
         if (! $user->targetCareer) {
             if ($request->boolean('ai')) {
-                return response()->json(
-                    [
-                        'summary' => null,
-                    ],
-                    422,
-                );
+                return response()
+                    ->json(
+                        [
+                            'summary' => null,
+                            'generated_by_ai' => false,
+                            'model' => null,
+                        ],
+                        422,
+                    )
+                    ->header(
+                        'Cache-Control',
+                        'no-store',
+                    );
             }
 
             return redirect()->route(
@@ -40,29 +47,17 @@ class SkillGapController extends Controller
             ->analyze($user);
 
         if ($request->boolean('ai')) {
-            $summary = $aiExplanationService
+            $result = $aiExplanationService
                 ->skillGapSummary(
                     $user,
                     $analysis,
                 );
 
-            if ($summary === null) {
-                return response()
-                    ->json(
-                        [
-                            'summary' => null,
-                        ],
-                        503,
-                    )
-                    ->header(
-                        'Cache-Control',
-                        'no-store',
-                    );
-            }
-
             return response()
                 ->json([
-                    'summary' => $summary,
+                    'summary' => $result->summary,
+                    'generated_by_ai' => $result->generatedByAi,
+                    'model' => $result->model,
                 ])
                 ->header(
                     'Cache-Control',

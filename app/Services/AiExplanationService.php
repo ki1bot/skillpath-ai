@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Support\AiExplanationResult;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -14,14 +15,121 @@ class AiExplanationService
     public function skillGapSummary(
         User $user,
         array $analysis,
-    ): ?string {
+    ): AiExplanationResult {
+        $skills = collect(
+            $analysis,
+        )
+            ->take(8)
+            ->map(
+                fn (array $item) => [
+                    'skill' => $item['name'],
+                    'current' => $item['current'],
+                    'target' => $item['target'],
+                    'gap' => $item['gap'],
+                    'priority' => $item['priority'],
+                    'status' => $item['status'],
+                    'reason' => $item['reason'],
+                    'prerequisites' => collect(
+                        $item['prerequisites'],
+                    )
+                        ->pluck('name')
+                        ->all(),
+                ],
+            )
+            ->values()
+            ->all();
+
+        $careerName = $user
+            ->targetCareer
+            ?->name;
+
+        if (
+            ! is_string($careerName)
+            || trim($careerName) === ''
+        ) {
+            $careerName = 'target karier Anda';
+        }
+
+        $priorities = [];
+
+        foreach ($skills as $skill) {
+            if ((float) $skill['gap'] <= 0) {
+                continue;
+            }
+
+            $priorities[] = $skill;
+
+            if (count($priorities) >= 3) {
+                break;
+            }
+        }
+
+        if ($priorities === []) {
+            $fallbackSummary = 'Berdasarkan hasil yang tersimpan, keterampilan yang dianalisis untuk '
+                .$careerName
+                .' sudah memenuhi target profesi. Lanjutkan roadmap dan evaluasi berikutnya agar sistem dapat memperbarui kesiapan berdasarkan bukti progres terbaru.';
+        } else {
+            $first = $priorities[0];
+
+            $firstReason = is_string(
+                $first['reason'] ?? null,
+            )
+                ? trim($first['reason'])
+                : '';
+
+            if ($firstReason === '') {
+                $firstReason = (string) $first['skill']
+                    .' menjadi prioritas utama karena skor Anda '
+                    .$first['current']
+                    .' dari target '
+                    .$first['target']
+                    .', sehingga masih ada kesenjangan '
+                    .$first['gap']
+                    .' poin.';
+            }
+
+            $fallbackSummary = $firstReason;
+
+            if (count($priorities) > 1) {
+                $nextNames = [];
+
+                foreach (array_slice($priorities, 1) as $priority) {
+                    $name = $priority['skill'] ?? null;
+
+                    if (
+                        is_string($name)
+                        && trim($name) !== ''
+                    ) {
+                        $nextNames[] = trim($name);
+                    }
+                }
+
+                if ($nextNames !== []) {
+                    $fallbackSummary .= ' Setelah itu, fokus berikutnya adalah '
+                        .implode(' dan ', $nextNames)
+                        .'.';
+                }
+            }
+
+            $fallbackSummary .= ' Urutan ini mengikuti skor kesenjangan, bobot kepentingan, dan hubungan prasyarat yang sudah dihitung oleh SkillPath AI.';
+        }
+
+        $fallback = new AiExplanationResult(
+            Str::limit(
+                $fallbackSummary,
+                700,
+                '',
+            ),
+            false,
+        );
+
         $key = config(
             'services.openrouter.key',
         );
 
         $model = config(
             'services.openrouter.model',
-            'openrouter/free',
+            'openai/gpt-oss-20b:free',
         );
 
         $baseUrl = config(
@@ -42,57 +150,32 @@ class AiExplanationService
             || ! is_string($baseUrl)
             || trim($baseUrl) === ''
         ) {
-            return null;
+            return $fallback;
         }
 
-        $fallbackModels = [];
+        $models = [
+            trim($model),
+        ];
 
         if (is_array($configuredFallbackModels)) {
             foreach ($configuredFallbackModels as $fallbackModel) {
                 if (
                     ! is_string($fallbackModel)
                     || trim($fallbackModel) === ''
-                    || trim($fallbackModel) === trim($model)
                 ) {
                     continue;
                 }
 
-                $fallbackModels[] = trim(
-                    $fallbackModel,
-                );
+                $models[] = trim($fallbackModel);
             }
         }
 
-        $fallbackModels = array_values(
-            array_unique($fallbackModels),
+        $models = array_values(
+            array_unique($models),
         );
 
-        $skills = collect(
-            $analysis,
-        )
-            ->take(8)
-            ->map(
-                fn (array $item) => [
-                    'skill' => $item['name'],
-                    'current' => $item['current'],
-                    'target' => $item['target'],
-                    'gap' => $item['gap'],
-                    'priority' => $item['priority'],
-                    'status' => $item['status'],
-                    'prerequisites' => collect(
-                        $item['prerequisites'],
-                    )
-                        ->pluck('name')
-                        ->all(),
-                ],
-            )
-            ->values()
-            ->all();
-
         $context = [
-            'target_career' => $user
-                ->targetCareer
-                ?->name,
+            'target_career' => $careerName,
             'skills' => $skills,
         ];
 
@@ -103,21 +186,16 @@ class AiExplanationService
         );
 
         if (! is_string($contextJson)) {
-            return null;
+            return $fallback;
         }
 
-        $cacheKey = 'skill-gap-explanation:v5:'
+        $cacheKey = 'skill-gap-explanation:v6:'
             .$user->id
             .':'
             .sha1(
                 $baseUrl
                     .'|'
-                    .$model
-                    .'|'
-                    .implode(
-                        '|',
-                        $fallbackModels,
-                    )
+                    .implode('|', $models)
                     .'|'
                     .$contextJson,
             );
@@ -127,55 +205,79 @@ class AiExplanationService
         );
 
         if (
-            is_string($cached)
-            && trim($cached) !== ''
-            && $this->looksIndonesian($cached)
+            is_array($cached)
+            && is_string(
+                $cached['summary'] ?? null,
+            )
+            && is_bool(
+                $cached['generated_by_ai'] ?? null,
+            )
+            && $this->looksIndonesian(
+                $cached['summary'],
+            )
         ) {
-            return $cached;
+            $cachedModel = $cached['model'] ?? null;
+
+            if (
+                $cached['generated_by_ai']
+                && ! is_string($cachedModel)
+            ) {
+                $cachedModel = null;
+            }
+
+            return new AiExplanationResult(
+                $cached['summary'],
+                $cached['generated_by_ai'],
+                is_string($cachedModel)
+                    ? $cachedModel
+                    : null,
+            );
         }
 
-        $payload = [
-            'model' => $model,
-            'messages' => [
-                [
-                    'role' => 'system',
-                    'content' => 'Anda adalah pendamping belajar SkillPath AI. Seluruh jawaban kepada pengguna wajib menggunakan Bahasa Indonesia. Nama teknologi, framework, bahasa pemrograman, API, database, library, dan istilah teknis yang lazim boleh tetap menggunakan nama aslinya. Gunakan hanya data yang diberikan. Jangan membuat skill, nilai, kesenjangan, fakta, kemampuan, atau roadmap baru. Analisis kondisi kemampuan pengguna, kemampuan yang paling perlu diprioritaskan, jarak terhadap target karier, dan prasyarat yang relevan. Hasil harus alami, spesifik terhadap data pengguna, ringkas, dan tidak mengandung Markdown.',
-                ],
-                [
-                    'role' => 'user',
-                    'content' => $contextJson,
-                ],
-            ],
-            'temperature' => 0.2,
-            'max_tokens' => 260,
-            'response_format' => [
-                'type' => 'json_schema',
-                'json_schema' => [
-                    'name' => 'skill_gap_explanation',
-                    'strict' => true,
-                    'schema' => [
-                        'type' => 'object',
-                        'properties' => [
-                            'summary' => [
-                                'type' => 'string',
-                            ],
-                        ],
-                        'required' => [
-                            'summary',
-                        ],
-                        'additionalProperties' => false,
-                    ],
-                ],
-            ],
-            'provider' => [
-                'allow_fallbacks' => true,
-            ],
-        ];
+        foreach ($models as $candidateModel) {
+            $result = $this->requestSummary(
+                $key,
+                $baseUrl,
+                $candidateModel,
+                $contextJson,
+            );
 
-        if ($fallbackModels !== []) {
-            $payload['models'] = $fallbackModels;
+            if ($result === null) {
+                continue;
+            }
+
+            Cache::put(
+                $cacheKey,
+                [
+                    'summary' => $result->summary,
+                    'model' => $result->model,
+                    'generated_by_ai' => true,
+                ],
+                now()->addHours(12),
+            );
+
+            return $result;
         }
 
+        Cache::put(
+            $cacheKey,
+            [
+                'summary' => $fallback->summary,
+                'model' => null,
+                'generated_by_ai' => false,
+            ],
+            now()->addMinutes(5),
+        );
+
+        return $fallback;
+    }
+
+    private function requestSummary(
+        string $key,
+        string $baseUrl,
+        string $model,
+        string $contextJson,
+    ): ?AiExplanationResult {
         try {
             $response = Http::withToken(
                 $key,
@@ -190,14 +292,31 @@ class AiExplanationService
                 ])
                 ->acceptJson()
                 ->asJson()
-                ->connectTimeout(3)
-                ->timeout(20)
+                ->connectTimeout(2)
+                ->timeout(8)
                 ->post(
                     rtrim(
                         $baseUrl,
                         '/',
                     ).'/chat/completions',
-                    $payload,
+                    [
+                        'model' => $model,
+                        'messages' => [
+                            [
+                                'role' => 'system',
+                                'content' => 'Anda adalah fitur penjelasan SkillPath AI. Keputusan utama sudah dihitung oleh sistem berbasis data dan aturan. Tugas Anda hanya menjelaskan hasil tersebut dengan Bahasa Indonesia yang alami dan mudah dipahami. Gunakan hanya target karier, skor kemampuan, target, gap, priority score, status, alasan, dan prasyarat yang diberikan. Jangan membuat skill, nilai, kemampuan, fakta, roadmap, materi, proyek, atau hubungan prasyarat baru. Jangan mengubah urutan prioritas. Jangan memberi jaminan kesiapan kerja. Tulis tepat satu paragraf tanpa Markdown, tanpa JSON, tanpa judul, maksimal 120 kata. Utamakan kemampuan dengan gap dan priority score tertinggi serta jelaskan alasannya.',
+                            ],
+                            [
+                                'role' => 'user',
+                                'content' => $contextJson,
+                            ],
+                        ],
+                        'temperature' => 0.2,
+                        'max_tokens' => 220,
+                        'provider' => [
+                            'allow_fallbacks' => true,
+                        ],
+                    ],
                 );
 
             if (! $response->successful()) {
@@ -217,20 +336,30 @@ class AiExplanationService
                 return null;
             }
 
-            $content = $response->json(
-                'choices.0.message.content',
-            );
-
-            $summary = $this->extractSummary(
-                $content,
+            $summary = $this->normalizeSummary(
+                $response->json(
+                    'choices.0.message.content',
+                ),
             );
 
             if ($summary === null) {
                 Log::warning(
                     'OpenRouter skill gap response was rejected.',
                     [
-                        'model' => $response->json(
+                        'requested_model' => $model,
+                        'resolved_model' => $response->json(
                             'model',
+                        ),
+                        'finish_reason' => $response->json(
+                            'choices.0.finish_reason',
+                        ),
+                        'content' => Str::limit(
+                            (string) $response->json(
+                                'choices.0.message.content',
+                                '',
+                            ),
+                            500,
+                            '',
                         ),
                     ],
                 );
@@ -238,13 +367,20 @@ class AiExplanationService
                 return null;
             }
 
-            Cache::put(
-                $cacheKey,
-                $summary,
-                now()->addHours(12),
+            $responseModel = $response->json(
+                'model',
             );
 
-            return $summary;
+            $resolvedModel = is_string($responseModel)
+                && trim($responseModel) !== ''
+                    ? trim($responseModel)
+                    : $model;
+
+            return new AiExplanationResult(
+                $summary,
+                true,
+                $resolvedModel,
+            );
         } catch (Throwable $exception) {
             Log::warning(
                 'OpenRouter skill gap request threw an exception.',
@@ -259,7 +395,7 @@ class AiExplanationService
         }
     }
 
-    private function extractSummary(
+    private function normalizeSummary(
         mixed $content,
     ): ?string {
         if (! is_string($content)) {
@@ -275,7 +411,7 @@ class AiExplanationService
         }
 
         $content = preg_replace(
-            '/^```(?:json)?\s*|\s*```$/iu',
+            '/^```(?:json|text)?\s*|\s*```$/iu',
             '',
             $content,
         );
@@ -290,36 +426,59 @@ class AiExplanationService
         );
 
         if (
-            ! is_array($decoded)
-            || ! is_string(
+            is_array($decoded)
+            && is_string(
                 $decoded['summary'] ?? null,
             )
         ) {
+            $content = $decoded['summary'];
+        }
+
+        $content = str_replace(
+            [
+                '**',
+                '__',
+                '`',
+            ],
+            '',
+            $content,
+        );
+
+        $content = preg_replace(
+            '/^(?:ringkasan|summary)\s*:\s*/iu',
+            '',
+            $content,
+        );
+
+        if (! is_string($content)) {
             return null;
         }
 
-        $summary = trim(
-            $decoded['summary'],
-        );
-
-        $summary = preg_replace(
+        $content = preg_replace(
             '/\s+/u',
             ' ',
-            $summary,
+            $content,
+        );
+
+        if (! is_string($content)) {
+            return null;
+        }
+
+        $content = trim(
+            $content,
         );
 
         if (
-            ! is_string($summary)
-            || $summary === ''
+            $content === ''
             || ! $this->looksIndonesian(
-                $summary,
+                $content,
             )
         ) {
             return null;
         }
 
         return Str::limit(
-            $summary,
+            $content,
             700,
             '',
         );
@@ -336,7 +495,7 @@ class AiExplanationService
         $englishMatches = [];
 
         $indonesianCount = preg_match_all(
-            '/\b(?:yang|dan|untuk|dengan|dari|pada|adalah|karena|anda|kamu|kemampuan|belajar|prioritas|utama|saat|masih|selisih|setelah|perlu|berikutnya|kesiapan|proyek|materi|kendala|waktu|target|nilai|penguatan|risiko|langkah|evaluasi|jadwal|progres|perkembangan|berhasil|dibuat|kekuatan|sudah|ditingkatkan|hasil|pengguna|tercatat|memiliki|menjadi|berada|dapat|belum|lebih|sesuai|kesenjangan|karier|diprioritaskan|memenuhi|fondasi|lanjutan|penguasaan|dasar|terhadap|sehingga|terutama|berfokus|meningkatkan)\b/u',
+            '/\b(?:yang|dan|untuk|dengan|dari|pada|adalah|karena|anda|kamu|kemampuan|belajar|prioritas|utama|saat|masih|selisih|setelah|perlu|berikutnya|kesiapan|proyek|materi|kendala|waktu|target|nilai|penguatan|risiko|langkah|evaluasi|jadwal|progres|perkembangan|hasil|pengguna|tercatat|memiliki|menjadi|berada|dapat|belum|lebih|sesuai|kesenjangan|karier|diprioritaskan|memenuhi|fondasi|lanjutan|penguasaan|dasar|terhadap|sehingga|terutama|berfokus|meningkatkan|menuju|skor|urutan|prasyarat|keterampilan|berdasarkan|dibutuhkan|dipelajari)\b/u',
             $text,
             $indonesianMatches,
         );

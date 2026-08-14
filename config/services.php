@@ -27,7 +27,7 @@ return [
 
         'model' => env(
             'OPENROUTER_MODEL',
-            'openrouter/free',
+            'openai/gpt-oss-20b:free',
         ),
 
         'fallback_models' => array_values(
@@ -38,7 +38,7 @@ return [
                         ',',
                         (string) env(
                             'OPENROUTER_FALLBACK_MODELS',
-                            '',
+                            'openrouter/free',
                         ),
                     ),
                 ),
@@ -63,7 +63,7 @@ return [
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env(
-                'SLACK_BOT_USER_OAUTH_TOKEN',
+                'SLACK_BOT_USER_DEFAULT_CHANNEL',
             ),
             'channel' => env(
                 'SLACK_BOT_USER_DEFAULT_CHANNEL',

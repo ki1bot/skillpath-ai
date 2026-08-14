@@ -64,11 +64,9 @@ const statusMap = {
 
 export default function Skills({ career, skills, averageMastery }: Props) {
     const [summary, setSummary] = useState<string | null>(null);
-
+    const [generatedByAi, setGeneratedByAi] = useState(false);
     const [aiState, setAiState] = useState<AiState>('loading');
-
     const requestStarted = useRef(false);
-
     const activeController = useRef<AbortController | null>(null);
 
     const chart = skills.slice(0, 10).map((item) => ({
@@ -89,6 +87,7 @@ export default function Skills({ career, skills, averageMastery }: Props) {
         const timeout = window.setTimeout(() => controller.abort(), 25000);
 
         setSummary(null);
+        setGeneratedByAi(false);
         setAiState('loading');
 
         try {
@@ -111,6 +110,8 @@ export default function Skills({ career, skills, averageMastery }: Props) {
 
             const data = (await response.json()) as {
                 summary?: unknown;
+                generated_by_ai?: unknown;
+                model?: unknown;
             };
 
             if (
@@ -121,14 +122,10 @@ export default function Skills({ career, skills, averageMastery }: Props) {
             }
 
             setSummary(data.summary.trim());
-
+            setGeneratedByAi(data.generated_by_ai === true);
             setAiState('ready');
         } catch {
-            if (!controller.signal.aborted) {
-                setAiState('error');
-            } else {
-                setAiState('error');
-            }
+            setAiState('error');
         } finally {
             window.clearTimeout(timeout);
 
@@ -244,12 +241,16 @@ export default function Skills({ career, skills, averageMastery }: Props) {
                             <div className="min-w-0 flex-1">
                                 <div className="flex flex-wrap items-center gap-2">
                                     <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                        Penjelasan AI
+                                        Penjelasan rekomendasi
                                     </p>
 
-                                    <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-lime)] px-2.5 py-1 text-[10px] font-black text-[#171717] uppercase">
-                                        AI + data sistem
-                                    </span>
+                                    {aiState === 'ready' && (
+                                        <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-lime)] px-2.5 py-1 text-[10px] font-black text-[#171717] uppercase">
+                                            {generatedByAi
+                                                ? 'AI + data sistem'
+                                                : 'Data sistem'}
+                                        </span>
+                                    )}
                                 </div>
 
                                 <div
@@ -271,26 +272,48 @@ export default function Skills({ career, skills, averageMastery }: Props) {
                                     )}
 
                                     {aiState === 'error' && (
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => {
-                                                void loadAiSummary();
-                                            }}
-                                        >
-                                            <RotateCcw />
-                                            Coba lagi
-                                        </Button>
+                                        <div className="space-y-3">
+                                            <p className="text-sm font-semibold text-muted-foreground">
+                                                Penjelasan belum dapat dimuat.
+                                                Data kemampuan dan urutan
+                                                belajar tetap tersedia karena
+                                                dihitung langsung oleh sistem.
+                                            </p>
+
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => {
+                                                    void loadAiSummary();
+                                                }}
+                                            >
+                                                <RotateCcw />
+                                                Coba lagi
+                                            </Button>
+                                        </div>
                                     )}
                                 </div>
 
-                                <p className="mt-4 text-xs leading-5 font-bold text-muted-foreground">
-                                    Penjelasan berasal dari model AI berdasarkan
-                                    skor, kesenjangan, prioritas, dan data yang
-                                    telah dihitung oleh SkillPath. AI tidak
-                                    mengubah nilai atau urutan roadmap.
-                                </p>
+                                {aiState === 'ready' && generatedByAi && (
+                                    <p className="mt-4 text-xs leading-5 font-bold text-muted-foreground">
+                                        Penjelasan dibuat model AI dari skor,
+                                        kesenjangan, prioritas, alasan, dan
+                                        prasyarat yang sudah dihitung SkillPath.
+                                        AI tidak mengubah nilai, status, atau
+                                        urutan roadmap.
+                                    </p>
+                                )}
+
+                                {aiState === 'ready' && !generatedByAi && (
+                                    <p className="mt-4 text-xs leading-5 font-bold text-muted-foreground">
+                                        Layanan AI sedang tidak memberikan
+                                        respons yang dapat digunakan. Penjelasan
+                                        ini dibuat langsung dari skor,
+                                        kesenjangan, prioritas, alasan, dan
+                                        prasyarat yang sudah dihitung sistem.
+                                    </p>
+                                )}
                             </div>
                         </div>
 
