@@ -53,7 +53,7 @@ const typeLabels = {
     practical: 'Tugas praktik',
 };
 
-const PRACTICAL_MIN_RESPONSE_LENGTH = 40;
+const PRACTICAL_MIN_RESPONSE_LENGTH = 20;
 
 const isValidHttpUrl = (value: string) => {
     if (!value.trim()) {

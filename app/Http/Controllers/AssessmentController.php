@@ -219,7 +219,7 @@ class AssessmentController extends Controller
                     < 40
                 ) {
                     throw ValidationException::withMessages([
-                        "responses.{$question->id}" => 'Jelaskan hasil tugas praktik minimal 40 karakter.',
+                        "responses.{$question->id}" => 'Jelaskan hasil tugas praktik minimal 20 karakter.',
                     ]);
                 }
 

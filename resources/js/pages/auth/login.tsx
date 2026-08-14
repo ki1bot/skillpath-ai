@@ -4,7 +4,6 @@ import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
@@ -78,24 +77,6 @@ export default function Login({ status, canResetPassword }: Props) {
                                 />
 
                                 <InputError message={errors.password} />
-                            </div>
-
-                            <div className="flex items-center gap-3">
-                                <Checkbox
-                                    id="remember"
-                                    checked={remember}
-                                    onCheckedChange={(checked) =>
-                                        setRemember(checked === true)
-                                    }
-                                    tabIndex={3}
-                                />
-
-                                <Label
-                                    htmlFor="remember"
-                                    className="cursor-pointer font-semibold"
-                                >
-                                    Ingat saya
-                                </Label>
                             </div>
 
                             <Button
