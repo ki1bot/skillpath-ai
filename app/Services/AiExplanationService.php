@@ -72,7 +72,7 @@ class AiExplanationService
         );
         $geminiBaseUrl = config(
             'services.gemini.base_url',
-            'https://generativelanguage.googleapis.com/v1beta/openai',
+            'https://generativelanguage.googleapis.com/v1beta',
         );
 
         if (
@@ -174,7 +174,7 @@ class AiExplanationService
                 .';';
         }
 
-        $cacheKey = 'skill-gap-explanation:v9:'
+        $cacheKey = 'skill-gap-explanation:v10:'
             .$user->id
             .':'
             .sha1(
@@ -264,7 +264,7 @@ class AiExplanationService
         Cache::put(
             $failureCacheKey,
             true,
-            now()->addSeconds(30),
+            now()->addSeconds(20),
         );
 
         return $unavailable;
@@ -277,13 +277,192 @@ class AiExplanationService
         string $model,
         string $contextJson,
     ): AiExplanationResult|false|null {
+        if ($provider === 'gemini') {
+            return $this->requestGeminiSummary(
+                $key,
+                $baseUrl,
+                $model,
+                $contextJson,
+            );
+        }
+
+        return $this->requestOpenRouterSummary(
+            $key,
+            $baseUrl,
+            $model,
+            $contextJson,
+        );
+    }
+
+    private function requestGeminiSummary(
+        string $key,
+        string $baseUrl,
+        string $model,
+        string $contextJson,
+    ): AiExplanationResult|false|null {
+        try {
+            $generationConfig = [
+                'temperature' => 0.2,
+                'maxOutputTokens' => 500,
+            ];
+
+            if ($this->canDisableGeminiThinking($model)) {
+                $generationConfig['thinkingConfig'] = [
+                    'thinkingBudget' => 0,
+                ];
+            }
+
+            $response = Http::withHeaders([
+                'x-goog-api-key' => $key,
+            ])
+                ->acceptJson()
+                ->asJson()
+                ->connectTimeout(4)
+                ->timeout(10)
+                ->post(
+                    rtrim(
+                        $baseUrl,
+                        '/',
+                    )
+                        .'/models/'
+                        .rawurlencode($model)
+                        .':generateContent',
+                    [
+                        'systemInstruction' => [
+                            'parts' => [
+                                [
+                                    'text' => $this->summarySystemPrompt(),
+                                ],
+                            ],
+                        ],
+                        'contents' => [
+                            [
+                                'role' => 'user',
+                                'parts' => [
+                                    [
+                                        'text' => $contextJson,
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'generationConfig' => $generationConfig,
+                    ],
+                );
+
+            if (! $response->successful()) {
+                $rateLimited = $response->status() === 429;
+
+                if ($rateLimited) {
+                    $this->rememberRateLimit(
+                        'gemini',
+                        $key,
+                        $response->json(),
+                        $response->header('Retry-After'),
+                    );
+                }
+
+                Log::warning(
+                    'Gemini skill gap request failed.',
+                    [
+                        'status' => $response->status(),
+                        'model' => $model,
+                        'response' => Str::limit(
+                            $response->body(),
+                            500,
+                            '',
+                        ),
+                    ],
+                );
+
+                return $rateLimited
+                    ? false
+                    : null;
+            }
+
+            $summary = $this->normalizeSummary(
+                $this->extractGeminiText(
+                    $response->json(
+                        'candidates.0.content.parts',
+                    ),
+                ),
+            );
+
+            if ($summary === null) {
+                Log::warning(
+                    'Gemini skill gap response was rejected.',
+                    [
+                        'requested_model' => $model,
+                        'model_version' => $response->json(
+                            'modelVersion',
+                        ),
+                        'finish_reason' => $response->json(
+                            'candidates.0.finishReason',
+                        ),
+                    ],
+                );
+
+                return null;
+            }
+
+            Cache::forget(
+                $this->rateLimitCacheKey(
+                    'gemini',
+                    $key,
+                ),
+            );
+
+            $modelVersion = $response->json(
+                'modelVersion',
+            );
+
+            $resolvedModel = is_string($modelVersion)
+                && trim($modelVersion) !== ''
+                    ? trim($modelVersion)
+                    : $model;
+
+            return new AiExplanationResult(
+                $summary,
+                true,
+                $resolvedModel,
+            );
+        } catch (ConnectionException $exception) {
+            Log::warning(
+                'Gemini skill gap request timed out or could not connect.',
+                [
+                    'exception' => $exception::class,
+                    'message' => $exception->getMessage(),
+                    'model' => $model,
+                ],
+            );
+
+            return false;
+        } catch (Throwable $exception) {
+            Log::warning(
+                'Gemini skill gap request threw an exception.',
+                [
+                    'exception' => $exception::class,
+                    'message' => $exception->getMessage(),
+                    'model' => $model,
+                ],
+            );
+
+            return null;
+        }
+    }
+
+    private function requestOpenRouterSummary(
+        string $key,
+        string $baseUrl,
+        string $model,
+        string $contextJson,
+    ): AiExplanationResult|false|null {
         try {
             $payload = [
                 'model' => $model,
                 'messages' => [
                     [
                         'role' => 'system',
-                        'content' => 'Anda adalah fitur penjelasan SkillPath AI. Keputusan utama sudah dihitung oleh sistem berbasis data dan aturan. Tugas Anda hanya menjelaskan hasil tersebut dengan Bahasa Indonesia yang alami dan mudah dipahami. Gunakan hanya target karier, skor kemampuan, target, gap, priority score, status, dan prasyarat yang diberikan. Jangan membuat skill, nilai, kemampuan, fakta, roadmap, materi, proyek, atau hubungan prasyarat baru. Jangan mengubah urutan prioritas. Jangan memberi jaminan kesiapan kerja. Tulis tepat satu paragraf tanpa Markdown, tanpa JSON, tanpa judul, maksimal 120 kata. Utamakan kemampuan dengan gap dan priority score tertinggi serta jelaskan alasannya.',
+                        'content' => $this->summarySystemPrompt(),
                     ],
                     [
                         'role' => 'user',
@@ -293,65 +472,47 @@ class AiExplanationService
                 'temperature' => 0.2,
                 'max_tokens' => 500,
                 'stream' => false,
+                'provider' => [
+                    'allow_fallbacks' => true,
+                ],
             ];
 
-            if ($provider === 'openrouter') {
-                $payload['provider'] = [
-                    'allow_fallbacks' => true,
+            if ($this->shouldLimitOpenRouterReasoning($model)) {
+                $payload['reasoning'] = [
+                    'effort' => 'minimal',
+                    'exclude' => true,
                 ];
-
-                if ($this->shouldLimitOpenRouterReasoning($model)) {
-                    $payload['reasoning'] = [
-                        'effort' => 'minimal',
-                        'exclude' => true,
-                    ];
-                }
             }
 
-            if (
-                $provider === 'gemini'
-                && $this->canDisableGeminiThinking($model)
-            ) {
-                $payload['reasoning_effort'] = 'none';
-            }
-
-            $request = Http::withToken(
+            $response = Http::withToken(
                 $key,
             )
-                ->acceptJson()
-                ->asJson()
-                ->connectTimeout(4)
-                ->timeout(
-                    $provider === 'gemini'
-                        ? 10
-                        : 12,
-                );
-
-            if ($provider === 'openrouter') {
-                $request = $request->withHeaders([
+                ->withHeaders([
                     'HTTP-Referer' => (string) config(
                         'app.url',
                     ),
                     'X-Title' => (string) config(
                         'app.name',
                     ),
-                ]);
-            }
-
-            $response = $request->post(
-                rtrim(
-                    $baseUrl,
-                    '/',
-                ).'/chat/completions',
-                $payload,
-            );
+                ])
+                ->acceptJson()
+                ->asJson()
+                ->connectTimeout(4)
+                ->timeout(10)
+                ->post(
+                    rtrim(
+                        $baseUrl,
+                        '/',
+                    ).'/chat/completions',
+                    $payload,
+                );
 
             if (! $response->successful()) {
                 $rateLimited = $response->status() === 429;
 
                 if ($rateLimited) {
                     $this->rememberRateLimit(
-                        $provider,
+                        'openrouter',
                         $key,
                         $response->json(),
                         $response->header('Retry-After'),
@@ -359,9 +520,8 @@ class AiExplanationService
                 }
 
                 Log::warning(
-                    'AI skill gap request failed.',
+                    'OpenRouter skill gap request failed.',
                     [
-                        'provider' => $provider,
                         'status' => $response->status(),
                         'model' => $model,
                         'response' => Str::limit(
@@ -385,9 +545,8 @@ class AiExplanationService
 
             if ($summary === null) {
                 Log::warning(
-                    'AI skill gap response was rejected.',
+                    'OpenRouter skill gap response was rejected.',
                     [
-                        'provider' => $provider,
                         'requested_model' => $model,
                         'resolved_model' => $response->json(
                             'model',
@@ -411,7 +570,7 @@ class AiExplanationService
 
             Cache::forget(
                 $this->rateLimitCacheKey(
-                    $provider,
+                    'openrouter',
                     $key,
                 ),
             );
@@ -432,9 +591,8 @@ class AiExplanationService
             );
         } catch (ConnectionException $exception) {
             Log::warning(
-                'AI request timed out or could not connect.',
+                'OpenRouter skill gap request timed out or could not connect.',
                 [
-                    'provider' => $provider,
                     'exception' => $exception::class,
                     'message' => $exception->getMessage(),
                     'model' => $model,
@@ -444,9 +602,8 @@ class AiExplanationService
             return false;
         } catch (Throwable $exception) {
             Log::warning(
-                'AI skill gap request threw an exception.',
+                'OpenRouter skill gap request threw an exception.',
                 [
-                    'provider' => $provider,
                     'exception' => $exception::class,
                     'message' => $exception->getMessage(),
                     'model' => $model,
@@ -455,6 +612,44 @@ class AiExplanationService
 
             return null;
         }
+    }
+
+    private function summarySystemPrompt(): string
+    {
+        return 'Anda adalah fitur penjelasan SkillPath AI. Keputusan utama sudah dihitung oleh sistem berbasis data dan aturan. Tugas Anda hanya menjelaskan hasil tersebut dengan Bahasa Indonesia yang alami dan mudah dipahami. Gunakan hanya target karier, skor kemampuan, target, gap, priority score, status, dan prasyarat yang diberikan. Jangan membuat skill, nilai, kemampuan, fakta, roadmap, materi, proyek, atau hubungan prasyarat baru. Jangan mengubah urutan prioritas. Jangan memberi jaminan kesiapan kerja. Tulis tepat satu paragraf tanpa Markdown, tanpa JSON, tanpa judul, maksimal 120 kata. Utamakan kemampuan dengan gap dan priority score tertinggi serta jelaskan alasannya.';
+    }
+
+    private function extractGeminiText(
+        mixed $parts,
+    ): ?string {
+        if (! is_array($parts)) {
+            return null;
+        }
+
+        $texts = [];
+
+        foreach ($parts as $part) {
+            if (
+                ! is_array($part)
+                || ! is_string(
+                    $part['text'] ?? null,
+                )
+                || trim($part['text']) === ''
+            ) {
+                continue;
+            }
+
+            $texts[] = trim($part['text']);
+        }
+
+        if ($texts === []) {
+            return null;
+        }
+
+        return implode(
+            "\n",
+            $texts,
+        );
     }
 
     private function normalizeSummary(
@@ -580,12 +775,14 @@ class AiExplanationService
 
         if (
             is_string($retryAfter)
-            && ctype_digit(trim($retryAfter))
+            && is_numeric(trim($retryAfter))
         ) {
             $ttlSeconds = max(
                 10,
                 min(
-                    (int) trim($retryAfter),
+                    (int) ceil(
+                        (float) trim($retryAfter),
+                    ),
                     3600,
                 ),
             );

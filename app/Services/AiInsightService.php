@@ -298,7 +298,7 @@ class AiInsightService
         );
         $geminiBaseUrl = config(
             'services.gemini.base_url',
-            'https://generativelanguage.googleapis.com/v1beta/openai',
+            'https://generativelanguage.googleapis.com/v1beta',
         );
 
         if (
@@ -395,7 +395,7 @@ class AiInsightService
                 .';';
         }
 
-        $cacheKey = 'skillpath-ai-insight:v7:'
+        $cacheKey = 'skillpath-ai-insight:v8:'
             .$scope
             .':'
             .$user->id
@@ -494,7 +494,7 @@ class AiInsightService
         Cache::put(
             $failureCacheKey,
             true,
-            now()->addSeconds(30),
+            now()->addSeconds(20),
         );
 
         return null;
@@ -502,6 +502,243 @@ class AiInsightService
 
     private function requestInsight(
         string $provider,
+        string $key,
+        string $baseUrl,
+        string $model,
+        string $task,
+        string $json,
+        int $maxTokens,
+        int $timeoutSeconds,
+        string ...$requiredTags,
+    ): AiCompletionResult|false|null {
+        if ($provider === 'gemini') {
+            return $this->requestGeminiInsight(
+                $key,
+                $baseUrl,
+                $model,
+                $task,
+                $json,
+                $maxTokens,
+                $timeoutSeconds,
+                ...$requiredTags,
+            );
+        }
+
+        return $this->requestOpenRouterInsight(
+            $key,
+            $baseUrl,
+            $model,
+            $task,
+            $json,
+            $maxTokens,
+            $timeoutSeconds,
+            ...$requiredTags,
+        );
+    }
+
+    private function requestGeminiInsight(
+        string $key,
+        string $baseUrl,
+        string $model,
+        string $task,
+        string $json,
+        int $maxTokens,
+        int $timeoutSeconds,
+        string ...$requiredTags,
+    ): AiCompletionResult|false|null {
+        try {
+            $requiredTags = array_values(
+                $requiredTags,
+            );
+
+            $generationConfig = [
+                'temperature' => 0.2,
+                'maxOutputTokens' => $maxTokens,
+            ];
+
+            if ($this->canDisableGeminiThinking($model)) {
+                $generationConfig['thinkingConfig'] = [
+                    'thinkingBudget' => 0,
+                ];
+            }
+
+            $response = Http::withHeaders([
+                'x-goog-api-key' => $key,
+            ])
+                ->acceptJson()
+                ->asJson()
+                ->connectTimeout(4)
+                ->timeout(
+                    min(
+                        $timeoutSeconds,
+                        10,
+                    ),
+                )
+                ->post(
+                    rtrim(
+                        $baseUrl,
+                        '/',
+                    )
+                        .'/models/'
+                        .rawurlencode($model)
+                        .':generateContent',
+                    [
+                        'systemInstruction' => [
+                            'parts' => [
+                                [
+                                    'text' => $this->insightSystemPrompt(
+                                        $task,
+                                        ...$requiredTags,
+                                    ),
+                                ],
+                            ],
+                        ],
+                        'contents' => [
+                            [
+                                'role' => 'user',
+                                'parts' => [
+                                    [
+                                        'text' => $json,
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'generationConfig' => $generationConfig,
+                    ],
+                );
+
+            if (! $response->successful()) {
+                $rateLimited = $response->status() === 429;
+
+                if ($rateLimited) {
+                    $this->rememberRateLimit(
+                        'gemini',
+                        $key,
+                        $response->json(),
+                        $response->header('Retry-After'),
+                    );
+                }
+
+                Log::warning(
+                    'Gemini AI insight request failed.',
+                    [
+                        'status' => $response->status(),
+                        'model' => $model,
+                        'response' => Str::limit(
+                            $response->body(),
+                            500,
+                            '',
+                        ),
+                    ],
+                );
+
+                return $rateLimited
+                    ? false
+                    : null;
+            }
+
+            $content = $this->extractGeminiText(
+                $response->json(
+                    'candidates.0.content.parts',
+                ),
+            );
+
+            if (! is_string($content)) {
+                Log::warning(
+                    'Gemini AI insight response did not contain text.',
+                    [
+                        'model' => $model,
+                        'finish_reason' => $response->json(
+                            'candidates.0.finishReason',
+                        ),
+                    ],
+                );
+
+                return null;
+            }
+
+            $content = $this->prepareContent(
+                $content,
+                ...$requiredTags,
+            );
+
+            if (
+                $content === null
+                || ! $this->looksIndonesian(
+                    $content,
+                )
+                || ! $this->hasRequiredTags(
+                    $content,
+                    $requiredTags,
+                )
+            ) {
+                Log::warning(
+                    'Gemini AI insight response was rejected.',
+                    [
+                        'requested_model' => $model,
+                        'model_version' => $response->json(
+                            'modelVersion',
+                        ),
+                        'finish_reason' => $response->json(
+                            'candidates.0.finishReason',
+                        ),
+                        'content' => Str::limit(
+                            $content ?? '',
+                            500,
+                            '',
+                        ),
+                    ],
+                );
+
+                return null;
+            }
+
+            Cache::forget(
+                $this->rateLimitCacheKey(
+                    'gemini',
+                    $key,
+                ),
+            );
+
+            $modelVersion = $response->json(
+                'modelVersion',
+            );
+
+            $resolvedModel = is_string($modelVersion)
+                && trim($modelVersion) !== ''
+                    ? trim($modelVersion)
+                    : $model;
+
+            return new AiCompletionResult(
+                $content,
+                $resolvedModel,
+            );
+        } catch (ConnectionException $exception) {
+            Log::warning(
+                'Gemini AI insight request timed out or could not connect.',
+                [
+                    'exception' => $exception::class,
+                    'message' => $exception->getMessage(),
+                    'model' => $model,
+                ],
+            );
+
+            return false;
+        } catch (Throwable $exception) {
+            Log::warning(
+                'Gemini AI insight request threw an exception.',
+                [
+                    'exception' => $exception::class,
+                    'message' => $exception->getMessage(),
+                    'model' => $model,
+                ],
+            );
+
+            return null;
+        }
+    }
+
+    private function requestOpenRouterInsight(
         string $key,
         string $baseUrl,
         string $model,
@@ -521,7 +758,10 @@ class AiInsightService
                 'messages' => [
                     [
                         'role' => 'system',
-                        'content' => 'Anda adalah fitur AI SkillPath AI. Locale aplikasi saat ini adalah '.app()->getLocale().'. Seluruh teks yang ditampilkan kepada pengguna wajib menggunakan Bahasa Indonesia. Jangan menulis kalimat dalam Bahasa Inggris. Nama teknologi, framework, API, database, bahasa pemrograman, library, atau istilah teknis yang umum boleh tetap menggunakan nama aslinya. Gunakan hanya data yang diberikan. Jangan mengubah skor, hasil asesmen, status progres, keputusan roadmap, kemampuan, proyek, materi, atau fakta lain. Jangan membuat data yang tidak diberikan. Gunakan Bahasa Indonesia yang alami, jelas, dan ringkas. '.$task.' '.$this->outputInstruction(...$requiredTags),
+                        'content' => $this->insightSystemPrompt(
+                            $task,
+                            ...$requiredTags,
+                        ),
                     ],
                     [
                         'role' => 'user',
@@ -531,65 +771,52 @@ class AiInsightService
                 'temperature' => 0.2,
                 'max_tokens' => $maxTokens,
                 'stream' => false,
+                'provider' => [
+                    'allow_fallbacks' => true,
+                ],
             ];
 
-            if ($provider === 'openrouter') {
-                $payload['provider'] = [
-                    'allow_fallbacks' => true,
+            if ($this->shouldLimitOpenRouterReasoning($model)) {
+                $payload['reasoning'] = [
+                    'effort' => 'minimal',
+                    'exclude' => true,
                 ];
-
-                if ($this->shouldLimitOpenRouterReasoning($model)) {
-                    $payload['reasoning'] = [
-                        'effort' => 'minimal',
-                        'exclude' => true,
-                    ];
-                }
             }
 
-            if (
-                $provider === 'gemini'
-                && $this->canDisableGeminiThinking($model)
-            ) {
-                $payload['reasoning_effort'] = 'none';
-            }
-
-            $request = Http::withToken(
+            $response = Http::withToken(
                 $key,
             )
-                ->acceptJson()
-                ->asJson()
-                ->connectTimeout(4)
-                ->timeout(
-                    $provider === 'gemini'
-                        ? min($timeoutSeconds, 10)
-                        : min($timeoutSeconds, 12),
-                );
-
-            if ($provider === 'openrouter') {
-                $request = $request->withHeaders([
+                ->withHeaders([
                     'HTTP-Referer' => (string) config(
                         'app.url',
                     ),
                     'X-Title' => (string) config(
                         'app.name',
                     ),
-                ]);
-            }
-
-            $response = $request->post(
-                rtrim(
-                    $baseUrl,
-                    '/',
-                ).'/chat/completions',
-                $payload,
-            );
+                ])
+                ->acceptJson()
+                ->asJson()
+                ->connectTimeout(4)
+                ->timeout(
+                    min(
+                        $timeoutSeconds,
+                        10,
+                    ),
+                )
+                ->post(
+                    rtrim(
+                        $baseUrl,
+                        '/',
+                    ).'/chat/completions',
+                    $payload,
+                );
 
             if (! $response->successful()) {
                 $rateLimited = $response->status() === 429;
 
                 if ($rateLimited) {
                     $this->rememberRateLimit(
-                        $provider,
+                        'openrouter',
                         $key,
                         $response->json(),
                         $response->header('Retry-After'),
@@ -597,9 +824,8 @@ class AiInsightService
                 }
 
                 Log::warning(
-                    'AI insight request failed.',
+                    'OpenRouter AI insight request failed.',
                     [
-                        'provider' => $provider,
                         'status' => $response->status(),
                         'model' => $model,
                         'response' => Str::limit(
@@ -621,9 +847,8 @@ class AiInsightService
 
             if (! is_string($content)) {
                 Log::warning(
-                    'AI insight response did not contain text.',
+                    'OpenRouter AI insight response did not contain text.',
                     [
-                        'provider' => $provider,
                         'model' => $model,
                         'finish_reason' => $response->json(
                             'choices.0.finish_reason',
@@ -650,9 +875,8 @@ class AiInsightService
                 )
             ) {
                 Log::warning(
-                    'AI insight response was rejected.',
+                    'OpenRouter AI insight response was rejected.',
                     [
-                        'provider' => $provider,
                         'requested_model' => $model,
                         'resolved_model' => $response->json(
                             'model',
@@ -676,7 +900,7 @@ class AiInsightService
 
             Cache::forget(
                 $this->rateLimitCacheKey(
-                    $provider,
+                    'openrouter',
                     $key,
                 ),
             );
@@ -696,9 +920,8 @@ class AiInsightService
             );
         } catch (ConnectionException $exception) {
             Log::warning(
-                'AI request timed out or could not connect.',
+                'OpenRouter AI insight request timed out or could not connect.',
                 [
-                    'provider' => $provider,
                     'exception' => $exception::class,
                     'message' => $exception->getMessage(),
                     'model' => $model,
@@ -708,9 +931,8 @@ class AiInsightService
             return false;
         } catch (Throwable $exception) {
             Log::warning(
-                'AI insight request threw an exception.',
+                'OpenRouter AI insight request threw an exception.',
                 [
-                    'provider' => $provider,
                     'exception' => $exception::class,
                     'message' => $exception->getMessage(),
                     'model' => $model,
@@ -719,6 +941,46 @@ class AiInsightService
 
             return null;
         }
+    }
+
+    private function insightSystemPrompt(
+        string $task,
+        string ...$requiredTags,
+    ): string {
+        return 'Anda adalah fitur AI SkillPath AI. Locale aplikasi saat ini adalah '.app()->getLocale().'. Seluruh teks yang ditampilkan kepada pengguna wajib menggunakan Bahasa Indonesia. Jangan menulis kalimat dalam Bahasa Inggris. Nama teknologi, framework, API, database, bahasa pemrograman, library, atau istilah teknis yang umum boleh tetap menggunakan nama aslinya. Gunakan hanya data yang diberikan. Jangan mengubah skor, hasil asesmen, status progres, keputusan roadmap, kemampuan, proyek, materi, atau fakta lain. Jangan membuat data yang tidak diberikan. Gunakan Bahasa Indonesia yang alami, jelas, dan ringkas. '.$task.' '.$this->outputInstruction(...$requiredTags);
+    }
+
+    private function extractGeminiText(
+        mixed $parts,
+    ): ?string {
+        if (! is_array($parts)) {
+            return null;
+        }
+
+        $texts = [];
+
+        foreach ($parts as $part) {
+            if (
+                ! is_array($part)
+                || ! is_string(
+                    $part['text'] ?? null,
+                )
+                || trim($part['text']) === ''
+            ) {
+                continue;
+            }
+
+            $texts[] = trim($part['text']);
+        }
+
+        if ($texts === []) {
+            return null;
+        }
+
+        return implode(
+            "\n",
+            $texts,
+        );
     }
 
     private function outputInstruction(
@@ -951,12 +1213,14 @@ class AiInsightService
 
         if (
             is_string($retryAfter)
-            && ctype_digit(trim($retryAfter))
+            && is_numeric(trim($retryAfter))
         ) {
             $ttlSeconds = max(
                 10,
                 min(
-                    (int) trim($retryAfter),
+                    (int) ceil(
+                        (float) trim($retryAfter),
+                    ),
                     3600,
                 ),
             );
