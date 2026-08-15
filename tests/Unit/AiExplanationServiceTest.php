@@ -18,7 +18,7 @@ class AiExplanationServiceTest extends TestCase
         Cache::flush();
     }
 
-    public function test_system_explanation_is_used_when_openrouter_is_not_configured(): void
+    public function test_no_explanation_is_returned_when_openrouter_is_not_configured(): void
     {
         config([
             'services.openrouter.key' => null,
@@ -43,13 +43,7 @@ class AiExplanationServiceTest extends TestCase
             $result->model,
         );
 
-        $this->assertStringContainsString(
-            'Database',
-            $result->summary,
-        );
-
-        $this->assertStringContainsString(
-            'prioritas',
+        $this->assertNull(
             $result->summary,
         );
     }
@@ -100,8 +94,8 @@ class AiExplanationServiceTest extends TestCase
             $result->model,
         );
 
-        $this->assertStringContainsString(
-            'Database menjadi prioritas utama',
+        $this->assertSame(
+            'Database menjadi prioritas utama karena skor Anda masih 30 dari target 75. Kesenjangan ini perlu diprioritaskan sebelum kemampuan lanjutan yang bergantung pada pengelolaan data.',
             $result->summary,
         );
 
@@ -113,7 +107,7 @@ class AiExplanationServiceTest extends TestCase
         );
     }
 
-    public function test_invalid_ai_response_falls_back_to_system_explanation(): void
+    public function test_invalid_ai_response_is_not_replaced_with_system_text(): void
     {
         config([
             'services.openrouter.key' => 'test-openrouter-key',
@@ -156,8 +150,7 @@ class AiExplanationServiceTest extends TestCase
             $result->model,
         );
 
-        $this->assertStringContainsString(
-            'Database',
+        $this->assertNull(
             $result->summary,
         );
     }

@@ -298,6 +298,11 @@ class AiInsightService
             'https://openrouter.ai/api/v1',
         );
 
+        $configuredFallbackModels = config(
+            'services.openrouter.fallback_models',
+            [],
+        );
+
         if (
             ! is_string($key)
             || trim($key) === ''
@@ -309,6 +314,27 @@ class AiInsightService
             return null;
         }
 
+        $models = [
+            trim($model),
+        ];
+
+        if (is_array($configuredFallbackModels)) {
+            foreach ($configuredFallbackModels as $fallbackModel) {
+                if (
+                    ! is_string($fallbackModel)
+                    || trim($fallbackModel) === ''
+                ) {
+                    continue;
+                }
+
+                $models[] = trim($fallbackModel);
+            }
+        }
+
+        $models = array_values(
+            array_unique($models),
+        );
+
         $json = json_encode(
             $context,
             JSON_UNESCAPED_UNICODE
@@ -319,7 +345,7 @@ class AiInsightService
             return null;
         }
 
-        $cacheKey = 'skillpath-ai-insight:v4:'
+        $cacheKey = 'skillpath-ai-insight:v5:'
             .$scope
             .':'
             .$user->id
@@ -327,7 +353,7 @@ class AiInsightService
             .sha1(
                 $baseUrl
                     .'|'
-                    .$model
+                    .implode('|', $models)
                     .'|'
                     .$json,
             );
@@ -359,93 +385,100 @@ class AiInsightService
             ];
         }
 
-        try {
-            $response = Http::withToken(
-                $key,
-            )
-                ->acceptJson()
-                ->asJson()
-                ->connectTimeout(2)
-                ->timeout($timeoutSeconds)
-                ->post(
-                    rtrim(
-                        $baseUrl,
-                        '/',
-                    ).'/chat/completions',
-                    [
-                        'model' => $model,
-                        'messages' => [
-                            [
-                                'role' => 'system',
-                                'content' => 'Anda adalah fitur AI SkillPath AI. Locale aplikasi saat ini adalah '.app()->getLocale().'. Seluruh teks yang ditampilkan kepada pengguna wajib menggunakan Bahasa Indonesia. Jangan menulis kalimat dalam Bahasa Inggris. Nama teknologi, framework, API, database, bahasa pemrograman, library, atau istilah teknis yang umum boleh tetap menggunakan nama aslinya. Gunakan hanya data yang diberikan. Jangan mengubah skor, hasil asesmen, status progres, keputusan roadmap, kemampuan, proyek, materi, atau fakta lain. Jangan membuat data yang tidak diberikan. Gunakan Bahasa Indonesia yang alami, jelas, dan ringkas. '.$task,
+        foreach ($models as $candidateModel) {
+            try {
+                $response = Http::withToken(
+                    $key,
+                )
+                    ->acceptJson()
+                    ->asJson()
+                    ->connectTimeout(2)
+                    ->timeout($timeoutSeconds)
+                    ->post(
+                        rtrim(
+                            $baseUrl,
+                            '/',
+                        ).'/chat/completions',
+                        [
+                            'model' => $candidateModel,
+                            'messages' => [
+                                [
+                                    'role' => 'system',
+                                    'content' => 'Anda adalah fitur AI SkillPath AI. Locale aplikasi saat ini adalah '.app()->getLocale().'. Seluruh teks yang ditampilkan kepada pengguna wajib menggunakan Bahasa Indonesia. Jangan menulis kalimat dalam Bahasa Inggris. Nama teknologi, framework, API, database, bahasa pemrograman, library, atau istilah teknis yang umum boleh tetap menggunakan nama aslinya. Gunakan hanya data yang diberikan. Jangan mengubah skor, hasil asesmen, status progres, keputusan roadmap, kemampuan, proyek, materi, atau fakta lain. Jangan membuat data yang tidak diberikan. Gunakan Bahasa Indonesia yang alami, jelas, dan ringkas. '.$task,
+                                ],
+                                [
+                                    'role' => 'user',
+                                    'content' => $json,
+                                ],
                             ],
-                            [
-                                'role' => 'user',
-                                'content' => $json,
+                            'temperature' => 0.2,
+                            'max_tokens' => $maxTokens,
+                            'provider' => [
+                                'allow_fallbacks' => true,
                             ],
                         ],
-                        'temperature' => 0.2,
-                        'max_tokens' => $maxTokens,
-                    ],
+                    );
+
+                if (! $response->successful()) {
+                    continue;
+                }
+
+                $content = $response->json(
+                    'choices.0.message.content',
                 );
 
-            if (! $response->successful()) {
-                return null;
-            }
+                if (! is_string($content)) {
+                    continue;
+                }
 
-            $content = $response->json(
-                'choices.0.message.content',
-            );
-
-            if (! is_string($content)) {
-                return null;
-            }
-
-            $content = $this->normalizeContent(
-                $content,
-            );
-
-            if (
-                $content === null
-                || ! $this->looksIndonesian(
+                $content = $this->normalizeContent(
                     $content,
+                );
+
+                if (
+                    $content === null
+                    || ! $this->looksIndonesian(
+                        $content,
+                    )
+                    || ! $this->hasRequiredTags(
+                        $content,
+                        $requiredTags,
+                    )
+                ) {
+                    continue;
+                }
+
+                $responseModel = $response->json(
+                    'model',
+                );
+
+                $resolvedModel = is_string(
+                    $responseModel,
                 )
-                || ! $this->hasRequiredTags(
-                    $content,
-                    $requiredTags,
-                )
-            ) {
-                return null;
-            }
+                    && trim($responseModel) !== ''
+                        ? trim($responseModel)
+                        : $candidateModel;
 
-            $responseModel = $response->json(
-                'model',
-            );
+                Cache::put(
+                    $cacheKey,
+                    [
+                        'content' => $content,
+                        'model' => $resolvedModel,
+                    ],
+                    now()->addHours(12),
+                );
 
-            $resolvedModel = is_string(
-                $responseModel,
-            )
-                && trim($responseModel) !== ''
-                    ? trim($responseModel)
-                    : $model;
-
-            Cache::put(
-                $cacheKey,
-                [
+                return [
                     'content' => $content,
+                    'generated_by_ai' => true,
                     'model' => $resolvedModel,
-                ],
-                now()->addHours(12),
-            );
-
-            return [
-                'content' => $content,
-                'generated_by_ai' => true,
-                'model' => $resolvedModel,
-            ];
-        } catch (Throwable) {
-            return null;
+                ];
+            } catch (Throwable) {
+                continue;
+            }
         }
+
+        return null;
     }
 
     private function normalizeContent(

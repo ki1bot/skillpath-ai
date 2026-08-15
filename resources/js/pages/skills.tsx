@@ -64,7 +64,7 @@ const statusMap = {
 
 export default function Skills({ career, skills, averageMastery }: Props) {
     const [summary, setSummary] = useState<string | null>(null);
-    const [generatedByAi, setGeneratedByAi] = useState(false);
+    const [model, setModel] = useState<string | null>(null);
     const [aiState, setAiState] = useState<AiState>('loading');
     const requestStarted = useRef(false);
     const activeController = useRef<AbortController | null>(null);
@@ -87,7 +87,7 @@ export default function Skills({ career, skills, averageMastery }: Props) {
         const timeout = window.setTimeout(() => controller.abort(), 25000);
 
         setSummary(null);
-        setGeneratedByAi(false);
+        setModel(null);
         setAiState('loading');
 
         try {
@@ -115,14 +115,19 @@ export default function Skills({ career, skills, averageMastery }: Props) {
             };
 
             if (
+                data.generated_by_ai !== true ||
                 typeof data.summary !== 'string' ||
                 data.summary.trim() === ''
             ) {
-                throw new Error('AI response did not contain a summary');
+                throw new Error('AI response did not contain a valid summary');
             }
 
             setSummary(data.summary.trim());
-            setGeneratedByAi(data.generated_by_ai === true);
+            setModel(
+                typeof data.model === 'string' && data.model.trim() !== ''
+                    ? data.model.trim()
+                    : null,
+            );
             setAiState('ready');
         } catch {
             setAiState('error');
@@ -246,9 +251,7 @@ export default function Skills({ career, skills, averageMastery }: Props) {
 
                                     {aiState === 'ready' && (
                                         <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-lime)] px-2.5 py-1 text-[10px] font-black text-[#171717] uppercase">
-                                            {generatedByAi
-                                                ? 'AI + data sistem'
-                                                : 'Data sistem'}
+                                            {model ? `AI · ${model}` : 'AI'}
                                         </span>
                                     )}
                                 </div>
@@ -274,10 +277,8 @@ export default function Skills({ career, skills, averageMastery }: Props) {
                                     {aiState === 'error' && (
                                         <div className="space-y-3">
                                             <p className="text-sm font-semibold text-muted-foreground">
-                                                Penjelasan belum dapat dimuat.
-                                                Data kemampuan dan urutan
-                                                belajar tetap tersedia karena
-                                                dihitung langsung oleh sistem.
+                                                Penjelasan AI belum dapat
+                                                dimuat.
                                             </p>
 
                                             <Button
@@ -294,26 +295,6 @@ export default function Skills({ career, skills, averageMastery }: Props) {
                                         </div>
                                     )}
                                 </div>
-
-                                {aiState === 'ready' && generatedByAi && (
-                                    <p className="mt-4 text-xs leading-5 font-bold text-muted-foreground">
-                                        Penjelasan dibuat model AI dari skor,
-                                        kesenjangan, prioritas, alasan, dan
-                                        prasyarat yang sudah dihitung SkillPath.
-                                        AI tidak mengubah nilai, status, atau
-                                        urutan roadmap.
-                                    </p>
-                                )}
-
-                                {aiState === 'ready' && !generatedByAi && (
-                                    <p className="mt-4 text-xs leading-5 font-bold text-muted-foreground">
-                                        Layanan AI sedang tidak memberikan
-                                        respons yang dapat digunakan. Penjelasan
-                                        ini dibuat langsung dari skor,
-                                        kesenjangan, prioritas, alasan, dan
-                                        prasyarat yang sudah dihitung sistem.
-                                    </p>
-                                )}
                             </div>
                         </div>
 
