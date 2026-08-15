@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\UserProject;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -143,7 +144,7 @@ class AiInsightService
         $result = $this->ask(
             $user,
             'progress',
-            'Kembalikan tepat tiga bagian dengan tag <PROGRESS>, <SCHEDULE>, dan <OBSTACLES>. PROGRESS menjelaskan perkembangan kesiapan berdasarkan data. SCHEDULE memberikan saran pembagian waktu belajar berdasarkan data waktu dan materi yang tersedia. OBSTACLES menjelaskan pola kendala berdasarkan kendala yang benar-benar tercatat. Jangan membuat nilai, skill, materi, progres, kendala, atau fakta baru. Setiap bagian maksimal 90 kata.',
+            'Rangkum perkembangan kesiapan berdasarkan data pada progress. Berikan saran pembagian waktu belajar berdasarkan waktu belajar dan materi yang tersedia pada schedule. Jelaskan pola kendala berdasarkan kendala yang benar-benar tercatat pada obstacles. Jangan membuat nilai, skill, materi, progres, kendala, atau fakta baru. Setiap bagian maksimal 90 kata.',
             [
                 'readiness' => $readiness,
                 'history' => $history,
@@ -154,13 +155,13 @@ class AiInsightService
                 'next_materials' => $nextMaterials,
                 'obstacles' => $obstacles,
             ],
-            560,
+            900,
             [
                 'PROGRESS',
                 'SCHEDULE',
                 'OBSTACLES',
             ],
-            8,
+            18,
         );
 
         if ($result === null) {
@@ -199,7 +200,7 @@ class AiInsightService
         $result = $this->ask(
             $user,
             'project-'.$project->id,
-            'Berikan umpan balik proyek dengan tiga bagian teks: Kekuatan, Risiko, dan Langkah berikutnya. Gunakan hanya deskripsi proyek, kesiapan, progres, dan catatan pengguna yang diberikan. Jangan mengklaim membaca source code atau repository. Jangan membuat progres, fakta, atau kemampuan baru. Maksimal 140 kata.',
+            'Berikan umpan balik proyek yang memiliki tiga bagian teks: Kekuatan, Risiko, dan Langkah berikutnya. Gunakan hanya deskripsi proyek, kesiapan, progres, dan catatan pengguna yang diberikan. Jangan mengklaim membaca source code atau repository. Jangan membuat progres, fakta, atau kemampuan baru. Maksimal 140 kata.',
             [
                 'project' => [
                     'title' => $project->title,
@@ -221,9 +222,9 @@ class AiInsightService
                     ]
                     : null,
             ],
-            340,
+            600,
             [],
-            4,
+            15,
         );
 
         return $result
@@ -257,9 +258,9 @@ class AiInsightService
                 'practice_task' => $material
                     ->practice_task,
             ],
-            300,
+            500,
             [],
-            4,
+            15,
         );
 
         return $result
@@ -282,7 +283,7 @@ class AiInsightService
         array $context,
         int $maxTokens,
         array $requiredTags = [],
-        int $timeoutSeconds = 4,
+        int $timeoutSeconds = 15,
     ): ?array {
         $key = config(
             'services.openrouter.key',
@@ -313,6 +314,9 @@ class AiInsightService
         ) {
             return null;
         }
+
+        $key = trim($key);
+        $baseUrl = trim($baseUrl);
 
         $models = [
             trim($model),
@@ -345,7 +349,7 @@ class AiInsightService
             return null;
         }
 
-        $cacheKey = 'skillpath-ai-insight:v5:'
+        $cacheKey = 'skillpath-ai-insight:v6:'
             .$scope
             .':'
             .$user->id
@@ -385,41 +389,99 @@ class AiInsightService
             ];
         }
 
+        $failureCacheKey = $cacheKey.':failure';
+        $rateLimitCacheKey = $this->rateLimitCacheKey($key);
+
+        if (
+            Cache::has($rateLimitCacheKey)
+            || Cache::has($failureCacheKey)
+        ) {
+            return null;
+        }
+
         foreach ($models as $candidateModel) {
+            if (Cache::has($rateLimitCacheKey)) {
+                break;
+            }
+
             try {
+                $payload = [
+                    'model' => $candidateModel,
+                    'messages' => [
+                        [
+                            'role' => 'system',
+                            'content' => 'Anda adalah fitur AI SkillPath AI. Locale aplikasi saat ini adalah '.app()->getLocale().'. Seluruh teks yang ditampilkan kepada pengguna wajib menggunakan Bahasa Indonesia. Jangan menulis kalimat dalam Bahasa Inggris. Nama teknologi, framework, API, database, bahasa pemrograman, library, atau istilah teknis yang umum boleh tetap menggunakan nama aslinya. Gunakan hanya data yang diberikan. Jangan mengubah skor, hasil asesmen, status progres, keputusan roadmap, kemampuan, proyek, materi, atau fakta lain. Jangan membuat data yang tidak diberikan. Gunakan Bahasa Indonesia yang alami, jelas, dan ringkas. '.$task.' '.$this->outputInstruction(...$requiredTags),
+                        ],
+                        [
+                            'role' => 'user',
+                            'content' => $json,
+                        ],
+                    ],
+                    'temperature' => 0.2,
+                    'max_tokens' => $maxTokens,
+                    'stream' => false,
+                    'provider' => [
+                        'allow_fallbacks' => true,
+                    ],
+                ];
+
+                if ($this->shouldLimitReasoning($candidateModel)) {
+                    $payload['reasoning'] = [
+                        'effort' => 'minimal',
+                        'exclude' => true,
+                    ];
+                }
+
                 $response = Http::withToken(
                     $key,
                 )
+                    ->withHeaders([
+                        'HTTP-Referer' => (string) config(
+                            'app.url',
+                        ),
+                        'X-Title' => (string) config(
+                            'app.name',
+                        ),
+                    ])
                     ->acceptJson()
                     ->asJson()
-                    ->connectTimeout(2)
+                    ->connectTimeout(4)
                     ->timeout($timeoutSeconds)
                     ->post(
                         rtrim(
                             $baseUrl,
                             '/',
                         ).'/chat/completions',
-                        [
-                            'model' => $candidateModel,
-                            'messages' => [
-                                [
-                                    'role' => 'system',
-                                    'content' => 'Anda adalah fitur AI SkillPath AI. Locale aplikasi saat ini adalah '.app()->getLocale().'. Seluruh teks yang ditampilkan kepada pengguna wajib menggunakan Bahasa Indonesia. Jangan menulis kalimat dalam Bahasa Inggris. Nama teknologi, framework, API, database, bahasa pemrograman, library, atau istilah teknis yang umum boleh tetap menggunakan nama aslinya. Gunakan hanya data yang diberikan. Jangan mengubah skor, hasil asesmen, status progres, keputusan roadmap, kemampuan, proyek, materi, atau fakta lain. Jangan membuat data yang tidak diberikan. Gunakan Bahasa Indonesia yang alami, jelas, dan ringkas. '.$task,
-                                ],
-                                [
-                                    'role' => 'user',
-                                    'content' => $json,
-                                ],
-                            ],
-                            'temperature' => 0.2,
-                            'max_tokens' => $maxTokens,
-                            'provider' => [
-                                'allow_fallbacks' => true,
-                            ],
-                        ],
+                        $payload,
                     );
 
                 if (! $response->successful()) {
+                    if (
+                        $response->status() === 429
+                        && $this->isDailyFreeTierLimit(
+                            $response->json(),
+                        )
+                    ) {
+                        $this->rememberRateLimit(
+                            $key,
+                            $response->json(),
+                        );
+                    }
+
+                    Log::warning(
+                        'OpenRouter AI insight request failed.',
+                        [
+                            'scope' => $scope,
+                            'status' => $response->status(),
+                            'model' => $candidateModel,
+                            'response' => Str::limit(
+                                $response->body(),
+                                500,
+                                '',
+                            ),
+                        ],
+                    );
+
                     continue;
                 }
 
@@ -428,11 +490,23 @@ class AiInsightService
                 );
 
                 if (! is_string($content)) {
+                    Log::warning(
+                        'OpenRouter AI insight response did not contain text.',
+                        [
+                            'scope' => $scope,
+                            'model' => $candidateModel,
+                            'finish_reason' => $response->json(
+                                'choices.0.finish_reason',
+                            ),
+                        ],
+                    );
+
                     continue;
                 }
 
-                $content = $this->normalizeContent(
+                $content = $this->prepareContent(
                     $content,
+                    ...$requiredTags,
                 );
 
                 if (
@@ -445,8 +519,34 @@ class AiInsightService
                         $requiredTags,
                     )
                 ) {
+                    Log::warning(
+                        'OpenRouter AI insight response was rejected.',
+                        [
+                            'scope' => $scope,
+                            'requested_model' => $candidateModel,
+                            'resolved_model' => $response->json(
+                                'model',
+                            ),
+                            'finish_reason' => $response->json(
+                                'choices.0.finish_reason',
+                            ),
+                            'content' => Str::limit(
+                                (string) $response->json(
+                                    'choices.0.message.content',
+                                    '',
+                                ),
+                                500,
+                                '',
+                            ),
+                        ],
+                    );
+
                     continue;
                 }
+
+                Cache::forget(
+                    $this->rateLimitCacheKey($key),
+                );
 
                 $responseModel = $response->json(
                     'model',
@@ -459,13 +559,15 @@ class AiInsightService
                         ? trim($responseModel)
                         : $candidateModel;
 
+                Cache::forget($failureCacheKey);
+
                 Cache::put(
                     $cacheKey,
                     [
                         'content' => $content,
                         'model' => $resolvedModel,
                     ],
-                    now()->addHours(12),
+                    now()->addDays(7),
                 );
 
                 return [
@@ -473,12 +575,160 @@ class AiInsightService
                     'generated_by_ai' => true,
                     'model' => $resolvedModel,
                 ];
-            } catch (Throwable) {
-                continue;
+            } catch (Throwable $exception) {
+                Log::warning(
+                    'OpenRouter AI insight request threw an exception.',
+                    [
+                        'scope' => $scope,
+                        'exception' => $exception::class,
+                        'message' => $exception->getMessage(),
+                        'model' => $candidateModel,
+                    ],
+                );
             }
         }
 
+        if (! Cache::has($rateLimitCacheKey)) {
+            Cache::put(
+                $failureCacheKey,
+                true,
+                now()->addSeconds(30),
+            );
+        }
+
         return null;
+    }
+
+    private function outputInstruction(
+        string ...$requiredTags,
+    ): string {
+        if ($requiredTags !== []) {
+            return 'Kembalikan hanya JSON valid tanpa Markdown dengan tiga field string: progress, schedule, dan obstacles.';
+        }
+
+        return 'Kembalikan hanya JSON valid tanpa Markdown dengan satu field string: content.';
+    }
+
+    private function prepareContent(
+        string $content,
+        string ...$requiredTags,
+    ): ?string {
+        $content = $this->normalizeContent(
+            $content,
+        );
+
+        if ($content === null) {
+            return null;
+        }
+
+        if (
+            $requiredTags !== []
+            && $this->hasRequiredTags(
+                $content,
+                $requiredTags,
+            )
+        ) {
+            return $content;
+        }
+
+        $decoded = json_decode(
+            $content,
+            true,
+        );
+
+        if (! is_array($decoded)) {
+            if ($requiredTags === []) {
+                return $content;
+            }
+
+            return $this->parseProgressText($content);
+        }
+
+        if ($requiredTags === []) {
+            $value = $decoded['content'] ?? null;
+
+            return is_string($value)
+                ? $this->normalizeContent($value)
+                : null;
+        }
+
+        $progress = $decoded['progress'] ?? null;
+        $schedule = $decoded['schedule'] ?? null;
+        $obstacles = $decoded['obstacles'] ?? null;
+
+        if (
+            ! is_string($progress)
+            || ! is_string($schedule)
+            || ! is_string($obstacles)
+        ) {
+            return null;
+        }
+
+        $progress = $this->normalizeContent($progress);
+        $schedule = $this->normalizeContent($schedule);
+        $obstacles = $this->normalizeContent($obstacles);
+
+        if (
+            $progress === null
+            || $schedule === null
+            || $obstacles === null
+        ) {
+            return null;
+        }
+
+        return '<PROGRESS>'
+            .$progress
+            .'</PROGRESS>'
+            .'<SCHEDULE>'
+            .$schedule
+            .'</SCHEDULE>'
+            .'<OBSTACLES>'
+            .$obstacles
+            .'</OBSTACLES>';
+    }
+
+    private function parseProgressText(
+        string $content,
+    ): ?string {
+        $patterns = [
+            'progress' => '/(?:^|\n)\s*(?:progress|ringkasan perkembangan|perkembangan)\s*:?\s*(.*?)(?=\n\s*(?:schedule|saran jadwal belajar|jadwal)\s*:?|\z)/isu',
+            'schedule' => '/(?:^|\n)\s*(?:schedule|saran jadwal belajar|jadwal)\s*:?\s*(.*?)(?=\n\s*(?:obstacles|pola kendala belajar|kendala)\s*:?|\z)/isu',
+            'obstacles' => '/(?:^|\n)\s*(?:obstacles|pola kendala belajar|kendala)\s*:?\s*(.*?)\s*\z/isu',
+        ];
+
+        $result = [];
+
+        foreach ($patterns as $key => $pattern) {
+            if (
+                preg_match(
+                    $pattern,
+                    $content,
+                    $matches,
+                ) !== 1
+            ) {
+                return null;
+            }
+
+            $value = $this->normalizeContent(
+                (string) $matches[1],
+            );
+
+            if ($value === null) {
+                return null;
+            }
+
+            $result[$key] = $value;
+        }
+
+        return '<PROGRESS>'
+            .$result['progress']
+            .'</PROGRESS>'
+            .'<SCHEDULE>'
+            .$result['schedule']
+            .'</SCHEDULE>'
+            .'<OBSTACLES>'
+            .$result['obstacles']
+            .'</OBSTACLES>';
     }
 
     private function normalizeContent(
@@ -492,9 +742,18 @@ class AiInsightService
             return null;
         }
 
+        $content = preg_replace(
+            '/^```(?:json|text)?\s*|\s*```$/iu',
+            '',
+            $content,
+        );
+
+        if (! is_string($content)) {
+            return null;
+        }
+
         $content = str_replace(
             [
-                '```',
                 '**',
                 '__',
                 '`',
@@ -530,6 +789,68 @@ class AiInsightService
         return $content !== ''
             ? $content
             : null;
+    }
+
+    private function shouldLimitReasoning(
+        string $model,
+    ): bool {
+        return str_contains(
+            Str::lower($model),
+            'gpt-oss',
+        );
+    }
+
+    private function isDailyFreeTierLimit(
+        mixed $response,
+    ): bool {
+        return is_array($response)
+            && data_get(
+                $response,
+                'error.metadata.limit_source',
+            ) === 'openrouter_free_tier_daily';
+    }
+
+    private function rememberRateLimit(
+        string $key,
+        mixed $response,
+    ): void {
+        $ttlSeconds = 900;
+
+        if (is_array($response)) {
+            $reset = data_get(
+                $response,
+                'error.metadata.headers.X-RateLimit-Reset',
+            );
+
+            if (is_numeric($reset)) {
+                $resetTimestamp = (int) floor(
+                    ((float) $reset) / 1000,
+                );
+
+                $currentTimestamp = now()->getTimestamp();
+
+                $ttlSeconds = max(
+                    60,
+                    min(
+                        $resetTimestamp - $currentTimestamp,
+                        86400,
+                    ),
+                );
+            }
+        }
+
+        Cache::put(
+            $this->rateLimitCacheKey($key),
+            true,
+            now()->addSeconds($ttlSeconds),
+        );
+    }
+
+    private function rateLimitCacheKey(
+        string $key,
+    ): string {
+        return 'openrouter-rate-limit:'
+            .sha1($key);
     }
 
     private function looksIndonesian(

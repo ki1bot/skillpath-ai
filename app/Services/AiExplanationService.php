@@ -90,6 +90,9 @@ class AiExplanationService
             return $unavailable;
         }
 
+        $key = trim($key);
+        $baseUrl = trim($baseUrl);
+
         $models = [
             trim($model),
         ];
@@ -126,7 +129,7 @@ class AiExplanationService
             return $unavailable;
         }
 
-        $cacheKey = 'skill-gap-explanation:v7:'
+        $cacheKey = 'skill-gap-explanation:v8:'
             .$user->id
             .':'
             .sha1(
@@ -164,7 +167,21 @@ class AiExplanationService
             );
         }
 
+        $failureCacheKey = $cacheKey.':failure';
+        $rateLimitCacheKey = $this->rateLimitCacheKey($key);
+
+        if (
+            Cache::has($rateLimitCacheKey)
+            || Cache::has($failureCacheKey)
+        ) {
+            return $unavailable;
+        }
+
         foreach ($models as $candidateModel) {
+            if (Cache::has($rateLimitCacheKey)) {
+                break;
+            }
+
             $result = $this->requestSummary(
                 $key,
                 $baseUrl,
@@ -176,6 +193,8 @@ class AiExplanationService
                 continue;
             }
 
+            Cache::forget($failureCacheKey);
+
             Cache::put(
                 $cacheKey,
                 [
@@ -183,10 +202,18 @@ class AiExplanationService
                     'model' => $result->model,
                     'generated_by_ai' => true,
                 ],
-                now()->addHours(12),
+                now()->addDays(7),
             );
 
             return $result;
+        }
+
+        if (! Cache::has($rateLimitCacheKey)) {
+            Cache::put(
+                $failureCacheKey,
+                true,
+                now()->addSeconds(30),
+            );
         }
 
         return $unavailable;
@@ -199,6 +226,33 @@ class AiExplanationService
         string $contextJson,
     ): ?AiExplanationResult {
         try {
+            $payload = [
+                'model' => $model,
+                'messages' => [
+                    [
+                        'role' => 'system',
+                        'content' => 'Anda adalah fitur penjelasan SkillPath AI. Keputusan utama sudah dihitung oleh sistem berbasis data dan aturan. Tugas Anda hanya menjelaskan hasil tersebut dengan Bahasa Indonesia yang alami dan mudah dipahami. Gunakan hanya target karier, skor kemampuan, target, gap, priority score, status, dan prasyarat yang diberikan. Jangan membuat skill, nilai, kemampuan, fakta, roadmap, materi, proyek, atau hubungan prasyarat baru. Jangan mengubah urutan prioritas. Jangan memberi jaminan kesiapan kerja. Tulis tepat satu paragraf tanpa Markdown, tanpa JSON, tanpa judul, maksimal 120 kata. Utamakan kemampuan dengan gap dan priority score tertinggi serta jelaskan alasannya.',
+                    ],
+                    [
+                        'role' => 'user',
+                        'content' => $contextJson,
+                    ],
+                ],
+                'temperature' => 0.2,
+                'max_tokens' => 500,
+                'stream' => false,
+                'provider' => [
+                    'allow_fallbacks' => true,
+                ],
+            ];
+
+            if ($this->shouldLimitReasoning($model)) {
+                $payload['reasoning'] = [
+                    'effort' => 'minimal',
+                    'exclude' => true,
+                ];
+            }
+
             $response = Http::withToken(
                 $key,
             )
@@ -212,34 +266,29 @@ class AiExplanationService
                 ])
                 ->acceptJson()
                 ->asJson()
-                ->connectTimeout(2)
-                ->timeout(8)
+                ->connectTimeout(4)
+                ->timeout(18)
                 ->post(
                     rtrim(
                         $baseUrl,
                         '/',
                     ).'/chat/completions',
-                    [
-                        'model' => $model,
-                        'messages' => [
-                            [
-                                'role' => 'system',
-                                'content' => 'Anda adalah fitur penjelasan SkillPath AI. Keputusan utama sudah dihitung oleh sistem berbasis data dan aturan. Tugas Anda hanya menjelaskan hasil tersebut dengan Bahasa Indonesia yang alami dan mudah dipahami. Gunakan hanya target karier, skor kemampuan, target, gap, priority score, status, dan prasyarat yang diberikan. Jangan membuat skill, nilai, kemampuan, fakta, roadmap, materi, proyek, atau hubungan prasyarat baru. Jangan mengubah urutan prioritas. Jangan memberi jaminan kesiapan kerja. Tulis tepat satu paragraf tanpa Markdown, tanpa JSON, tanpa judul, maksimal 120 kata. Utamakan kemampuan dengan gap dan priority score tertinggi serta jelaskan alasannya.',
-                            ],
-                            [
-                                'role' => 'user',
-                                'content' => $contextJson,
-                            ],
-                        ],
-                        'temperature' => 0.2,
-                        'max_tokens' => 220,
-                        'provider' => [
-                            'allow_fallbacks' => true,
-                        ],
-                    ],
+                    $payload,
                 );
 
             if (! $response->successful()) {
+                if (
+                    $response->status() === 429
+                    && $this->isDailyFreeTierLimit(
+                        $response->json(),
+                    )
+                ) {
+                    $this->rememberRateLimit(
+                        $key,
+                        $response->json(),
+                    );
+                }
+
                 Log::warning(
                     'OpenRouter skill gap request failed.',
                     [
@@ -286,6 +335,10 @@ class AiExplanationService
 
                 return null;
             }
+
+            Cache::forget(
+                $this->rateLimitCacheKey($key),
+            );
 
             $responseModel = $response->json(
                 'model',
@@ -402,6 +455,68 @@ class AiExplanationService
             700,
             '',
         );
+    }
+
+    private function shouldLimitReasoning(
+        string $model,
+    ): bool {
+        return str_contains(
+            Str::lower($model),
+            'gpt-oss',
+        );
+    }
+
+    private function isDailyFreeTierLimit(
+        mixed $response,
+    ): bool {
+        return is_array($response)
+            && data_get(
+                $response,
+                'error.metadata.limit_source',
+            ) === 'openrouter_free_tier_daily';
+    }
+
+    private function rememberRateLimit(
+        string $key,
+        mixed $response,
+    ): void {
+        $ttlSeconds = 900;
+
+        if (is_array($response)) {
+            $reset = data_get(
+                $response,
+                'error.metadata.headers.X-RateLimit-Reset',
+            );
+
+            if (is_numeric($reset)) {
+                $resetTimestamp = (int) floor(
+                    ((float) $reset) / 1000,
+                );
+
+                $currentTimestamp = now()->getTimestamp();
+
+                $ttlSeconds = max(
+                    60,
+                    min(
+                        $resetTimestamp - $currentTimestamp,
+                        86400,
+                    ),
+                );
+            }
+        }
+
+        Cache::put(
+            $this->rateLimitCacheKey($key),
+            true,
+            now()->addSeconds($ttlSeconds),
+        );
+    }
+
+    private function rateLimitCacheKey(
+        string $key,
+    ): string {
+        return 'openrouter-rate-limit:'
+            .sha1($key);
     }
 
     private function looksIndonesian(
