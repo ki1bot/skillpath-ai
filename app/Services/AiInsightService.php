@@ -400,10 +400,6 @@ class AiInsightService
         }
 
         foreach ($models as $candidateModel) {
-            if (Cache::has($rateLimitCacheKey)) {
-                break;
-            }
-
             try {
                 $payload = [
                     'model' => $candidateModel,
@@ -456,12 +452,14 @@ class AiInsightService
                     );
 
                 if (! $response->successful()) {
-                    if (
+                    $rateLimited = (
                         $response->status() === 429
                         && $this->isDailyFreeTierLimit(
                             $response->json(),
                         )
-                    ) {
+                    );
+
+                    if ($rateLimited) {
                         $this->rememberRateLimit(
                             $key,
                             $response->json(),
@@ -481,6 +479,10 @@ class AiInsightService
                             ),
                         ],
                     );
+
+                    if ($rateLimited) {
+                        return null;
+                    }
 
                     continue;
                 }
@@ -588,13 +590,11 @@ class AiInsightService
             }
         }
 
-        if (! Cache::has($rateLimitCacheKey)) {
-            Cache::put(
-                $failureCacheKey,
-                true,
-                now()->addSeconds(30),
-            );
-        }
+        Cache::put(
+            $failureCacheKey,
+            true,
+            now()->addSeconds(30),
+        );
 
         return null;
     }
@@ -620,6 +620,10 @@ class AiInsightService
         if ($content === null) {
             return null;
         }
+
+        $requiredTags = array_values(
+            $requiredTags,
+        );
 
         if (
             $requiredTags !== []

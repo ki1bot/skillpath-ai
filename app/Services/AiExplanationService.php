@@ -178,16 +178,16 @@ class AiExplanationService
         }
 
         foreach ($models as $candidateModel) {
-            if (Cache::has($rateLimitCacheKey)) {
-                break;
-            }
-
             $result = $this->requestSummary(
                 $key,
                 $baseUrl,
                 $candidateModel,
                 $contextJson,
             );
+
+            if ($result === false) {
+                return $unavailable;
+            }
 
             if ($result === null) {
                 continue;
@@ -208,13 +208,11 @@ class AiExplanationService
             return $result;
         }
 
-        if (! Cache::has($rateLimitCacheKey)) {
-            Cache::put(
-                $failureCacheKey,
-                true,
-                now()->addSeconds(30),
-            );
-        }
+        Cache::put(
+            $failureCacheKey,
+            true,
+            now()->addSeconds(30),
+        );
 
         return $unavailable;
     }
@@ -224,7 +222,7 @@ class AiExplanationService
         string $baseUrl,
         string $model,
         string $contextJson,
-    ): ?AiExplanationResult {
+    ): AiExplanationResult|false|null {
         try {
             $payload = [
                 'model' => $model,
@@ -277,12 +275,14 @@ class AiExplanationService
                 );
 
             if (! $response->successful()) {
-                if (
+                $rateLimited = (
                     $response->status() === 429
                     && $this->isDailyFreeTierLimit(
                         $response->json(),
                     )
-                ) {
+                );
+
+                if ($rateLimited) {
                     $this->rememberRateLimit(
                         $key,
                         $response->json(),
@@ -302,7 +302,9 @@ class AiExplanationService
                     ],
                 );
 
-                return null;
+                return $rateLimited
+                    ? false
+                    : null;
             }
 
             $summary = $this->normalizeSummary(
