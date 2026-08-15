@@ -123,11 +123,13 @@ class ProgressController extends Controller
                                                 ->score,
                                         ],
                                     )
-                                    ->values(),
+                                    ->values()
+                                    ->all(),
                             ];
                         },
                     )
-                    ->values(),
+                    ->values()
+                    ->all(),
 
                 'logs' => fn () => $user
                     ->progressLogs()

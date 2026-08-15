@@ -19,12 +19,6 @@ parameters:
             path: app/Http/Controllers/AdminController.php
 
         -
-            message: '#^Anonymous function should return array\{attempt_uuid\: string, date\: non\-falsy\-string\|null, average\: float, skills\: Illuminate\\Support\\Collection\<int, array\{name\: mixed, score\: mixed\}\>\} but returns array\{attempt_uuid\: string, date\: non\-falsy\-string\|null, average\: float, skills\: Illuminate\\Support\\Collection\<int, array\{name\: mixed, score\: mixed\}\>\}\.$#'
-            identifier: return.type
-            count: 1
-            path: app/Http/Controllers/ProgressController.php
-
-        -
             message: '#^Anonymous function should return array\{id\: int, stage\: int\<0, max\>, stage_title\: string, position\: int\<0, max\>, status\: string, progress_percentage\: int\<0, max\>, evaluation_score\: float\|null, evaluation_attempts\: int\<0, max\>, \.\.\.\} but returns array\{id\: int, stage\: int\<0, max\>, stage_title\: string, position\: int\<0, max\>, status\: string, progress_percentage\: int\<0, max\>, evaluation_score\: float\|null, evaluation_attempts\: int\<0, max\>, \.\.\.\}\.$#'
             identifier: return.type
             count: 1

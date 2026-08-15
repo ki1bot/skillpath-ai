@@ -181,7 +181,7 @@ material.head = (args: { material: string | { slug: string } } | [material: stri
     material.form = materialForm
 /**
 * @see \App\Http\Controllers\RoadmapController::logProgress
- * @see app/Http/Controllers/RoadmapController.php:299
+ * @see app/Http/Controllers/RoadmapController.php:312
  * @route '/roadmap/items/{roadmapItem}/progress'
  */
 export const logProgress = (args: { roadmapItem: number | { id: number } } | [roadmapItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -196,7 +196,7 @@ logProgress.definition = {
 
 /**
 * @see \App\Http\Controllers\RoadmapController::logProgress
- * @see app/Http/Controllers/RoadmapController.php:299
+ * @see app/Http/Controllers/RoadmapController.php:312
  * @route '/roadmap/items/{roadmapItem}/progress'
  */
 logProgress.url = (args: { roadmapItem: number | { id: number } } | [roadmapItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -229,7 +229,7 @@ logProgress.url = (args: { roadmapItem: number | { id: number } } | [roadmapItem
 
 /**
 * @see \App\Http\Controllers\RoadmapController::logProgress
- * @see app/Http/Controllers/RoadmapController.php:299
+ * @see app/Http/Controllers/RoadmapController.php:312
  * @route '/roadmap/items/{roadmapItem}/progress'
  */
 logProgress.patch = (args: { roadmapItem: number | { id: number } } | [roadmapItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -239,7 +239,7 @@ logProgress.patch = (args: { roadmapItem: number | { id: number } } | [roadmapIt
 
     /**
 * @see \App\Http\Controllers\RoadmapController::logProgress
- * @see app/Http/Controllers/RoadmapController.php:299
+ * @see app/Http/Controllers/RoadmapController.php:312
  * @route '/roadmap/items/{roadmapItem}/progress'
  */
     const logProgressForm = (args: { roadmapItem: number | { id: number } } | [roadmapItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -254,7 +254,7 @@ logProgress.patch = (args: { roadmapItem: number | { id: number } } | [roadmapIt
 
             /**
 * @see \App\Http\Controllers\RoadmapController::logProgress
- * @see app/Http/Controllers/RoadmapController.php:299
+ * @see app/Http/Controllers/RoadmapController.php:312
  * @route '/roadmap/items/{roadmapItem}/progress'
  */
         logProgressForm.patch = (args: { roadmapItem: number | { id: number } } | [roadmapItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -270,7 +270,7 @@ logProgress.patch = (args: { roadmapItem: number | { id: number } } | [roadmapIt
     logProgress.form = logProgressForm
 /**
 * @see \App\Http\Controllers\RoadmapController::evaluate
- * @see app/Http/Controllers/RoadmapController.php:394
+ * @see app/Http/Controllers/RoadmapController.php:407
  * @route '/roadmap/items/{roadmapItem}/evaluate'
  */
 export const evaluate = (args: { roadmapItem: number | { id: number } } | [roadmapItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -285,7 +285,7 @@ evaluate.definition = {
 
 /**
 * @see \App\Http\Controllers\RoadmapController::evaluate
- * @see app/Http/Controllers/RoadmapController.php:394
+ * @see app/Http/Controllers/RoadmapController.php:407
  * @route '/roadmap/items/{roadmapItem}/evaluate'
  */
 evaluate.url = (args: { roadmapItem: number | { id: number } } | [roadmapItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -318,7 +318,7 @@ evaluate.url = (args: { roadmapItem: number | { id: number } } | [roadmapItem: n
 
 /**
 * @see \App\Http\Controllers\RoadmapController::evaluate
- * @see app/Http/Controllers/RoadmapController.php:394
+ * @see app/Http/Controllers/RoadmapController.php:407
  * @route '/roadmap/items/{roadmapItem}/evaluate'
  */
 evaluate.post = (args: { roadmapItem: number | { id: number } } | [roadmapItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -328,7 +328,7 @@ evaluate.post = (args: { roadmapItem: number | { id: number } } | [roadmapItem: 
 
     /**
 * @see \App\Http\Controllers\RoadmapController::evaluate
- * @see app/Http/Controllers/RoadmapController.php:394
+ * @see app/Http/Controllers/RoadmapController.php:407
  * @route '/roadmap/items/{roadmapItem}/evaluate'
  */
     const evaluateForm = (args: { roadmapItem: number | { id: number } } | [roadmapItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -338,7 +338,7 @@ evaluate.post = (args: { roadmapItem: number | { id: number } } | [roadmapItem: 
 
             /**
 * @see \App\Http\Controllers\RoadmapController::evaluate
- * @see app/Http/Controllers/RoadmapController.php:394
+ * @see app/Http/Controllers/RoadmapController.php:407
  * @route '/roadmap/items/{roadmapItem}/evaluate'
  */
         evaluateForm.post = (args: { roadmapItem: number | { id: number } } | [roadmapItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
