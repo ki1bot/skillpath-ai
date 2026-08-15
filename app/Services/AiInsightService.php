@@ -294,7 +294,7 @@ class AiInsightService
         );
         $geminiModel = config(
             'services.gemini.model',
-            'gemini-2.5-flash',
+            'gemini-3.6-flash',
         );
         $geminiBaseUrl = config(
             'services.gemini.base_url',
@@ -395,7 +395,7 @@ class AiInsightService
                 .';';
         }
 
-        $cacheKey = 'skillpath-ai-insight:v8:'
+        $cacheKey = 'skillpath-ai-insight:v9:'
             .$scope
             .':'
             .$user->id
@@ -551,16 +551,13 @@ class AiInsightService
                 $requiredTags,
             );
 
-            $generationConfig = [
-                'temperature' => 0.2,
-                'maxOutputTokens' => $maxTokens,
-            ];
-
-            if ($this->canDisableGeminiThinking($model)) {
-                $generationConfig['thinkingConfig'] = [
-                    'thinkingBudget' => 0,
-                ];
-            }
+            $generationConfig = $this->geminiGenerationConfig(
+                $model,
+                max(
+                    $maxTokens,
+                    2048,
+                ),
+            );
 
             $response = Http::withHeaders([
                 'x-goog-api-key' => $key,
@@ -569,9 +566,12 @@ class AiInsightService
                 ->asJson()
                 ->connectTimeout(4)
                 ->timeout(
-                    min(
-                        $timeoutSeconds,
+                    max(
                         10,
+                        min(
+                            $timeoutSeconds,
+                            30,
+                        ),
                     ),
                 )
                 ->post(
@@ -1201,6 +1201,69 @@ class AiInsightService
                 $model,
                 'pro',
             );
+    }
+
+    private function geminiGenerationConfig(
+        string $model,
+        int $maxOutputTokens,
+    ): array {
+        $config = [
+            'maxOutputTokens' => $maxOutputTokens,
+        ];
+
+        $thinkingLevel = $this->geminiThinkingLevel($model);
+
+        if ($thinkingLevel !== null) {
+            $config['thinkingConfig'] = [
+                'thinkingLevel' => $thinkingLevel,
+            ];
+
+            return $config;
+        }
+
+        $config['temperature'] = 0.2;
+
+        if ($this->canDisableGeminiThinking($model)) {
+            $config['thinkingConfig'] = [
+                'thinkingBudget' => 0,
+            ];
+        }
+
+        return $config;
+    }
+
+    private function geminiThinkingLevel(
+        string $model,
+    ): ?string {
+        $model = Str::lower(
+            trim($model),
+        );
+
+        if (
+            Str::contains(
+                $model,
+                [
+                    'gemini-3.6-flash',
+                    'gemini-3.5-flash',
+                    'gemini-3.1-flash-lite',
+                    'gemini-3-flash',
+                    'gemini-flash-latest',
+                ],
+            )
+        ) {
+            return 'minimal';
+        }
+
+        if (
+            preg_match(
+                '/(?:^|\/)gemini-(?:[3-9]|\d{2,})(?:[.\-]|$)/i',
+                $model,
+            ) === 1
+        ) {
+            return 'low';
+        }
+
+        return null;
     }
 
     private function rememberRateLimit(

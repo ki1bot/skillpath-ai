@@ -146,6 +146,76 @@ class AiInsightServiceTest extends TestCase
         );
     }
 
+    public function test_gemini_three_progress_uses_minimal_thinking_and_enough_output_tokens(): void
+    {
+        config([
+            'services.gemini.key' => 'test-gemini-key',
+            'services.gemini.model' => 'gemini-3.6-flash',
+            'services.gemini.base_url' => 'https://generativelanguage.googleapis.com/v1beta',
+            'services.openrouter.key' => null,
+        ]);
+
+        Http::fake([
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent' => Http::response(
+                [
+                    'candidates' => [
+                        [
+                            'content' => [
+                                'parts' => [
+                                    [
+                                        'text' => json_encode([
+                                            'progress' => 'Perkembangan belajar sudah tercatat dan dapat ditingkatkan secara bertahap.',
+                                            'schedule' => 'Gunakan jadwal belajar mingguan untuk menyelesaikan materi berikutnya.',
+                                            'obstacles' => 'Kendala yang tercatat perlu ditinjau sebelum sesi belajar berikutnya.',
+                                        ], JSON_THROW_ON_ERROR),
+                                    ],
+                                ],
+                            ],
+                            'finishReason' => 'STOP',
+                        ],
+                    ],
+                    'modelVersion' => 'gemini-3.6-flash',
+                ],
+                200,
+            ),
+        ]);
+
+        $user = User::factory()->create([
+            'weekly_study_hours' => 6,
+        ]);
+
+        $result = app(AiInsightService::class)
+            ->progress(
+                $user,
+                [
+                    'score' => 25,
+                    'skill_mastery' => 30,
+                    'roadmap_completion' => 10,
+                    'project_score' => 0,
+                    'consistency' => 20,
+                    'evaluation_score' => 0,
+                ],
+            );
+
+        $this->assertTrue(
+            $result['generated_by_ai'],
+        );
+
+        $this->assertSame(
+            'gemini-3.6-flash',
+            $result['model'],
+        );
+
+        Http::assertSent(
+            fn ($request) => $request->url()
+                === 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent'
+                && $request['generationConfig']['maxOutputTokens'] === 2048
+                && $request['generationConfig']['thinkingConfig']['thinkingLevel'] === 'minimal'
+                && ! isset($request['generationConfig']['temperature'])
+                && ! isset($request['generationConfig']['thinkingConfig']['thinkingBudget']),
+        );
+    }
+
     public function test_ai_insights_try_configured_fallback_model_when_primary_model_fails(): void
     {
         config([

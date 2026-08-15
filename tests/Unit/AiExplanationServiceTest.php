@@ -107,6 +107,61 @@ class AiExplanationServiceTest extends TestCase
         );
     }
 
+    public function test_gemini_three_uses_minimal_thinking_and_returns_the_final_answer(): void
+    {
+        config([
+            'services.gemini.key' => 'test-gemini-key',
+            'services.gemini.model' => 'gemini-3.6-flash',
+            'services.gemini.base_url' => 'https://generativelanguage.googleapis.com/v1beta',
+            'services.openrouter.key' => null,
+        ]);
+
+        Http::fake([
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent' => Http::response(
+                [
+                    'candidates' => [
+                        [
+                            'content' => [
+                                'parts' => [
+                                    [
+                                        'text' => 'Database menjadi prioritas utama karena kemampuan saat ini masih 30 dari target 75. Kesenjangan tersebut perlu ditutup sebelum mempelajari kemampuan lanjutan yang bergantung pada pengelolaan data.',
+                                    ],
+                                ],
+                            ],
+                            'finishReason' => 'STOP',
+                        ],
+                    ],
+                    'modelVersion' => 'gemini-3.6-flash',
+                ],
+                200,
+            ),
+        ]);
+
+        $result = app(AiExplanationService::class)
+            ->skillGapSummary(
+                $this->user(),
+                $this->analysis(),
+            );
+
+        $this->assertTrue(
+            $result->generatedByAi,
+        );
+
+        $this->assertSame(
+            'gemini-3.6-flash',
+            $result->model,
+        );
+
+        Http::assertSent(
+            fn ($request) => $request->url()
+                === 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent'
+                && $request['generationConfig']['maxOutputTokens'] === 1024
+                && $request['generationConfig']['thinkingConfig']['thinkingLevel'] === 'minimal'
+                && ! isset($request['generationConfig']['temperature'])
+                && ! isset($request['generationConfig']['thinkingConfig']['thinkingBudget']),
+        );
+    }
+
     public function test_invalid_ai_response_is_not_replaced_with_system_text(): void
     {
         config([
