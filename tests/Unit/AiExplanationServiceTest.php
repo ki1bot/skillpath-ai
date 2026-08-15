@@ -21,6 +21,7 @@ class AiExplanationServiceTest extends TestCase
     public function test_no_explanation_is_returned_when_openrouter_is_not_configured(): void
     {
         config([
+            'services.gemini.key' => null,
             'services.openrouter.key' => null,
             'services.openrouter.model' => 'openai/gpt-oss-20b:free',
             'services.openrouter.fallback_models' => [
@@ -51,6 +52,7 @@ class AiExplanationServiceTest extends TestCase
     public function test_valid_indonesian_openrouter_response_is_displayed(): void
     {
         config([
+            'services.gemini.key' => null,
             'services.openrouter.key' => 'test-openrouter-key',
             'services.openrouter.model' => 'openai/gpt-oss-20b:free',
             'services.openrouter.fallback_models' => [
@@ -112,6 +114,7 @@ class AiExplanationServiceTest extends TestCase
         config([
             'services.gemini.key' => 'test-gemini-key',
             'services.gemini.model' => 'gemini-3.6-flash',
+            'services.gemini.fallback_models' => [],
             'services.gemini.base_url' => 'https://generativelanguage.googleapis.com/v1beta',
             'services.openrouter.key' => null,
         ]);
@@ -165,6 +168,7 @@ class AiExplanationServiceTest extends TestCase
     public function test_invalid_ai_response_is_not_replaced_with_system_text(): void
     {
         config([
+            'services.gemini.key' => null,
             'services.openrouter.key' => 'test-openrouter-key',
             'services.openrouter.model' => 'openai/gpt-oss-20b:free',
             'services.openrouter.fallback_models' => [],
@@ -208,6 +212,56 @@ class AiExplanationServiceTest extends TestCase
         $this->assertNull(
             $result->summary,
         );
+    }
+
+    public function test_gemini_tries_the_configured_fallback_model(): void
+    {
+        config([
+            'services.gemini.key' => 'test-gemini-key',
+            'services.gemini.model' => 'gemini-3.5-flash-lite',
+            'services.gemini.fallback_models' => [
+                'gemini-3.1-flash-lite',
+            ],
+            'services.gemini.base_url' => 'https://generativelanguage.googleapis.com/v1beta',
+            'services.openrouter.key' => null,
+        ]);
+
+        Http::fake(
+            function ($request) {
+                if (str_contains($request->url(), 'gemini-3.5-flash-lite')) {
+                    return Http::response([], 503);
+                }
+
+                return Http::response(
+                    [
+                        'candidates' => [
+                            [
+                                'content' => [
+                                    'parts' => [
+                                        [
+                                            'text' => 'Database menjadi prioritas utama karena kemampuan saat ini masih 30 dari target 75. Kesenjangan tersebut perlu ditutup sebelum mempelajari kemampuan lanjutan.',
+                                        ],
+                                    ],
+                                ],
+                                'finishReason' => 'STOP',
+                            ],
+                        ],
+                        'modelVersion' => 'gemini-3.1-flash-lite',
+                    ],
+                    200,
+                );
+            },
+        );
+
+        $result = app(AiExplanationService::class)
+            ->skillGapSummary(
+                $this->user(),
+                $this->analysis(),
+            );
+
+        $this->assertTrue($result->generatedByAi);
+        $this->assertSame('gemini-3.1-flash-lite', $result->model);
+        Http::assertSentCount(2);
     }
 
     private function user(): User

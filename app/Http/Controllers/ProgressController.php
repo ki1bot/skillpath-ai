@@ -65,6 +65,11 @@ class ProgressController extends Controller
                             'model' => $aiInsights[
                                 'model'
                             ],
+                            'message' => $aiInsights[
+                                'generated_by_ai'
+                            ]
+                                ? null
+                                : 'AI Learning Coach sedang tidak tersedia. Silakan coba lagi.',
                         ];
                     },
                 ),

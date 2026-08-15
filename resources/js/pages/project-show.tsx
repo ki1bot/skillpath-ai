@@ -1,4 +1,4 @@
-import { Form, Head, Link, useForm } from '@inertiajs/react';
+import { Deferred, Form, Head, Link, router, useForm } from '@inertiajs/react';
 import {
     ArrowLeft,
     BrainCircuit,
@@ -6,8 +6,10 @@ import {
     CircleAlert,
     ExternalLink,
     Play,
+    RotateCcw,
     Save,
 } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -48,6 +50,7 @@ interface AiFeedback {
     content: string | null;
     generatedByAi: boolean;
     model: string | null;
+    message: string | null;
 }
 
 export default function ProjectShow({
@@ -63,8 +66,10 @@ export default function ProjectShow({
         requirements: Requirement[];
     };
     userProject: UserProject | null;
-    aiFeedback: AiFeedback;
+    aiFeedback?: AiFeedback;
 }) {
+    const [isRetryingAi, setIsRetryingAi] = useState(false);
+
     const progressForm = useForm({
         progress_percentage: userProject?.progress_percentage ?? 0,
         repository_url: userProject?.repository_url ?? '',
@@ -80,7 +85,16 @@ export default function ProjectShow({
     };
 
     const hasAiFeedback =
-        aiFeedback.generatedByAi && Boolean(aiFeedback.content);
+        aiFeedback?.generatedByAi === true && Boolean(aiFeedback.content);
+
+    const retryAiFeedback = () => {
+        setIsRetryingAi(true);
+
+        router.reload({
+            only: ['aiFeedback'],
+            onFinish: () => setIsRetryingAi(false),
+        });
+    };
 
     return (
         <>
@@ -157,35 +171,98 @@ export default function ProjectShow({
                     </Card>
                 </section>
 
-                {hasAiFeedback && (
-                    <Card>
-                        <CardHeader className="border-b-2 border-[#171717] bg-[var(--neo-blue)] text-[#171717]">
-                            <div className="flex flex-wrap items-center justify-between gap-3">
+                <Deferred
+                    data="aiFeedback"
+                    fallback={
+                        <Card>
+                            <CardHeader className="border-b-2 border-[#171717] bg-[var(--neo-blue)] text-[#171717]">
                                 <CardTitle className="flex items-center gap-2 text-xl font-black">
                                     <BrainCircuit className="size-5" />
                                     Umpan balik AI proyek
                                 </CardTitle>
+                            </CardHeader>
 
-                                <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-lime)] px-2.5 py-1 text-[10px] font-black uppercase">
-                                    AI · {aiFeedback.model}
-                                </span>
-                            </div>
-                        </CardHeader>
+                            <CardContent className="space-y-3 pt-6">
+                                <div className="h-4 w-full animate-pulse rounded bg-muted" />
+                                <div className="h-4 w-10/12 animate-pulse rounded bg-muted" />
+                                <div className="h-4 w-8/12 animate-pulse rounded bg-muted" />
+                            </CardContent>
+                        </Card>
+                    }
+                >
+                    {hasAiFeedback && aiFeedback ? (
+                        <Card>
+                            <CardHeader className="border-b-2 border-[#171717] bg-[var(--neo-blue)] text-[#171717]">
+                                <div className="flex flex-wrap items-center justify-between gap-3">
+                                    <CardTitle className="flex items-center gap-2 text-xl font-black">
+                                        <BrainCircuit className="size-5" />
+                                        Umpan balik AI proyek
+                                    </CardTitle>
 
-                        <CardContent className="pt-6">
-                            <p className="max-w-4xl text-sm leading-7 font-semibold whitespace-pre-line">
-                                {aiFeedback.content}
-                            </p>
+                                    <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-lime)] px-2.5 py-1 text-[10px] font-black uppercase">
+                                        AI · {aiFeedback.model}
+                                    </span>
+                                </div>
+                            </CardHeader>
 
-                            <p className="mt-4 text-xs leading-5 font-bold text-muted-foreground">
-                                AI hanya membaca deskripsi proyek, readiness,
-                                progres, dan catatan yang tersimpan di SkillPath
-                                AI. Sistem tidak mengklaim membaca source code
-                                atau repository pengguna.
-                            </p>
-                        </CardContent>
-                    </Card>
-                )}
+                            <CardContent className="pt-6">
+                                <p className="max-w-4xl text-sm leading-7 font-semibold whitespace-pre-line">
+                                    {aiFeedback.content}
+                                </p>
+
+                                <p className="mt-4 text-xs leading-5 font-bold text-muted-foreground">
+                                    AI hanya membaca deskripsi proyek,
+                                    readiness, progres, dan catatan yang
+                                    tersimpan di SkillPath AI. Sistem tidak
+                                    mengklaim membaca source code atau
+                                    repository pengguna.
+                                </p>
+                            </CardContent>
+                        </Card>
+                    ) : (
+                        <Card>
+                            <CardHeader className="border-b-2 border-[#171717] bg-[var(--neo-blue)] text-[#171717]">
+                                <CardTitle className="flex items-center gap-2 text-xl font-black">
+                                    <BrainCircuit className="size-5" />
+                                    Umpan balik AI proyek
+                                </CardTitle>
+                            </CardHeader>
+
+                            <CardContent
+                                className="space-y-4 pt-6"
+                                aria-live="polite"
+                            >
+                                <div className="flex items-start gap-3">
+                                    <CircleAlert className="mt-0.5 size-5 shrink-0" />
+
+                                    <p className="text-sm leading-6 font-semibold text-muted-foreground">
+                                        {aiFeedback?.message ??
+                                            'Umpan balik AI sedang tidak tersedia. Silakan coba lagi.'}
+                                    </p>
+                                </div>
+
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={isRetryingAi}
+                                    onClick={retryAiFeedback}
+                                >
+                                    <RotateCcw
+                                        className={
+                                            isRetryingAi
+                                                ? 'animate-spin'
+                                                : undefined
+                                        }
+                                    />
+                                    {isRetryingAi
+                                        ? 'Memuat ulang...'
+                                        : 'Coba lagi'}
+                                </Button>
+                            </CardContent>
+                        </Card>
+                    )}
+                </Deferred>
 
                 <section className="grid gap-5 lg:grid-cols-2">
                     <Card>

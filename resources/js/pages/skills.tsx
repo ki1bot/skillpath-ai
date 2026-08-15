@@ -66,7 +66,7 @@ export default function Skills({ career, skills, averageMastery }: Props) {
     const [summary, setSummary] = useState<string | null>(null);
     const [model, setModel] = useState<string | null>(null);
     const [aiState, setAiState] = useState<AiState>('loading');
-    const requestStarted = useRef(false);
+    const [aiError, setAiError] = useState<string | null>(null);
     const activeController = useRef<AbortController | null>(null);
 
     const chart = skills.slice(0, 10).map((item) => ({
@@ -81,13 +81,18 @@ export default function Skills({ career, skills, averageMastery }: Props) {
         activeController.current?.abort();
 
         const controller = new AbortController();
+        let timedOut = false;
 
         activeController.current = controller;
 
-        const timeout = window.setTimeout(() => controller.abort(), 25000);
+        const timeout = window.setTimeout(() => {
+            timedOut = true;
+            controller.abort();
+        }, 15000);
 
         setSummary(null);
         setModel(null);
+        setAiError(null);
         setAiState('loading');
 
         try {
@@ -102,17 +107,21 @@ export default function Skills({ career, skills, averageMastery }: Props) {
                 signal: controller.signal,
             });
 
-            if (!response.ok) {
-                throw new Error(
-                    `AI request failed with status ${response.status}`,
-                );
-            }
-
             const data = (await response.json()) as {
                 summary?: unknown;
                 generated_by_ai?: unknown;
                 model?: unknown;
+                message?: unknown;
             };
+
+            if (!response.ok) {
+                throw new Error(
+                    typeof data.message === 'string' &&
+                        data.message.trim() !== ''
+                        ? data.message.trim()
+                        : 'Layanan AI sedang tidak tersedia.',
+                );
+            }
 
             if (
                 data.generated_by_ai !== true ||
@@ -129,7 +138,18 @@ export default function Skills({ career, skills, averageMastery }: Props) {
                     : null,
             );
             setAiState('ready');
-        } catch {
+        } catch (error) {
+            if (controller.signal.aborted && !timedOut) {
+                return;
+            }
+
+            setAiError(
+                timedOut
+                    ? 'Permintaan AI melewati batas waktu. Silakan coba lagi.'
+                    : error instanceof Error && error.message.trim() !== ''
+                      ? error.message
+                      : 'Penjelasan AI belum dapat dimuat.',
+            );
             setAiState('error');
         } finally {
             window.clearTimeout(timeout);
@@ -141,15 +161,12 @@ export default function Skills({ career, skills, averageMastery }: Props) {
     }, []);
 
     useEffect(() => {
-        if (requestStarted.current) {
-            return;
-        }
-
-        requestStarted.current = true;
-
-        void loadAiSummary();
+        const timer = window.setTimeout(() => {
+            void loadAiSummary();
+        }, 0);
 
         return () => {
+            window.clearTimeout(timer);
             activeController.current?.abort();
         };
     }, [loadAiSummary]);
@@ -259,6 +276,7 @@ export default function Skills({ career, skills, averageMastery }: Props) {
                                 <div
                                     className="mt-3"
                                     aria-busy={aiState === 'loading'}
+                                    aria-live="polite"
                                 >
                                     {aiState === 'loading' && (
                                         <div className="space-y-2">
@@ -277,8 +295,8 @@ export default function Skills({ career, skills, averageMastery }: Props) {
                                     {aiState === 'error' && (
                                         <div className="space-y-3">
                                             <p className="text-sm font-semibold text-muted-foreground">
-                                                Penjelasan AI belum dapat
-                                                dimuat.
+                                                {aiError ??
+                                                    'Penjelasan AI belum dapat dimuat.'}
                                             </p>
 
                                             <Button

@@ -163,7 +163,10 @@ class AiInsightService
                 'SCHEDULE',
                 'OBSTACLES',
             ],
-            18,
+            (int) config(
+                'services.ai.request_timeout',
+                12,
+            ),
         );
 
         if ($result === null) {
@@ -226,7 +229,10 @@ class AiInsightService
             ],
             600,
             [],
-            15,
+            (int) config(
+                'services.ai.request_timeout',
+                12,
+            ),
         );
 
         return $result
@@ -262,7 +268,10 @@ class AiInsightService
             ],
             500,
             [],
-            15,
+            (int) config(
+                'services.ai.request_timeout',
+                12,
+            ),
         );
 
         return $result
@@ -294,11 +303,15 @@ class AiInsightService
         );
         $geminiModel = config(
             'services.gemini.model',
-            'gemini-3.6-flash',
+            'gemini-3.5-flash-lite',
         );
         $geminiBaseUrl = config(
             'services.gemini.base_url',
             'https://generativelanguage.googleapis.com/v1beta',
+        );
+        $configuredGeminiFallbackModels = config(
+            'services.gemini.fallback_models',
+            [],
         );
 
         if (
@@ -309,13 +322,30 @@ class AiInsightService
             && is_string($geminiBaseUrl)
             && trim($geminiBaseUrl) !== ''
         ) {
+            $geminiModels = [
+                trim($geminiModel),
+            ];
+
+            if (is_array($configuredGeminiFallbackModels)) {
+                foreach ($configuredGeminiFallbackModels as $fallbackModel) {
+                    if (
+                        ! is_string($fallbackModel)
+                        || trim($fallbackModel) === ''
+                    ) {
+                        continue;
+                    }
+
+                    $geminiModels[] = trim($fallbackModel);
+                }
+            }
+
             $providers[] = [
                 'name' => 'gemini',
                 'key' => trim($geminiKey),
                 'base_url' => trim($geminiBaseUrl),
-                'models' => [
-                    trim($geminiModel),
-                ],
+                'models' => array_values(
+                    array_unique($geminiModels),
+                ),
             ];
         }
 
@@ -395,7 +425,7 @@ class AiInsightService
                 .';';
         }
 
-        $cacheKey = 'skillpath-ai-insight:v9:'
+        $cacheKey = 'skillpath-ai-insight:v10:'
             .$scope
             .':'
             .$user->id
@@ -439,6 +469,12 @@ class AiInsightService
             return null;
         }
 
+        $startedAt = microtime(true);
+        $deadline = $startedAt + max(
+            3,
+            $timeoutSeconds,
+        );
+
         foreach ($providers as $provider) {
             if (
                 Cache::has(
@@ -452,6 +488,14 @@ class AiInsightService
             }
 
             foreach ($provider['models'] as $candidateModel) {
+                $attemptTimeout = $this->nextAttemptTimeout(
+                    $deadline,
+                );
+
+                if ($attemptTimeout === null) {
+                    break 2;
+                }
+
                 $result = $this->requestInsight(
                     $provider['name'],
                     $provider['key'],
@@ -460,7 +504,7 @@ class AiInsightService
                     $task,
                     $json,
                     $maxTokens,
-                    $timeoutSeconds,
+                    $attemptTimeout,
                     ...$requiredTags,
                 );
 
@@ -494,7 +538,32 @@ class AiInsightService
         Cache::put(
             $failureCacheKey,
             true,
-            now()->addSeconds(20),
+            now()->addSeconds(
+                (int) config(
+                    'services.ai.failure_cache_seconds',
+                    5,
+                ),
+            ),
+        );
+
+        Log::warning(
+            'AI insight providers were exhausted.',
+            [
+                'scope' => $scope,
+                'user_id' => $user->id,
+                'elapsed_ms' => (int) round(
+                    (microtime(true) - $startedAt) * 1000,
+                ),
+                'providers' => collect($providers)
+                    ->map(
+                        fn (array $provider) => [
+                            'name' => $provider['name'],
+                            'models' => $provider['models'],
+                        ],
+                    )
+                    ->values()
+                    ->all(),
+            ],
         );
 
         return null;
@@ -555,25 +624,60 @@ class AiInsightService
                 $model,
                 max(
                     $maxTokens,
-                    2048,
+                    1024,
                 ),
             );
+
+            $generationConfig['responseMimeType'] = 'application/json';
+            $generationConfig['responseJsonSchema'] = $requiredTags !== []
+                ? [
+                    'type' => 'object',
+                    'properties' => [
+                        'progress' => [
+                            'type' => 'string',
+                        ],
+                        'schedule' => [
+                            'type' => 'string',
+                        ],
+                        'obstacles' => [
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'progress',
+                        'schedule',
+                        'obstacles',
+                    ],
+                    'additionalProperties' => false,
+                ]
+                : [
+                    'type' => 'object',
+                    'properties' => [
+                        'content' => [
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'content',
+                    ],
+                    'additionalProperties' => false,
+                ];
 
             $response = Http::withHeaders([
                 'x-goog-api-key' => $key,
             ])
                 ->acceptJson()
                 ->asJson()
-                ->connectTimeout(4)
-                ->timeout(
-                    max(
-                        10,
-                        min(
-                            $timeoutSeconds,
-                            30,
+                ->connectTimeout(
+                    min(
+                        $timeoutSeconds,
+                        (int) config(
+                            'services.ai.connect_timeout',
+                            3,
                         ),
                     ),
                 )
+                ->timeout($timeoutSeconds)
                 ->post(
                     rtrim(
                         $baseUrl,
@@ -723,7 +827,7 @@ class AiInsightService
                 ],
             );
 
-            return false;
+            return null;
         } catch (Throwable $exception) {
             Log::warning(
                 'Gemini AI insight request threw an exception.',
@@ -796,13 +900,16 @@ class AiInsightService
                 ])
                 ->acceptJson()
                 ->asJson()
-                ->connectTimeout(4)
-                ->timeout(
+                ->connectTimeout(
                     min(
                         $timeoutSeconds,
-                        10,
+                        (int) config(
+                            'services.ai.connect_timeout',
+                            3,
+                        ),
                     ),
                 )
+                ->timeout($timeoutSeconds)
                 ->post(
                     rtrim(
                         $baseUrl,
@@ -928,7 +1035,7 @@ class AiInsightService
                 ],
             );
 
-            return false;
+            return null;
         } catch (Throwable $exception) {
             Log::warning(
                 'OpenRouter AI insight request threw an exception.',
@@ -1203,6 +1310,9 @@ class AiInsightService
             );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function geminiGenerationConfig(
         string $model,
         int $maxOutputTokens,
@@ -1264,6 +1374,26 @@ class AiInsightService
         }
 
         return null;
+    }
+
+    private function nextAttemptTimeout(
+        float $deadline,
+    ): ?int {
+        $remainingSeconds = (int) floor(
+            $deadline - microtime(true),
+        );
+
+        if ($remainingSeconds < 1) {
+            return null;
+        }
+
+        return min(
+            $remainingSeconds,
+            (int) config(
+                'services.ai.attempt_timeout',
+                6,
+            ),
+        );
     }
 
     private function rememberRateLimit(

@@ -27,12 +27,49 @@ return [
 
         'model' => env(
             'GEMINI_MODEL',
-            'gemini-3.6-flash',
+            'gemini-3.5-flash-lite',
+        ),
+
+        'fallback_models' => array_values(
+            array_filter(
+                array_map(
+                    'trim',
+                    explode(
+                        ',',
+                        (string) env(
+                            'GEMINI_FALLBACK_MODELS',
+                            'gemini-3.1-flash-lite',
+                        ),
+                    ),
+                ),
+            ),
         ),
 
         'base_url' => env(
             'GEMINI_BASE_URL',
             'https://generativelanguage.googleapis.com/v1beta',
+        ),
+    ],
+
+    'ai' => [
+        'request_timeout' => max(
+            3,
+            (int) env('AI_REQUEST_TIMEOUT', 12),
+        ),
+
+        'attempt_timeout' => max(
+            2,
+            (int) env('AI_ATTEMPT_TIMEOUT', 6),
+        ),
+
+        'connect_timeout' => max(
+            1,
+            (int) env('AI_CONNECT_TIMEOUT', 3),
+        ),
+
+        'failure_cache_seconds' => max(
+            1,
+            (int) env('AI_FAILURE_CACHE_SECONDS', 5),
         ),
     ],
 

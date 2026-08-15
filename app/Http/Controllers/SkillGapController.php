@@ -53,16 +53,35 @@ class SkillGapController extends Controller
                     $analysis,
                 );
 
-            return response()
+            $generated = $result->generatedByAi
+                && is_string($result->summary)
+                && trim($result->summary) !== '';
+
+            $response = response()
                 ->json([
                     'summary' => $result->summary,
-                    'generated_by_ai' => $result->generatedByAi,
+                    'generated_by_ai' => $generated,
                     'model' => $result->model,
-                ])
+                    'message' => $generated
+                        ? null
+                        : 'Layanan AI sedang tidak tersedia. Silakan coba lagi beberapa saat.',
+                ], $generated ? 200 : 503)
                 ->header(
                     'Cache-Control',
                     'no-store',
                 );
+
+            if (! $generated) {
+                $response->header(
+                    'Retry-After',
+                    (string) config(
+                        'services.ai.failure_cache_seconds',
+                        5,
+                    ),
+                );
+            }
+
+            return $response;
         }
 
         return Inertia::render(

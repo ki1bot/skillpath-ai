@@ -276,22 +276,35 @@ class RoadmapController extends Controller
                 ->values(),
         ];
 
-        $aiExercise = $aiInsightService
-            ->exerciseVariation(
-                $request->user(),
-                $item->material,
-            );
+        $user = $request->user();
 
         return Inertia::render(
             'material',
             [
                 'item' => $itemPayload,
                 'material' => $materialPayload,
-                'aiExercise' => [
-                    'content' => $aiExercise['content'],
-                    'generatedByAi' => $aiExercise['generated_by_ai'],
-                    'model' => $aiExercise['model'],
-                ],
+                'aiExercise' => Inertia::defer(
+                    function () use (
+                        $aiInsightService,
+                        $item,
+                        $user,
+                    ): array {
+                        $aiExercise = $aiInsightService
+                            ->exerciseVariation(
+                                $user,
+                                $item->material,
+                            );
+
+                        return [
+                            'content' => $aiExercise['content'],
+                            'generatedByAi' => $aiExercise['generated_by_ai'],
+                            'model' => $aiExercise['model'],
+                            'message' => $aiExercise['generated_by_ai']
+                                ? null
+                                : 'Variasi latihan AI sedang tidak tersedia. Silakan coba lagi.',
+                        ];
+                    },
+                ),
             ],
         );
     }

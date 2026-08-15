@@ -1,13 +1,15 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Deferred, Head, Link, router, useForm } from '@inertiajs/react';
 import {
     ArrowLeft,
     BookOpen,
     BrainCircuit,
     CheckCircle2,
+    CircleAlert,
     ExternalLink,
     RotateCcw,
     Save,
 } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -60,6 +62,7 @@ type AiExercise = {
     content: string | null;
     generatedByAi: boolean;
     model: string | null;
+    message: string | null;
 };
 
 export default function MaterialPage({
@@ -69,8 +72,10 @@ export default function MaterialPage({
 }: {
     item: Item;
     material: Material;
-    aiExercise: AiExercise;
+    aiExercise?: AiExercise;
 }) {
+    const [isRetryingAi, setIsRetryingAi] = useState(false);
+
     const progressForm = useForm({
         progress_percentage: Math.min(item.progress_percentage, 95),
         minutes_spent: 30,
@@ -88,7 +93,16 @@ export default function MaterialPage({
     const latestEvaluation = item.evaluations?.[0];
 
     const hasAiExercise =
-        aiExercise.generatedByAi && Boolean(aiExercise.content);
+        aiExercise?.generatedByAi === true && Boolean(aiExercise.content);
+
+    const retryAiExercise = () => {
+        setIsRetryingAi(true);
+
+        router.reload({
+            only: ['aiExercise'],
+            onFinish: () => setIsRetryingAi(false),
+        });
+    };
 
     const saveProgress = (event: React.FormEvent) => {
         event.preventDefault();
@@ -205,10 +219,11 @@ export default function MaterialPage({
                             )}
                         </section>
 
-                        {hasAiExercise && (
-                            <section className="neo-card overflow-hidden">
-                                <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-[#171717] bg-[var(--neo-blue)] p-5 text-[#171717]">
-                                    <div className="flex items-center gap-3">
+                        <Deferred
+                            data="aiExercise"
+                            fallback={
+                                <section className="neo-card overflow-hidden">
+                                    <div className="flex items-center gap-3 border-b-2 border-[#171717] bg-[var(--neo-blue)] p-5 text-[#171717]">
                                         <BrainCircuit className="size-5" />
 
                                         <h2 className="text-xl font-black">
@@ -216,25 +231,88 @@ export default function MaterialPage({
                                         </h2>
                                     </div>
 
-                                    <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-lime)] px-2.5 py-1 text-[10px] font-black uppercase">
-                                        AI · {aiExercise.model}
-                                    </span>
-                                </div>
+                                    <div className="space-y-3 p-6">
+                                        <div className="h-4 w-full animate-pulse rounded bg-muted" />
+                                        <div className="h-4 w-10/12 animate-pulse rounded bg-muted" />
+                                        <div className="h-4 w-8/12 animate-pulse rounded bg-muted" />
+                                    </div>
+                                </section>
+                            }
+                        >
+                            {hasAiExercise && aiExercise ? (
+                                <section className="neo-card overflow-hidden">
+                                    <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-[#171717] bg-[var(--neo-blue)] p-5 text-[#171717]">
+                                        <div className="flex items-center gap-3">
+                                            <BrainCircuit className="size-5" />
 
-                                <div className="p-6">
-                                    <p className="text-sm leading-7 font-semibold whitespace-pre-line">
-                                        {aiExercise.content}
-                                    </p>
+                                            <h2 className="text-xl font-black">
+                                                Variasi latihan AI
+                                            </h2>
+                                        </div>
 
-                                    <p className="mt-4 text-xs leading-5 font-bold text-muted-foreground">
-                                        Variasi ini tidak mengubah nilai, status
-                                        materi, atau roadmap. AI hanya membuat
-                                        variasi dari latihan yang sudah tersedia
-                                        di database.
-                                    </p>
-                                </div>
-                            </section>
-                        )}
+                                        <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-lime)] px-2.5 py-1 text-[10px] font-black uppercase">
+                                            AI · {aiExercise.model}
+                                        </span>
+                                    </div>
+
+                                    <div className="p-6">
+                                        <p className="text-sm leading-7 font-semibold whitespace-pre-line">
+                                            {aiExercise.content}
+                                        </p>
+
+                                        <p className="mt-4 text-xs leading-5 font-bold text-muted-foreground">
+                                            Variasi ini tidak mengubah nilai,
+                                            status materi, atau roadmap. AI
+                                            hanya membuat variasi dari latihan
+                                            yang sudah tersedia di database.
+                                        </p>
+                                    </div>
+                                </section>
+                            ) : (
+                                <section className="neo-card overflow-hidden">
+                                    <div className="flex items-center gap-3 border-b-2 border-[#171717] bg-[var(--neo-blue)] p-5 text-[#171717]">
+                                        <BrainCircuit className="size-5" />
+
+                                        <h2 className="text-xl font-black">
+                                            Variasi latihan AI
+                                        </h2>
+                                    </div>
+
+                                    <div
+                                        className="space-y-4 p-6"
+                                        aria-live="polite"
+                                    >
+                                        <div className="flex items-start gap-3">
+                                            <CircleAlert className="mt-0.5 size-5 shrink-0" />
+
+                                            <p className="text-sm leading-6 font-semibold text-muted-foreground">
+                                                {aiExercise?.message ??
+                                                    'Variasi latihan AI sedang tidak tersedia. Silakan coba lagi.'}
+                                            </p>
+                                        </div>
+
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            disabled={isRetryingAi}
+                                            onClick={retryAiExercise}
+                                        >
+                                            <RotateCcw
+                                                className={
+                                                    isRetryingAi
+                                                        ? 'animate-spin'
+                                                        : undefined
+                                                }
+                                            />
+                                            {isRetryingAi
+                                                ? 'Memuat ulang...'
+                                                : 'Coba lagi'}
+                                        </Button>
+                                    </div>
+                                </section>
+                            )}
+                        </Deferred>
 
                         <section className="neo-card p-6">
                             <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">

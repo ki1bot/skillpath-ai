@@ -68,11 +68,15 @@ class AiExplanationService
         );
         $geminiModel = config(
             'services.gemini.model',
-            'gemini-3.6-flash',
+            'gemini-3.5-flash-lite',
         );
         $geminiBaseUrl = config(
             'services.gemini.base_url',
             'https://generativelanguage.googleapis.com/v1beta',
+        );
+        $configuredGeminiFallbackModels = config(
+            'services.gemini.fallback_models',
+            [],
         );
 
         if (
@@ -83,13 +87,30 @@ class AiExplanationService
             && is_string($geminiBaseUrl)
             && trim($geminiBaseUrl) !== ''
         ) {
+            $geminiModels = [
+                trim($geminiModel),
+            ];
+
+            if (is_array($configuredGeminiFallbackModels)) {
+                foreach ($configuredGeminiFallbackModels as $fallbackModel) {
+                    if (
+                        ! is_string($fallbackModel)
+                        || trim($fallbackModel) === ''
+                    ) {
+                        continue;
+                    }
+
+                    $geminiModels[] = trim($fallbackModel);
+                }
+            }
+
             $providers[] = [
                 'name' => 'gemini',
                 'key' => trim($geminiKey),
                 'base_url' => trim($geminiBaseUrl),
-                'models' => [
-                    trim($geminiModel),
-                ],
+                'models' => array_values(
+                    array_unique($geminiModels),
+                ),
             ];
         }
 
@@ -174,7 +195,7 @@ class AiExplanationService
                 .';';
         }
 
-        $cacheKey = 'skill-gap-explanation:v11:'
+        $cacheKey = 'skill-gap-explanation:v12:'
             .$user->id
             .':'
             .sha1(
@@ -216,6 +237,12 @@ class AiExplanationService
             return $unavailable;
         }
 
+        $startedAt = microtime(true);
+        $deadline = $startedAt + (float) config(
+            'services.ai.request_timeout',
+            12,
+        );
+
         foreach ($providers as $provider) {
             if (
                 Cache::has(
@@ -229,12 +256,21 @@ class AiExplanationService
             }
 
             foreach ($provider['models'] as $candidateModel) {
+                $attemptTimeout = $this->nextAttemptTimeout(
+                    $deadline,
+                );
+
+                if ($attemptTimeout === null) {
+                    break 2;
+                }
+
                 $result = $this->requestSummary(
                     $provider['name'],
                     $provider['key'],
                     $provider['base_url'],
                     $candidateModel,
                     $contextJson,
+                    $attemptTimeout,
                 );
 
                 if ($result === false) {
@@ -264,7 +300,31 @@ class AiExplanationService
         Cache::put(
             $failureCacheKey,
             true,
-            now()->addSeconds(20),
+            now()->addSeconds(
+                (int) config(
+                    'services.ai.failure_cache_seconds',
+                    5,
+                ),
+            ),
+        );
+
+        Log::warning(
+            'AI skill gap providers were exhausted.',
+            [
+                'user_id' => $user->id,
+                'elapsed_ms' => (int) round(
+                    (microtime(true) - $startedAt) * 1000,
+                ),
+                'providers' => collect($providers)
+                    ->map(
+                        fn (array $provider) => [
+                            'name' => $provider['name'],
+                            'models' => $provider['models'],
+                        ],
+                    )
+                    ->values()
+                    ->all(),
+            ],
         );
 
         return $unavailable;
@@ -276,6 +336,7 @@ class AiExplanationService
         string $baseUrl,
         string $model,
         string $contextJson,
+        int $timeoutSeconds,
     ): AiExplanationResult|false|null {
         if ($provider === 'gemini') {
             return $this->requestGeminiSummary(
@@ -283,6 +344,7 @@ class AiExplanationService
                 $baseUrl,
                 $model,
                 $contextJson,
+                $timeoutSeconds,
             );
         }
 
@@ -291,6 +353,7 @@ class AiExplanationService
             $baseUrl,
             $model,
             $contextJson,
+            $timeoutSeconds,
         );
     }
 
@@ -299,6 +362,7 @@ class AiExplanationService
         string $baseUrl,
         string $model,
         string $contextJson,
+        int $timeoutSeconds,
     ): AiExplanationResult|false|null {
         try {
             $generationConfig = $this->geminiGenerationConfig(
@@ -311,8 +375,16 @@ class AiExplanationService
             ])
                 ->acceptJson()
                 ->asJson()
-                ->connectTimeout(4)
-                ->timeout(20)
+                ->connectTimeout(
+                    min(
+                        $timeoutSeconds,
+                        (int) config(
+                            'services.ai.connect_timeout',
+                            3,
+                        ),
+                    ),
+                )
+                ->timeout($timeoutSeconds)
                 ->post(
                     rtrim(
                         $baseUrl,
@@ -429,7 +501,7 @@ class AiExplanationService
                 ],
             );
 
-            return false;
+            return null;
         } catch (Throwable $exception) {
             Log::warning(
                 'Gemini skill gap request threw an exception.',
@@ -449,6 +521,7 @@ class AiExplanationService
         string $baseUrl,
         string $model,
         string $contextJson,
+        int $timeoutSeconds,
     ): AiExplanationResult|false|null {
         try {
             $payload = [
@@ -491,8 +564,16 @@ class AiExplanationService
                 ])
                 ->acceptJson()
                 ->asJson()
-                ->connectTimeout(4)
-                ->timeout(10)
+                ->connectTimeout(
+                    min(
+                        $timeoutSeconds,
+                        (int) config(
+                            'services.ai.connect_timeout',
+                            3,
+                        ),
+                    ),
+                )
+                ->timeout($timeoutSeconds)
                 ->post(
                     rtrim(
                         $baseUrl,
@@ -593,7 +674,7 @@ class AiExplanationService
                 ],
             );
 
-            return false;
+            return null;
         } catch (Throwable $exception) {
             Log::warning(
                 'OpenRouter skill gap request threw an exception.',
@@ -759,6 +840,9 @@ class AiExplanationService
             );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function geminiGenerationConfig(
         string $model,
         int $maxOutputTokens,
@@ -820,6 +904,26 @@ class AiExplanationService
         }
 
         return null;
+    }
+
+    private function nextAttemptTimeout(
+        float $deadline,
+    ): ?int {
+        $remainingSeconds = (int) floor(
+            $deadline - microtime(true),
+        );
+
+        if ($remainingSeconds < 1) {
+            return null;
+        }
+
+        return min(
+            $remainingSeconds,
+            (int) config(
+                'services.ai.attempt_timeout',
+                6,
+            ),
+        );
     }
 
     private function rememberRateLimit(

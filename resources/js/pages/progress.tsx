@@ -1,4 +1,4 @@
-import { Deferred, Head, Link } from '@inertiajs/react';
+import { Deferred, Head, Link, router } from '@inertiajs/react';
 import {
     Activity,
     ArrowUpRight,
@@ -7,9 +7,11 @@ import {
     CircleAlert,
     Clock3,
     History,
+    RotateCcw,
     Route,
     Trophy,
 } from 'lucide-react';
+import { useState } from 'react';
 import {
     Area,
     AreaChart,
@@ -19,6 +21,7 @@ import {
     XAxis,
     YAxis,
 } from 'recharts';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface Readiness {
@@ -36,6 +39,7 @@ interface AiInsights {
     obstacles: string | null;
     generatedByAi: boolean;
     model: string | null;
+    message: string | null;
 }
 
 interface ReadinessSnapshot {
@@ -190,6 +194,8 @@ export default function Progress({
     projects: UserProject[];
     roadmaps: RoadmapHistory[];
 }) {
+    const [isRetryingAi, setIsRetryingAi] = useState(false);
+
     const chartData = readinessHistory.map((snapshot) => ({
         name: new Intl.DateTimeFormat('id-ID', {
             day: '2-digit',
@@ -212,6 +218,15 @@ export default function Progress({
         Boolean(aiInsights.progress) &&
         Boolean(aiInsights.schedule) &&
         Boolean(aiInsights.obstacles);
+
+    const retryAiInsights = () => {
+        setIsRetryingAi(true);
+
+        router.reload({
+            only: ['aiInsights'],
+            onFinish: () => setIsRetryingAi(false),
+        });
+    };
 
     return (
         <>
@@ -352,7 +367,49 @@ export default function Progress({
                                 </div>
                             </CardContent>
                         </Card>
-                    ) : null}
+                    ) : (
+                        <Card>
+                            <CardHeader className="border-b-2 border-[#171717] bg-[var(--neo-blue)] text-[#171717]">
+                                <CardTitle className="flex items-center gap-2 text-xl font-black">
+                                    <BrainCircuit className="size-5" />
+                                    AI Learning Coach
+                                </CardTitle>
+                            </CardHeader>
+
+                            <CardContent
+                                className="space-y-4 pt-6"
+                                aria-live="polite"
+                            >
+                                <div className="flex items-start gap-3">
+                                    <CircleAlert className="mt-0.5 size-5 shrink-0" />
+
+                                    <p className="text-sm leading-6 font-semibold text-muted-foreground">
+                                        {aiInsights?.message ??
+                                            'AI Learning Coach sedang tidak tersedia. Silakan coba lagi.'}
+                                    </p>
+                                </div>
+
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={isRetryingAi}
+                                    onClick={retryAiInsights}
+                                >
+                                    <RotateCcw
+                                        className={
+                                            isRetryingAi
+                                                ? 'animate-spin'
+                                                : undefined
+                                        }
+                                    />
+                                    {isRetryingAi
+                                        ? 'Memuat ulang...'
+                                        : 'Coba lagi'}
+                                </Button>
+                            </CardContent>
+                        </Card>
+                    )}
                 </Deferred>
 
                 <Card>
