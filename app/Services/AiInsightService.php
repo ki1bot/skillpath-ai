@@ -8,6 +8,8 @@ use App\Models\Roadmap;
 use App\Models\RoadmapItem;
 use App\Models\User;
 use App\Models\UserProject;
+use App\Support\AiCompletionResult;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -285,59 +287,92 @@ class AiInsightService
         array $requiredTags = [],
         int $timeoutSeconds = 15,
     ): ?array {
-        $key = config(
+        $providers = [];
+
+        $geminiKey = config(
+            'services.gemini.key',
+        );
+        $geminiModel = config(
+            'services.gemini.model',
+            'gemini-2.5-flash',
+        );
+        $geminiBaseUrl = config(
+            'services.gemini.base_url',
+            'https://generativelanguage.googleapis.com/v1beta/openai',
+        );
+
+        if (
+            is_string($geminiKey)
+            && trim($geminiKey) !== ''
+            && is_string($geminiModel)
+            && trim($geminiModel) !== ''
+            && is_string($geminiBaseUrl)
+            && trim($geminiBaseUrl) !== ''
+        ) {
+            $providers[] = [
+                'name' => 'gemini',
+                'key' => trim($geminiKey),
+                'base_url' => trim($geminiBaseUrl),
+                'models' => [
+                    trim($geminiModel),
+                ],
+            ];
+        }
+
+        $openRouterKey = config(
             'services.openrouter.key',
         );
-
-        $model = config(
+        $openRouterModel = config(
             'services.openrouter.model',
-            'openrouter/free',
+            'openai/gpt-oss-20b:free',
         );
-
-        $baseUrl = config(
+        $openRouterBaseUrl = config(
             'services.openrouter.base_url',
             'https://openrouter.ai/api/v1',
         );
-
         $configuredFallbackModels = config(
             'services.openrouter.fallback_models',
             [],
         );
 
         if (
-            ! is_string($key)
-            || trim($key) === ''
-            || ! is_string($model)
-            || trim($model) === ''
-            || ! is_string($baseUrl)
-            || trim($baseUrl) === ''
+            is_string($openRouterKey)
+            && trim($openRouterKey) !== ''
+            && is_string($openRouterModel)
+            && trim($openRouterModel) !== ''
+            && is_string($openRouterBaseUrl)
+            && trim($openRouterBaseUrl) !== ''
         ) {
+            $openRouterModels = [
+                trim($openRouterModel),
+            ];
+
+            if (is_array($configuredFallbackModels)) {
+                foreach ($configuredFallbackModels as $fallbackModel) {
+                    if (
+                        ! is_string($fallbackModel)
+                        || trim($fallbackModel) === ''
+                    ) {
+                        continue;
+                    }
+
+                    $openRouterModels[] = trim($fallbackModel);
+                }
+            }
+
+            $providers[] = [
+                'name' => 'openrouter',
+                'key' => trim($openRouterKey),
+                'base_url' => trim($openRouterBaseUrl),
+                'models' => array_values(
+                    array_unique($openRouterModels),
+                ),
+            ];
+        }
+
+        if ($providers === []) {
             return null;
         }
-
-        $key = trim($key);
-        $baseUrl = trim($baseUrl);
-
-        $models = [
-            trim($model),
-        ];
-
-        if (is_array($configuredFallbackModels)) {
-            foreach ($configuredFallbackModels as $fallbackModel) {
-                if (
-                    ! is_string($fallbackModel)
-                    || trim($fallbackModel) === ''
-                ) {
-                    continue;
-                }
-
-                $models[] = trim($fallbackModel);
-            }
-        }
-
-        $models = array_values(
-            array_unique($models),
-        );
 
         $json = json_encode(
             $context,
@@ -349,15 +384,24 @@ class AiInsightService
             return null;
         }
 
-        $cacheKey = 'skillpath-ai-insight:v6:'
+        $providerSignature = '';
+
+        foreach ($providers as $provider) {
+            $providerSignature .= $provider['name']
+                .'|'
+                .$provider['base_url']
+                .'|'
+                .implode(',', $provider['models'])
+                .';';
+        }
+
+        $cacheKey = 'skillpath-ai-insight:v7:'
             .$scope
             .':'
             .$user->id
             .':'
             .sha1(
-                $baseUrl
-                    .'|'
-                    .implode('|', $models)
+                $providerSignature
                     .'|'
                     .$json,
             );
@@ -390,203 +434,60 @@ class AiInsightService
         }
 
         $failureCacheKey = $cacheKey.':failure';
-        $rateLimitCacheKey = $this->rateLimitCacheKey($key);
 
-        if (
-            Cache::has($rateLimitCacheKey)
-            || Cache::has($failureCacheKey)
-        ) {
+        if (Cache::has($failureCacheKey)) {
             return null;
         }
 
-        foreach ($models as $candidateModel) {
-            try {
-                $payload = [
-                    'model' => $candidateModel,
-                    'messages' => [
-                        [
-                            'role' => 'system',
-                            'content' => 'Anda adalah fitur AI SkillPath AI. Locale aplikasi saat ini adalah '.app()->getLocale().'. Seluruh teks yang ditampilkan kepada pengguna wajib menggunakan Bahasa Indonesia. Jangan menulis kalimat dalam Bahasa Inggris. Nama teknologi, framework, API, database, bahasa pemrograman, library, atau istilah teknis yang umum boleh tetap menggunakan nama aslinya. Gunakan hanya data yang diberikan. Jangan mengubah skor, hasil asesmen, status progres, keputusan roadmap, kemampuan, proyek, materi, atau fakta lain. Jangan membuat data yang tidak diberikan. Gunakan Bahasa Indonesia yang alami, jelas, dan ringkas. '.$task.' '.$this->outputInstruction(...$requiredTags),
-                        ],
-                        [
-                            'role' => 'user',
-                            'content' => $json,
-                        ],
-                    ],
-                    'temperature' => 0.2,
-                    'max_tokens' => $maxTokens,
-                    'stream' => false,
-                    'provider' => [
-                        'allow_fallbacks' => true,
-                    ],
-                ];
-
-                if ($this->shouldLimitReasoning($candidateModel)) {
-                    $payload['reasoning'] = [
-                        'effort' => 'minimal',
-                        'exclude' => true,
-                    ];
-                }
-
-                $response = Http::withToken(
-                    $key,
+        foreach ($providers as $provider) {
+            if (
+                Cache::has(
+                    $this->rateLimitCacheKey(
+                        $provider['name'],
+                        $provider['key'],
+                    ),
                 )
-                    ->withHeaders([
-                        'HTTP-Referer' => (string) config(
-                            'app.url',
-                        ),
-                        'X-Title' => (string) config(
-                            'app.name',
-                        ),
-                    ])
-                    ->acceptJson()
-                    ->asJson()
-                    ->connectTimeout(4)
-                    ->timeout($timeoutSeconds)
-                    ->post(
-                        rtrim(
-                            $baseUrl,
-                            '/',
-                        ).'/chat/completions',
-                        $payload,
-                    );
+            ) {
+                continue;
+            }
 
-                if (! $response->successful()) {
-                    $rateLimited = (
-                        $response->status() === 429
-                        && $this->isDailyFreeTierLimit(
-                            $response->json(),
-                        )
-                    );
-
-                    if ($rateLimited) {
-                        $this->rememberRateLimit(
-                            $key,
-                            $response->json(),
-                        );
-                    }
-
-                    Log::warning(
-                        'OpenRouter AI insight request failed.',
-                        [
-                            'scope' => $scope,
-                            'status' => $response->status(),
-                            'model' => $candidateModel,
-                            'response' => Str::limit(
-                                $response->body(),
-                                500,
-                                '',
-                            ),
-                        ],
-                    );
-
-                    if ($rateLimited) {
-                        return null;
-                    }
-
-                    continue;
-                }
-
-                $content = $response->json(
-                    'choices.0.message.content',
-                );
-
-                if (! is_string($content)) {
-                    Log::warning(
-                        'OpenRouter AI insight response did not contain text.',
-                        [
-                            'scope' => $scope,
-                            'model' => $candidateModel,
-                            'finish_reason' => $response->json(
-                                'choices.0.finish_reason',
-                            ),
-                        ],
-                    );
-
-                    continue;
-                }
-
-                $content = $this->prepareContent(
-                    $content,
+            foreach ($provider['models'] as $candidateModel) {
+                $result = $this->requestInsight(
+                    $provider['name'],
+                    $provider['key'],
+                    $provider['base_url'],
+                    $candidateModel,
+                    $task,
+                    $json,
+                    $maxTokens,
+                    $timeoutSeconds,
                     ...$requiredTags,
                 );
 
-                if (
-                    $content === null
-                    || ! $this->looksIndonesian(
-                        $content,
-                    )
-                    || ! $this->hasRequiredTags(
-                        $content,
-                        $requiredTags,
-                    )
-                ) {
-                    Log::warning(
-                        'OpenRouter AI insight response was rejected.',
-                        [
-                            'scope' => $scope,
-                            'requested_model' => $candidateModel,
-                            'resolved_model' => $response->json(
-                                'model',
-                            ),
-                            'finish_reason' => $response->json(
-                                'choices.0.finish_reason',
-                            ),
-                            'content' => Str::limit(
-                                (string) $response->json(
-                                    'choices.0.message.content',
-                                    '',
-                                ),
-                                500,
-                                '',
-                            ),
-                        ],
-                    );
-
-                    continue;
+                if ($result === false) {
+                    break;
                 }
 
-                Cache::forget(
-                    $this->rateLimitCacheKey($key),
-                );
-
-                $responseModel = $response->json(
-                    'model',
-                );
-
-                $resolvedModel = is_string(
-                    $responseModel,
-                )
-                    && trim($responseModel) !== ''
-                        ? trim($responseModel)
-                        : $candidateModel;
+                if ($result === null) {
+                    continue;
+                }
 
                 Cache::forget($failureCacheKey);
 
                 Cache::put(
                     $cacheKey,
                     [
-                        'content' => $content,
-                        'model' => $resolvedModel,
+                        'content' => $result->content,
+                        'model' => $result->model,
                     ],
                     now()->addDays(7),
                 );
 
                 return [
-                    'content' => $content,
+                    'content' => $result->content,
                     'generated_by_ai' => true,
-                    'model' => $resolvedModel,
+                    'model' => $result->model,
                 ];
-            } catch (Throwable $exception) {
-                Log::warning(
-                    'OpenRouter AI insight request threw an exception.',
-                    [
-                        'scope' => $scope,
-                        'exception' => $exception::class,
-                        'message' => $exception->getMessage(),
-                        'model' => $candidateModel,
-                    ],
-                );
             }
         }
 
@@ -597,6 +498,227 @@ class AiInsightService
         );
 
         return null;
+    }
+
+    private function requestInsight(
+        string $provider,
+        string $key,
+        string $baseUrl,
+        string $model,
+        string $task,
+        string $json,
+        int $maxTokens,
+        int $timeoutSeconds,
+        string ...$requiredTags,
+    ): AiCompletionResult|false|null {
+        try {
+            $requiredTags = array_values(
+                $requiredTags,
+            );
+
+            $payload = [
+                'model' => $model,
+                'messages' => [
+                    [
+                        'role' => 'system',
+                        'content' => 'Anda adalah fitur AI SkillPath AI. Locale aplikasi saat ini adalah '.app()->getLocale().'. Seluruh teks yang ditampilkan kepada pengguna wajib menggunakan Bahasa Indonesia. Jangan menulis kalimat dalam Bahasa Inggris. Nama teknologi, framework, API, database, bahasa pemrograman, library, atau istilah teknis yang umum boleh tetap menggunakan nama aslinya. Gunakan hanya data yang diberikan. Jangan mengubah skor, hasil asesmen, status progres, keputusan roadmap, kemampuan, proyek, materi, atau fakta lain. Jangan membuat data yang tidak diberikan. Gunakan Bahasa Indonesia yang alami, jelas, dan ringkas. '.$task.' '.$this->outputInstruction(...$requiredTags),
+                    ],
+                    [
+                        'role' => 'user',
+                        'content' => $json,
+                    ],
+                ],
+                'temperature' => 0.2,
+                'max_tokens' => $maxTokens,
+                'stream' => false,
+            ];
+
+            if ($provider === 'openrouter') {
+                $payload['provider'] = [
+                    'allow_fallbacks' => true,
+                ];
+
+                if ($this->shouldLimitOpenRouterReasoning($model)) {
+                    $payload['reasoning'] = [
+                        'effort' => 'minimal',
+                        'exclude' => true,
+                    ];
+                }
+            }
+
+            if (
+                $provider === 'gemini'
+                && $this->canDisableGeminiThinking($model)
+            ) {
+                $payload['reasoning_effort'] = 'none';
+            }
+
+            $request = Http::withToken(
+                $key,
+            )
+                ->acceptJson()
+                ->asJson()
+                ->connectTimeout(4)
+                ->timeout(
+                    $provider === 'gemini'
+                        ? min($timeoutSeconds, 10)
+                        : min($timeoutSeconds, 12),
+                );
+
+            if ($provider === 'openrouter') {
+                $request = $request->withHeaders([
+                    'HTTP-Referer' => (string) config(
+                        'app.url',
+                    ),
+                    'X-Title' => (string) config(
+                        'app.name',
+                    ),
+                ]);
+            }
+
+            $response = $request->post(
+                rtrim(
+                    $baseUrl,
+                    '/',
+                ).'/chat/completions',
+                $payload,
+            );
+
+            if (! $response->successful()) {
+                $rateLimited = $response->status() === 429;
+
+                if ($rateLimited) {
+                    $this->rememberRateLimit(
+                        $provider,
+                        $key,
+                        $response->json(),
+                        $response->header('Retry-After'),
+                    );
+                }
+
+                Log::warning(
+                    'AI insight request failed.',
+                    [
+                        'provider' => $provider,
+                        'status' => $response->status(),
+                        'model' => $model,
+                        'response' => Str::limit(
+                            $response->body(),
+                            500,
+                            '',
+                        ),
+                    ],
+                );
+
+                return $rateLimited
+                    ? false
+                    : null;
+            }
+
+            $content = $response->json(
+                'choices.0.message.content',
+            );
+
+            if (! is_string($content)) {
+                Log::warning(
+                    'AI insight response did not contain text.',
+                    [
+                        'provider' => $provider,
+                        'model' => $model,
+                        'finish_reason' => $response->json(
+                            'choices.0.finish_reason',
+                        ),
+                    ],
+                );
+
+                return null;
+            }
+
+            $content = $this->prepareContent(
+                $content,
+                ...$requiredTags,
+            );
+
+            if (
+                $content === null
+                || ! $this->looksIndonesian(
+                    $content,
+                )
+                || ! $this->hasRequiredTags(
+                    $content,
+                    $requiredTags,
+                )
+            ) {
+                Log::warning(
+                    'AI insight response was rejected.',
+                    [
+                        'provider' => $provider,
+                        'requested_model' => $model,
+                        'resolved_model' => $response->json(
+                            'model',
+                        ),
+                        'finish_reason' => $response->json(
+                            'choices.0.finish_reason',
+                        ),
+                        'content' => Str::limit(
+                            (string) $response->json(
+                                'choices.0.message.content',
+                                '',
+                            ),
+                            500,
+                            '',
+                        ),
+                    ],
+                );
+
+                return null;
+            }
+
+            Cache::forget(
+                $this->rateLimitCacheKey(
+                    $provider,
+                    $key,
+                ),
+            );
+
+            $responseModel = $response->json(
+                'model',
+            );
+
+            $resolvedModel = is_string($responseModel)
+                && trim($responseModel) !== ''
+                    ? trim($responseModel)
+                    : $model;
+
+            return new AiCompletionResult(
+                $content,
+                $resolvedModel,
+            );
+        } catch (ConnectionException $exception) {
+            Log::warning(
+                'AI request timed out or could not connect.',
+                [
+                    'provider' => $provider,
+                    'exception' => $exception::class,
+                    'message' => $exception->getMessage(),
+                    'model' => $model,
+                ],
+            );
+
+            return false;
+        } catch (Throwable $exception) {
+            Log::warning(
+                'AI insight request threw an exception.',
+                [
+                    'provider' => $provider,
+                    'exception' => $exception::class,
+                    'message' => $exception->getMessage(),
+                    'model' => $model,
+                ],
+            );
+
+            return null;
+        }
     }
 
     private function outputInstruction(
@@ -795,7 +917,7 @@ class AiInsightService
             : null;
     }
 
-    private function shouldLimitReasoning(
+    private function shouldLimitOpenRouterReasoning(
         string $model,
     ): bool {
         return str_contains(
@@ -804,23 +926,50 @@ class AiInsightService
         );
     }
 
-    private function isDailyFreeTierLimit(
-        mixed $response,
+    private function canDisableGeminiThinking(
+        string $model,
     ): bool {
-        return is_array($response)
-            && data_get(
-                $response,
-                'error.metadata.limit_source',
-            ) === 'openrouter_free_tier_daily';
+        $model = Str::lower($model);
+
+        return str_contains(
+            $model,
+            'gemini-2.5-',
+        )
+            && ! str_contains(
+                $model,
+                'pro',
+            );
     }
 
     private function rememberRateLimit(
+        string $provider,
         string $key,
         mixed $response,
+        ?string $retryAfter,
     ): void {
-        $ttlSeconds = 900;
+        $ttlSeconds = 60;
 
-        if (is_array($response)) {
+        if (
+            is_string($retryAfter)
+            && ctype_digit(trim($retryAfter))
+        ) {
+            $ttlSeconds = max(
+                10,
+                min(
+                    (int) trim($retryAfter),
+                    3600,
+                ),
+            );
+        }
+
+        if (
+            $provider === 'openrouter'
+            && is_array($response)
+            && data_get(
+                $response,
+                'error.metadata.limit_source',
+            ) === 'openrouter_free_tier_daily'
+        ) {
             $reset = data_get(
                 $response,
                 'error.metadata.headers.X-RateLimit-Reset',
@@ -844,16 +993,22 @@ class AiInsightService
         }
 
         Cache::put(
-            $this->rateLimitCacheKey($key),
+            $this->rateLimitCacheKey(
+                $provider,
+                $key,
+            ),
             true,
             now()->addSeconds($ttlSeconds),
         );
     }
 
     private function rateLimitCacheKey(
+        string $provider,
         string $key,
     ): string {
-        return 'openrouter-rate-limit:'
+        return 'ai-rate-limit:'
+            .$provider
+            .':'
             .sha1($key);
     }
 

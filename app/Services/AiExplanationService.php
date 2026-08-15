@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Support\AiExplanationResult;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -60,59 +61,92 @@ class AiExplanationService
 
         $careerName = trim($careerName);
 
-        $key = config(
-            'services.openrouter.key',
+        $providers = [];
+
+        $geminiKey = config(
+            'services.gemini.key',
+        );
+        $geminiModel = config(
+            'services.gemini.model',
+            'gemini-2.5-flash',
+        );
+        $geminiBaseUrl = config(
+            'services.gemini.base_url',
+            'https://generativelanguage.googleapis.com/v1beta/openai',
         );
 
-        $model = config(
+        if (
+            is_string($geminiKey)
+            && trim($geminiKey) !== ''
+            && is_string($geminiModel)
+            && trim($geminiModel) !== ''
+            && is_string($geminiBaseUrl)
+            && trim($geminiBaseUrl) !== ''
+        ) {
+            $providers[] = [
+                'name' => 'gemini',
+                'key' => trim($geminiKey),
+                'base_url' => trim($geminiBaseUrl),
+                'models' => [
+                    trim($geminiModel),
+                ],
+            ];
+        }
+
+        $openRouterKey = config(
+            'services.openrouter.key',
+        );
+        $openRouterModel = config(
             'services.openrouter.model',
             'openai/gpt-oss-20b:free',
         );
-
-        $baseUrl = config(
+        $openRouterBaseUrl = config(
             'services.openrouter.base_url',
             'https://openrouter.ai/api/v1',
         );
-
         $configuredFallbackModels = config(
             'services.openrouter.fallback_models',
             [],
         );
 
         if (
-            ! is_string($key)
-            || trim($key) === ''
-            || ! is_string($model)
-            || trim($model) === ''
-            || ! is_string($baseUrl)
-            || trim($baseUrl) === ''
+            is_string($openRouterKey)
+            && trim($openRouterKey) !== ''
+            && is_string($openRouterModel)
+            && trim($openRouterModel) !== ''
+            && is_string($openRouterBaseUrl)
+            && trim($openRouterBaseUrl) !== ''
         ) {
+            $openRouterModels = [
+                trim($openRouterModel),
+            ];
+
+            if (is_array($configuredFallbackModels)) {
+                foreach ($configuredFallbackModels as $fallbackModel) {
+                    if (
+                        ! is_string($fallbackModel)
+                        || trim($fallbackModel) === ''
+                    ) {
+                        continue;
+                    }
+
+                    $openRouterModels[] = trim($fallbackModel);
+                }
+            }
+
+            $providers[] = [
+                'name' => 'openrouter',
+                'key' => trim($openRouterKey),
+                'base_url' => trim($openRouterBaseUrl),
+                'models' => array_values(
+                    array_unique($openRouterModels),
+                ),
+            ];
+        }
+
+        if ($providers === []) {
             return $unavailable;
         }
-
-        $key = trim($key);
-        $baseUrl = trim($baseUrl);
-
-        $models = [
-            trim($model),
-        ];
-
-        if (is_array($configuredFallbackModels)) {
-            foreach ($configuredFallbackModels as $fallbackModel) {
-                if (
-                    ! is_string($fallbackModel)
-                    || trim($fallbackModel) === ''
-                ) {
-                    continue;
-                }
-
-                $models[] = trim($fallbackModel);
-            }
-        }
-
-        $models = array_values(
-            array_unique($models),
-        );
 
         $context = [
             'target_career' => $careerName,
@@ -129,13 +163,22 @@ class AiExplanationService
             return $unavailable;
         }
 
-        $cacheKey = 'skill-gap-explanation:v8:'
+        $providerSignature = '';
+
+        foreach ($providers as $provider) {
+            $providerSignature .= $provider['name']
+                .'|'
+                .$provider['base_url']
+                .'|'
+                .implode(',', $provider['models'])
+                .';';
+        }
+
+        $cacheKey = 'skill-gap-explanation:v9:'
             .$user->id
             .':'
             .sha1(
-                $baseUrl
-                    .'|'
-                    .implode('|', $models)
+                $providerSignature
                     .'|'
                     .$contextJson,
             );
@@ -168,44 +211,54 @@ class AiExplanationService
         }
 
         $failureCacheKey = $cacheKey.':failure';
-        $rateLimitCacheKey = $this->rateLimitCacheKey($key);
 
-        if (
-            Cache::has($rateLimitCacheKey)
-            || Cache::has($failureCacheKey)
-        ) {
+        if (Cache::has($failureCacheKey)) {
             return $unavailable;
         }
 
-        foreach ($models as $candidateModel) {
-            $result = $this->requestSummary(
-                $key,
-                $baseUrl,
-                $candidateModel,
-                $contextJson,
-            );
-
-            if ($result === false) {
-                return $unavailable;
-            }
-
-            if ($result === null) {
+        foreach ($providers as $provider) {
+            if (
+                Cache::has(
+                    $this->rateLimitCacheKey(
+                        $provider['name'],
+                        $provider['key'],
+                    ),
+                )
+            ) {
                 continue;
             }
 
-            Cache::forget($failureCacheKey);
+            foreach ($provider['models'] as $candidateModel) {
+                $result = $this->requestSummary(
+                    $provider['name'],
+                    $provider['key'],
+                    $provider['base_url'],
+                    $candidateModel,
+                    $contextJson,
+                );
 
-            Cache::put(
-                $cacheKey,
-                [
-                    'summary' => $result->summary,
-                    'model' => $result->model,
-                    'generated_by_ai' => true,
-                ],
-                now()->addDays(7),
-            );
+                if ($result === false) {
+                    break;
+                }
 
-            return $result;
+                if ($result === null) {
+                    continue;
+                }
+
+                Cache::forget($failureCacheKey);
+
+                Cache::put(
+                    $cacheKey,
+                    [
+                        'summary' => $result->summary,
+                        'model' => $result->model,
+                        'generated_by_ai' => true,
+                    ],
+                    now()->addDays(7),
+                );
+
+                return $result;
+            }
         }
 
         Cache::put(
@@ -218,6 +271,7 @@ class AiExplanationService
     }
 
     private function requestSummary(
+        string $provider,
         string $key,
         string $baseUrl,
         string $model,
@@ -239,59 +293,75 @@ class AiExplanationService
                 'temperature' => 0.2,
                 'max_tokens' => 500,
                 'stream' => false,
-                'provider' => [
-                    'allow_fallbacks' => true,
-                ],
             ];
 
-            if ($this->shouldLimitReasoning($model)) {
-                $payload['reasoning'] = [
-                    'effort' => 'minimal',
-                    'exclude' => true,
+            if ($provider === 'openrouter') {
+                $payload['provider'] = [
+                    'allow_fallbacks' => true,
                 ];
+
+                if ($this->shouldLimitOpenRouterReasoning($model)) {
+                    $payload['reasoning'] = [
+                        'effort' => 'minimal',
+                        'exclude' => true,
+                    ];
+                }
             }
 
-            $response = Http::withToken(
+            if (
+                $provider === 'gemini'
+                && $this->canDisableGeminiThinking($model)
+            ) {
+                $payload['reasoning_effort'] = 'none';
+            }
+
+            $request = Http::withToken(
                 $key,
             )
-                ->withHeaders([
+                ->acceptJson()
+                ->asJson()
+                ->connectTimeout(4)
+                ->timeout(
+                    $provider === 'gemini'
+                        ? 10
+                        : 12,
+                );
+
+            if ($provider === 'openrouter') {
+                $request = $request->withHeaders([
                     'HTTP-Referer' => (string) config(
                         'app.url',
                     ),
                     'X-Title' => (string) config(
                         'app.name',
                     ),
-                ])
-                ->acceptJson()
-                ->asJson()
-                ->connectTimeout(4)
-                ->timeout(18)
-                ->post(
-                    rtrim(
-                        $baseUrl,
-                        '/',
-                    ).'/chat/completions',
-                    $payload,
-                );
+                ]);
+            }
+
+            $response = $request->post(
+                rtrim(
+                    $baseUrl,
+                    '/',
+                ).'/chat/completions',
+                $payload,
+            );
 
             if (! $response->successful()) {
-                $rateLimited = (
-                    $response->status() === 429
-                    && $this->isDailyFreeTierLimit(
-                        $response->json(),
-                    )
-                );
+                $rateLimited = $response->status() === 429;
 
                 if ($rateLimited) {
                     $this->rememberRateLimit(
+                        $provider,
                         $key,
                         $response->json(),
+                        $response->header('Retry-After'),
                     );
                 }
 
                 Log::warning(
-                    'OpenRouter skill gap request failed.',
+                    'AI skill gap request failed.',
                     [
+                        'provider' => $provider,
                         'status' => $response->status(),
                         'model' => $model,
                         'response' => Str::limit(
@@ -315,8 +385,9 @@ class AiExplanationService
 
             if ($summary === null) {
                 Log::warning(
-                    'OpenRouter skill gap response was rejected.',
+                    'AI skill gap response was rejected.',
                     [
+                        'provider' => $provider,
                         'requested_model' => $model,
                         'resolved_model' => $response->json(
                             'model',
@@ -339,7 +410,10 @@ class AiExplanationService
             }
 
             Cache::forget(
-                $this->rateLimitCacheKey($key),
+                $this->rateLimitCacheKey(
+                    $provider,
+                    $key,
+                ),
             );
 
             $responseModel = $response->json(
@@ -356,10 +430,23 @@ class AiExplanationService
                 true,
                 $resolvedModel,
             );
+        } catch (ConnectionException $exception) {
+            Log::warning(
+                'AI request timed out or could not connect.',
+                [
+                    'provider' => $provider,
+                    'exception' => $exception::class,
+                    'message' => $exception->getMessage(),
+                    'model' => $model,
+                ],
+            );
+
+            return false;
         } catch (Throwable $exception) {
             Log::warning(
-                'OpenRouter skill gap request threw an exception.',
+                'AI skill gap request threw an exception.',
                 [
+                    'provider' => $provider,
                     'exception' => $exception::class,
                     'message' => $exception->getMessage(),
                     'model' => $model,
@@ -459,7 +546,7 @@ class AiExplanationService
         );
     }
 
-    private function shouldLimitReasoning(
+    private function shouldLimitOpenRouterReasoning(
         string $model,
     ): bool {
         return str_contains(
@@ -468,23 +555,50 @@ class AiExplanationService
         );
     }
 
-    private function isDailyFreeTierLimit(
-        mixed $response,
+    private function canDisableGeminiThinking(
+        string $model,
     ): bool {
-        return is_array($response)
-            && data_get(
-                $response,
-                'error.metadata.limit_source',
-            ) === 'openrouter_free_tier_daily';
+        $model = Str::lower($model);
+
+        return str_contains(
+            $model,
+            'gemini-2.5-',
+        )
+            && ! str_contains(
+                $model,
+                'pro',
+            );
     }
 
     private function rememberRateLimit(
+        string $provider,
         string $key,
         mixed $response,
+        ?string $retryAfter,
     ): void {
-        $ttlSeconds = 900;
+        $ttlSeconds = 60;
 
-        if (is_array($response)) {
+        if (
+            is_string($retryAfter)
+            && ctype_digit(trim($retryAfter))
+        ) {
+            $ttlSeconds = max(
+                10,
+                min(
+                    (int) trim($retryAfter),
+                    3600,
+                ),
+            );
+        }
+
+        if (
+            $provider === 'openrouter'
+            && is_array($response)
+            && data_get(
+                $response,
+                'error.metadata.limit_source',
+            ) === 'openrouter_free_tier_daily'
+        ) {
             $reset = data_get(
                 $response,
                 'error.metadata.headers.X-RateLimit-Reset',
@@ -508,16 +622,22 @@ class AiExplanationService
         }
 
         Cache::put(
-            $this->rateLimitCacheKey($key),
+            $this->rateLimitCacheKey(
+                $provider,
+                $key,
+            ),
             true,
             now()->addSeconds($ttlSeconds),
         );
     }
 
     private function rateLimitCacheKey(
+        string $provider,
         string $key,
     ): string {
-        return 'openrouter-rate-limit:'
+        return 'ai-rate-limit:'
+            .$provider
+            .':'
             .sha1($key);
     }
 
