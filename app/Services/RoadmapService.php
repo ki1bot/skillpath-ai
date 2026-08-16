@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\LearningMaterial;
+use App\Models\ProgressLog;
 use App\Models\Roadmap;
 use App\Models\Skill;
 use App\Models\User;
@@ -328,6 +329,243 @@ class RoadmapService
         }
     }
 
+    public function adaptAfterSkillChange(
+        User $user,
+        string $reason = 'Perubahan skor skill setelah evaluasi',
+    ): ?Roadmap {
+        $user->loadMissing('targetCareer');
+
+        if (! $user->targetCareer) {
+            return null;
+        }
+
+        return DB::transaction(
+            function () use (
+                $user,
+                $reason,
+            ) {
+                $this->refreshAvailability(
+                    $user,
+                );
+
+                $roadmap = Roadmap::query()
+                    ->where(
+                        'user_id',
+                        $user->id,
+                    )
+                    ->where(
+                        'is_active',
+                        true,
+                    )
+                    ->with([
+                        'items.material.skill.prerequisites',
+                    ])
+                    ->lockForUpdate()
+                    ->first();
+
+                if (! $roadmap) {
+                    return null;
+                }
+
+                $analysis = collect(
+                    $this
+                        ->skillGapService
+                        ->analyze($user),
+                )->keyBy('skill_id');
+
+                $skills = $roadmap
+                    ->items
+                    ->map(
+                        fn ($item) => $item
+                            ->material
+                            ?->skill,
+                    )
+                    ->filter()
+                    ->unique('id')
+                    ->keyBy('id');
+
+                $reinforcementParentIds = $roadmap
+                    ->items
+                    ->pluck(
+                        'reinforcement_for_roadmap_item_id',
+                    )
+                    ->filter()
+                    ->unique()
+                    ->values();
+
+                $depthMemo = [];
+
+                $candidates = $roadmap
+                    ->items
+                    ->filter(
+                        function ($item) use (
+                            $reinforcementParentIds,
+                        ) {
+                            return
+                                $item
+                                    ->material
+                                    ->material_type
+                                    !== 'reinforcement'
+                                && ! in_array(
+                                    $item->status,
+                                    [
+                                        'completed',
+                                        'reinforcement_required',
+                                    ],
+                                    true,
+                                )
+                                && ! $reinforcementParentIds
+                                    ->contains(
+                                        $item->id,
+                                    );
+                        },
+                    )
+                    ->map(
+                        function ($item) use (
+                            $analysis,
+                            $skills,
+                            &$depthMemo,
+                        ) {
+                            $skillId = $item
+                                ->material
+                                ->skill_id;
+
+                            $analysisItem = $analysis->get(
+                                $skillId,
+                            );
+
+                            return [
+                                'item' => $item,
+                                'availability_rank' => $this
+                                    ->availabilityRank(
+                                        $item->status,
+                                    ),
+                                'depth' => $this->depth(
+                                    $skillId,
+                                    $skills,
+                                    $depthMemo,
+                                    [],
+                                ),
+                                'priority' => is_array(
+                                    $analysisItem,
+                                )
+                                    ? (float) $analysisItem[
+                                        'priority'
+                                    ]
+                                    : 0.0,
+                            ];
+                        },
+                    );
+
+                $slots = $candidates
+                    ->map(
+                        fn (array $entry) => (
+                            (int) $entry[
+                                'item'
+                            ]->position
+                        ),
+                    )
+                    ->sort()
+                    ->values();
+
+                $ordered = $candidates
+                    ->sort(
+                        function (
+                            array $a,
+                            array $b,
+                        ) {
+                            if (
+                                $a['availability_rank']
+                                !== $b['availability_rank']
+                            ) {
+                                return
+                                    $a['availability_rank']
+                                    <=> $b['availability_rank'];
+                            }
+
+                            if (
+                                $a['depth']
+                                !== $b['depth']
+                            ) {
+                                return
+                                    $a['depth']
+                                    <=> $b['depth'];
+                            }
+
+                            if (
+                                $a['priority']
+                                !== $b['priority']
+                            ) {
+                                return
+                                    $b['priority']
+                                    <=> $a['priority'];
+                            }
+
+                            return
+                                $a['item']->position
+                                <=> $b['item']->position;
+                        },
+                    )
+                    ->values();
+
+                $changed = false;
+
+                foreach (
+                    $ordered as $index => $entry
+                ) {
+                    $item = $entry['item'];
+                    $position = (int) $slots[$index];
+
+                    $stage = min(
+                        max(
+                            (int) $entry['depth'],
+                            1,
+                        ),
+                        4,
+                    );
+
+                    if (
+                        (int) $item->position !== $position
+                        || (int) $item->stage !== $stage
+                        || $item->stage_title
+                            !== $this->stageTitle($stage)
+                    ) {
+                        $changed = true;
+                    }
+
+                    $item->update([
+                        'position' => $position,
+                        'stage' => $stage,
+                        'stage_title' => $this->stageTitle(
+                            $stage,
+                        ),
+                    ]);
+                }
+
+                $this->recalculateEstimatedWeeks(
+                    $roadmap,
+                    $user,
+                );
+
+                if ($changed) {
+                    ProgressLog::create([
+                        'user_id' => $user->id,
+                        'activity_type' => 'roadmap_reordered',
+                        'minutes_spent' => 0,
+                        'progress_percentage' => 0,
+                        'notes' => $reason,
+                        'logged_at' => now(),
+                    ]);
+                }
+
+                return $roadmap
+                    ->fresh([
+                        'items.material.skill.prerequisites',
+                    ]);
+            },
+        );
+    }
+
     private function depth(
         int $skillId,
         Collection $skills,
@@ -420,6 +658,59 @@ class RoadmapService
                         >= 60;
                 },
             );
+    }
+
+    private function availabilityRank(
+        string $status,
+    ): int {
+        return match ($status) {
+            'available',
+            'needs_reinforcement' => 0,
+            'locked' => 1,
+            default => 2,
+        };
+    }
+
+    private function recalculateEstimatedWeeks(
+        Roadmap $roadmap,
+        User $user,
+    ): void {
+        $roadmap->loadMissing(
+            'items.material',
+        );
+
+        $remainingMinutes = $roadmap
+            ->items
+            ->where(
+                'status',
+                '!=',
+                'completed',
+            )
+            ->sum(
+                fn ($item) => (
+                    (int) $item
+                        ->material
+                        ->estimated_minutes
+                ),
+            );
+
+        $weeklyMinutes = max(
+            (
+                (int) $user
+                    ->weekly_study_hours
+            ) * 60,
+            60,
+        );
+
+        $roadmap->update([
+            'estimated_weeks' => max(
+                (int) ceil(
+                    $remainingMinutes
+                    / $weeklyMinutes,
+                ),
+                1,
+            ),
+        ]);
     }
 
     private function stageTitle(

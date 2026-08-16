@@ -8,19 +8,31 @@ import {
     Play,
     RotateCcw,
     Save,
+    ShieldAlert,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 
+type RecommendationLevel = 'recommended' | 'strengthen' | 'challenge';
+
 interface Requirement {
     skill_id: number;
     name: string;
     current: number;
     required: number;
+    gap: number;
+    weight: number;
     ready: boolean;
     percentage: number;
+}
+
+interface Recommendation {
+    level: RecommendationLevel;
+    rank: number;
+    label: string;
+    message: string;
 }
 
 interface Project {
@@ -39,6 +51,15 @@ interface Project {
     };
 }
 
+interface ProjectReadiness {
+    score: number;
+    ready: boolean;
+    missing_count: number;
+    requirements: Requirement[];
+    top_gaps: Requirement[];
+    recommendation: Recommendation;
+}
+
 interface UserProject {
     status: string;
     progress_percentage: number;
@@ -53,6 +74,12 @@ interface AiFeedback {
     message: string | null;
 }
 
+const recommendationClasses: Record<RecommendationLevel, string> = {
+    recommended: 'bg-[var(--neo-lime)]',
+    strengthen: 'bg-[var(--neo-yellow)]',
+    challenge: 'bg-[var(--neo-orange)]',
+};
+
 export default function ProjectShow({
     project,
     readiness,
@@ -60,11 +87,7 @@ export default function ProjectShow({
     aiFeedback,
 }: {
     project: Project;
-    readiness: {
-        score: number;
-        ready: boolean;
-        requirements: Requirement[];
-    };
+    readiness: ProjectReadiness;
     userProject: UserProject | null;
     aiFeedback?: AiFeedback;
 }) {
@@ -96,6 +119,15 @@ export default function ProjectShow({
         });
     };
 
+    const isCompleting = progressForm.data.progress_percentage === 100;
+    const completionEvidenceReady =
+        !isCompleting ||
+        (progressForm.data.repository_url.trim().startsWith('https://') &&
+            progressForm.data.notes.trim().length >= 80);
+
+    const recommendationClass =
+        recommendationClasses[readiness.recommendation.level];
+
     return (
         <>
             <Head title={project.title} />
@@ -112,6 +144,12 @@ export default function ProjectShow({
                 <section className="grid gap-5 lg:grid-cols-[1.3fr_.7fr]">
                     <div className="neo-card p-6 md:p-8">
                         <div className="flex flex-wrap gap-2">
+                            <span
+                                className={`neo-label ${recommendationClass}`}
+                            >
+                                {readiness.recommendation.label}
+                            </span>
+
                             <span className="neo-label bg-[var(--neo-yellow)]">
                                 {project.career.name}
                             </span>
@@ -144,13 +182,7 @@ export default function ProjectShow({
                         </div>
                     </div>
 
-                    <Card
-                        className={
-                            readiness.ready
-                                ? 'bg-[var(--neo-lime)] text-[#171717]'
-                                : 'bg-[var(--neo-orange)] text-[#171717]'
-                        }
-                    >
+                    <Card className={`${recommendationClass} text-[#171717]`}>
                         <CardHeader>
                             <CardTitle className="text-lg font-black uppercase">
                                 Kesiapan proyek
@@ -162,14 +194,58 @@ export default function ProjectShow({
                                 {Math.round(readiness.score)}%
                             </p>
 
-                            <p className="mt-3 text-sm leading-6 font-bold">
-                                {readiness.ready
-                                    ? 'Semua prasyarat minimum terpenuhi. Fokus Anda sekarang adalah mengeksekusi proyek dengan bukti yang rapi.'
-                                    : 'Ada prasyarat yang belum memenuhi level minimum. Anda boleh tetap mulai, tetapi risikonya adalah waktu pengerjaan lebih panjang.'}
+                            <p className="mt-3 text-sm leading-6 font-black">
+                                {readiness.recommendation.label}
+                            </p>
+
+                            <p className="mt-2 text-sm leading-6 font-bold">
+                                {readiness.recommendation.message}
+                            </p>
+
+                            <p className="mt-4 text-xs leading-5 font-black uppercase">
+                                {readiness.missing_count} skill belum memenuhi
+                                minimum
                             </p>
                         </CardContent>
                     </Card>
                 </section>
+
+                {readiness.recommendation.level !== 'recommended' &&
+                    readiness.top_gaps.length > 0 && (
+                        <Card>
+                            <CardHeader className="border-b-2 border-foreground">
+                                <CardTitle className="flex items-center gap-2 text-xl font-black">
+                                    {readiness.recommendation.level ===
+                                    'challenge' ? (
+                                        <ShieldAlert className="size-5" />
+                                    ) : (
+                                        <CircleAlert className="size-5" />
+                                    )}
+                                    Prioritas sebelum proyek
+                                </CardTitle>
+                            </CardHeader>
+
+                            <CardContent className="grid gap-3 pt-5 md:grid-cols-3">
+                                {readiness.top_gaps.map((item) => (
+                                    <div
+                                        key={item.skill_id}
+                                        className="rounded-[12px] border-2 border-foreground bg-muted p-4"
+                                    >
+                                        <p className="font-black">
+                                            {item.name}
+                                        </p>
+                                        <p className="mt-2 font-mono text-xs font-black">
+                                            {item.current} / {item.required}
+                                        </p>
+                                        <p className="mt-2 text-xs font-semibold text-muted-foreground">
+                                            Gap {item.gap} poin · bobot{' '}
+                                            {item.weight}
+                                        </p>
+                                    </div>
+                                ))}
+                            </CardContent>
+                        </Card>
+                    )}
 
                 <Deferred
                     data="aiFeedback"
@@ -301,6 +377,13 @@ export default function ProjectShow({
                                             }}
                                         />
                                     </div>
+
+                                    {!item.ready && (
+                                        <p className="mt-1 text-[11px] font-bold text-muted-foreground">
+                                            Gap {item.gap} poin · bobot{' '}
+                                            {item.weight}
+                                        </p>
+                                    )}
                                 </div>
                             ))}
                         </CardContent>
@@ -375,17 +458,21 @@ export default function ProjectShow({
                 </section>
 
                 {!userProject ? (
-                    <Card className="bg-[var(--neo-lime)] text-[#171717]">
+                    <Card className={`${recommendationClass} text-[#171717]`}>
                         <CardContent className="flex flex-col justify-between gap-5 pt-6 md:flex-row md:items-center">
                             <div>
                                 <p className="text-xl font-black">
-                                    Siap mulai pengerjaan?
+                                    {readiness.recommendation.level ===
+                                    'challenge'
+                                        ? 'Tetap ingin mengambil challenge ini?'
+                                        : 'Siap mulai pengerjaan?'}
                                 </p>
 
-                                <p className="mt-1 text-sm font-medium">
-                                    Memulai proyek tidak mengubah skor skill.
-                                    Progres proyek dicatat sebagai bukti
-                                    terpisah.
+                                <p className="mt-1 max-w-3xl text-sm leading-6 font-medium">
+                                    {readiness.recommendation.level ===
+                                    'recommended'
+                                        ? 'Prasyarat minimum sudah terpenuhi. Memulai proyek tidak mengubah skor skill; progres dan bukti proyek dicatat terpisah.'
+                                        : readiness.recommendation.message}
                                 </p>
                             </div>
 
@@ -396,7 +483,10 @@ export default function ProjectShow({
                                 {({ processing }) => (
                                     <Button disabled={processing} size="lg">
                                         <Play className="size-4" />
-                                        Mulai proyek
+                                        {readiness.recommendation.level ===
+                                        'challenge'
+                                            ? 'Mulai sebagai challenge'
+                                            : 'Mulai proyek'}
                                     </Button>
                                 )}
                             </Form>
@@ -437,10 +527,21 @@ export default function ProjectShow({
                                     />
                                 </label>
 
+                                {isCompleting && (
+                                    <div className="rounded-[12px] border-2 border-[#171717] bg-[var(--neo-yellow)] p-4 text-sm leading-6 font-bold text-[#171717]">
+                                        Progres 100% hanya dapat disimpan jika
+                                        ada tautan bukti HTTPS eksternal dan
+                                        catatan penyelesaian minimal 80
+                                        karakter. SkillPath memvalidasi format
+                                        bukti, bukan isi source code.
+                                    </div>
+                                )}
+
                                 <label className="grid gap-2 text-sm font-black">
                                     URL repositori / bukti
                                     <div className="relative">
                                         <Input
+                                            type="url"
                                             value={
                                                 progressForm.data.repository_url
                                             }
@@ -451,6 +552,7 @@ export default function ProjectShow({
                                                 )
                                             }
                                             placeholder="https://github.com/..."
+                                            required={isCompleting}
                                         />
 
                                         <ExternalLink className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2" />
@@ -473,13 +575,31 @@ export default function ProjectShow({
                                             )
                                         }
                                         rows={5}
+                                        minLength={
+                                            isCompleting ? 80 : undefined
+                                        }
+                                        required={isCompleting}
                                         className="w-full resize-y rounded-[10px] border-2 border-foreground bg-card p-3 text-sm font-medium text-foreground shadow-[2px_2px_0_var(--neo-shadow-color)] transition-[box-shadow,border-color,background-color] outline-none placeholder:font-medium placeholder:text-muted-foreground focus:border-foreground focus:bg-card focus:ring-2 focus:ring-secondary"
-                                        placeholder="Apa yang selesai, apa yang masih menghambat?"
+                                        placeholder="Apa yang selesai, apa yang berfungsi, bukti apa yang tersedia, dan apa yang masih perlu ditingkatkan?"
                                     />
+                                    <span className="text-xs font-semibold text-muted-foreground">
+                                        {progressForm.data.notes.trim().length}
+                                        {isCompleting
+                                            ? '/80 karakter minimum'
+                                            : ' karakter'}
+                                    </span>
+                                    {progressForm.errors.notes && (
+                                        <span className="text-xs text-destructive">
+                                            {progressForm.errors.notes}
+                                        </span>
+                                    )}
                                 </label>
 
                                 <Button
-                                    disabled={progressForm.processing}
+                                    disabled={
+                                        progressForm.processing ||
+                                        !completionEvidenceReady
+                                    }
                                     className="w-fit"
                                 >
                                     <Save className="size-4" />

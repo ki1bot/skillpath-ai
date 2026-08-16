@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Assessment;
 use App\Models\AssessmentResult;
 use App\Models\UserSkill;
+use App\Rules\ExternalEvidenceUrl;
 use App\Services\CareerReadinessService;
 use App\Services\RoadmapService;
 use Illuminate\Http\RedirectResponse;
@@ -17,7 +18,7 @@ use Inertia\Response;
 
 class AssessmentController extends Controller
 {
-    private const PRACTICAL_MIN_RESPONSE_LENGTH = 20;
+    private const PRACTICAL_MIN_RESPONSE_LENGTH = 80;
 
     public function show(
         Request $request,
@@ -46,13 +47,11 @@ class AssessmentController extends Controller
             'title' => $assessment->title,
             'description' => $assessment->description,
             'duration_minutes' => $assessment->duration_minutes,
-
             'career' => [
                 'name' => $assessment
                     ->career
                     ->name,
             ],
-
             'questions' => $assessment
                 ->questions
                 ->map(
@@ -70,7 +69,6 @@ class AssessmentController extends Controller
                             ->options,
                         'difficulty' => $question
                             ->difficulty,
-
                         'skill' => [
                             'id' => $question
                                 ->skill
@@ -91,10 +89,8 @@ class AssessmentController extends Controller
             'assessment',
             [
                 'assessment' => $payload,
-
                 'profileExperience' => $user
                     ->experience,
-
                 'latestAttempt' => AssessmentResult::query()
                     ->where(
                         'user_id',
@@ -136,7 +132,6 @@ class AssessmentController extends Controller
                 'string',
                 'max:10',
             ],
-
             'self_ratings' => [
                 'required',
                 'array',
@@ -147,7 +142,6 @@ class AssessmentController extends Controller
                 'min:0',
                 'max:100',
             ],
-
             'responses' => [
                 'nullable',
                 'array',
@@ -157,17 +151,16 @@ class AssessmentController extends Controller
                 'string',
                 'max:4000',
             ],
-
             'evidence_urls' => [
                 'nullable',
                 'array',
             ],
             'evidence_urls.*' => [
                 'nullable',
-                'url',
+                'string',
+                new ExternalEvidenceUrl,
                 'max:1000',
             ],
-
             'experience_notes' => [
                 'nullable',
                 'array',
@@ -177,14 +170,14 @@ class AssessmentController extends Controller
                 'string',
                 'max:2000',
             ],
-
             'experience_evidence_urls' => [
                 'nullable',
                 'array',
             ],
             'experience_evidence_urls.*' => [
                 'nullable',
-                'url',
+                'string',
+                new ExternalEvidenceUrl,
                 'max:1000',
             ],
         ]);
@@ -234,7 +227,7 @@ class AssessmentController extends Controller
                     && ! $evidenceUrl
                 ) {
                     throw ValidationException::withMessages([
-                        "evidence_urls.{$question->id}" => 'Tautan bukti diperlukan untuk tugas praktik ini.',
+                        "evidence_urls.{$question->id}" => 'Tautan bukti eksternal HTTPS diperlukan untuk tugas praktik ini.',
                     ]);
                 }
             }
@@ -293,36 +286,38 @@ class AssessmentController extends Controller
                         === $question->correct_answer
                     );
 
-                    $objectiveWeight = (
-                        $question->question_type
-                        === 'practical'
-                    )
-                        ? 60
-                        : 80;
-
-                    $score = $correct
-                        ? $objectiveWeight
-                        : 0;
-
-                    $score += (
-                        $selfRating
-                        * 0.20
-                    );
-
                     if (
                         $question->question_type
                         === 'practical'
                     ) {
+                        $score = $correct
+                            ? 50
+                            : 0;
+
+                        $score += (
+                            $selfRating
+                            * 0.20
+                        );
+
                         if (
                             Str::length($responseText)
                             >= self::PRACTICAL_MIN_RESPONSE_LENGTH
                         ) {
-                            $score += 10;
+                            $score += 15;
                         }
 
                         if ($evidenceUrl) {
-                            $score += 10;
+                            $score += 15;
                         }
+                    } else {
+                        $score = $correct
+                            ? 80
+                            : 0;
+
+                        $score += (
+                            $selfRating
+                            * 0.20
+                        );
                     }
 
                     if (
@@ -348,36 +343,24 @@ class AssessmentController extends Controller
 
                     AssessmentResult::create([
                         'user_id' => $user->id,
-
                         'assessment_id' => $assessment
                             ->id,
-
                         'assessment_question_id' => $question
                             ->id,
-
                         'skill_id' => $question
                             ->skill_id,
-
                         'attempt_uuid' => $attemptUuid,
-
                         'score' => $score,
-
                         'is_correct' => $correct,
-
                         'self_rating' => $selfRating,
-
                         'answer' => $answer,
-
                         'response_text' => $responseText !== ''
                             ? $responseText
                             : null,
-
                         'evidence_url' => $evidenceUrl,
-
                         'experience_notes' => $experienceNotes !== ''
                             ? $experienceNotes
                             : null,
-
                         'experience_evidence_url' => $experienceEvidenceUrl,
                     ]);
 

@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\PortfolioProject;
 use App\Models\ProgressLog;
 use App\Models\UserProject;
+use App\Rules\ExternalEvidenceUrl;
 use App\Services\AiInsightService;
 use App\Services\CareerReadinessService;
 use App\Services\ProjectReadinessService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -28,7 +31,6 @@ class ProjectController extends Controller
         $projects = PortfolioProject::query()
             ->where('career_id', $user->target_career_id)
             ->with('skills')
-            ->orderBy('estimated_hours')
             ->get()
             ->map(function (PortfolioProject $project) use ($user, $service) {
                 return [
@@ -39,7 +41,34 @@ class ProjectController extends Controller
                         ->where('portfolio_project_id', $project->id)
                         ->first(),
                 ];
-            });
+            })
+            ->sort(
+                function (array $a, array $b): int {
+                    $rankComparison = (
+                        $a['readiness']['recommendation']['rank']
+                        <=> $b['readiness']['recommendation']['rank']
+                    );
+
+                    if ($rankComparison !== 0) {
+                        return $rankComparison;
+                    }
+
+                    $scoreComparison = (
+                        $b['readiness']['score']
+                        <=> $a['readiness']['score']
+                    );
+
+                    if ($scoreComparison !== 0) {
+                        return $scoreComparison;
+                    }
+
+                    return (
+                        $a['estimated_hours']
+                        <=> $b['estimated_hours']
+                    );
+                },
+            )
+            ->values();
 
         return Inertia::render('projects', [
             'projects' => $projects,
@@ -111,15 +140,25 @@ class ProjectController extends Controller
     public function start(
         Request $request,
         PortfolioProject $portfolioProject,
+        ProjectReadinessService $readinessService,
     ): RedirectResponse {
+        $user = $request->user();
+
         abort_unless(
-            $portfolioProject->career_id === $request->user()->target_career_id,
+            $portfolioProject->career_id === $user->target_career_id,
             404,
         );
 
-        UserProject::updateOrCreate(
+        $portfolioProject->loadMissing('skills');
+
+        $readiness = $readinessService->calculate(
+            $user,
+            $portfolioProject,
+        );
+
+        $userProject = UserProject::firstOrCreate(
             [
-                'user_id' => $request->user()->id,
+                'user_id' => $user->id,
                 'portfolio_project_id' => $portfolioProject->id,
             ],
             [
@@ -128,8 +167,29 @@ class ProjectController extends Controller
             ],
         );
 
-        return back()
-            ->with('success', 'Proyek dimulai. Gunakan checklist fitur sebagai batas minimum pengerjaan.');
+        if (! $userProject->wasRecentlyCreated) {
+            return back()->with(
+                'success',
+                'Proyek ini sudah pernah dimulai. Lanjutkan dari progres terakhir Anda.',
+            );
+        }
+
+        ProgressLog::create([
+            'user_id' => $user->id,
+            'activity_type' => 'project_started',
+            'minutes_spent' => 0,
+            'progress_percentage' => 0,
+            'notes' => 'Proyek dimulai dengan status rekomendasi: '
+                .$readiness['recommendation']['label'].'.',
+            'logged_at' => now(),
+        ]);
+
+        return back()->with(
+            'success',
+            $readiness['recommendation']['level'] === 'challenge'
+                ? 'Proyek dimulai sebagai challenge. Prioritaskan skill yang masih memiliki gap agar risiko pengerjaan tetap terkendali.'
+                : 'Proyek dimulai. Gunakan checklist fitur sebagai batas minimum pengerjaan.',
+        );
     }
 
     public function update(
@@ -137,6 +197,12 @@ class ProjectController extends Controller
         PortfolioProject $portfolioProject,
         CareerReadinessService $readinessService,
     ): RedirectResponse {
+        abort_unless(
+            $portfolioProject->career_id
+                === $request->user()->target_career_id,
+            404,
+        );
+
         $validated = $request->validate([
             'progress_percentage' => [
                 'required',
@@ -144,21 +210,67 @@ class ProjectController extends Controller
                 'min:0',
                 'max:100',
             ],
-            'repository_url' => ['nullable', 'url', 'max:1000'],
-            'notes' => ['nullable', 'string', 'max:3000'],
+            'repository_url' => [
+                'nullable',
+                'string',
+                new ExternalEvidenceUrl,
+                'max:1000',
+            ],
+            'notes' => [
+                'nullable',
+                'string',
+                'max:3000',
+            ],
         ]);
+
+        $completed = $validated['progress_percentage'] === 100;
+        $repositoryUrl = trim(
+            (string) (
+                $validated['repository_url']
+                ?? ''
+            ),
+        );
+        $notes = trim(
+            (string) (
+                $validated['notes']
+                ?? ''
+            ),
+        );
+
+        if ($completed && $repositoryUrl === '') {
+            throw ValidationException::withMessages([
+                'repository_url' => 'Proyek hanya dapat ditandai 100% setelah tautan repository atau bukti eksternal disertakan.',
+            ]);
+        }
+
+        if (
+            $completed
+            && Str::length($notes) < 80
+        ) {
+            throw ValidationException::withMessages([
+                'notes' => 'Untuk menyelesaikan proyek, jelaskan hasil, bagian yang sudah berfungsi, dan bukti penyelesaian minimal 80 karakter.',
+            ]);
+        }
 
         $userProject = UserProject::query()
             ->where('user_id', $request->user()->id)
             ->where('portfolio_project_id', $portfolioProject->id)
             ->firstOrFail();
 
-        $completed = $validated['progress_percentage'] === 100;
-
         $userProject->update([
-            ...$validated,
-            'status' => $completed ? 'completed' : 'in_progress',
-            'completed_at' => $completed ? now() : null,
+            'progress_percentage' => $validated['progress_percentage'],
+            'repository_url' => $repositoryUrl !== ''
+                ? $repositoryUrl
+                : null,
+            'notes' => $notes !== ''
+                ? $notes
+                : null,
+            'status' => $completed
+                ? 'completed'
+                : 'in_progress',
+            'completed_at' => $completed
+                ? now()
+                : null,
         ]);
 
         ProgressLog::create([
@@ -168,20 +280,26 @@ class ProjectController extends Controller
                 : 'project_progress',
             'minutes_spent' => 0,
             'progress_percentage' => $validated['progress_percentage'],
-            'notes' => $validated['notes'] ?? null,
-            'evidence_url' => $validated['repository_url'] ?? null,
+            'notes' => $notes !== ''
+                ? $notes
+                : null,
+            'evidence_url' => $repositoryUrl !== ''
+                ? $repositoryUrl
+                : null,
             'logged_at' => now(),
         ]);
 
         $readinessService->snapshot(
             $request->user(),
-            $completed ? 'project_completed' : 'project_progress',
+            $completed
+                ? 'project_completed'
+                : 'project_progress',
         );
 
         return back()->with(
             'success',
             $completed
-                ? 'Proyek ditandai selesai.'
+                ? 'Proyek ditandai selesai dengan bukti eksternal yang tercatat.'
                 : 'Progres proyek diperbarui.',
         );
     }

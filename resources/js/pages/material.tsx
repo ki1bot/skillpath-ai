@@ -95,6 +95,13 @@ export default function MaterialPage({
     const hasAiExercise =
         aiExercise?.generatedByAi === true && Boolean(aiExercise.content);
 
+    const evaluationReady =
+        Boolean(evaluationForm.data.answer) &&
+        evaluationForm.data.practical_evidence_url
+            .trim()
+            .startsWith('https://') &&
+        evaluationForm.data.reflection.trim().length >= 80;
+
     const retryAiExercise = () => {
         setIsRetryingAi(true);
 
@@ -323,10 +330,18 @@ export default function MaterialPage({
                                 Evaluasi berbasis bukti
                             </h2>
 
+                            <p className="mt-3 max-w-3xl text-sm leading-6 font-semibold text-muted-foreground">
+                                Materi hanya dinyatakan selesai jika jawaban
+                                konsep benar, bukti praktik menggunakan tautan
+                                HTTPS eksternal, dan refleksi berisi minimal 80
+                                karakter. Tautan diperiksa format dan host-nya,
+                                bukan isi repository atau dokumennya.
+                            </p>
+
                             <div className="mt-4 grid gap-3 sm:grid-cols-3">
                                 <div className="neo-card-flat p-4">
                                     <p className="font-mono text-xl font-black">
-                                        80
+                                        70
                                     </p>
 
                                     <p className="mt-1 text-xs font-bold">
@@ -336,7 +351,7 @@ export default function MaterialPage({
 
                                 <div className="neo-card-flat p-4">
                                     <p className="font-mono text-xl font-black">
-                                        10
+                                        20
                                     </p>
 
                                     <p className="mt-1 text-xs font-bold">
@@ -389,6 +404,7 @@ export default function MaterialPage({
                                                     )
                                                 }
                                                 className="mt-1 accent-black"
+                                                required
                                             />
 
                                             <span>
@@ -402,9 +418,15 @@ export default function MaterialPage({
                                     ),
                                 )}
 
+                                {evaluationForm.errors.answer && (
+                                    <p className="text-xs font-bold text-destructive">
+                                        {evaluationForm.errors.answer}
+                                    </p>
+                                )}
+
                                 <label className="mt-2">
                                     <span className="mb-2 block text-sm font-black">
-                                        Bukti latihan praktik
+                                        Bukti latihan praktik wajib
                                     </span>
 
                                     <Input
@@ -419,13 +441,30 @@ export default function MaterialPage({
                                                 event.target.value,
                                             )
                                         }
-                                        placeholder="https://github.com/... atau tautan bukti lainnya"
+                                        placeholder="https://github.com/... atau https://deployment.example.com"
+                                        required
                                     />
+
+                                    <p className="mt-2 text-xs leading-5 font-semibold text-muted-foreground">
+                                        Gunakan HTTPS dan host eksternal. URL
+                                        localhost, jaringan privat, atau URL
+                                        dengan kredensial akan ditolak.
+                                    </p>
+
+                                    {evaluationForm.errors
+                                        .practical_evidence_url && (
+                                        <p className="mt-2 text-xs font-bold text-destructive">
+                                            {
+                                                evaluationForm.errors
+                                                    .practical_evidence_url
+                                            }
+                                        </p>
+                                    )}
                                 </label>
 
                                 <label>
                                     <span className="mb-2 block text-sm font-black">
-                                        Refleksi hasil belajar
+                                        Refleksi hasil belajar wajib
                                     </span>
 
                                     <Textarea
@@ -437,14 +476,33 @@ export default function MaterialPage({
                                                 event.target.value,
                                             )
                                         }
-                                        placeholder="Jelaskan apa yang dipahami, kesalahan yang ditemukan, dan bagaimana Anda memperbaikinya. Minimal 80 karakter untuk mendapatkan nilai refleksi penuh."
+                                        placeholder="Jelaskan apa yang dipahami, kesalahan yang ditemukan, dan bagaimana Anda memperbaikinya. Minimal 80 karakter."
+                                        minLength={80}
+                                        required
                                     />
+
+                                    <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs font-semibold text-muted-foreground">
+                                        <span>Minimal 80 karakter.</span>
+                                        <span className="font-mono font-black">
+                                            {
+                                                evaluationForm.data.reflection.trim()
+                                                    .length
+                                            }
+                                            /80
+                                        </span>
+                                    </div>
+
+                                    {evaluationForm.errors.reflection && (
+                                        <p className="mt-2 text-xs font-bold text-destructive">
+                                            {evaluationForm.errors.reflection}
+                                        </p>
+                                    )}
                                 </label>
 
                                 <Button
                                     className="mt-2 justify-self-start"
                                     disabled={
-                                        !evaluationForm.data.answer ||
+                                        !evaluationReady ||
                                         evaluationForm.processing
                                     }
                                 >
@@ -467,9 +525,9 @@ export default function MaterialPage({
 
                                     <p className="mt-2">
                                         Konsep:{' '}
-                                        {latestEvaluation.knowledge_score}/80 ·
+                                        {latestEvaluation.knowledge_score}/70 ·
                                         Bukti: {latestEvaluation.evidence_score}
-                                        /10 · Refleksi:{' '}
+                                        /20 · Refleksi:{' '}
                                         {latestEvaluation.reflection_score}/10
                                     </p>
 
@@ -587,6 +645,12 @@ export default function MaterialPage({
                                         }
                                         placeholder="https://..."
                                     />
+
+                                    {progressForm.errors.evidence_url && (
+                                        <p className="mt-2 text-xs font-bold text-destructive">
+                                            {progressForm.errors.evidence_url}
+                                        </p>
+                                    )}
                                 </label>
                             </div>
 
@@ -613,8 +677,8 @@ export default function MaterialPage({
 
                         <div className="rounded-[14px] border-2 border-[#171717] bg-[var(--neo-yellow)] p-5 text-sm leading-relaxed font-bold text-[#171717]">
                             Perkembangan manual tetap dibatasi sampai 95%.
-                            Materi hanya mencapai 100% setelah evaluasi
-                            dinyatakan lulus.
+                            Materi hanya mencapai 100% setelah evaluasi berbasis
+                            bukti dinyatakan lulus.
                         </div>
                     </aside>
                 </div>

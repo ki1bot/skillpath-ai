@@ -8,6 +8,7 @@ use App\Models\ProgressLog;
 use App\Models\Roadmap;
 use App\Models\RoadmapItem;
 use App\Models\UserSkill;
+use App\Rules\ExternalEvidenceUrl;
 use App\Services\AdaptiveRoadmapService;
 use App\Services\AiInsightService;
 use App\Services\CareerReadinessService;
@@ -50,13 +51,11 @@ class RoadmapController extends Controller
             'version' => $roadmap->version,
             'reason' => $roadmap->reason,
             'estimated_weeks' => $roadmap->estimated_weeks,
-
             'career' => [
                 'name' => $roadmap
                     ->career
                     ->name,
             ],
-
             'items' => $roadmap
                 ->items
                 ->map(
@@ -76,7 +75,6 @@ class RoadmapController extends Controller
                             ->reinforcement_count,
                         'reinforcement_for_roadmap_item_id' => $item
                             ->reinforcement_for_roadmap_item_id,
-
                         'material' => [
                             'id' => $item
                                 ->material
@@ -99,7 +97,6 @@ class RoadmapController extends Controller
                             'material_type' => $item
                                 ->material
                                 ->material_type,
-
                             'skill' => [
                                 'id' => $item
                                     ->material
@@ -109,7 +106,6 @@ class RoadmapController extends Controller
                                     ->material
                                     ->skill
                                     ->name,
-
                                 'prerequisites' => $item
                                     ->material
                                     ->skill
@@ -220,13 +216,11 @@ class RoadmapController extends Controller
             'material_type' => $item
                 ->material
                 ->material_type,
-
             'skill' => [
                 'name' => $item
                     ->material
                     ->skill
                     ->name,
-
                 'prerequisites' => $item
                     ->material
                     ->skill
@@ -252,7 +246,6 @@ class RoadmapController extends Controller
                 ->evaluation_attempts,
             'reinforcement_count' => $item
                 ->reinforcement_count,
-
             'evaluations' => $item
                 ->evaluations
                 ->map(
@@ -343,7 +336,8 @@ class RoadmapController extends Controller
             ],
             'evidence_url' => [
                 'nullable',
-                'url',
+                'string',
+                new ExternalEvidenceUrl,
                 'max:1000',
             ],
         ]);
@@ -356,7 +350,6 @@ class RoadmapController extends Controller
                     'progress_percentage'
                 ],
             ),
-
             'status' => (
                 $roadmapItem->status
                 === 'needs_reinforcement'
@@ -369,32 +362,24 @@ class RoadmapController extends Controller
             'user_id' => $request
                 ->user()
                 ->id,
-
             'roadmap_item_id' => $roadmapItem
                 ->id,
-
             'activity_type' => 'learning',
-
             'minutes_spent' => $validated[
                 'minutes_spent'
             ],
-
             'progress_percentage' => $validated[
                 'progress_percentage'
             ],
-
             'notes' => $validated[
                 'notes'
             ] ?? null,
-
             'obstacle' => $validated[
                 'obstacle'
             ] ?? null,
-
             'evidence_url' => $validated[
                 'evidence_url'
             ] ?? null,
-
             'logged_at' => now(),
         ]);
 
@@ -428,13 +413,15 @@ class RoadmapController extends Controller
                 'in:A,B,C,D',
             ],
             'practical_evidence_url' => [
-                'nullable',
-                'url',
+                'required',
+                'string',
+                new ExternalEvidenceUrl,
                 'max:1000',
             ],
             'reflection' => [
-                'nullable',
+                'required',
                 'string',
+                'min:80',
                 'max:3000',
             ],
         ]);
@@ -448,27 +435,18 @@ class RoadmapController extends Controller
         );
 
         $knowledgeScore = $correct
-            ? 80
+            ? 70
             : 0;
 
-        $evidenceScore = ! empty(
-            $validated['practical_evidence_url']
-            ?? null
-        )
-            ? 10
-            : 0;
+        $evidenceScore = 20;
 
         $reflection = trim(
-            (string) (
-                $validated['reflection']
-                ?? ''
-            ),
+            $validated['reflection'],
         );
 
-        $reflectionScore = (
-            Str::length($reflection)
-            >= 80
-        )
+        $reflectionScore = Str::length(
+            $reflection,
+        ) >= 80
             ? 10
             : 0;
 
@@ -482,13 +460,15 @@ class RoadmapController extends Controller
             2,
         );
 
-        $passed = $score >= 70;
+        $passed = $correct
+            && $evidenceScore === 20
+            && $reflectionScore === 10;
 
         if ($passed) {
             $feedback = (
                 "Evaluasi lulus dengan skor {$score}/100. "
-                ."Pemahaman konsep {$knowledgeScore}/80, "
-                ."bukti praktik {$evidenceScore}/10, "
+                ."Pemahaman konsep {$knowledgeScore}/70, "
+                ."bukti praktik {$evidenceScore}/20, "
                 ."dan refleksi {$reflectionScore}/10."
             );
         } else {
@@ -501,32 +481,20 @@ class RoadmapController extends Controller
             'user_id' => $request
                 ->user()
                 ->id,
-
             'roadmap_item_id' => $roadmapItem
                 ->id,
-
             'score' => $score,
-
             'knowledge_score' => $knowledgeScore,
-
             'evidence_score' => $evidenceScore,
-
             'reflection_score' => $reflectionScore,
-
             'passed' => $passed,
-
             'answer' => $validated[
                 'answer'
             ],
-
             'evidence_url' => $validated[
                 'practical_evidence_url'
-            ] ?? null,
-
-            'reflection' => $reflection !== ''
-                ? $reflection
-                : null,
-
+            ],
+            'reflection' => $reflection,
             'feedback' => $feedback,
         ]);
 
@@ -543,7 +511,6 @@ class RoadmapController extends Controller
         if ($passed) {
             $current = UserSkill::firstOrNew([
                 'user_id' => $user->id,
-
                 'skill_id' => $material
                     ->skill_id,
             ]);
@@ -631,34 +598,34 @@ class RoadmapController extends Controller
 
         ProgressLog::create([
             'user_id' => $user->id,
-
             'roadmap_item_id' => $roadmapItem
                 ->id,
-
             'activity_type' => $passed
                 ? 'evaluation_passed'
                 : 'evaluation_failed',
-
             'minutes_spent' => 0,
-
             'progress_percentage' => $passed
                 ? 100
                 : $roadmapItem
                     ->fresh()
                     ->progress_percentage,
-
             'notes' => $feedback,
-
             'evidence_url' => $validated[
                 'practical_evidence_url'
-            ] ?? null,
-
+            ],
             'logged_at' => now(),
         ]);
 
-        $roadmapService->refreshAvailability(
-            $user,
-        );
+        if ($passed) {
+            $roadmapService->adaptAfterSkillChange(
+                $user,
+                "Roadmap diurutkan ulang setelah evaluasi {$material->title} mengubah skor {$material->skill->name}.",
+            );
+        } else {
+            $roadmapService->refreshAvailability(
+                $user,
+            );
+        }
 
         $readinessService->snapshot(
             $user->fresh(),
@@ -688,7 +655,7 @@ class RoadmapController extends Controller
                 ->route('roadmap.index')
                 ->with(
                     'success',
-                    'Materi penguatan berhasil diselesaikan. Materi utama sekarang dapat dicoba kembali.',
+                    'Materi penguatan berhasil diselesaikan. Materi utama sekarang dapat dicoba kembali dan urutan roadmap sudah disesuaikan dengan kemampuan terbaru.',
                 );
         }
 
@@ -696,7 +663,9 @@ class RoadmapController extends Controller
             $passed
                 ? 'success'
                 : 'error',
-            $feedback,
+            $passed
+                ? $feedback.' Urutan roadmap berikutnya sudah disesuaikan dengan kemampuan terbaru.'
+                : $feedback,
         );
     }
 

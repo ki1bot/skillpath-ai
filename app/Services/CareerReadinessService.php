@@ -129,14 +129,50 @@ class CareerReadinessService
                                 ->target_career_id,
                         ),
                 )
-                ->max(
+                ->get([
                     'progress_percentage',
+                    'repository_url',
+                ])
+                ->max(
+                    function ($userProject) {
+                        $progress = (float) $userProject
+                            ->progress_percentage;
+
+                        if (
+                            is_string(
+                                $userProject
+                                    ->repository_url,
+                            )
+                            && trim(
+                                $userProject
+                                    ->repository_url,
+                            ) !== ''
+                        ) {
+                            return $progress;
+                        }
+
+                        return min(
+                            $progress,
+                            60,
+                        );
+                    },
                 ),
             1,
         );
 
         $activeDays = $user
             ->progressLogs()
+            ->whereIn(
+                'activity_type',
+                [
+                    'learning',
+                    'evaluation_passed',
+                    'evaluation_failed',
+                    'project_started',
+                    'project_progress',
+                    'project_completed',
+                ],
+            )
             ->where(
                 'logged_at',
                 '>=',

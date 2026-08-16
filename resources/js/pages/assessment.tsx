@@ -53,17 +53,60 @@ const typeLabels = {
     practical: 'Tugas praktik',
 };
 
-const PRACTICAL_MIN_RESPONSE_LENGTH = 20;
+const PRACTICAL_MIN_RESPONSE_LENGTH = 80;
 
-const isValidHttpUrl = (value: string) => {
+const isValidExternalEvidenceUrl = (value: string) => {
     if (!value.trim()) {
         return false;
     }
 
     try {
         const url = new URL(value);
+        const host = url.hostname.toLowerCase();
 
-        return url.protocol === 'http:' || url.protocol === 'https:';
+        if (url.protocol !== 'https:') {
+            return false;
+        }
+
+        if (url.username || url.password) {
+            return false;
+        }
+
+        if (
+            host === 'localhost' ||
+            host === '::1' ||
+            host === '[::1]' ||
+            host.endsWith('.localhost') ||
+            host.endsWith('.local') ||
+            host.endsWith('.internal')
+        ) {
+            return false;
+        }
+
+        const ipv4 = host.split('.').map(Number);
+
+        if (
+            ipv4.length === 4 &&
+            ipv4.every(
+                (part) => Number.isInteger(part) && part >= 0 && part <= 255,
+            )
+        ) {
+            const [first, second] = ipv4;
+
+            if (
+                first === 0 ||
+                first === 10 ||
+                first === 127 ||
+                first >= 224 ||
+                (first === 169 && second === 254) ||
+                (first === 172 && second >= 16 && second <= 31) ||
+                (first === 192 && second === 168)
+            ) {
+                return false;
+            }
+        }
+
+        return host.includes('.') || host.includes(':');
     } catch {
         return false;
     }
@@ -104,6 +147,16 @@ export default function AssessmentPage({
             return 'Pilih salah satu jawaban terlebih dahulu.';
         }
 
+        const experienceEvidenceUrl =
+            form.data.experience_evidence_urls[item.id]?.trim() ?? '';
+
+        if (
+            experienceEvidenceUrl &&
+            !isValidExternalEvidenceUrl(experienceEvidenceUrl)
+        ) {
+            return 'Bukti pengalaman harus menggunakan URL HTTPS eksternal yang valid.';
+        }
+
         if (item.question_type !== 'practical') {
             return null;
         }
@@ -120,8 +173,8 @@ export default function AssessmentPage({
             return 'Bukti praktik wajib diisi sebelum melanjutkan.';
         }
 
-        if (evidenceUrl && !isValidHttpUrl(evidenceUrl)) {
-            return 'Bukti praktik harus berupa URL http:// atau https:// yang valid.';
+        if (evidenceUrl && !isValidExternalEvidenceUrl(evidenceUrl)) {
+            return 'Bukti praktik harus menggunakan URL HTTPS eksternal yang valid.';
         }
 
         return null;
@@ -153,6 +206,10 @@ export default function AssessmentPage({
             ? (form.data.evidence_urls[question.id] ?? '').trim()
             : '';
 
+    const currentExperienceEvidenceUrl = question
+        ? (form.data.experience_evidence_urls[question.id] ?? '').trim()
+        : '';
+
     const currentIncompleteReason = question
         ? getQuestionIncompleteReason(question)
         : null;
@@ -162,8 +219,8 @@ export default function AssessmentPage({
     const complete = assessment.questions.every(isQuestionComplete);
 
     const statusText = latestAttempt
-        ? 'Hasil Assesment terbaru akan menjadi dasar skor kemampuan aktif dan roadmap berikutnya.'
-        : 'Jawab sesuai kemampuan saat ini. Tugas praktik membutuhkan bukti agar hasil tidak hanya berasal dari penilaian diri.';
+        ? 'Hasil Assesment terbaru akan menjadi dasar skor kemampuan aktif dan roadmap berikutnya. Bukti praktik tetap harus berasal dari URL HTTPS eksternal.'
+        : 'Jawab sesuai kemampuan saat ini. Untuk tugas praktik, jawaban objektif, penjelasan hasil, bukti eksternal, dan penilaian diri dihitung sebagai komponen yang berbeda.';
 
     const selectAnswer = (value: string) => {
         form.setData('answers', {
@@ -337,13 +394,17 @@ export default function AssessmentPage({
                                             )
                                         }
                                         rows={5}
-                                        placeholder="Jelaskan apa yang dikerjakan, hasil yang diperoleh, dan bagian yang masih sulit."
+                                        minLength={
+                                            PRACTICAL_MIN_RESPONSE_LENGTH
+                                        }
+                                        placeholder="Jelaskan apa yang dikerjakan, hasil yang diperoleh, kendala yang ditemukan, dan bagaimana hasil tersebut diperiksa."
                                     />
 
                                     <p className="mt-2 text-xs leading-relaxed font-medium text-muted-foreground">
                                         Tuliskan minimal{' '}
                                         {PRACTICAL_MIN_RESPONSE_LENGTH} karakter
-                                        agar hasil praktik dapat dievaluasi.
+                                        agar hasil praktik memiliki konteks yang
+                                        cukup untuk penilaian.
                                     </p>
                                 </label>
 
@@ -368,21 +429,25 @@ export default function AssessmentPage({
                                                 event.target.value,
                                             )
                                         }
-                                        placeholder="https://github.com/... atau https://..."
+                                        placeholder="https://github.com/... atau https://deployment.example.com"
+                                        required={question.evidence_required}
                                     />
 
                                     <p className="mt-2 text-xs leading-relaxed font-medium text-muted-foreground">
-                                        Gunakan tautan repository, deployment,
-                                        dokumen, atau bukti lain yang dapat
-                                        diakses melalui HTTP atau HTTPS.
+                                        Gunakan tautan HTTPS eksternal menuju
+                                        repository, deployment, dokumen, atau
+                                        bukti lain. Localhost dan jaringan
+                                        privat tidak diterima.
                                     </p>
 
                                     {currentEvidenceUrl &&
-                                        !isValidHttpUrl(currentEvidenceUrl) && (
+                                        !isValidExternalEvidenceUrl(
+                                            currentEvidenceUrl,
+                                        ) && (
                                             <p className="mt-2 text-xs font-bold text-destructive">
-                                                URL belum valid. Gunakan alamat
-                                                yang diawali http:// atau
-                                                https://.
+                                                URL belum valid. Gunakan HTTPS
+                                                pada host eksternal yang dapat
+                                                dibagikan.
                                             </p>
                                         )}
                                 </label>
@@ -398,9 +463,10 @@ export default function AssessmentPage({
                                     </p>
 
                                     <p className="mt-1 text-xs font-medium text-muted-foreground">
-                                        Penilaian diri memiliki bobot 20%.
-                                        Jawaban objektif tetap menjadi komponen
-                                        utama.
+                                        Penilaian diri memiliki bobot 20%. Untuk
+                                        tugas praktik, skor utama juga
+                                        ditentukan oleh jawaban objektif,
+                                        penjelasan hasil, dan bukti praktik.
                                     </p>
                                 </div>
 
@@ -472,8 +538,19 @@ export default function AssessmentPage({
                                             event.target.value,
                                         )
                                     }
-                                    placeholder="Tautan repository, portfolio, dokumen, atau bukti lain"
+                                    placeholder="https://portfolio.example.com/..."
                                 />
+
+                                {currentExperienceEvidenceUrl &&
+                                    !isValidExternalEvidenceUrl(
+                                        currentExperienceEvidenceUrl,
+                                    ) && (
+                                        <p className="text-xs font-bold text-destructive">
+                                            Bukti pengalaman opsional tetap
+                                            harus menggunakan URL HTTPS
+                                            eksternal yang valid.
+                                        </p>
+                                    )}
                             </div>
                         </div>
 
