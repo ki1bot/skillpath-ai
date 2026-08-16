@@ -44,28 +44,22 @@ class ProjectController extends Controller
             })
             ->sort(
                 function (array $a, array $b): int {
-                    $rankComparison = (
-                        $a['readiness']['recommendation']['rank']
-                        <=> $b['readiness']['recommendation']['rank']
-                    );
+                    $rankComparison = $a['readiness']['recommendation']['rank']
+                        <=> $b['readiness']['recommendation']['rank'];
 
                     if ($rankComparison !== 0) {
                         return $rankComparison;
                     }
 
-                    $scoreComparison = (
-                        $b['readiness']['score']
-                        <=> $a['readiness']['score']
-                    );
+                    $scoreComparison = $b['readiness']['score']
+                        <=> $a['readiness']['score'];
 
                     if ($scoreComparison !== 0) {
                         return $scoreComparison;
                     }
 
-                    return (
-                        $a['estimated_hours']
-                        <=> $b['estimated_hours']
-                    );
+                    return $a['estimated_hours']
+                        <=> $b['estimated_hours'];
                 },
             )
             ->values();
@@ -198,8 +192,7 @@ class ProjectController extends Controller
         CareerReadinessService $readinessService,
     ): RedirectResponse {
         abort_unless(
-            $portfolioProject->career_id
-                === $request->user()->target_career_id,
+            $portfolioProject->career_id === $request->user()->target_career_id,
             404,
         );
 
@@ -224,17 +217,13 @@ class ProjectController extends Controller
         ]);
 
         $completed = $validated['progress_percentage'] === 100;
+
         $repositoryUrl = trim(
-            (string) (
-                $validated['repository_url']
-                ?? ''
-            ),
+            (string) ($validated['repository_url'] ?? ''),
         );
+
         $notes = trim(
-            (string) (
-                $validated['notes']
-                ?? ''
-            ),
+            (string) ($validated['notes'] ?? ''),
         );
 
         if ($completed && $repositoryUrl === '') {
