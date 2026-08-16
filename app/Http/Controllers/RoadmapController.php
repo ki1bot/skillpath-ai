@@ -460,9 +460,7 @@ class RoadmapController extends Controller
             2,
         );
 
-        $passed = $correct
-            && $evidenceScore === 20
-            && $reflectionScore === 10;
+        $passed = $correct;
 
         if ($passed) {
             $feedback = (
