@@ -1,0 +1,41 @@
+{
+  "name": "vercel-php",
+  "description": "Vercel PHP runtime",
+  "version": "0.9.0",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "homepage": "https://github.com/vercel-community/php",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vercel-community/php.git"
+  },
+  "keywords": [
+    "vercel",
+    "php",
+    "builder",
+    "runtime",
+    "serverless",
+    "deployment"
+  ],
+  "scripts": {
+    "watch": "tsc --watch",
+    "build": "tsc",
+    "test": "jest --silent",
+    "test-watch": "jest --watch",
+    "prepublishOnly": "tsc"
+  },
+  "files": [
+    "dist",
+    "conf"
+  ],
+  "dependencies": {
+    "@libphp/almalinux-9-v85": ">=0.0.2"
+  },
+  "devDependencies": {
+    "@types/glob": "^9.0.0",
+    "@types/node": "^22.0.0",
+    "@vercel/build-utils": "^13.2.9",
+    "jest": "^30.2.0",
+    "typescript": "^5.9.3"
+  }
+}

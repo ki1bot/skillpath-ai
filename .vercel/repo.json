@@ -1,0 +1,11 @@
+{
+  "remoteName": "origin",
+  "projects": [
+    {
+      "id": "prj_UuL4YlBmnk3sxKqnaxsArknSWoY5",
+      "name": "skillpath-ai",
+      "directory": ".",
+      "orgId": "team_RDX9PCPtKVPZH42pG22aAaWJ"
+    }
+  ]
+}
