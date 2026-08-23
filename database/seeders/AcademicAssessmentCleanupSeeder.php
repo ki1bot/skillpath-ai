@@ -10,38 +10,72 @@ class AcademicAssessmentCleanupSeeder extends Seeder
     public function run(): void
     {
         $programs = [
-            'Sistem Informasi' => 'si-',
-            'Manajemen' => 'man-',
-            'Teknik Informatika' => 'ti-',
-            'Psikologi' => 'psi-',
-            'Ilmu Komunikasi' => 'ikom-',
+            'sistem-informasi' => [
+                'name' => 'Sistem Informasi',
+                'prefix' => 'si-',
+            ],
+            'manajemen' => [
+                'name' => 'Manajemen',
+                'prefix' => 'man-',
+            ],
+            'teknik-informatika' => [
+                'name' => 'Teknik Informatika',
+                'prefix' => 'ti-',
+            ],
+            'psikologi' => [
+                'name' => 'Psikologi',
+                'prefix' => 'psi-',
+            ],
+            'ilmu-komunikasi' => [
+                'name' => 'Ilmu Komunikasi',
+                'prefix' => 'ikom-',
+            ],
         ];
 
-        foreach ($programs as $studyProgram => $skillPrefix) {
-            $assessments = Assessment::query()
-                ->where(
-                    'study_program',
-                    $studyProgram,
-                )
-                ->get();
+        $assessments = Assessment::query()
+            ->whereNotNull(
+                'study_program',
+            )
+            ->with('career')
+            ->get();
 
-            foreach ($assessments as $assessment) {
+        foreach ($assessments as $assessment) {
+            $definition = $programs[
                 $assessment
-                    ->questions()
-                    ->whereHas(
-                        'skill',
-                        fn ($query) => $query->where(
-                            'slug',
-                            'not like',
-                            $skillPrefix.'%',
-                        ),
-                    )
-                    ->delete();
+                    ->career
+                    ?->slug
+            ] ?? null;
 
+            if (
+                ! $definition
+                || $assessment->study_program
+                    !== $definition['name']
+            ) {
                 $assessment->update([
-                    'duration_minutes' => 18,
+                    'is_active' => false,
                 ]);
+
+                continue;
             }
+
+            $assessment
+                ->questions()
+                ->whereHas(
+                    'skill',
+                    fn ($query) => $query->where(
+                        'slug',
+                        'not like',
+                        $definition['prefix'].'%',
+                    ),
+                )
+                ->delete();
+
+            $assessment->update([
+                'title' => 'Asesmen Awal '.$definition['name'],
+                'description' => 'Jawab 9 pertanyaan sesuai kemampuanmu sekarang. Hasil asesmen digunakan untuk melihat bagian yang sudah kuat dan kemampuan yang masih perlu dikembangkan.',
+                'duration_minutes' => 18,
+                'is_active' => true,
+            ]);
         }
     }
 }

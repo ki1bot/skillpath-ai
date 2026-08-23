@@ -36,7 +36,7 @@ export default function PublicLayout({
                             href="/karier"
                             className="rounded-[8px] border-2 border-transparent px-3 py-2 transition-colors hover:border-foreground/30 hover:bg-card"
                         >
-                            Jalur Karier
+                            Jurusan
                         </Link>
 
                         <Link
@@ -86,7 +86,7 @@ export default function PublicLayout({
                                 onClick={closeMenu}
                                 className="rounded-[9px] border-2 border-foreground bg-card px-4 py-3 text-sm font-bold shadow-[2px_2px_0_var(--neo-shadow-color)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
                             >
-                                Jalur Karier
+                                Jurusan
                             </Link>
 
                             <Link
@@ -123,14 +123,14 @@ export default function PublicLayout({
                         <p>© {new Date().getFullYear()} All rights reserved.</p>
 
                         <p>
-                            SkillPath AI — membantu tentukan langkah belajar
+                            SkillPath AI — membantu menentukan langkah belajar
                             berikutnya.
                         </p>
                     </div>
 
                     <p className="max-w-xl text-background/65 md:text-right">
-                        Gunakan hasil Assessment dan progres sebagai panduan,
-                        bukan sebagai jaminan hasil rekrutmen.
+                        Gunakan hasil asesmen dan progres sebagai panduan untuk
+                        menentukan kemampuan yang perlu dikembangkan.
                     </p>
                 </div>
             </footer>

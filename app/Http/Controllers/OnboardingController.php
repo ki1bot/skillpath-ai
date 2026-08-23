@@ -6,6 +6,7 @@ use App\Models\Career;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -19,63 +20,140 @@ class OnboardingController extends Controller
         'Ilmu Komunikasi',
     ];
 
-    public function show(Request $request): Response
-    {
-        return Inertia::render('onboarding', [
-            'careers' => Career::query()
-                ->where('is_active', true)
-                ->orderBy('name')
-                ->get(),
-            'profile' => $request->user()->only([
-                'study_program',
-                'semester',
-                'interest_area',
-                'experience',
-                'weekly_study_hours',
-                'target_career_id',
-                'onboarding_completed_at',
-            ]),
-        ]);
+    public function show(
+        Request $request,
+    ): Response {
+        return Inertia::render(
+            'onboarding',
+            [
+                'careers' => Career::query()
+                    ->where(
+                        'is_active',
+                        true,
+                    )
+                    ->orderBy('id')
+                    ->get(),
+                'profile' => $request
+                    ->user()
+                    ->only([
+                        'study_program',
+                        'semester',
+                        'interest_area',
+                        'experience',
+                        'weekly_study_hours',
+                        'target_career_id',
+                        'onboarding_completed_at',
+                    ]),
+            ],
+        );
     }
 
-    public function update(Request $request): RedirectResponse
-    {
+    public function update(
+        Request $request,
+    ): RedirectResponse {
         $validated = $request->validate([
-            'study_program' => [
+            'semester' => [
+                'required',
+                'integer',
+                'min:1',
+                'max:14',
+            ],
+            'interest_area' => [
                 'required',
                 'string',
-                Rule::in(self::STUDY_PROGRAMS),
+                'max:120',
             ],
-            'semester' => ['required', 'integer', 'min:1', 'max:14'],
-            'interest_area' => ['required', 'string', 'max:120'],
-            'experience' => ['required', 'string', 'max:1000'],
-            'weekly_study_hours' => ['required', 'integer', 'min:1', 'max:60'],
-            'target_career_id' => ['required', 'integer', 'exists:careers,id'],
+            'experience' => [
+                'required',
+                'string',
+                'max:1000',
+            ],
+            'weekly_study_hours' => [
+                'required',
+                'integer',
+                'min:1',
+                'max:60',
+            ],
+            'target_career_id' => [
+                'required',
+                'integer',
+                Rule::exists(
+                    'careers',
+                    'id',
+                )->where(
+                    fn ($query) => $query->where(
+                        'is_active',
+                        true,
+                    ),
+                ),
+            ],
         ]);
 
+        $career = Career::query()
+            ->whereKey(
+                $validated['target_career_id'],
+            )
+            ->where(
+                'is_active',
+                true,
+            )
+            ->firstOrFail();
+
+        if (
+            ! in_array(
+                $career->name,
+                self::STUDY_PROGRAMS,
+                true,
+            )
+        ) {
+            throw ValidationException::withMessages([
+                'target_career_id' => 'Jurusan yang dipilih tidak tersedia.',
+            ]);
+        }
+
         $user = $request->user();
-        $wasOnboarded = $user->onboarding_completed_at !== null;
+        $wasOnboarded = $user
+            ->onboarding_completed_at
+            !== null;
 
-        $targetChanged =
+        $targetChanged = (
             (int) $user->target_career_id
-            !== (int) $validated['target_career_id'];
+            !== (int) $career->id
+        );
 
-        $studyProgramChanged =
+        $studyProgramChanged = (
             (string) $user->study_program
-            !== $validated['study_program'];
+            !== $career->name
+        );
 
-        $assessmentContextChanged =
+        $assessmentContextChanged = (
             $targetChanged
-            || $studyProgramChanged;
+            || $studyProgramChanged
+        );
 
         $user->update([
-            ...$validated,
+            'study_program' => $career->name,
+            'semester' => $validated['semester'],
+            'interest_area' => $validated[
+                'interest_area'
+            ],
+            'experience' => $validated[
+                'experience'
+            ],
+            'weekly_study_hours' => $validated[
+                'weekly_study_hours'
+            ],
+            'target_career_id' => $career->id,
             'onboarding_completed_at' => now(),
         ]);
 
         if ($assessmentContextChanged) {
-            $user->roadmaps()
-                ->where('is_active', true)
+            $user
+                ->roadmaps()
+                ->where(
+                    'is_active',
+                    true,
+                )
                 ->update([
                     'is_active' => false,
                 ]);
@@ -86,20 +164,29 @@ class OnboardingController extends Controller
             || $assessmentContextChanged
         ) {
             return redirect()
-                ->route('assessment.show')
+                ->route(
+                    'assessment.show',
+                )
                 ->with(
                     'success',
-                    'Profil tersimpan. Sekarang jawab asesmen sesuai jurusan dan target karier yang kamu pilih.',
+                    'Profil tersimpan. Sekarang jawab asesmen untuk jurusan '.$career->name.'.',
                 );
         }
 
-        $roadmap = $user->roadmaps()
-            ->where('is_active', true)
-            ->with('items.material')
+        $roadmap = $user
+            ->roadmaps()
+            ->where(
+                'is_active',
+                true,
+            )
+            ->with(
+                'items.material',
+            )
             ->first();
 
         if ($roadmap) {
-            $remainingMinutes = $roadmap->items
+            $remainingMinutes = $roadmap
+                ->items
                 ->where(
                     'status',
                     '!=',
@@ -136,7 +223,7 @@ class OnboardingController extends Controller
             ->route('dashboard')
             ->with(
                 'success',
-                'Profil belajar sudah diperbarui. Estimasi roadmap juga sudah menyesuaikan waktu belajarmu.',
+                'Profil belajar sudah diperbarui.',
             );
     }
 }

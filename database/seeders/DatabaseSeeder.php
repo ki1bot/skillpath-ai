@@ -13,7 +13,9 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             CareerSeeder::class,
+            AcademicProgramTransitionSeeder::class,
             SkillSeeder::class,
+            AcademicAssessmentSkillSeeder::class,
             CareerSkillSeeder::class,
             SkillPrerequisiteSeeder::class,
             LearningMaterialSeeder::class,
@@ -22,9 +24,9 @@ class DatabaseSeeder extends Seeder
             AssessmentEnhancementSeeder::class,
             PortfolioProjectSeeder::class,
             ExpandedSkillDataSeeder::class,
-            AcademicAssessmentSkillSeeder::class,
             AcademicAssessmentSeeder::class,
             AcademicAssessmentCleanupSeeder::class,
+            AcademicProgramLearningMaterialSeeder::class,
         ]);
     }
 }

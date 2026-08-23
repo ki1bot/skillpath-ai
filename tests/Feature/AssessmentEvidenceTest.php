@@ -4,15 +4,14 @@ namespace Tests\Feature;
 
 use App\Models\Assessment;
 use App\Models\AssessmentResult;
+use App\Models\Career;
 use App\Models\User;
 use App\Models\UserSkill;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\Support\CreatesSkillPathRecommendationUser;
 use Tests\TestCase;
 
 class AssessmentEvidenceTest extends TestCase
 {
-    use CreatesSkillPathRecommendationUser;
     use RefreshDatabase;
 
     private User $user;
@@ -23,7 +22,30 @@ class AssessmentEvidenceTest extends TestCase
 
         $this->seed();
 
-        $this->user = $this->createSkillPathRecommendationUser();
+        $career = Career::query()
+            ->where(
+                'slug',
+                'sistem-informasi',
+            )
+            ->where(
+                'is_active',
+                true,
+            )
+            ->firstOrFail();
+
+        $this->user = User::factory()
+            ->create([
+                'name' => 'Pengguna Pengujian Asesmen',
+                'email' => 'assessment-academic@example.test',
+                'role' => 'student',
+                'study_program' => 'Sistem Informasi',
+                'semester' => 5,
+                'interest_area' => 'Analisis Data dan Pengembangan Sistem',
+                'experience' => 'Pengguna khusus untuk pengujian asesmen akademik.',
+                'weekly_study_hours' => 8,
+                'target_career_id' => $career->id,
+                'onboarding_completed_at' => now(),
+            ]);
     }
 
     public function test_academic_assessment_contains_nine_multiple_choice_questions(): void
@@ -59,8 +81,13 @@ class AssessmentEvidenceTest extends TestCase
     public function test_academic_assessment_uses_objective_answer_and_self_rating_components(): void
     {
         $assessment = $this->assessment();
-        $payload = $this->validPayload($assessment);
-        $question = $assessment->questions->first();
+        $payload = $this->validPayload(
+            $assessment,
+        );
+
+        $question = $assessment
+            ->questions
+            ->first();
 
         $this->assertNotNull(
             $question,
@@ -70,11 +97,15 @@ class AssessmentEvidenceTest extends TestCase
             $this->user,
         )
             ->post(
-                route('assessment.submit'),
+                route(
+                    'assessment.submit',
+                ),
                 $payload,
             )
             ->assertRedirect(
-                route('skills.index'),
+                route(
+                    'skills.index',
+                ),
             );
 
         $result = AssessmentResult::query()
@@ -152,8 +183,14 @@ class AssessmentEvidenceTest extends TestCase
     public function test_academic_assessment_rejects_incomplete_answers(): void
     {
         $assessment = $this->assessment();
-        $payload = $this->validPayload($assessment);
-        $question = $assessment->questions->first();
+
+        $payload = $this->validPayload(
+            $assessment,
+        );
+
+        $question = $assessment
+            ->questions
+            ->first();
 
         $this->assertNotNull(
             $question,
@@ -169,7 +206,9 @@ class AssessmentEvidenceTest extends TestCase
             $this->user,
         )
             ->post(
-                route('assessment.submit'),
+                route(
+                    'assessment.submit',
+                ),
                 $payload,
             )
             ->assertSessionHasErrors([
@@ -179,9 +218,13 @@ class AssessmentEvidenceTest extends TestCase
         $this->assertDatabaseMissing(
             'assessment_results',
             [
-                'user_id' => $this->user->id,
-                'assessment_id' => $assessment->id,
-                'assessment_question_id' => $question->id,
+                'user_id' => $this
+                    ->user
+                    ->id,
+                'assessment_id' => $assessment
+                    ->id,
+                'assessment_question_id' => $question
+                    ->id,
             ],
         );
     }
@@ -191,11 +234,12 @@ class AssessmentEvidenceTest extends TestCase
         return Assessment::query()
             ->where(
                 'career_id',
-                $this->user->target_career_id,
+                $this->user
+                    ->target_career_id,
             )
             ->where(
                 'study_program',
-                $this->user->study_program,
+                'Sistem Informasi',
             )
             ->where(
                 'is_active',
@@ -211,11 +255,17 @@ class AssessmentEvidenceTest extends TestCase
         $answers = [];
         $ratings = [];
 
-        foreach ($assessment->questions as $question) {
-            $answers[$question->id] = $question
+        foreach (
+            $assessment->questions as $question
+        ) {
+            $answers[
+                $question->id
+            ] = $question
                 ->correct_answer;
 
-            $ratings[$question->id] = 50;
+            $ratings[
+                $question->id
+            ] = 50;
         }
 
         return [
