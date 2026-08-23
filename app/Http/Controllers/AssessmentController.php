@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Assessment;
 use App\Models\AssessmentResult;
 use App\Models\UserSkill;
-use App\Rules\ExternalEvidenceUrl;
 use App\Services\CareerReadinessService;
 use App\Services\RoadmapService;
 use Illuminate\Http\RedirectResponse;
@@ -18,7 +17,17 @@ use Inertia\Response;
 
 class AssessmentController extends Controller
 {
-    private const PRACTICAL_MIN_RESPONSE_LENGTH = 80;
+    private const STUDY_PROGRAM_ALIASES = [
+        'sistem informasi' => 'Sistem Informasi',
+        'si' => 'Sistem Informasi',
+        'manajemen' => 'Manajemen',
+        'teknik informatika' => 'Teknik Informatika',
+        'informatika' => 'Teknik Informatika',
+        'ti' => 'Teknik Informatika',
+        'psikologi' => 'Psikologi',
+        'ilmu komunikasi' => 'Ilmu Komunikasi',
+        'ikom' => 'Ilmu Komunikasi',
+    ];
 
     public function show(
         Request $request,
@@ -30,17 +39,36 @@ class AssessmentController extends Controller
                 ->route('onboarding.show');
         }
 
-        $assessment = Assessment::query()
-            ->where(
-                'career_id',
-                $user->target_career_id,
-            )
-            ->where('is_active', true)
-            ->with([
-                'career',
-                'questions.skill',
-            ])
-            ->firstOrFail();
+        $studyProgram = $this->resolveStudyProgram(
+            $user->study_program,
+        );
+
+        if (! $studyProgram) {
+            return redirect()
+                ->route('onboarding.show')
+                ->withErrors([
+                    'study_program' => 'Program studi harus salah satu dari: Sistem Informasi, Manajemen, Teknik Informatika, Psikologi, atau Ilmu Komunikasi.',
+                ]);
+        }
+
+        $assessment = $this->findAssessment(
+            $user->target_career_id,
+            $studyProgram,
+        );
+
+        if (! $assessment) {
+            return redirect()
+                ->route('onboarding.show')
+                ->with(
+                    'error',
+                    'Assesment untuk program studi ini belum tersedia. Jalankan migration dan seeder assesment akademik terlebih dahulu.',
+                );
+        }
+
+        $assessment->load([
+            'career',
+            'questions.skill',
+        ]);
 
         $payload = [
             'id' => $assessment->id,
@@ -54,6 +82,7 @@ class AssessmentController extends Controller
             ],
             'questions' => $assessment
                 ->questions
+                ->sortBy('id')
                 ->map(
                     fn ($question) => [
                         'id' => $question->id,
@@ -113,14 +142,38 @@ class AssessmentController extends Controller
     ): RedirectResponse {
         $user = $request->user();
 
-        $assessment = Assessment::query()
-            ->where(
-                'career_id',
-                $user->target_career_id,
-            )
-            ->where('is_active', true)
-            ->with('questions')
-            ->firstOrFail();
+        if (! $user->target_career_id) {
+            return redirect()
+                ->route('onboarding.show');
+        }
+
+        $studyProgram = $this->resolveStudyProgram(
+            $user->study_program,
+        );
+
+        if (! $studyProgram) {
+            return redirect()
+                ->route('onboarding.show')
+                ->withErrors([
+                    'study_program' => 'Program studi harus salah satu dari: Sistem Informasi, Manajemen, Teknik Informatika, Psikologi, atau Ilmu Komunikasi.',
+                ]);
+        }
+
+        $assessment = $this->findAssessment(
+            $user->target_career_id,
+            $studyProgram,
+        );
+
+        if (! $assessment) {
+            return redirect()
+                ->route('onboarding.show')
+                ->with(
+                    'error',
+                    'Assesment untuk program studi ini belum tersedia. Jalankan migration dan seeder assesment akademik terlebih dahulu.',
+                );
+        }
+
+        $assessment->load('questions');
 
         $validated = $request->validate([
             'answers' => [
@@ -130,7 +183,7 @@ class AssessmentController extends Controller
             'answers.*' => [
                 'required',
                 'string',
-                'max:10',
+                'in:A,B,C,D',
             ],
             'self_ratings' => [
                 'required',
@@ -141,44 +194,6 @@ class AssessmentController extends Controller
                 'integer',
                 'min:0',
                 'max:100',
-            ],
-            'responses' => [
-                'nullable',
-                'array',
-            ],
-            'responses.*' => [
-                'nullable',
-                'string',
-                'max:4000',
-            ],
-            'evidence_urls' => [
-                'nullable',
-                'array',
-            ],
-            'evidence_urls.*' => [
-                'nullable',
-                'string',
-                new ExternalEvidenceUrl,
-                'max:1000',
-            ],
-            'experience_notes' => [
-                'nullable',
-                'array',
-            ],
-            'experience_notes.*' => [
-                'nullable',
-                'string',
-                'max:2000',
-            ],
-            'experience_evidence_urls' => [
-                'nullable',
-                'array',
-            ],
-            'experience_evidence_urls.*' => [
-                'nullable',
-                'string',
-                new ExternalEvidenceUrl,
-                'max:1000',
             ],
         ]);
 
@@ -196,40 +211,6 @@ class AssessmentController extends Controller
                 throw ValidationException::withMessages([
                     'answers' => 'Semua pertanyaan dan penilaian diri harus diisi sebelum assesment dikirim.',
                 ]);
-            }
-
-            if (
-                $question->question_type
-                === 'practical'
-            ) {
-                $response = trim(
-                    (string) (
-                        $validated['responses'][$question->id]
-                        ?? ''
-                    ),
-                );
-
-                if (
-                    Str::length($response)
-                    < self::PRACTICAL_MIN_RESPONSE_LENGTH
-                ) {
-                    throw ValidationException::withMessages([
-                        "responses.{$question->id}" => 'Jelaskan hasil tugas praktik minimal '.self::PRACTICAL_MIN_RESPONSE_LENGTH.' karakter.',
-                    ]);
-                }
-
-                $evidenceUrl = $validated[
-                    'evidence_urls'
-                ][$question->id] ?? null;
-
-                if (
-                    $question->evidence_required
-                    && ! $evidenceUrl
-                ) {
-                    throw ValidationException::withMessages([
-                        "evidence_urls.{$question->id}" => 'Tautan bukti eksternal HTTPS diperlukan untuk tugas praktik ini.',
-                    ]);
-                }
             }
         }
 
@@ -255,83 +236,19 @@ class AssessmentController extends Controller
                         'self_ratings'
                     ][$question->id];
 
-                    $responseText = trim(
-                        (string) (
-                            $validated[
-                                'responses'
-                            ][$question->id]
-                            ?? ''
-                        ),
-                    );
-
-                    $evidenceUrl = $validated[
-                        'evidence_urls'
-                    ][$question->id] ?? null;
-
-                    $experienceNotes = trim(
-                        (string) (
-                            $validated[
-                                'experience_notes'
-                            ][$question->id]
-                            ?? ''
-                        ),
-                    );
-
-                    $experienceEvidenceUrl = $validated[
-                        'experience_evidence_urls'
-                    ][$question->id] ?? null;
-
                     $correct = (
                         $answer
                         === $question->correct_answer
                     );
 
-                    if (
-                        $question->question_type
-                        === 'practical'
-                    ) {
-                        $score = $correct
-                            ? 50
-                            : 0;
-
-                        $score += (
-                            $selfRating
-                            * 0.20
-                        );
-
-                        if (
-                            Str::length($responseText)
-                            >= self::PRACTICAL_MIN_RESPONSE_LENGTH
-                        ) {
-                            $score += 15;
-                        }
-
-                        if ($evidenceUrl) {
-                            $score += 15;
-                        }
-                    } else {
-                        $score = $correct
+                    $score = (
+                        $correct
                             ? 80
-                            : 0;
-
-                        $score += (
-                            $selfRating
-                            * 0.20
-                        );
-                    }
-
-                    if (
-                        Str::length(
-                            $experienceNotes,
-                        )
-                        >= 40
-                    ) {
-                        $score += 2;
-                    }
-
-                    if ($experienceEvidenceUrl) {
-                        $score += 3;
-                    }
+                            : 0
+                    ) + (
+                        $selfRating
+                        * 0.20
+                    );
 
                     $score = round(
                         min(
@@ -354,14 +271,10 @@ class AssessmentController extends Controller
                         'is_correct' => $correct,
                         'self_rating' => $selfRating,
                         'answer' => $answer,
-                        'response_text' => $responseText !== ''
-                            ? $responseText
-                            : null,
-                        'evidence_url' => $evidenceUrl,
-                        'experience_notes' => $experienceNotes !== ''
-                            ? $experienceNotes
-                            : null,
-                        'experience_evidence_url' => $experienceEvidenceUrl,
+                        'response_text' => null,
+                        'evidence_url' => null,
+                        'experience_notes' => null,
+                        'experience_evidence_url' => null,
                     ]);
 
                     $skillScores[
@@ -399,7 +312,7 @@ class AssessmentController extends Controller
 
         $roadmapService->regenerate(
             $freshUser,
-            'Hasil Assesment '
+            'Hasil Assesment '.$studyProgram.' '
                 .now()->format('d M Y'),
         );
 
@@ -412,7 +325,40 @@ class AssessmentController extends Controller
             ->route('skills.index')
             ->with(
                 'success',
-                'Assesment selesai. Skill gap dan roadmap Anda sudah diperbarui.',
+                'Assesment '.$studyProgram.' selesai. Profil skill dan roadmap Anda sudah diperbarui.',
             );
+    }
+
+    private function findAssessment(
+        int $careerId,
+        string $studyProgram,
+    ): ?Assessment {
+        return Assessment::query()
+            ->where(
+                'career_id',
+                $careerId,
+            )
+            ->where(
+                'study_program',
+                $studyProgram,
+            )
+            ->where('is_active', true)
+            ->first();
+    }
+
+    private function resolveStudyProgram(
+        ?string $studyProgram,
+    ): ?string {
+        if (! $studyProgram) {
+            return null;
+        }
+
+        $normalized = Str::lower(
+            Str::squish($studyProgram),
+        );
+
+        return self::STUDY_PROGRAM_ALIASES[
+            $normalized
+        ] ?? null;
     }
 }

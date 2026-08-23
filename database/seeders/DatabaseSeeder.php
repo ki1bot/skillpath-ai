@@ -20,6 +20,8 @@ class DatabaseSeeder extends Seeder
             ReinforcementMaterialSeeder::class,
             AssessmentSeeder::class,
             AssessmentEnhancementSeeder::class,
+            AcademicAssessmentSkillSeeder::class,
+            AcademicAssessmentSeeder::class,
             PortfolioProjectSeeder::class,
             ExpandedSkillDataSeeder::class,
         ]);

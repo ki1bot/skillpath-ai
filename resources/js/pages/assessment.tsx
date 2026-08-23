@@ -4,20 +4,15 @@ import {
     ArrowRight,
     CheckCircle2,
     Clock3,
-    FileCheck2,
     History,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 
 type Question = {
     id: number;
-    question_type: 'multiple_choice' | 'case' | 'practical';
+    question_type: 'multiple_choice';
     prompt: string;
-    practical_instructions?: string | null;
-    evidence_required: boolean;
     options: Record<'A' | 'B' | 'C' | 'D', string>;
     difficulty: string;
     skill: {
@@ -41,85 +36,14 @@ type Assessment = {
 type FormData = {
     answers: Record<number, string>;
     self_ratings: Record<number, number>;
-    responses: Record<number, string>;
-    evidence_urls: Record<number, string>;
-    experience_notes: Record<number, string>;
-    experience_evidence_urls: Record<number, string>;
-};
-
-const typeLabels = {
-    multiple_choice: 'Pilihan ganda',
-    case: 'Studi kasus',
-    practical: 'Tugas praktik',
-};
-
-const PRACTICAL_MIN_RESPONSE_LENGTH = 80;
-
-const isValidExternalEvidenceUrl = (value: string) => {
-    if (!value.trim()) {
-        return false;
-    }
-
-    try {
-        const url = new URL(value);
-        const host = url.hostname.toLowerCase();
-
-        if (url.protocol !== 'https:') {
-            return false;
-        }
-
-        if (url.username || url.password) {
-            return false;
-        }
-
-        if (
-            host === 'localhost' ||
-            host === '::1' ||
-            host === '[::1]' ||
-            host.endsWith('.localhost') ||
-            host.endsWith('.local') ||
-            host.endsWith('.internal')
-        ) {
-            return false;
-        }
-
-        const ipv4 = host.split('.').map(Number);
-
-        if (
-            ipv4.length === 4 &&
-            ipv4.every(
-                (part) => Number.isInteger(part) && part >= 0 && part <= 255,
-            )
-        ) {
-            const [first, second] = ipv4;
-
-            if (
-                first === 0 ||
-                first === 10 ||
-                first === 127 ||
-                first >= 224 ||
-                (first === 169 && second === 254) ||
-                (first === 172 && second >= 16 && second <= 31) ||
-                (first === 192 && second === 168)
-            ) {
-                return false;
-            }
-        }
-
-        return host.includes('.') || host.includes(':');
-    } catch {
-        return false;
-    }
 };
 
 export default function AssessmentPage({
     assessment,
     latestAttempt,
-    profileExperience,
 }: {
     assessment: Assessment;
     latestAttempt?: string | null;
-    profileExperience?: string | null;
 }) {
     const [index, setIndex] = useState(0);
 
@@ -136,91 +60,60 @@ export default function AssessmentPage({
     const form = useForm<FormData>({
         answers: {},
         self_ratings: initialRatings,
-        responses: {},
-        evidence_urls: {},
-        experience_notes: {},
-        experience_evidence_urls: {},
     });
 
-    const getQuestionIncompleteReason = (item: Question) => {
-        if (!form.data.answers[item.id]) {
-            return 'Pilih salah satu jawaban terlebih dahulu.';
-        }
-
-        const experienceEvidenceUrl =
-            form.data.experience_evidence_urls[item.id]?.trim() ?? '';
-
-        if (
-            experienceEvidenceUrl &&
-            !isValidExternalEvidenceUrl(experienceEvidenceUrl)
-        ) {
-            return 'Bukti pengalaman harus menggunakan URL HTTPS eksternal yang valid.';
-        }
-
-        if (item.question_type !== 'practical') {
-            return null;
-        }
-
-        const response = form.data.responses[item.id]?.trim() ?? '';
-
-        if (response.length < PRACTICAL_MIN_RESPONSE_LENGTH) {
-            return `Jelaskan hasil praktik minimal ${PRACTICAL_MIN_RESPONSE_LENGTH} karakter. Saat ini baru ${response.length} karakter.`;
-        }
-
-        const evidenceUrl = form.data.evidence_urls[item.id]?.trim() ?? '';
-
-        if (item.evidence_required && !evidenceUrl) {
-            return 'Bukti praktik wajib diisi sebelum melanjutkan.';
-        }
-
-        if (evidenceUrl && !isValidExternalEvidenceUrl(evidenceUrl)) {
-            return 'Bukti praktik harus menggunakan URL HTTPS eksternal yang valid.';
-        }
-
-        return null;
-    };
-
-    const isQuestionComplete = (item: Question) => {
-        return getQuestionIncompleteReason(item) === null;
-    };
-
-    const completedCount =
-        assessment.questions.filter(isQuestionComplete).length;
+    const completedCount = assessment.questions.filter(
+        (item) => Boolean(form.data.answers[item.id]),
+    ).length;
 
     const progress =
         assessment.questions.length > 0
             ? Math.round((completedCount / assessment.questions.length) * 100)
             : 0;
 
-    const currentRating = form.data.self_ratings[question?.id] ?? 50;
+    const complete =
+        assessment.questions.length > 0 &&
+        assessment.questions.every((item) =>
+            Boolean(form.data.answers[item.id]),
+        );
 
-    const currentResponse =
-        question?.question_type === 'practical'
-            ? (form.data.responses[question.id] ?? '').trim()
-            : '';
+    const categorySummary = useMemo(() => {
+        const summary = new Map<string, number>();
 
-    const currentResponseLength = currentResponse.length;
+        assessment.questions.forEach((item) => {
+            summary.set(
+                item.skill.category,
+                (summary.get(item.skill.category) ?? 0) + 1,
+            );
+        });
 
-    const currentEvidenceUrl =
-        question?.question_type === 'practical'
-            ? (form.data.evidence_urls[question.id] ?? '').trim()
-            : '';
+        return Array.from(summary.entries());
+    }, [assessment.questions]);
 
-    const currentExperienceEvidenceUrl = question
-        ? (form.data.experience_evidence_urls[question.id] ?? '').trim()
-        : '';
+    if (!question) {
+        return (
+            <>
+                <Head title="Assesment Awal" />
 
-    const currentIncompleteReason = question
-        ? getQuestionIncompleteReason(question)
-        : null;
+                <div className="neo-page py-8 md:py-10">
+                    <section className="neo-card p-6 sm:p-8">
+                        <h1 className="text-3xl font-black">
+                            Assesment belum memiliki pertanyaan.
+                        </h1>
 
-    const canMove = question ? isQuestionComplete(question) : false;
+                        <p className="mt-3 text-sm font-medium text-muted-foreground">
+                            Jalankan seeder assesment akademik agar pertanyaan
+                            tersedia.
+                        </p>
+                    </section>
+                </div>
+            </>
+        );
+    }
 
-    const complete = assessment.questions.every(isQuestionComplete);
-
-    const statusText = latestAttempt
-        ? 'Hasil Assesment terbaru akan menjadi dasar skor kemampuan aktif dan roadmap berikutnya. Bukti praktik tetap harus berasal dari URL HTTPS eksternal.'
-        : 'Jawab sesuai kemampuan saat ini. Untuk tugas praktik, jawaban objektif, penjelasan hasil, bukti eksternal, dan penilaian diri dihitung sebagai komponen yang berbeda.';
+    const currentRating = form.data.self_ratings[question.id] ?? 50;
+    const currentAnswer = form.data.answers[question.id] ?? '';
+    const isLastQuestion = index === assessment.questions.length - 1;
 
     const selectAnswer = (value: string) => {
         form.setData('answers', {
@@ -236,21 +129,25 @@ export default function AssessmentPage({
         });
     };
 
-    const setRecordValue = (
-        field:
-            | 'responses'
-            | 'evidence_urls'
-            | 'experience_notes'
-            | 'experience_evidence_urls',
-        value: string,
-    ) => {
-        form.setData(field, {
-            ...form.data[field],
-            [question.id]: value,
-        });
+    const goNext = () => {
+        if (!currentAnswer || isLastQuestion) {
+            return;
+        }
+
+        setIndex((current) =>
+            Math.min(current + 1, assessment.questions.length - 1),
+        );
+    };
+
+    const goPrevious = () => {
+        setIndex((current) => Math.max(current - 1, 0));
     };
 
     const submit = () => {
+        if (!complete || form.processing) {
+            return;
+        }
+
         form.post('/assessment');
     };
 
@@ -260,7 +157,7 @@ export default function AssessmentPage({
 
             <div className="neo-page py-8 md:py-10">
                 <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
-                    <div className="max-w-2xl">
+                    <div className="max-w-3xl">
                         <span className="neo-label">Tahap 02</span>
 
                         <h1 className="neo-heading mt-5 text-4xl sm:text-5xl">
@@ -270,6 +167,19 @@ export default function AssessmentPage({
                         <p className="mt-4 text-sm leading-relaxed font-medium text-muted-foreground">
                             {assessment.description}
                         </p>
+
+                        <div className="mt-4 flex flex-wrap gap-2">
+                            <span className="rounded-full border-2 border-foreground bg-card px-3 py-1 text-xs font-black">
+                                Target karier: {assessment.career.name}
+                            </span>
+
+                            {latestAttempt && (
+                                <span className="flex items-center gap-1.5 rounded-full border-2 border-[#171717] bg-[var(--neo-yellow)] px-3 py-1 text-xs font-black text-[#171717]">
+                                    <History className="size-3.5" />
+                                    Assesment ulang
+                                </span>
+                            )}
+                        </div>
                     </div>
 
                     <div className="neo-surface flex items-center gap-3 px-4 py-3 text-sm font-black">
@@ -278,18 +188,18 @@ export default function AssessmentPage({
                     </div>
                 </div>
 
-                <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_280px]">
+                <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_300px]">
                     <section className="neo-card p-6 sm:p-8">
-                        <div className="mb-7 flex flex-wrap items-center justify-between gap-4">
+                        <div className="mb-7 flex flex-wrap items-start justify-between gap-4">
                             <div>
                                 <p className="text-xs font-black tracking-[0.15em] text-muted-foreground uppercase">
                                     Pertanyaan {index + 1} dari{' '}
                                     {assessment.questions.length}
                                 </p>
 
-                                <p className="mt-1 text-sm font-bold">
+                                <h2 className="mt-2 text-xl font-black">
                                     {question.skill.name}
-                                </p>
+                                </h2>
                             </div>
 
                             <div className="flex flex-wrap gap-2">
@@ -298,43 +208,19 @@ export default function AssessmentPage({
                                 </span>
 
                                 <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-yellow)] px-3 py-1 text-xs font-black text-[#171717]">
-                                    {typeLabels[question.question_type]}
+                                    {question.difficulty}
                                 </span>
                             </div>
                         </div>
 
-                        {question.question_type === 'case' && (
-                            <p className="mb-3 text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                Analisis situasi berikut
-                            </p>
-                        )}
-
-                        <h2 className="text-2xl leading-snug font-black tracking-tight">
+                        <h3 className="text-2xl leading-snug font-black tracking-tight">
                             {question.prompt}
-                        </h2>
-
-                        {question.question_type === 'practical' &&
-                            question.practical_instructions && (
-                                <div className="mt-6 rounded-[14px] border-2 border-[#171717] bg-[var(--neo-yellow)] p-5 text-[#171717]">
-                                    <div className="flex items-center gap-2">
-                                        <FileCheck2 className="size-5" />
-
-                                        <p className="font-black">
-                                            Tugas praktik
-                                        </p>
-                                    </div>
-
-                                    <p className="mt-3 text-sm leading-relaxed font-semibold">
-                                        {question.practical_instructions}
-                                    </p>
-                                </div>
-                            )}
+                        </h3>
 
                         <div className="mt-7 grid gap-3">
                             {Object.entries(question.options).map(
                                 ([key, value]) => {
-                                    const selected =
-                                        form.data.answers[question.id] === key;
+                                    const selected = currentAnswer === key;
 
                                     return (
                                         <button
@@ -360,113 +246,17 @@ export default function AssessmentPage({
                             )}
                         </div>
 
-                        {question.question_type === 'practical' && (
-                            <div className="mt-7 grid gap-4 rounded-[14px] border-2 border-foreground bg-muted p-5">
-                                <label>
-                                    <div className="mb-2 flex flex-wrap items-end justify-between gap-2">
-                                        <span className="block text-sm font-black">
-                                            Jelaskan hasil praktik
-                                        </span>
-
-                                        <span
-                                            className={`font-mono text-xs font-black ${
-                                                currentResponseLength >=
-                                                PRACTICAL_MIN_RESPONSE_LENGTH
-                                                    ? 'text-foreground'
-                                                    : 'text-muted-foreground'
-                                            }`}
-                                        >
-                                            {currentResponseLength}/
-                                            {PRACTICAL_MIN_RESPONSE_LENGTH}{' '}
-                                            karakter
-                                        </span>
-                                    </div>
-
-                                    <Textarea
-                                        value={
-                                            form.data.responses[question.id] ??
-                                            ''
-                                        }
-                                        onChange={(event) =>
-                                            setRecordValue(
-                                                'responses',
-                                                event.target.value,
-                                            )
-                                        }
-                                        rows={5}
-                                        minLength={
-                                            PRACTICAL_MIN_RESPONSE_LENGTH
-                                        }
-                                        placeholder="Jelaskan apa yang dikerjakan, hasil yang diperoleh, kendala yang ditemukan, dan bagaimana hasil tersebut diperiksa."
-                                    />
-
-                                    <p className="mt-2 text-xs leading-relaxed font-medium text-muted-foreground">
-                                        Tuliskan minimal{' '}
-                                        {PRACTICAL_MIN_RESPONSE_LENGTH} karakter
-                                        agar hasil praktik memiliki konteks yang
-                                        cukup untuk penilaian.
-                                    </p>
-                                </label>
-
-                                <label>
-                                    <span className="mb-2 block text-sm font-black">
-                                        Bukti praktik
-                                        {question.evidence_required
-                                            ? ' wajib'
-                                            : ' opsional'}
-                                    </span>
-
-                                    <Input
-                                        type="url"
-                                        value={
-                                            form.data.evidence_urls[
-                                                question.id
-                                            ] ?? ''
-                                        }
-                                        onChange={(event) =>
-                                            setRecordValue(
-                                                'evidence_urls',
-                                                event.target.value,
-                                            )
-                                        }
-                                        placeholder="https://github.com/... atau https://deployment.example.com"
-                                        required={question.evidence_required}
-                                    />
-
-                                    <p className="mt-2 text-xs leading-relaxed font-medium text-muted-foreground">
-                                        Gunakan tautan HTTPS eksternal menuju
-                                        repository, deployment, dokumen, atau
-                                        bukti lain. Localhost dan jaringan
-                                        privat tidak diterima.
-                                    </p>
-
-                                    {currentEvidenceUrl &&
-                                        !isValidExternalEvidenceUrl(
-                                            currentEvidenceUrl,
-                                        ) && (
-                                            <p className="mt-2 text-xs font-bold text-destructive">
-                                                URL belum valid. Gunakan HTTPS
-                                                pada host eksternal yang dapat
-                                                dibagikan.
-                                            </p>
-                                        )}
-                                </label>
-                            </div>
-                        )}
-
                         <div className="mt-8 rounded-[14px] border-2 border-foreground bg-muted p-5">
                             <div className="flex items-center justify-between gap-4">
                                 <div>
                                     <p className="text-sm font-black">
-                                        Seberapa yakin kamu dengan kemampuan
-                                        ini?
+                                        Seberapa yakin kamu dengan jawaban dan
+                                        kemampuan pada skill ini?
                                     </p>
 
                                     <p className="mt-1 text-xs font-medium text-muted-foreground">
-                                        Penilaian diri memiliki bobot 20%. Untuk
-                                        tugas praktik, skor utama juga
-                                        ditentukan oleh jawaban objektif,
-                                        penjelasan hasil, dan bukti praktik.
+                                        Jawaban objektif memiliki bobot 80% dan
+                                        penilaian diri memiliki bobot 20%.
                                     </p>
                                 </div>
 
@@ -488,166 +278,110 @@ export default function AssessmentPage({
                             />
 
                             <div className="mt-1 flex justify-between text-[10px] font-black tracking-wide text-muted-foreground uppercase">
-                                <span>Belum paham</span>
+                                <span>Belum yakin</span>
                                 <span>Sangat yakin</span>
                             </div>
                         </div>
 
-                        <div className="mt-6 rounded-[14px] border-2 border-foreground bg-card p-5">
-                            <div className="flex items-center gap-2">
-                                <History className="size-5" />
-
-                                <p className="text-sm font-black">
-                                    Riwayat pengalaman terkait skill ini
-                                </p>
-                            </div>
-
-                            {profileExperience && (
-                                <p className="mt-3 text-xs leading-relaxed font-medium text-muted-foreground">
-                                    Profil sebelumnya: {profileExperience}
-                                </p>
-                            )}
-
-                            <div className="mt-4 grid gap-4">
-                                <Textarea
-                                    rows={3}
-                                    value={
-                                        form.data.experience_notes[
-                                            question.id
-                                        ] ?? ''
-                                    }
-                                    onChange={(event) =>
-                                        setRecordValue(
-                                            'experience_notes',
-                                            event.target.value,
-                                        )
-                                    }
-                                    placeholder="Opsional: pernah menggunakan skill ini pada tugas, proyek, organisasi, pekerjaan, atau pengalaman lain?"
-                                />
-
-                                <Input
-                                    type="url"
-                                    value={
-                                        form.data.experience_evidence_urls[
-                                            question.id
-                                        ] ?? ''
-                                    }
-                                    onChange={(event) =>
-                                        setRecordValue(
-                                            'experience_evidence_urls',
-                                            event.target.value,
-                                        )
-                                    }
-                                    placeholder="https://portfolio.example.com/..."
-                                />
-
-                                {currentExperienceEvidenceUrl &&
-                                    !isValidExternalEvidenceUrl(
-                                        currentExperienceEvidenceUrl,
-                                    ) && (
-                                        <p className="text-xs font-bold text-destructive">
-                                            Bukti pengalaman opsional tetap
-                                            harus menggunakan URL HTTPS
-                                            eksternal yang valid.
-                                        </p>
-                                    )}
-                            </div>
-                        </div>
-
-                        {currentIncompleteReason && (
-                            <div className="mt-6 rounded-[12px] border-2 border-[#171717] bg-[var(--neo-yellow)] p-4 text-sm leading-relaxed font-bold text-[#171717]">
-                                <span className="font-black">
-                                    Belum bisa melanjutkan:
-                                </span>{' '}
-                                {currentIncompleteReason}
-                            </div>
+                        {form.errors.answers && (
+                            <p className="mt-5 text-sm font-bold text-destructive">
+                                {form.errors.answers}
+                            </p>
                         )}
 
-                        {Object.keys(form.errors).length > 0 && (
-                            <div className="mt-6 rounded-[12px] border-2 border-[#171717] bg-[var(--neo-pink)] p-4 text-sm font-bold text-[#171717]">
-                                Periksa kembali jawaban, tugas praktik, dan
-                                bukti yang diwajibkan sebelum melanjutkan.
-                            </div>
-                        )}
-
-                        <div className="mt-8 flex items-center justify-between gap-3">
+                        <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <Button
                                 type="button"
                                 variant="outline"
+                                onClick={goPrevious}
                                 disabled={index === 0}
-                                onClick={() => setIndex((value) => value - 1)}
                             >
                                 <ArrowLeft />
                                 Sebelumnya
                             </Button>
 
-                            {index < assessment.questions.length - 1 ? (
+                            {isLastQuestion ? (
                                 <Button
                                     type="button"
-                                    disabled={!canMove}
-                                    onClick={() =>
-                                        setIndex((value) => value + 1)
-                                    }
+                                    onClick={submit}
+                                    disabled={!complete || form.processing}
                                 >
-                                    Berikutnya
-                                    <ArrowRight />
+                                    <CheckCircle2 />
+                                    {form.processing
+                                        ? 'Menyimpan...'
+                                        : 'Selesaikan Assesment'}
                                 </Button>
                             ) : (
                                 <Button
                                     type="button"
-                                    disabled={!complete || form.processing}
-                                    onClick={submit}
+                                    onClick={goNext}
+                                    disabled={!currentAnswer}
                                 >
-                                    <CheckCircle2 />
-                                    Selesaikan Assesment
+                                    Selanjutnya
+                                    <ArrowRight />
                                 </Button>
                             )}
                         </div>
                     </section>
 
-                    <aside className="space-y-4">
-                        <div className="neo-card-flat p-5">
-                            <div className="flex items-end justify-between">
-                                <span className="text-sm font-black">
-                                    Selesai diisi
-                                </span>
+                    <aside className="space-y-5">
+                        <section className="neo-card p-5">
+                            <div className="flex items-center justify-between gap-3">
+                                <div>
+                                    <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
+                                        Progress
+                                    </p>
 
-                                <span className="font-mono text-xl font-black">
-                                    {progress}%
+                                    <p className="mt-1 text-2xl font-black">
+                                        {progress}%
+                                    </p>
+                                </div>
+
+                                <span className="font-mono text-sm font-black">
+                                    {completedCount}/
+                                    {assessment.questions.length}
                                 </span>
                             </div>
 
-                            <div className="neo-progress mt-3 h-4">
-                                <span
-                                    style={{
-                                        width: `${progress}%`,
-                                    }}
+                            <div className="mt-4 h-3 overflow-hidden rounded-full border-2 border-foreground bg-background">
+                                <div
+                                    className="h-full bg-secondary transition-[width]"
+                                    style={{ width: `${progress}%` }}
                                 />
                             </div>
+                        </section>
 
-                            <div className="mt-5 grid grid-cols-5 gap-2">
-                                {assessment.questions.map((item, itemIndex) => (
-                                    <button
-                                        key={item.id}
-                                        type="button"
-                                        onClick={() => setIndex(itemIndex)}
-                                        className={`flex aspect-square items-center justify-center rounded-[8px] border-2 border-foreground text-xs font-black ${
-                                            itemIndex === index
-                                                ? 'bg-[var(--neo-blue)] text-[#171717]'
-                                                : isQuestionComplete(item)
-                                                  ? 'bg-secondary text-[#171717]'
-                                                  : 'bg-card'
-                                        }`}
+                        <section className="neo-card p-5">
+                            <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
+                                Bidang yang dinilai
+                            </p>
+
+                            <div className="mt-4 space-y-3">
+                                {categorySummary.map(([category, count]) => (
+                                    <div
+                                        key={category}
+                                        className="rounded-[10px] border-2 border-foreground bg-muted p-3"
                                     >
-                                        {itemIndex + 1}
-                                    </button>
+                                        <p className="text-sm font-black">
+                                            {category}
+                                        </p>
+
+                                        <p className="mt-1 text-xs font-semibold text-muted-foreground">
+                                            {count} skill
+                                        </p>
+                                    </div>
                                 ))}
                             </div>
-                        </div>
+                        </section>
 
-                        <div className="rounded-[14px] border-2 border-[#171717] bg-[var(--neo-yellow)] p-5 text-sm leading-relaxed font-bold text-[#171717]">
-                            {statusText}
-                        </div>
+                        <section className="neo-surface p-5">
+                            <p className="text-sm leading-6 font-semibold">
+                                Jawab berdasarkan pemahamanmu sekarang. Jangan
+                                menaikkan nilai keyakinan jika jawabanmu hanya
+                                tebakan karena skor ini akan masuk ke profil
+                                skill dan memengaruhi analisis berikutnya.
+                            </p>
+                        </section>
                     </aside>
                 </div>
             </div>

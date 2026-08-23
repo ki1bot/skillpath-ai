@@ -13,6 +13,7 @@ class Assessment extends Model
 
     protected $fillable = [
         'career_id',
+        'study_program',
         'title',
         'description',
         'duration_minutes',
