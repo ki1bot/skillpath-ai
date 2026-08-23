@@ -2,52 +2,61 @@ import { Form } from '@inertiajs/react';
 import { Plus, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
-    ArrayFields,
     InputField,
     SelectField,
     TextareaField,
 } from '../components/form-controls';
-import type { Career } from '../types';
+import type { Assessment, Career } from '../types';
 
-export function CareerForm({ career }: { career?: Career }) {
-    const action = career ? `/admin/careers/${career.slug}` : '/admin/careers';
+type Props = {
+    assessment?: Assessment;
+    careers: Career[];
+};
+
+export function AssessmentForm({ assessment, careers }: Props) {
+    const action = assessment
+        ? `/admin/assessments/${assessment.id}`
+        : '/admin/assessments';
 
     return (
         <Form
             action={action}
-            method={career ? 'put' : 'post'}
+            method={assessment ? 'put' : 'post'}
             className="grid gap-5"
         >
-            {({ processing, errors }) => (
+            {({ processing }) => (
                 <>
-                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                        <InputField
-                            label="Nama jurusan"
-                            name="name"
-                            defaultValue={career?.name}
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <SelectField
+                            label="Jurusan"
+                            name="career_id"
+                            defaultValue={assessment?.career_id ?? ''}
                             required
-                        />
+                        >
+                            <option value="">Pilih jurusan</option>
+
+                            {careers.map((career) => (
+                                <option key={career.id} value={career.id}>
+                                    {career.name}
+                                </option>
+                            ))}
+                        </SelectField>
 
                         <InputField
-                            label="Tingkat"
-                            name="difficulty"
-                            defaultValue={career?.difficulty ?? 'Menengah'}
-                            required
-                        />
-
-                        <InputField
-                            label="Warna aksen"
-                            name="accent"
-                            type="color"
-                            defaultValue={career?.accent ?? '#C7FF5E'}
+                            label="Durasi asesmen"
+                            type="number"
+                            name="duration_minutes"
+                            min={5}
+                            max={180}
+                            defaultValue={assessment?.duration_minutes ?? 20}
                             required
                         />
                     </div>
 
                     <InputField
-                        label="Ringkasan singkat"
-                        name="tagline"
-                        defaultValue={career?.tagline}
+                        label="Judul"
+                        name="title"
+                        defaultValue={assessment?.title}
                         required
                     />
 
@@ -55,39 +64,29 @@ export function CareerForm({ career }: { career?: Career }) {
                         label="Deskripsi"
                         name="description"
                         rows={4}
-                        defaultValue={career?.description}
+                        defaultValue={assessment?.description}
                         required
-                    />
-
-                    <ArrayFields
-                        name="responsibilities"
-                        label="Bidang utama"
-                        values={career?.responsibilities}
                     />
 
                     <SelectField
                         label="Status"
                         name="is_active"
-                        defaultValue={career?.is_active === false ? '0' : '1'}
+                        defaultValue={
+                            assessment?.is_active === false ? '0' : '1'
+                        }
                     >
                         <option value="1">Aktif</option>
                         <option value="0">Nonaktif</option>
                     </SelectField>
 
-                    {Object.keys(errors).length > 0 && (
-                        <p className="text-sm font-bold text-destructive">
-                            Periksa kembali data jurusan yang dimasukkan.
-                        </p>
-                    )}
-
                     <Button disabled={processing} className="w-full sm:w-fit">
-                        {career ? (
+                        {assessment ? (
                             <Save className="size-4" />
                         ) : (
                             <Plus className="size-4" />
                         )}
 
-                        {career ? 'Simpan perubahan' : 'Tambah jurusan'}
+                        {assessment ? 'Simpan asesmen' : 'Tambah asesmen'}
                     </Button>
                 </>
             )}
