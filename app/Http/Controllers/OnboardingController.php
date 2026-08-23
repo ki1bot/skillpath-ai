@@ -5,11 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\Career;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class OnboardingController extends Controller
 {
+    private const STUDY_PROGRAMS = [
+        'Sistem Informasi',
+        'Manajemen',
+        'Teknik Informatika',
+        'Psikologi',
+        'Ilmu Komunikasi',
+    ];
+
     public function show(Request $request): Response
     {
         return Inertia::render('onboarding', [
@@ -32,7 +41,11 @@ class OnboardingController extends Controller
     public function update(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'study_program' => ['required', 'string', 'max:120'],
+            'study_program' => [
+                'required',
+                'string',
+                Rule::in(self::STUDY_PROGRAMS),
+            ],
             'semester' => ['required', 'integer', 'min:1', 'max:14'],
             'interest_area' => ['required', 'string', 'max:120'],
             'experience' => ['required', 'string', 'max:1000'],
@@ -42,23 +55,42 @@ class OnboardingController extends Controller
 
         $user = $request->user();
         $wasOnboarded = $user->onboarding_completed_at !== null;
-        $targetChanged = (int) $user->target_career_id !== (int) $validated['target_career_id'];
+
+        $targetChanged =
+            (int) $user->target_career_id
+            !== (int) $validated['target_career_id'];
+
+        $studyProgramChanged =
+            (string) $user->study_program
+            !== $validated['study_program'];
+
+        $assessmentContextChanged =
+            $targetChanged
+            || $studyProgramChanged;
 
         $user->update([
             ...$validated,
             'onboarding_completed_at' => now(),
         ]);
 
-        if ($targetChanged) {
+        if ($assessmentContextChanged) {
             $user->roadmaps()
                 ->where('is_active', true)
-                ->update(['is_active' => false]);
+                ->update([
+                    'is_active' => false,
+                ]);
         }
 
-        if (! $wasOnboarded || $targetChanged) {
+        if (
+            ! $wasOnboarded
+            || $assessmentContextChanged
+        ) {
             return redirect()
                 ->route('assessment.show')
-                ->with('success', 'Profil tersimpan. Sekarang ukur kemampuan awal Anda untuk target karier ini.');
+                ->with(
+                    'success',
+                    'Profil tersimpan. Sekarang jawab asesmen sesuai jurusan dan target karier yang kamu pilih.',
+                );
         }
 
         $roadmap = $user->roadmaps()
@@ -68,14 +100,33 @@ class OnboardingController extends Controller
 
         if ($roadmap) {
             $remainingMinutes = $roadmap->items
-                ->where('status', '!=', 'completed')
-                ->sum(fn ($item) => (int) $item->material->estimated_minutes);
+                ->where(
+                    'status',
+                    '!=',
+                    'completed',
+                )
+                ->sum(
+                    fn ($item) => (
+                        (int) $item
+                            ->material
+                            ->estimated_minutes
+                    ),
+                );
 
-            $weeklyMinutes = max(((int) $user->weekly_study_hours) * 60, 60);
+            $weeklyMinutes = max(
+                (
+                    (int) $user
+                        ->weekly_study_hours
+                ) * 60,
+                60,
+            );
 
             $roadmap->update([
                 'estimated_weeks' => max(
-                    (int) ceil($remainingMinutes / $weeklyMinutes),
+                    (int) ceil(
+                        $remainingMinutes
+                        / $weeklyMinutes,
+                    ),
                     1,
                 ),
             ]);
@@ -83,6 +134,9 @@ class OnboardingController extends Controller
 
         return redirect()
             ->route('dashboard')
-            ->with('success', 'Profil belajar diperbarui. Estimasi roadmap sudah menyesuaikan waktu belajar terbaru.');
+            ->with(
+                'success',
+                'Profil belajar sudah diperbarui. Estimasi roadmap juga sudah menyesuaikan waktu belajarmu.',
+            );
     }
 }

@@ -47,7 +47,7 @@ class AssessmentController extends Controller
             return redirect()
                 ->route('onboarding.show')
                 ->withErrors([
-                    'study_program' => 'Program studi harus salah satu dari: Sistem Informasi, Manajemen, Teknik Informatika, Psikologi, atau Ilmu Komunikasi.',
+                    'study_program' => 'Pilih salah satu jurusan yang tersedia sebelum melanjutkan ke asesmen.',
                 ]);
         }
 
@@ -61,7 +61,7 @@ class AssessmentController extends Controller
                 ->route('onboarding.show')
                 ->with(
                     'error',
-                    'Assesment untuk program studi ini belum tersedia. Jalankan migration dan seeder assesment akademik terlebih dahulu.',
+                    'Asesmen untuk jurusan ini belum tersedia. Periksa kembali data asesmen di server.',
                 );
         }
 
@@ -72,6 +72,7 @@ class AssessmentController extends Controller
 
         $payload = [
             'id' => $assessment->id,
+            'study_program' => $assessment->study_program,
             'title' => $assessment->title,
             'description' => $assessment->description,
             'duration_minutes' => $assessment->duration_minutes,
@@ -118,8 +119,6 @@ class AssessmentController extends Controller
             'assessment',
             [
                 'assessment' => $payload,
-                'profileExperience' => $user
-                    ->experience,
                 'latestAttempt' => AssessmentResult::query()
                     ->where(
                         'user_id',
@@ -155,7 +154,7 @@ class AssessmentController extends Controller
             return redirect()
                 ->route('onboarding.show')
                 ->withErrors([
-                    'study_program' => 'Program studi harus salah satu dari: Sistem Informasi, Manajemen, Teknik Informatika, Psikologi, atau Ilmu Komunikasi.',
+                    'study_program' => 'Pilih salah satu jurusan yang tersedia sebelum melanjutkan ke asesmen.',
                 ]);
         }
 
@@ -169,7 +168,7 @@ class AssessmentController extends Controller
                 ->route('onboarding.show')
                 ->with(
                     'error',
-                    'Assesment untuk program studi ini belum tersedia. Jalankan migration dan seeder assesment akademik terlebih dahulu.',
+                    'Asesmen untuk jurusan ini belum tersedia. Periksa kembali data asesmen di server.',
                 );
         }
 
@@ -209,7 +208,7 @@ class AssessmentController extends Controller
                 )
             ) {
                 throw ValidationException::withMessages([
-                    'answers' => 'Semua pertanyaan dan penilaian diri harus diisi sebelum assesment dikirim.',
+                    'answers' => 'Jawab semua pertanyaan dan isi tingkat keyakinanmu sebelum menyelesaikan asesmen.',
                 ]);
             }
         }
@@ -312,7 +311,7 @@ class AssessmentController extends Controller
 
         $roadmapService->regenerate(
             $freshUser,
-            'Hasil Assesment '.$studyProgram.' '
+            'Hasil asesmen '.$studyProgram.' '
                 .now()->format('d M Y'),
         );
 
@@ -325,7 +324,7 @@ class AssessmentController extends Controller
             ->route('skills.index')
             ->with(
                 'success',
-                'Assesment '.$studyProgram.' selesai. Profil skill dan roadmap Anda sudah diperbarui.',
+                'Asesmen '.$studyProgram.' selesai. Hasil kemampuanmu sudah disimpan dan roadmap diperbarui.',
             );
     }
 

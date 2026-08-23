@@ -79,7 +79,7 @@ show.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     show.form = showForm
 /**
 * @see \App\Http\Controllers\AssessmentController::submit
- * @see app/Http/Controllers/AssessmentController.php:138
+ * @see app/Http/Controllers/AssessmentController.php:137
  * @route '/assessment'
  */
 export const submit = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -94,7 +94,7 @@ submit.definition = {
 
 /**
 * @see \App\Http\Controllers\AssessmentController::submit
- * @see app/Http/Controllers/AssessmentController.php:138
+ * @see app/Http/Controllers/AssessmentController.php:137
  * @route '/assessment'
  */
 submit.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ submit.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\AssessmentController::submit
- * @see app/Http/Controllers/AssessmentController.php:138
+ * @see app/Http/Controllers/AssessmentController.php:137
  * @route '/assessment'
  */
 submit.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -113,7 +113,7 @@ submit.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\AssessmentController::submit
- * @see app/Http/Controllers/AssessmentController.php:138
+ * @see app/Http/Controllers/AssessmentController.php:137
  * @route '/assessment'
  */
     const submitForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -123,7 +123,7 @@ submit.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\AssessmentController::submit
- * @see app/Http/Controllers/AssessmentController.php:138
+ * @see app/Http/Controllers/AssessmentController.php:137
  * @route '/assessment'
  */
         submitForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

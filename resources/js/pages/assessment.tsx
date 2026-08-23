@@ -4,10 +4,12 @@ import {
     ArrowRight,
     CheckCircle2,
     Clock3,
+    GraduationCap,
     History,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { getStudyProgramDefinition } from '@/lib/academic-programs';
 
 type Question = {
     id: number;
@@ -24,6 +26,7 @@ type Question = {
 
 type Assessment = {
     id: number;
+    study_program: string;
     title: string;
     description: string;
     duration_minutes: number;
@@ -46,7 +49,7 @@ export default function AssessmentPage({
     latestAttempt?: string | null;
 }) {
     const [index, setIndex] = useState(0);
-
+    const program = getStudyProgramDefinition(assessment.study_program);
     const question = assessment.questions[index];
 
     const initialRatings = useMemo(
@@ -93,17 +96,18 @@ export default function AssessmentPage({
     if (!question) {
         return (
             <>
-                <Head title="Assesment Awal" />
+                <Head title="Asesmen Awal" />
 
                 <div className="neo-page py-8 md:py-10">
                     <section className="neo-card p-6 sm:p-8">
                         <h1 className="text-3xl font-black">
-                            Assesment belum memiliki pertanyaan.
+                            Pertanyaan asesmen belum tersedia.
                         </h1>
 
                         <p className="mt-3 text-sm font-medium text-muted-foreground">
-                            Jalankan seeder assesment akademik agar pertanyaan
-                            tersedia.
+                            Data asesmen untuk jurusan ini belum siap. Periksa
+                            kembali data assessment di server sebelum
+                            melanjutkan.
                         </p>
                     </section>
                 </div>
@@ -153,7 +157,7 @@ export default function AssessmentPage({
 
     return (
         <>
-            <Head title="Assesment Awal" />
+            <Head title="Asesmen Awal" />
 
             <div className="neo-page py-8 md:py-10">
                 <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
@@ -161,14 +165,22 @@ export default function AssessmentPage({
                         <span className="neo-label">Tahap 02</span>
 
                         <h1 className="neo-heading mt-5 text-4xl sm:text-5xl">
-                            {assessment.title}
+                            Kenali kemampuan awalmu.
                         </h1>
 
                         <p className="mt-4 text-sm leading-relaxed font-medium text-muted-foreground">
-                            {assessment.description}
+                            Kamu akan menjawab {assessment.questions.length}{' '}
+                            pertanyaan dari tiga bidang utama jurusan{' '}
+                            {assessment.study_program}. Jawab sesuai kemampuanmu
+                            sekarang agar hasilnya benar-benar berguna untuk
+                            membaca posisi belajarmu.
                         </p>
 
                         <div className="mt-4 flex flex-wrap gap-2">
+                            <span className="rounded-full border-2 border-foreground bg-card px-3 py-1 text-xs font-black">
+                                Jurusan: {assessment.study_program}
+                            </span>
+
                             <span className="rounded-full border-2 border-foreground bg-card px-3 py-1 text-xs font-black">
                                 Target karier: {assessment.career.name}
                             </span>
@@ -176,7 +188,7 @@ export default function AssessmentPage({
                             {latestAttempt && (
                                 <span className="flex items-center gap-1.5 rounded-full border-2 border-[#171717] bg-[var(--neo-yellow)] px-3 py-1 text-xs font-black text-[#171717]">
                                     <History className="size-3.5" />
-                                    Assesment ulang
+                                    Mengulang asesmen
                                 </span>
                             )}
                         </div>
@@ -188,7 +200,81 @@ export default function AssessmentPage({
                     </div>
                 </div>
 
-                <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_300px]">
+                {program && (
+                    <section className="neo-card mt-8 p-5 sm:p-6">
+                        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+                            <div className="max-w-3xl">
+                                <div className="flex items-center gap-3">
+                                    <span className="flex size-10 items-center justify-center rounded-[10px] border-2 border-[#171717] bg-[var(--neo-yellow)] text-[#171717]">
+                                        <GraduationCap className="size-5" />
+                                    </span>
+
+                                    <div>
+                                        <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
+                                            Yang akan dinilai
+                                        </p>
+
+                                        <h2 className="text-xl font-black">
+                                            3 bidang dan 9 kemampuan dari{' '}
+                                            {program.name}
+                                        </h2>
+                                    </div>
+                                </div>
+
+                                <p className="mt-4 text-sm leading-6 font-medium text-muted-foreground">
+                                    Setiap kemampuan di bawah mendapat satu
+                                    pertanyaan. Kamu tidak perlu menguasai
+                                    semuanya; tujuan asesmen ini justru untuk
+                                    melihat bagian yang sudah kuat dan bagian
+                                    yang masih perlu dikembangkan.
+                                </p>
+                            </div>
+
+                            <span className="w-fit rounded-full border-2 border-[#171717] bg-secondary px-3 py-1.5 text-xs font-black text-[#171717]">
+                                {assessment.questions.length} pertanyaan
+                            </span>
+                        </div>
+
+                        <div className="mt-6 grid gap-4 lg:grid-cols-3">
+                            {program.areas.map((area, areaIndex) => (
+                                <div
+                                    key={area.name}
+                                    className="rounded-[14px] border-2 border-foreground bg-muted p-4"
+                                >
+                                    <div className="flex items-start gap-3">
+                                        <span className="flex size-7 shrink-0 items-center justify-center rounded-full border-2 border-foreground bg-background text-xs font-black">
+                                            {areaIndex + 1}
+                                        </span>
+
+                                        <div>
+                                            <p className="text-xs font-black tracking-[0.12em] text-muted-foreground uppercase">
+                                                Bidang {areaIndex + 1}
+                                            </p>
+
+                                            <h3 className="mt-1 text-base font-black">
+                                                {area.name}
+                                            </h3>
+                                        </div>
+                                    </div>
+
+                                    <ul className="mt-4 space-y-2">
+                                        {area.skills.map((skill) => (
+                                            <li
+                                                key={skill}
+                                                className="flex gap-2 text-sm leading-5 font-semibold"
+                                            >
+                                                <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
+                                                <span>{skill}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_300px]">
                     <section className="neo-card p-6 sm:p-8">
                         <div className="mb-7 flex flex-wrap items-start justify-between gap-4">
                             <div>
@@ -251,12 +337,13 @@ export default function AssessmentPage({
                                 <div>
                                     <p className="text-sm font-black">
                                         Seberapa yakin kamu dengan jawaban dan
-                                        kemampuan pada skill ini?
+                                        kemampuan pada bagian ini?
                                     </p>
 
                                     <p className="mt-1 text-xs font-medium text-muted-foreground">
-                                        Jawaban objektif memiliki bobot 80% dan
-                                        penilaian diri memiliki bobot 20%.
+                                        Jawaban soal memiliki bobot 80%,
+                                        sedangkan penilaian keyakinanmu memiliki
+                                        bobot 20%.
                                     </p>
                                 </div>
 
@@ -308,8 +395,8 @@ export default function AssessmentPage({
                                 >
                                     <CheckCircle2 />
                                     {form.processing
-                                        ? 'Menyimpan...'
-                                        : 'Selesaikan Assesment'}
+                                        ? 'Menyimpan hasil...'
+                                        : 'Selesaikan asesmen'}
                                 </Button>
                             ) : (
                                 <Button
@@ -317,7 +404,7 @@ export default function AssessmentPage({
                                     onClick={goNext}
                                     disabled={!currentAnswer}
                                 >
-                                    Selanjutnya
+                                    Pertanyaan berikutnya
                                     <ArrowRight />
                                 </Button>
                             )}
@@ -329,7 +416,7 @@ export default function AssessmentPage({
                             <div className="flex items-center justify-between gap-3">
                                 <div>
                                     <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                        Progress
+                                        Progres
                                     </p>
 
                                     <p className="mt-1 text-2xl font-black">
@@ -351,35 +438,39 @@ export default function AssessmentPage({
                             </div>
                         </section>
 
-                        <section className="neo-card p-5">
-                            <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                Bidang yang dinilai
-                            </p>
+                        {!program && (
+                            <section className="neo-card p-5">
+                                <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
+                                    Bidang yang dinilai
+                                </p>
 
-                            <div className="mt-4 space-y-3">
-                                {categorySummary.map(([category, count]) => (
-                                    <div
-                                        key={category}
-                                        className="rounded-[10px] border-2 border-foreground bg-muted p-3"
-                                    >
-                                        <p className="text-sm font-black">
-                                            {category}
-                                        </p>
+                                <div className="mt-4 space-y-3">
+                                    {categorySummary.map(
+                                        ([category, count]) => (
+                                            <div
+                                                key={category}
+                                                className="rounded-[10px] border-2 border-foreground bg-muted p-3"
+                                            >
+                                                <p className="text-sm font-black">
+                                                    {category}
+                                                </p>
 
-                                        <p className="mt-1 text-xs font-semibold text-muted-foreground">
-                                            {count} skill
-                                        </p>
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
+                                                <p className="mt-1 text-xs font-semibold text-muted-foreground">
+                                                    {count} kemampuan
+                                                </p>
+                                            </div>
+                                        ),
+                                    )}
+                                </div>
+                            </section>
+                        )}
 
                         <section className="neo-surface p-5">
                             <p className="text-sm leading-6 font-semibold">
-                                Jawab berdasarkan pemahamanmu sekarang. Jangan
-                                menaikkan nilai keyakinan jika jawabanmu hanya
-                                tebakan karena skor ini akan masuk ke profil
-                                skill dan memengaruhi analisis berikutnya.
+                                Tidak masalah kalau ada materi yang belum kamu
+                                kuasai. Jawab apa adanya. Hasil yang jujur jauh
+                                lebih berguna untuk menentukan bagian mana yang
+                                perlu kamu pelajari lebih dulu.
                             </p>
                         </section>
                     </aside>
@@ -392,7 +483,7 @@ export default function AssessmentPage({
 AssessmentPage.layout = {
     breadcrumbs: [
         {
-            title: 'Assesment',
+            title: 'Asesmen',
             href: '/assessment',
         },
     ],
