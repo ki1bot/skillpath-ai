@@ -62,8 +62,8 @@ export default function AssessmentPage({
         self_ratings: initialRatings,
     });
 
-    const completedCount = assessment.questions.filter(
-        (item) => Boolean(form.data.answers[item.id]),
+    const completedCount = assessment.questions.filter((item) =>
+        Boolean(form.data.answers[item.id]),
     ).length;
 
     const progress =

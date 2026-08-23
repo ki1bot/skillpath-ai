@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Assessment;
 use App\Models\AssessmentResult;
 use App\Models\User;
+use App\Models\UserSkill;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Support\CreatesSkillPathRecommendationUser;
 use Tests\TestCase;
@@ -25,54 +26,44 @@ class AssessmentEvidenceTest extends TestCase
         $this->user = $this->createSkillPathRecommendationUser();
     }
 
-    public function test_practical_assessment_requires_external_evidence(): void
+    public function test_academic_assessment_contains_nine_multiple_choice_questions(): void
     {
         $assessment = $this->assessment();
-        $payload = $this->validPayload($assessment);
 
-        $practical = $assessment
-            ->questions
-            ->firstWhere(
-                'question_type',
-                'practical',
+        $this->assertCount(
+            9,
+            $assessment->questions,
+        );
+
+        foreach ($assessment->questions as $question) {
+            $this->assertSame(
+                'multiple_choice',
+                $question->question_type,
             );
 
-        $this->assertNotNull(
-            $practical,
-        );
+            $this->assertFalse(
+                $question->evidence_required,
+            );
 
-        unset(
-            $payload['evidence_urls'][
-                $practical->id
-            ],
-        );
+            $this->assertNull(
+                $question->practical_instructions,
+            );
 
-        $this->actingAs(
-            $this->user,
-        )
-            ->post(
-                route('assessment.submit'),
-                $payload,
-            )
-            ->assertSessionHasErrors([
-                "evidence_urls.{$practical->id}",
-            ]);
+            $this->assertCount(
+                4,
+                $question->options,
+            );
+        }
     }
 
-    public function test_practical_assessment_uses_objective_response_evidence_and_self_rating_components(): void
+    public function test_academic_assessment_uses_objective_answer_and_self_rating_components(): void
     {
         $assessment = $this->assessment();
         $payload = $this->validPayload($assessment);
-
-        $practical = $assessment
-            ->questions
-            ->firstWhere(
-                'question_type',
-                'practical',
-            );
+        $question = $assessment->questions->first();
 
         $this->assertNotNull(
-            $practical,
+            $question,
         );
 
         $this->actingAs(
@@ -97,7 +88,7 @@ class AssessmentEvidenceTest extends TestCase
             )
             ->where(
                 'assessment_question_id',
-                $practical->id,
+                $question->id,
             )
             ->latest()
             ->firstOrFail();
@@ -107,15 +98,91 @@ class AssessmentEvidenceTest extends TestCase
             (float) $result->score,
         );
 
-        $this->assertNotNull(
+        $this->assertTrue(
+            $result->is_correct,
+        );
+
+        $this->assertSame(
+            50,
+            $result->self_rating,
+        );
+
+        $this->assertNull(
+            $result->response_text,
+        );
+
+        $this->assertNull(
             $result->evidence_url,
         );
 
-        $this->assertGreaterThanOrEqual(
-            80,
-            mb_strlen(
-                (string) $result->response_text,
-            ),
+        $this->assertNull(
+            $result->experience_notes,
+        );
+
+        $this->assertNull(
+            $result->experience_evidence_url,
+        );
+
+        $userSkill = UserSkill::query()
+            ->where(
+                'user_id',
+                $this->user->id,
+            )
+            ->where(
+                'skill_id',
+                $question->skill_id,
+            )
+            ->firstOrFail();
+
+        $this->assertSame(
+            90.0,
+            (float) $userSkill->score,
+        );
+
+        $this->assertSame(
+            'assessment',
+            $userSkill->source,
+        );
+
+        $this->assertNotNull(
+            $userSkill->last_assessed_at,
+        );
+    }
+
+    public function test_academic_assessment_rejects_incomplete_answers(): void
+    {
+        $assessment = $this->assessment();
+        $payload = $this->validPayload($assessment);
+        $question = $assessment->questions->first();
+
+        $this->assertNotNull(
+            $question,
+        );
+
+        unset(
+            $payload['answers'][
+                $question->id
+            ],
+        );
+
+        $this->actingAs(
+            $this->user,
+        )
+            ->post(
+                route('assessment.submit'),
+                $payload,
+            )
+            ->assertSessionHasErrors([
+                'answers',
+            ]);
+
+        $this->assertDatabaseMissing(
+            'assessment_results',
+            [
+                'user_id' => $this->user->id,
+                'assessment_id' => $assessment->id,
+                'assessment_question_id' => $question->id,
+            ],
         );
     }
 
@@ -125,6 +192,10 @@ class AssessmentEvidenceTest extends TestCase
             ->where(
                 'career_id',
                 $this->user->target_career_id,
+            )
+            ->where(
+                'study_program',
+                $this->user->study_program,
             )
             ->where(
                 'is_active',
@@ -139,30 +210,17 @@ class AssessmentEvidenceTest extends TestCase
     ): array {
         $answers = [];
         $ratings = [];
-        $responses = [];
-        $evidenceUrls = [];
 
         foreach ($assessment->questions as $question) {
             $answers[$question->id] = $question
                 ->correct_answer;
-            $ratings[$question->id] = 50;
 
-            if (
-                $question->question_type
-                === 'practical'
-            ) {
-                $responses[$question->id] = 'Saya menyelesaikan tugas praktik sesuai instruksi, memeriksa hasil yang dibuat, mencatat kendala yang muncul, lalu memperbaiki bagian yang belum sesuai sampai hasil akhirnya dapat dijalankan dan diperiksa kembali.';
-                $evidenceUrls[$question->id] = "https://example.com/evidence/{$question->id}";
-            }
+            $ratings[$question->id] = 50;
         }
 
         return [
             'answers' => $answers,
             'self_ratings' => $ratings,
-            'responses' => $responses,
-            'evidence_urls' => $evidenceUrls,
-            'experience_notes' => [],
-            'experience_evidence_urls' => [],
         ];
     }
 }

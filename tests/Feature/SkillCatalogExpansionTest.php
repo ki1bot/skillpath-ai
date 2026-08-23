@@ -35,29 +35,77 @@ class SkillCatalogExpansionTest extends TestCase
         $this->seed();
     }
 
-    public function test_seed_data_contains_forty_skills(): void
+    public function test_seed_data_contains_eighty_five_skills(): void
     {
         $this->assertSame(
-            40,
+            85,
             Skill::query()->count(),
         );
     }
 
-    public function test_every_seeded_skill_has_core_and_reinforcement_material(): void
+    public function test_academic_catalog_contains_forty_five_skills(): void
+    {
+        $academicSkills = Skill::query()
+            ->where(
+                'slug',
+                'like',
+                'si-%',
+            )
+            ->orWhere(
+                'slug',
+                'like',
+                'man-%',
+            )
+            ->orWhere(
+                'slug',
+                'like',
+                'ti-%',
+            )
+            ->orWhere(
+                'slug',
+                'like',
+                'psi-%',
+            )
+            ->orWhere(
+                'slug',
+                'like',
+                'ikom-%',
+            )
+            ->get();
+
+        $this->assertCount(
+            45,
+            $academicSkills,
+        );
+    }
+
+    public function test_learning_catalog_contains_forty_core_and_reinforcement_materials(): void
     {
         $this->assertSame(
             40,
             LearningMaterial::query()
-                ->where('material_type', 'core')
-                ->where('is_active', true)
+                ->where(
+                    'material_type',
+                    'core',
+                )
+                ->where(
+                    'is_active',
+                    true,
+                )
                 ->count(),
         );
 
         $this->assertSame(
             40,
             LearningMaterial::query()
-                ->where('material_type', 'reinforcement')
-                ->where('is_active', true)
+                ->where(
+                    'material_type',
+                    'reinforcement',
+                )
+                ->where(
+                    'is_active',
+                    true,
+                )
                 ->count(),
         );
     }
@@ -66,27 +114,90 @@ class SkillCatalogExpansionTest extends TestCase
     {
         foreach ($this->expandedSkillSlugs as $slug) {
             $skill = Skill::query()
-                ->where('slug', $slug)
+                ->where(
+                    'slug',
+                    $slug,
+                )
                 ->firstOrFail();
 
             $this->assertTrue(
-                $skill->careers()->exists(),
+                $skill
+                    ->careers()
+                    ->exists(),
                 "Skill {$slug} belum terhubung ke karier.",
             );
 
             $this->assertTrue(
-                $skill->materials()
-                    ->where('material_type', 'core')
-                    ->where('is_active', true)
+                $skill
+                    ->materials()
+                    ->where(
+                        'material_type',
+                        'core',
+                    )
+                    ->where(
+                        'is_active',
+                        true,
+                    )
                     ->exists(),
                 "Skill {$slug} belum memiliki materi utama.",
             );
 
             $this->assertTrue(
                 AssessmentQuestion::query()
-                    ->where('skill_id', $skill->id)
+                    ->where(
+                        'skill_id',
+                        $skill->id,
+                    )
                     ->exists(),
                 "Skill {$slug} belum memiliki soal assesment.",
+            );
+        }
+    }
+
+    public function test_academic_skills_are_connected_to_assessment_questions(): void
+    {
+        $academicSkills = Skill::query()
+            ->where(
+                'slug',
+                'like',
+                'si-%',
+            )
+            ->orWhere(
+                'slug',
+                'like',
+                'man-%',
+            )
+            ->orWhere(
+                'slug',
+                'like',
+                'ti-%',
+            )
+            ->orWhere(
+                'slug',
+                'like',
+                'psi-%',
+            )
+            ->orWhere(
+                'slug',
+                'like',
+                'ikom-%',
+            )
+            ->get();
+
+        $this->assertCount(
+            45,
+            $academicSkills,
+        );
+
+        foreach ($academicSkills as $skill) {
+            $this->assertTrue(
+                AssessmentQuestion::query()
+                    ->where(
+                        'skill_id',
+                        $skill->id,
+                    )
+                    ->exists(),
+                "Skill akademik {$skill->slug} belum memiliki soal assesment.",
             );
         }
     }
