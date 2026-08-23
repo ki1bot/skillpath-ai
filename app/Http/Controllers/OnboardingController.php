@@ -20,6 +20,14 @@ class OnboardingController extends Controller
         'Ilmu Komunikasi',
     ];
 
+    private const STUDY_PROGRAM_SLUGS = [
+        'sistem-informasi',
+        'manajemen',
+        'teknik-informatika',
+        'psikologi',
+        'ilmu-komunikasi',
+    ];
+
     public function show(
         Request $request,
     ): Response {
@@ -31,8 +39,24 @@ class OnboardingController extends Controller
                         'is_active',
                         true,
                     )
-                    ->orderBy('id')
+                    ->whereIn(
+                        'slug',
+                        self::STUDY_PROGRAM_SLUGS,
+                    )
+                    ->orderByRaw(
+                        "
+                        CASE slug
+                            WHEN 'sistem-informasi' THEN 1
+                            WHEN 'manajemen' THEN 2
+                            WHEN 'teknik-informatika' THEN 3
+                            WHEN 'psikologi' THEN 4
+                            WHEN 'ilmu-komunikasi' THEN 5
+                            ELSE 6
+                        END
+                        ",
+                    )
                     ->get(),
+
                 'profile' => $request
                     ->user()
                     ->only([
@@ -81,10 +105,15 @@ class OnboardingController extends Controller
                     'careers',
                     'id',
                 )->where(
-                    fn ($query) => $query->where(
-                        'is_active',
-                        true,
-                    ),
+                    fn ($query) => $query
+                        ->where(
+                            'is_active',
+                            true,
+                        )
+                        ->whereIn(
+                            'slug',
+                            self::STUDY_PROGRAM_SLUGS,
+                        ),
                 ),
             ],
         ]);
@@ -96,6 +125,10 @@ class OnboardingController extends Controller
             ->where(
                 'is_active',
                 true,
+            )
+            ->whereIn(
+                'slug',
+                self::STUDY_PROGRAM_SLUGS,
             )
             ->firstOrFail();
 
@@ -112,9 +145,11 @@ class OnboardingController extends Controller
         }
 
         $user = $request->user();
-        $wasOnboarded = $user
-            ->onboarding_completed_at
-            !== null;
+
+        $wasOnboarded = (
+            $user->onboarding_completed_at
+            !== null
+        );
 
         $targetChanged = (
             (int) $user->target_career_id
@@ -133,7 +168,9 @@ class OnboardingController extends Controller
 
         $user->update([
             'study_program' => $career->name,
-            'semester' => $validated['semester'],
+            'semester' => $validated[
+                'semester'
+            ],
             'interest_area' => $validated[
                 'interest_area'
             ],
