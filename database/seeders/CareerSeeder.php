@@ -13,8 +13,8 @@ class CareerSeeder extends Seeder
             [
                 'name' => 'Sistem Informasi',
                 'slug' => 'sistem-informasi',
-                'tagline' => 'Pelajari data, pengembangan sistem, dan pengalaman pengguna dalam satu jalur yang saling terhubung.',
-                'description' => 'Sistem Informasi menggabungkan teknologi, proses bisnis, data, dan kebutuhan pengguna. SkillPath menilai kemampuan pada Analisis Data, Pengembangan Sistem, dan UI/UX.',
+                'tagline' => 'Belajar menghubungkan data, proses bisnis, sistem, dan kebutuhan pengguna.',
+                'description' => 'Di Sistem Informasi, kemampuanmu dipetakan melalui tiga bidang utama: Analisis Data, Pengembangan Sistem, dan UI/UX. Setiap bidang memiliki tiga kemampuan, sehingga ada sembilan kemampuan yang akan dinilai dan dikembangkan.',
                 'responsibilities' => [
                     'Analisis Data',
                     'Pengembangan Sistem',
@@ -27,8 +27,8 @@ class CareerSeeder extends Seeder
             [
                 'name' => 'Manajemen',
                 'slug' => 'manajemen',
-                'tagline' => 'Pelajari bagaimana pemasaran, keuangan, dan sumber daya manusia membantu organisasi berkembang.',
-                'description' => 'Manajemen berfokus pada proses pengambilan keputusan dan pengelolaan organisasi. SkillPath menilai kemampuan pada Marketing, Keuangan, dan Human Resources.',
+                'tagline' => 'Belajar memahami pasar, mengelola keuangan, dan mengembangkan orang di dalam organisasi.',
+                'description' => 'Di Manajemen, kemampuanmu dipetakan melalui Marketing, Keuangan, dan Human Resources. Ketiga bidang ini membantu melihat kemampuanmu dalam memahami pasar, mengambil keputusan keuangan, dan mengelola sumber daya manusia.',
                 'responsibilities' => [
                     'Marketing',
                     'Keuangan',
@@ -41,8 +41,8 @@ class CareerSeeder extends Seeder
             [
                 'name' => 'Teknik Informatika',
                 'slug' => 'teknik-informatika',
-                'tagline' => 'Bangun dasar yang kuat dalam pemrograman, sistem komputer, jaringan, dan kecerdasan buatan.',
-                'description' => 'Teknik Informatika berfokus pada ilmu komputasi dan pengembangan teknologi. SkillPath menilai kemampuan pada Rekayasa Perangkat Lunak, Jaringan dan Sistem Komputer, serta Artificial Intelligence.',
+                'tagline' => 'Bangun dasar pemrograman, pahami sistem komputer, lalu kenali penerapan kecerdasan buatan.',
+                'description' => 'Di Teknik Informatika, kemampuanmu dipetakan melalui Pemrograman dan Rekayasa Perangkat Lunak, Jaringan dan Sistem Komputer, serta Artificial Intelligence. Total ada sembilan kemampuan yang digunakan sebagai dasar asesmen dan jalur belajarmu.',
                 'responsibilities' => [
                     'Pemrograman dan Rekayasa Perangkat Lunak',
                     'Jaringan dan Sistem Komputer',
@@ -55,8 +55,8 @@ class CareerSeeder extends Seeder
             [
                 'name' => 'Psikologi',
                 'slug' => 'psikologi',
-                'tagline' => 'Pahami perilaku manusia melalui organisasi, konseling, dan penelitian psikologi.',
-                'description' => 'Psikologi mempelajari perilaku dan proses mental manusia. SkillPath menilai kemampuan pada Psikologi Industri dan Organisasi, Konseling, dan Penelitian Psikologi.',
+                'tagline' => 'Pahami perilaku manusia di organisasi, dalam konseling, dan melalui penelitian.',
+                'description' => 'Di Psikologi, kemampuanmu dipetakan melalui Psikologi Industri dan Organisasi, Konseling, dan Penelitian Psikologi. Setiap bidang memiliki tiga kemampuan yang membantu melihat pemahamanmu tentang perilaku manusia dan proses penelitian.',
                 'responsibilities' => [
                     'Psikologi Industri dan Organisasi',
                     'Konseling',
@@ -69,8 +69,8 @@ class CareerSeeder extends Seeder
             [
                 'name' => 'Ilmu Komunikasi',
                 'slug' => 'ilmu-komunikasi',
-                'tagline' => 'Kembangkan kemampuan komunikasi melalui public relations, jurnalistik, dan media digital.',
-                'description' => 'Ilmu Komunikasi mempelajari bagaimana pesan dibuat, disampaikan, dan diterima. SkillPath menilai kemampuan pada Public Relations, Jurnalistik, dan Digital Media.',
+                'tagline' => 'Pelajari cara membangun hubungan, menyampaikan berita, dan membuat konten digital.',
+                'description' => 'Di Ilmu Komunikasi, kemampuanmu dipetakan melalui Public Relations, Jurnalistik, dan Digital Media. Sembilan kemampuan di dalamnya digunakan untuk melihat bagaimana kamu memahami komunikasi, penyampaian informasi, dan produksi media.',
                 'responsibilities' => [
                     'Public Relations',
                     'Jurnalistik',

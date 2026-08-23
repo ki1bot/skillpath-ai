@@ -2,9 +2,9 @@ import { Head, Link } from '@inertiajs/react';
 import {
     ArrowRight,
     BookOpenCheck,
-    BriefcaseBusiness,
     CheckCircle2,
     ClipboardCheck,
+    GraduationCap,
     LayoutDashboard,
     Settings2,
     ShieldCheck,
@@ -49,10 +49,9 @@ export default function AdminDashboard({ stats, overview }: Props) {
                                 </h1>
 
                                 <p className="mt-4 max-w-3xl text-sm leading-7 font-semibold sm:text-base">
-                                    Dashboard hanya menampilkan ringkasan
-                                    sistem. Penambahan, perubahan, dan
-                                    penghapusan data tetap dilakukan melalui
-                                    menu Kelola Sistem.
+                                    Dashboard menampilkan ringkasan mahasiswa,
+                                    jurusan, kemampuan, asesmen, materi, dan
+                                    proyek yang tersimpan di sistem.
                                 </p>
                             </div>
                         </div>
@@ -80,7 +79,7 @@ export default function AdminDashboard({ stats, overview }: Props) {
                         </div>
 
                         <p className="mt-6 text-xs font-black tracking-[0.12em] text-muted-foreground uppercase">
-                            Mahasiswa onboarding
+                            Mahasiswa dengan profil belajar
                         </p>
 
                         <p className="mt-2 text-4xl font-black tracking-[-0.04em]">
@@ -96,14 +95,14 @@ export default function AdminDashboard({ stats, overview }: Props) {
                     <article className="neo-card p-6">
                         <div className="flex items-start justify-between gap-4">
                             <span className="flex size-11 items-center justify-center rounded-[10px] border-2 border-foreground bg-[var(--neo-blue)] text-[#171717]">
-                                <BriefcaseBusiness className="size-5" />
+                                <GraduationCap className="size-5" />
                             </span>
 
                             <CheckCircle2 className="size-5 text-muted-foreground" />
                         </div>
 
                         <p className="mt-6 text-xs font-black tracking-[0.12em] text-muted-foreground uppercase">
-                            Karier aktif
+                            Jurusan aktif
                         </p>
 
                         <p className="mt-2 text-4xl font-black tracking-[-0.04em]">
@@ -111,8 +110,8 @@ export default function AdminDashboard({ stats, overview }: Props) {
                         </p>
 
                         <p className="mt-2 text-sm leading-6 font-semibold text-muted-foreground">
-                            Dari {stats.careers} jalur karier tersimpan yang
-                            saat ini aktif di sistem.
+                            Dari {stats.careers} data jurusan yang tersimpan,
+                            sejumlah ini sedang aktif digunakan oleh sistem.
                         </p>
                     </article>
 
@@ -126,7 +125,7 @@ export default function AdminDashboard({ stats, overview }: Props) {
                         </div>
 
                         <p className="mt-6 text-xs font-black tracking-[0.12em] text-muted-foreground uppercase">
-                            Assessment aktif
+                            Asesmen aktif
                         </p>
 
                         <p className="mt-2 text-4xl font-black tracking-[-0.04em]">
@@ -134,8 +133,8 @@ export default function AdminDashboard({ stats, overview }: Props) {
                         </p>
 
                         <p className="mt-2 text-sm leading-6 font-semibold text-muted-foreground">
-                            Assessment yang tersedia untuk digunakan oleh
-                            mahasiswa saat ini.
+                            Asesmen yang saat ini tersedia untuk digunakan oleh
+                            mahasiswa.
                         </p>
                     </article>
                 </section>
@@ -151,20 +150,21 @@ export default function AdminDashboard({ stats, overview }: Props) {
                                 <span className="neo-label">Dashboard</span>
 
                                 <h2 className="mt-4 text-2xl font-black tracking-[-0.035em]">
-                                    Untuk melihat, bukan mengubah.
+                                    Ringkasan kondisi sistem.
                                 </h2>
 
                                 <p className="mt-3 text-sm leading-6 font-semibold text-muted-foreground">
-                                    Halaman ini dipakai untuk membaca ringkasan
-                                    jumlah mahasiswa, karier, skill, materi,
-                                    proyek, assessment, dan status data aktif.
+                                    Halaman ini digunakan untuk melihat jumlah
+                                    mahasiswa, jurusan, kemampuan, materi,
+                                    proyek, asesmen, dan status data aktif.
                                 </p>
                             </div>
                         </div>
 
                         <div className="mt-6 rounded-[11px] border-2 border-foreground bg-muted/60 p-4">
                             <p className="text-sm font-black">
-                                Tidak ada operasi CRUD pada Dashboard.
+                                Perubahan data dilakukan melalui halaman Kelola
+                                Sistem.
                             </p>
                         </div>
                     </article>
@@ -181,14 +181,13 @@ export default function AdminDashboard({ stats, overview }: Props) {
                                 </span>
 
                                 <h2 className="mt-4 text-2xl font-black tracking-[-0.035em]">
-                                    Untuk mengelola master data.
+                                    Kelola data utama SkillPath.
                                 </h2>
 
                                 <p className="mt-3 text-sm leading-6 font-semibold text-muted-foreground">
-                                    Halaman Kelola Sistem dipakai untuk membuat,
-                                    mengedit, menghubungkan, dan menghapus
-                                    karier, skill, assessment, materi, serta
-                                    proyek.
+                                    Buat, ubah, hubungkan, atau hapus data
+                                    jurusan, kemampuan, asesmen, materi, dan
+                                    proyek dari halaman pengelolaan.
                                 </p>
                             </div>
                         </div>
@@ -222,7 +221,7 @@ export default function AdminDashboard({ stats, overview }: Props) {
                     <div className="grid gap-4 p-5 sm:grid-cols-3 sm:p-6">
                         <div className="rounded-[11px] border-2 border-foreground bg-muted/50 p-4">
                             <p className="text-xs font-black tracking-[0.12em] text-muted-foreground uppercase">
-                                Skill
+                                Kemampuan
                             </p>
 
                             <p className="mt-2 text-3xl font-black">
@@ -257,8 +256,8 @@ export default function AdminDashboard({ stats, overview }: Props) {
                             <span className="font-black text-foreground">
                                 {contentTotal}
                             </span>{' '}
-                            item skill, materi, dan proyek saat ini tersedia di
-                            database.
+                            item kemampuan, materi, dan proyek saat ini tersedia
+                            di database.
                         </p>
                     </div>
                 </section>

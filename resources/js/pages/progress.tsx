@@ -116,8 +116,8 @@ interface RoadmapHistory {
 }
 
 const triggerLabels: Record<string, string> = {
-    assessment_completed: 'Assesment selesai',
-    assessment_updated: 'Assesment diperbarui',
+    assessment_completed: 'Asesmen selesai',
+    assessment_updated: 'Asesmen diperbarui',
     roadmap_created: 'Jalur belajar dibuat',
     roadmap_regenerated: 'Jalur belajar diperbarui',
     material_completed: 'Materi selesai',
@@ -146,7 +146,7 @@ const activityLabels: Record<string, string> = {
     roadmap_reinforcement_reopened: 'Materi penguatan dibuka kembali',
     roadmap_reinforcement_retry: 'Penguatan perlu diulang',
     roadmap_reinforcement_completed: 'Penguatan selesai',
-    roadmap_inactivity_adjusted: 'Roadmap disesuaikan',
+    roadmap_inactivity_adjusted: 'Jalur belajar disesuaikan',
 };
 
 const projectStatusLabels: Record<string, string> = {
@@ -206,7 +206,7 @@ export default function Progress({
     }));
 
     const readinessItems = [
-        ['Keahlian', readiness.skill_mastery, Activity],
+        ['Kemampuan', readiness.skill_mastery, Activity],
         ['Jalur belajar', readiness.roadmap_completion, Route],
         ['Proyek', readiness.project_score, Trophy],
         ['Konsistensi', readiness.consistency, Clock3],
@@ -237,23 +237,24 @@ export default function Progress({
                     <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
                         <div>
                             <span className="neo-label bg-[#fffdf7]">
-                                Riwayat kesiapan karier
+                                Riwayat perkembangan belajar
                             </span>
 
                             <h1 className="mt-5 text-4xl font-black tracking-[-0.045em] md:text-5xl">
-                                Lihat perkembangan dari hasil yang tercatat.
+                                Lihat perubahan kemampuanmu dari waktu ke waktu.
                             </h1>
 
                             <p className="mt-3 max-w-2xl text-sm leading-6 font-semibold">
-                                Assesment, evaluasi, jalur belajar, waktu
-                                belajar, dan proyek disimpan agar kamu bisa
-                                melihat perubahan dari waktu ke waktu.
+                                Asesmen, evaluasi, jalur belajar, waktu belajar,
+                                dan proyek disimpan agar kamu dapat melihat
+                                perkembangan berdasarkan aktivitas yang benar-
+                                benar tercatat.
                             </p>
                         </div>
 
                         <div className="rounded-[12px] border-2 border-[#171717] bg-[#fffdf7] px-5 py-4 text-center text-[#171717] shadow-[4px_4px_0_#171717]">
                             <p className="text-xs font-black tracking-[0.18em] uppercase">
-                                Kesiapan saat ini
+                                Kesiapan belajar saat ini
                             </p>
 
                             <p className="mt-1 text-5xl font-black">
@@ -415,7 +416,7 @@ export default function Progress({
                 <Card>
                     <CardHeader className="border-b-2 border-foreground">
                         <CardTitle className="text-xl font-black">
-                            Tren kesiapan karier
+                            Tren kesiapan belajar
                         </CardTitle>
                     </CardHeader>
 
@@ -466,7 +467,7 @@ export default function Progress({
                             </ResponsiveContainer>
                         ) : (
                             <div className="flex h-full items-center justify-center text-center text-sm font-bold">
-                                Belum ada riwayat skor kesiapan.
+                                Belum ada riwayat skor perkembangan.
                             </div>
                         )}
                     </CardContent>
@@ -475,14 +476,14 @@ export default function Progress({
                 <Card>
                     <CardHeader className="border-b-2 border-foreground">
                         <CardTitle className="text-xl font-black">
-                            Riwayat Assesment
+                            Riwayat asesmen
                         </CardTitle>
                     </CardHeader>
 
                     <CardContent className="grid gap-3 pt-6 md:grid-cols-2">
                         {assessmentHistory.length === 0 && (
                             <p className="text-sm font-bold">
-                                Belum ada riwayat Assesment.
+                                Belum ada riwayat asesmen.
                             </p>
                         )}
 
@@ -493,7 +494,7 @@ export default function Progress({
                             >
                                 <div className="flex items-center justify-between gap-3">
                                     <p className="text-sm font-black">
-                                        Assesment #
+                                        Asesmen #
                                         {assessmentHistory.length - index}
                                     </p>
 
@@ -660,7 +661,7 @@ export default function Progress({
                     <Card>
                         <CardHeader className="border-b-2 border-foreground">
                             <CardTitle className="text-xl font-black">
-                                Versi jalur belajar
+                                Riwayat jalur belajar
                             </CardTitle>
                         </CardHeader>
 

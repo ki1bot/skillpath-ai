@@ -16,8 +16,21 @@ class PublicPageController extends Controller
         $stats = (array) DB::selectOne(
             'SELECT
                 (SELECT COUNT(*) FROM careers WHERE is_active = TRUE) AS careers,
-                (SELECT COUNT(*) FROM skills) AS skills,
-                (SELECT COUNT(*) FROM learning_materials WHERE material_type = \'core\') AS materials',
+                (
+                    SELECT COUNT(*)
+                    FROM skills
+                    WHERE slug LIKE \'si-%\'
+                        OR slug LIKE \'man-%\'
+                        OR slug LIKE \'ti-%\'
+                        OR slug LIKE \'psi-%\'
+                        OR slug LIKE \'ikom-%\'
+                ) AS skills,
+                (
+                    SELECT COUNT(*)
+                    FROM learning_materials
+                    WHERE material_type = \'core\'
+                        AND is_active = TRUE
+                ) AS materials',
         );
 
         return Inertia::render(
@@ -35,7 +48,6 @@ class PublicPageController extends Controller
                     ->where('is_active', true)
                     ->withCount('skills')
                     ->orderBy('id')
-                    ->limit(3)
                     ->get(),
 
                 'stats' => [

@@ -32,11 +32,11 @@ return [
         'password' => 'kata sandi',
         'password_confirmation' => 'konfirmasi kata sandi',
         'current_password' => 'kata sandi saat ini',
-        'study_program' => 'program studi',
+        'study_program' => 'jurusan',
         'semester' => 'semester',
         'interest_area' => 'bidang minat',
         'experience' => 'pengalaman',
         'weekly_study_hours' => 'jam belajar mingguan',
-        'target_career_id' => 'target karier',
+        'target_career_id' => 'jurusan',
     ],
 ];

@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
-import { ArrowRight, CheckCircle2, Gauge } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Gauge, GraduationCap } from 'lucide-react';
+import { getStudyProgramDefinition } from '@/lib/academic-programs';
 
 type Skill = {
     id: number;
@@ -42,131 +43,183 @@ type Career = {
 export default function Careers({ careers }: { careers: Career[] }) {
     return (
         <>
-            <Head title="Jalur Karier" />
+            <Head title="Pilihan Jurusan" />
 
             <main className="neo-page py-14 lg:py-20">
-                <div className="max-w-3xl">
-                    <span className="neo-label">Jelajahi karier</span>
+                <div className="max-w-4xl">
+                    <span className="neo-label">
+                        5 jurusan · 15 bidang · 45 kemampuan
+                    </span>
 
                     <h1 className="neo-heading mt-6 text-5xl sm:text-6xl">
-                        Pahami pekerjaannya sebelum memilih jalurnya.
+                        Kenali bidang dan kemampuan yang dipelajari di setiap
+                        jurusan.
                     </h1>
 
                     <p className="mt-5 text-lg leading-relaxed font-medium text-muted-foreground">
-                        Lihat tanggung jawab, kemampuan yang dibutuhkan, dan
-                        kecocokan berdasarkan hasil Assesment yang sudah
-                        tersimpan.
+                        Setiap jurusan memiliki tiga bidang utama. Di dalam
+                        setiap bidang ada tiga kemampuan yang digunakan
+                        SkillPath sebagai dasar asesmen dan penyusunan jalur
+                        belajar.
                     </p>
                 </div>
 
-                <div className="mt-12 space-y-6">
-                    {careers.map((career, index) => (
-                        <article
-                            key={career.id}
-                            className="neo-card grid overflow-hidden lg:grid-cols-[220px_1fr_auto]"
-                        >
-                            <div
-                                className="flex min-h-44 flex-col justify-between border-b-2 border-[#171717] p-6 text-[#171717] lg:border-r-2 lg:border-b-0"
-                                style={{
-                                    backgroundColor: career.accent,
-                                }}
+                <div className="mt-12 space-y-7">
+                    {careers.map((career, index) => {
+                        const program = getStudyProgramDefinition(career.name);
+
+                        return (
+                            <article
+                                key={career.id}
+                                className="neo-card overflow-hidden"
                             >
-                                <span className="font-mono text-sm font-black">
-                                    {String(index + 1).padStart(2, '0')}
-                                </span>
+                                <div className="grid lg:grid-cols-[210px_1fr]">
+                                    <div
+                                        className="flex min-h-44 flex-col justify-between border-b-2 border-[#171717] p-6 text-[#171717] lg:border-r-2 lg:border-b-0"
+                                        style={{
+                                            backgroundColor: career.accent,
+                                        }}
+                                    >
+                                        <div>
+                                            <span className="font-mono text-sm font-black">
+                                                {String(index + 1).padStart(
+                                                    2,
+                                                    '0',
+                                                )}
+                                            </span>
 
-                                <div>
-                                    {career.compatibility ? (
-                                        <>
-                                            <div className="flex items-center gap-2">
-                                                <Gauge className="size-5" />
+                                            <GraduationCap className="mt-6 size-8" />
+                                        </div>
 
+                                        {career.compatibility ? (
+                                            <div>
+                                                <div className="flex items-center gap-2">
+                                                    <Gauge className="size-5" />
+
+                                                    <p className="text-xs font-black tracking-[0.14em] uppercase">
+                                                        Kesiapan belajar
+                                                    </p>
+                                                </div>
+
+                                                <p className="mt-1 font-mono text-3xl font-black">
+                                                    {career.compatibility.score}
+                                                    %
+                                                </p>
+
+                                                <p className="mt-1 text-xs font-bold">
+                                                    {career.compatibility.label}
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            <div>
                                                 <p className="text-xs font-black tracking-[0.14em] uppercase">
-                                                    Kecocokan
+                                                    Struktur
+                                                </p>
+
+                                                <p className="mt-1 text-xl font-black">
+                                                    3 bidang
+                                                </p>
+
+                                                <p className="mt-1 text-xs font-bold">
+                                                    9 kemampuan
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="p-6 sm:p-8">
+                                        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
+                                            <div className="max-w-3xl">
+                                                <h2 className="text-3xl font-black tracking-[-0.035em]">
+                                                    {career.name}
+                                                </h2>
+
+                                                <p className="mt-2 leading-relaxed font-bold">
+                                                    {career.tagline}
+                                                </p>
+
+                                                <p className="mt-4 text-sm leading-relaxed font-medium text-muted-foreground">
+                                                    {career.description}
                                                 </p>
                                             </div>
 
-                                            <p className="mt-1 font-mono text-3xl font-black">
-                                                {career.compatibility.score}%
-                                            </p>
-
-                                            <p className="mt-1 text-xs font-bold">
-                                                {career.compatibility.label}
-                                            </p>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <p className="text-xs font-black tracking-[0.14em] uppercase">
-                                                Tingkat kesulitan
-                                            </p>
-
-                                            <p className="mt-1 text-xl font-black">
-                                                {career.difficulty}
-                                            </p>
-                                        </>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className="p-6 sm:p-8">
-                                <h2 className="text-3xl font-black tracking-[-0.035em]">
-                                    {career.name}
-                                </h2>
-
-                                <p className="mt-2 max-w-3xl leading-relaxed font-bold">
-                                    {career.tagline}
-                                </p>
-
-                                <p className="mt-4 max-w-3xl text-sm leading-relaxed font-medium text-muted-foreground">
-                                    {career.description}
-                                </p>
-
-                                <div className="mt-6 flex flex-wrap gap-2">
-                                    {career.skills.slice(0, 6).map((skill) => (
-                                        <span
-                                            key={skill.id}
-                                            className="inline-flex items-center gap-1.5 rounded-full border-2 border-foreground bg-muted px-3 py-1 text-xs font-bold"
-                                        >
-                                            <CheckCircle2 className="size-3.5" />
-                                            {skill.name}
-                                        </span>
-                                    ))}
-
-                                    {career.skills.length > 6 && (
-                                        <span className="rounded-full border-2 border-foreground px-3 py-1 text-xs font-black">
-                                            +{career.skills.length - 6} lainnya
-                                        </span>
-                                    )}
-                                </div>
-
-                                {career.compatibility &&
-                                    career.compatibility.top_gaps.length >
-                                        0 && (
-                                        <div className="mt-5 rounded-[12px] border-2 border-foreground bg-muted p-4">
-                                            <p className="text-xs font-black tracking-wide uppercase">
-                                                Gap utama
-                                            </p>
-
-                                            <p className="mt-2 text-sm font-semibold">
-                                                {career.compatibility.top_gaps
-                                                    .map((gap) => gap.name)
-                                                    .join(' · ')}
-                                            </p>
+                                            <Link
+                                                href={`/karier/${career.slug}`}
+                                                className="inline-flex shrink-0 items-center gap-2 border-b-2 border-foreground pb-1 text-sm font-black"
+                                            >
+                                                Lihat detail
+                                                <ArrowRight className="size-4" />
+                                            </Link>
                                         </div>
-                                    )}
-                            </div>
 
-                            <div className="flex items-end p-6 pt-0 lg:p-8 lg:pl-0">
-                                <Link
-                                    href={`/karier/${career.slug}`}
-                                    className="inline-flex items-center gap-2 border-b-2 border-foreground pb-1 text-sm font-black"
-                                >
-                                    Lihat detail
-                                    <ArrowRight className="size-4" />
-                                </Link>
-                            </div>
-                        </article>
-                    ))}
+                                        {program && (
+                                            <div className="mt-7 grid gap-4 xl:grid-cols-3">
+                                                {program.areas.map(
+                                                    (area, areaIndex) => (
+                                                        <section
+                                                            key={area.name}
+                                                            className="rounded-[12px] border-2 border-foreground bg-muted p-4"
+                                                        >
+                                                            <div className="flex items-start gap-3">
+                                                                <span className="flex size-7 shrink-0 items-center justify-center rounded-full border-2 border-foreground bg-background text-xs font-black">
+                                                                    {areaIndex +
+                                                                        1}
+                                                                </span>
+
+                                                                <h3 className="leading-5 font-black">
+                                                                    {area.name}
+                                                                </h3>
+                                                            </div>
+
+                                                            <ul className="mt-4 space-y-2">
+                                                                {area.skills.map(
+                                                                    (skill) => (
+                                                                        <li
+                                                                            key={
+                                                                                skill
+                                                                            }
+                                                                            className="flex gap-2 text-xs leading-5 font-semibold"
+                                                                        >
+                                                                            <CheckCircle2 className="mt-0.5 size-3.5 shrink-0" />
+                                                                            <span>
+                                                                                {
+                                                                                    skill
+                                                                                }
+                                                                            </span>
+                                                                        </li>
+                                                                    ),
+                                                                )}
+                                                            </ul>
+                                                        </section>
+                                                    ),
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {career.compatibility &&
+                                            career.compatibility.top_gaps
+                                                .length > 0 && (
+                                                <div className="mt-5 rounded-[12px] border-2 border-foreground bg-[var(--neo-yellow)] p-4 text-[#171717]">
+                                                    <p className="text-xs font-black tracking-wide uppercase">
+                                                        Yang paling perlu
+                                                        diperkuat
+                                                    </p>
+
+                                                    <p className="mt-2 text-sm font-semibold">
+                                                        {career.compatibility.top_gaps
+                                                            .map(
+                                                                (gap) =>
+                                                                    gap.name,
+                                                            )
+                                                            .join(' · ')}
+                                                    </p>
+                                                </div>
+                                            )}
+                                    </div>
+                                </div>
+                            </article>
+                        );
+                    })}
                 </div>
             </main>
         </>

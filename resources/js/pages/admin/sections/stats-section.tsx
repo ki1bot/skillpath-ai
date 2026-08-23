@@ -1,8 +1,8 @@
 import type { LucideIcon } from 'lucide-react';
 import {
     BookOpenCheck,
-    BriefcaseBusiness,
     Database,
+    GraduationCap,
     Layers3,
     UsersRound,
     Wrench,
@@ -23,13 +23,13 @@ export function StatsSection({ stats }: { stats: AdminStats }) {
             accent: 'bg-[var(--neo-lime)]',
         },
         {
-            label: 'Karier',
+            label: 'Jurusan',
             value: stats.careers,
-            icon: BriefcaseBusiness,
+            icon: GraduationCap,
             accent: 'bg-[var(--neo-blue)]',
         },
         {
-            label: 'Keahlian',
+            label: 'Kemampuan',
             value: stats.skills,
             icon: Layers3,
             accent: 'bg-[var(--neo-yellow)]',
@@ -47,7 +47,7 @@ export function StatsSection({ stats }: { stats: AdminStats }) {
             accent: 'bg-[var(--neo-pink)]',
         },
         {
-            label: 'Percobaan Assessment',
+            label: 'Percobaan asesmen',
             value: stats.assessmentAttempts,
             icon: Database,
             accent: 'bg-[#fffdf7]',

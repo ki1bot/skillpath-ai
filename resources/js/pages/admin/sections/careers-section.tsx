@@ -16,11 +16,11 @@ type Props = {
 export function CareersSection({ careers, skills }: Props) {
     return (
         <AdminPanel
-            title="Karier & standar kemampuan"
-            description="Kelola definisi profesi dan kemampuan yang digunakan sebagai target untuk setiap jalur karier."
+            title="Jurusan & standar kemampuan"
+            description="Kelola lima jurusan dan kemampuan yang digunakan sebagai target penguasaan di dalam SkillPath."
             accentClass="bg-[var(--neo-lime)] text-[#171717]"
         >
-            <AdminDetails title="Tambah karier baru">
+            <AdminDetails title="Tambah jurusan baru">
                 <CareerForm />
             </AdminDetails>
 
@@ -29,19 +29,19 @@ export function CareersSection({ careers, skills }: Props) {
                     <AdminDetails
                         key={career.id}
                         title={career.name}
-                        meta={`${career.skills.length} keahlian`}
+                        meta={`${career.skills.length} kemampuan`}
                     >
                         <div className="grid gap-7">
                             <CareerForm career={career} />
 
                             <div className="border-t-2 border-foreground/15 pt-6">
                                 <h3 className="text-base font-black">
-                                    Standar kemampuan karier
+                                    Standar kemampuan jurusan
                                 </h3>
 
                                 <p className="mt-1 text-sm text-muted-foreground">
                                     Tentukan target penguasaan dan bobot setiap
-                                    kemampuan untuk karier ini.
+                                    kemampuan untuk jurusan ini.
                                 </p>
 
                                 <Form
@@ -52,13 +52,13 @@ export function CareersSection({ careers, skills }: Props) {
                                     {({ processing }) => (
                                         <>
                                             <SelectField
-                                                label="Keahlian"
+                                                label="Kemampuan"
                                                 name="skill_id"
                                                 defaultValue=""
                                                 required
                                             >
                                                 <option value="">
-                                                    Pilih keahlian
+                                                    Pilih kemampuan
                                                 </option>
 
                                                 {skills.map((skill) => (
@@ -72,7 +72,7 @@ export function CareersSection({ careers, skills }: Props) {
                                             </SelectField>
 
                                             <InputField
-                                                label="Target"
+                                                label="Target penguasaan"
                                                 type="number"
                                                 name="target_level"
                                                 min={1}
@@ -99,7 +99,7 @@ export function CareersSection({ careers, skills }: Props) {
                                                     defaultValue="1"
                                                 >
                                                     <option value="1">
-                                                        Wajib
+                                                        Utama
                                                     </option>
 
                                                     <option value="0">

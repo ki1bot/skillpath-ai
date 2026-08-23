@@ -46,12 +46,12 @@ type AiState = 'loading' | 'ready' | 'error';
 
 const statusMap = {
     terpenuhi: {
-        label: 'Terpenuhi',
+        label: 'Sudah sesuai target',
         className: 'bg-secondary',
         icon: CheckCircle2,
     },
     kesenjangan_tinggi: {
-        label: 'Kesenjangan besar',
+        label: 'Perlu banyak penguatan',
         className: 'bg-[var(--neo-pink)]',
         icon: TriangleAlert,
     },
@@ -173,7 +173,7 @@ export default function Skills({ career, skills, averageMastery }: Props) {
 
     return (
         <>
-            <Head title="Keahlian & Kesenjangan" />
+            <Head title="Peta Kemampuan" />
 
             <div className="neo-page py-8 md:py-10">
                 <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
@@ -181,20 +181,21 @@ export default function Skills({ career, skills, averageMastery }: Props) {
                         <span className="neo-label">Peta kemampuan</span>
 
                         <h1 className="neo-heading mt-5 text-4xl sm:text-5xl">
-                            Kesenjangan menuju {career.name}
+                            Peta kemampuan {career.name}
                         </h1>
 
                         <p className="mt-4 leading-relaxed font-medium text-muted-foreground">
-                            Nilai target bukan nilai sempurna. Angka tersebut
-                            digunakan sebagai patokan untuk melihat jarak antara
-                            kemampuanmu sekarang dan kebutuhan jalur karier ini.
+                            Setiap kemampuan memiliki target penguasaan. Angka
+                            di bawah membantu melihat jarak antara kemampuanmu
+                            sekarang dengan target yang digunakan untuk jurusan{' '}
+                            {career.name}.
                         </p>
                     </div>
 
                     <Button asChild variant="outline">
                         <Link href="/assessment">
                             <RotateCcw />
-                            Ulangi Assessment
+                            Ulangi asesmen
                         </Link>
                     </Button>
                 </div>
@@ -204,7 +205,7 @@ export default function Skills({ career, skills, averageMastery }: Props) {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                    Penguasaan kemampuan
+                                    Rata-rata kemampuan
                                 </p>
 
                                 <p className="mt-1 text-4xl font-black">
@@ -263,7 +264,7 @@ export default function Skills({ career, skills, averageMastery }: Props) {
                             <div className="min-w-0 flex-1">
                                 <div className="flex flex-wrap items-center gap-2">
                                     <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                        Penjelasan rekomendasi
+                                        Penjelasan hasil
                                     </p>
 
                                     {aiState === 'ready' && (
@@ -331,7 +332,7 @@ export default function Skills({ career, skills, averageMastery }: Props) {
                                     </h3>
 
                                     <p className="mt-2 text-xs font-semibold text-muted-foreground">
-                                        Selisih {item.gap} poin
+                                        Masih perlu {item.gap} poin
                                     </p>
                                 </div>
                             ))}
@@ -339,7 +340,7 @@ export default function Skills({ career, skills, averageMastery }: Props) {
 
                         <Button asChild className="mt-6">
                             <Link href="/roadmap">
-                                Lihat urutan belajar
+                                Lihat jalur belajar
                                 <ArrowRight />
                             </Link>
                         </Button>
@@ -349,18 +350,17 @@ export default function Skills({ career, skills, averageMastery }: Props) {
                 <section className="mt-8">
                     <div className="mb-5">
                         <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                            Alasan di balik rekomendasi
+                            Detail setiap kemampuan
                         </p>
 
                         <h2 className="mt-1 text-2xl font-black">
-                            Mengapa setiap kemampuan berada di urutan ini?
+                            Mengapa kemampuan ini perlu diprioritaskan?
                         </h2>
                     </div>
 
                     <div className="space-y-4">
                         {skills.map((item) => {
                             const state = statusMap[item.status];
-
                             const Icon = state.icon;
 
                             return (
@@ -392,7 +392,7 @@ export default function Skills({ career, skills, averageMastery }: Props) {
 
                                         {item.prerequisites.length > 0 && (
                                             <p className="mt-3 text-xs font-bold">
-                                                Prasyarat:{' '}
+                                                Perlu dipahami lebih dulu:{' '}
                                                 {item.prerequisites
                                                     .map((pre) => pre.name)
                                                     .join(', ')}
@@ -436,7 +436,7 @@ export default function Skills({ career, skills, averageMastery }: Props) {
 Skills.layout = {
     breadcrumbs: [
         {
-            title: 'Keahlian',
+            title: 'Peta Kemampuan',
             href: '/skills',
         },
     ],

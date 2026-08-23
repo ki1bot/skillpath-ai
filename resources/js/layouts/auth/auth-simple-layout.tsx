@@ -5,9 +5,9 @@ import { AuthBackLink } from '@/components/auth-back-link';
 import type { AuthLayoutProps } from '@/types';
 
 const benefits = [
-    'Lihat kemampuan yang sudah dikuasai',
-    'Fokus pada skill yang paling perlu ditingkatkan',
-    'Pantau progres belajar dan proyek dalam satu tempat',
+    'Pilih jurusan yang sedang kamu jalani',
+    'Lihat kemampuan yang sudah kuat dan yang masih perlu dikembangkan',
+    'Ikuti jalur belajar berdasarkan hasil asesmenmu',
 ];
 
 export default function AuthSimpleLayout({
@@ -36,13 +36,14 @@ export default function AuthSimpleLayout({
                         </p>
 
                         <h2 className="mt-4 max-w-lg text-4xl leading-[1.02] font-black tracking-[-0.04em] xl:text-5xl">
-                            Satu tujuan karier, langkah belajar yang lebih
-                            jelas.
+                            Kenali kemampuanmu dari jurusan yang sedang kamu
+                            jalani.
                         </h2>
 
                         <p className="mt-5 max-w-lg text-base leading-7 font-medium text-background/70">
-                            SkillPath membantu kamu menentukan prioritas tanpa
-                            harus mempelajari semuanya sekaligus.
+                            SkillPath membantu kamu melihat bagian yang sudah
+                            kuat, bagian yang masih kurang, dan langkah belajar
+                            yang lebih masuk akal.
                         </p>
 
                         <div className="mt-8 grid gap-3">
@@ -62,8 +63,9 @@ export default function AuthSimpleLayout({
                     </div>
 
                     <p className="max-w-md text-xs leading-5 font-medium text-background/50">
-                        Rekomendasi dibuat dari data skill, hasil Assesment, dan
-                        progres yang tercatat di sistem.
+                        Rekomendasi dibuat dari struktur kemampuan jurusan,
+                        hasil asesmen, evaluasi, dan progres yang tercatat di
+                        sistem.
                     </p>
                 </div>
             </section>

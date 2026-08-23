@@ -1,5 +1,11 @@
 import { Head } from '@inertiajs/react';
-import { Bot, Database, GitBranch, ShieldCheck } from 'lucide-react';
+import {
+    Bot,
+    Database,
+    GitBranch,
+    GraduationCap,
+    ShieldCheck,
+} from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 type Principle = {
@@ -10,24 +16,29 @@ type Principle = {
 
 const principles: Principle[] = [
     {
+        icon: GraduationCap,
+        title: 'Berangkat dari jurusan',
+        text: 'SkillPath menggunakan lima jurusan sebagai titik awal: Sistem Informasi, Manajemen, Teknik Informatika, Psikologi, dan Ilmu Komunikasi. Setiap jurusan memiliki tiga bidang dan sembilan kemampuan yang dinilai.',
+    },
+    {
         icon: Database,
-        title: 'Data kemampuan yang jelas',
-        text: 'Karier, target kemampuan, bobot, prasyarat, materi, dan proyek disimpan sebagai data yang dapat dikelola dan diperiksa kembali.',
+        title: 'Kemampuan disimpan sebagai data',
+        text: 'Target penguasaan, bobot, hasil asesmen, materi, evaluasi, dan progres disimpan sebagai data agar rekomendasi dapat diperiksa kembali.',
     },
     {
         icon: GitBranch,
-        title: 'Urutan belajar mengikuti prasyarat',
-        text: 'Kemampuan dasar ditempatkan lebih awal ketika dibutuhkan untuk memahami kemampuan lain.',
+        title: 'Belajar mengikuti kebutuhan',
+        text: 'Kemampuan yang masih jauh dari target dapat ditempatkan lebih awal agar kamu tidak perlu mempelajari semuanya sekaligus.',
     },
     {
         icon: ShieldCheck,
         title: 'Perkembangan harus terlihat',
-        text: 'Menyelesaikan materi saja belum cukup. Evaluasi dan aktivitas belajar ikut digunakan untuk melihat perkembangan.',
+        text: 'Menyelesaikan materi saja belum cukup. Asesmen, evaluasi, aktivitas belajar, dan proyek ikut digunakan untuk melihat perkembanganmu.',
     },
     {
         icon: Bot,
-        title: 'AI hanya membantu menjelaskan',
-        text: 'AI membantu merangkum hasil agar lebih mudah dipahami. Assesment, perhitungan kemampuan, jalur belajar, proyek, dan skor kesiapan tetap berasal dari data dan aturan sistem.',
+        title: 'AI membantu menjelaskan',
+        text: 'AI digunakan untuk membantu menjelaskan hasil yang sudah dihitung sistem. AI tidak menentukan nilai asesmen dan tidak boleh membuat kemampuan atau hasil baru di luar data yang tersedia.',
     },
 ];
 
@@ -41,14 +52,16 @@ export default function About() {
                     <span className="neo-label">Tentang SkillPath</span>
 
                     <h1 className="neo-heading mt-6 text-5xl sm:text-6xl">
-                        Rekomendasi boleh pintar, tapi tetap harus bisa
-                        dijelaskan.
+                        Membantu mahasiswa memahami kemampuan dan menentukan apa
+                        yang perlu dipelajari berikutnya.
                     </h1>
 
                     <p className="mt-6 text-lg leading-relaxed font-medium text-muted-foreground">
-                        SkillPath AI membantu mahasiswa yang sudah punya tujuan,
-                        tetapi masih bingung menentukan kemampuan mana yang
-                        perlu dipelajari lebih dahulu.
+                        SkillPath AI menggunakan jurusan sebagai dasar pemetaan
+                        kemampuan. Mahasiswa memilih jurusan, mengerjakan
+                        asesmen, melihat hasil kemampuan, lalu mendapatkan jalur
+                        belajar yang disusun berdasarkan bagian yang masih perlu
+                        dikembangkan.
                     </p>
                 </div>
 
@@ -79,15 +92,15 @@ export default function About() {
                     </p>
 
                     <h2 className="mt-2 text-3xl font-black tracking-tight">
-                        Skor kesiapan karier bukan ramalan diterima kerja.
+                        Skor SkillPath adalah alat bantu untuk membaca
+                        perkembangan.
                     </h2>
 
                     <p className="mt-3 max-w-3xl leading-relaxed font-semibold">
-                        Skor 0–100 dipakai untuk melihat perkembangan dari
-                        kemampuan, penyelesaian jalur belajar, proyek,
-                        konsistensi, dan hasil evaluasi. Angka ini membantu
-                        menentukan langkah berikutnya, bukan menjanjikan hasil
-                        rekrutmen.
+                        Skor 0–100 membantu melihat perkembangan kemampuan,
+                        penyelesaian jalur belajar, proyek, konsistensi, dan
+                        evaluasi. Angka tersebut bukan nilai akademik resmi dan
+                        bukan jaminan hasil tertentu di dunia kerja.
                     </p>
                 </div>
             </main>

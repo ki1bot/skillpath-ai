@@ -208,12 +208,12 @@ export default function Dashboard({
 
     const readinessIndicators = [
         {
-            label: 'Penguasaan skill',
+            label: 'Penguasaan kemampuan',
             value: readiness.skill_mastery,
             weight: '45%',
         },
         {
-            label: 'Roadmap',
+            label: 'Jalur belajar',
             value: readiness.roadmap_completion,
             weight: '20%',
         },
@@ -242,12 +242,10 @@ export default function Dashboard({
                 <div className="mx-auto w-full max-w-[1500px] px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
                     <section className="mb-6 flex flex-col gap-5 border-b-2 border-foreground/15 pb-6 lg:flex-row lg:items-end lg:justify-between">
                         <div className="min-w-0">
-                            <div className="flex flex-wrap items-center gap-2">
-                                <span className="neo-label">Dashboard</span>
-                            </div>
+                            <span className="neo-label">Dashboard</span>
 
                             <h1 className="neo-heading mt-4 max-w-4xl text-3xl sm:text-4xl lg:text-5xl">
-                                Perjalanan menuju{' '}
+                                Perkembangan belajarmu di{' '}
                                 <span className="underline decoration-secondary decoration-[5px] underline-offset-[6px]">
                                     {career.name}
                                 </span>
@@ -262,14 +260,14 @@ export default function Dashboard({
                             <Button asChild variant="outline">
                                 <Link href="/skills">
                                     <Target />
-                                    Analisis skill
+                                    Peta kemampuan
                                 </Link>
                             </Button>
 
                             <Button asChild>
                                 <Link href="/roadmap">
                                     <Map />
-                                    Buka roadmap
+                                    Buka jalur belajar
                                 </Link>
                             </Button>
                         </div>
@@ -284,7 +282,7 @@ export default function Dashboard({
                                             <Gauge className="size-5" />
 
                                             <p className="text-xs font-black tracking-[0.14em] uppercase">
-                                                Career readiness
+                                                Kesiapan belajar
                                             </p>
                                         </div>
 
@@ -299,9 +297,9 @@ export default function Dashboard({
                                         </div>
 
                                         <p className="mt-4 max-w-md text-sm leading-6 font-semibold text-background/65">
-                                            Nilai kesiapan dihitung dari skill,
-                                            roadmap, proyek, konsistensi, dan
-                                            hasil evaluasi Anda.
+                                            Skor ini merangkum penguasaan
+                                            kemampuan, jalur belajar, proyek,
+                                            konsistensi, dan hasil evaluasimu.
                                         </p>
                                     </div>
 
@@ -312,7 +310,7 @@ export default function Dashboard({
                                         </span>
 
                                         <span className="rounded-full border-2 border-background/30 px-3 py-1 text-xs font-black">
-                                            {roadmapPercent}% roadmap
+                                            {roadmapPercent}% jalur belajar
                                         </span>
                                     </div>
                                 </div>
@@ -325,7 +323,7 @@ export default function Dashboard({
                                             </p>
 
                                             <h2 className="mt-2 text-2xl font-black tracking-[-0.035em]">
-                                                Jangan kerjakan semuanya
+                                                Tidak perlu memperbaiki semuanya
                                                 sekaligus.
                                             </h2>
                                         </div>
@@ -355,7 +353,7 @@ export default function Dashboard({
                                                                 </p>
 
                                                                 <span className="shrink-0 font-mono text-[11px] font-black">
-                                                                    gap{' '}
+                                                                    selisih{' '}
                                                                     {item.gap}
                                                                 </span>
                                                             </div>
@@ -379,12 +377,12 @@ export default function Dashboard({
                                             <CheckCircle2 className="size-7" />
 
                                             <p className="mt-3 font-black">
-                                                Tidak ada gap prioritas.
+                                                Tidak ada kemampuan prioritas.
                                             </p>
 
                                             <p className="mt-1 text-xs font-semibold opacity-70">
-                                                Pertahankan progres dan
-                                                lanjutkan roadmap Anda.
+                                                Pertahankan hasilmu dan
+                                                lanjutkan jalur belajar.
                                             </p>
                                         </div>
                                     )}
@@ -395,7 +393,7 @@ export default function Dashboard({
                                         className="mt-6 border-[#171717] bg-[#fffdf8] text-[#171717]"
                                     >
                                         <Link href="/skills">
-                                            Lihat semua gap
+                                            Lihat peta kemampuan
                                             <ArrowRight />
                                         </Link>
                                     </Button>
@@ -408,11 +406,11 @@ export default function Dashboard({
                                 <div className="flex items-start justify-between">
                                     <div>
                                         <p className="text-xs font-black tracking-[0.13em] text-muted-foreground uppercase">
-                                            Roadmap
+                                            Jalur belajar
                                         </p>
 
                                         <h2 className="mt-1 text-2xl font-black">
-                                            Progres belajar
+                                            Progres belajarmu
                                         </h2>
                                     </div>
 
@@ -479,7 +477,7 @@ export default function Dashboard({
 
                             <Button asChild className="mt-6 w-full">
                                 <Link href="/roadmap">
-                                    Lanjutkan roadmap
+                                    Lanjutkan belajar
                                     <ArrowRight />
                                 </Link>
                             </Button>
@@ -491,7 +489,7 @@ export default function Dashboard({
                             icon={Clock3}
                             label="Total waktu belajar"
                             value={`${studyHours}j ${studyMinutes}m`}
-                            description="Akumulasi dari seluruh aktivitas belajar yang sudah dicatat."
+                            description="Akumulasi seluruh waktu belajar yang sudah kamu catat."
                             accent="blue"
                         />
 
@@ -499,7 +497,7 @@ export default function Dashboard({
                             icon={Activity}
                             label="Aktif 28 hari"
                             value={`${readiness.active_days_28} hari`}
-                            description="Jumlah hari dengan aktivitas belajar selama empat minggu terakhir."
+                            description="Jumlah hari saat kamu memiliki aktivitas belajar selama empat minggu terakhir."
                             accent="lime"
                         />
 
@@ -521,8 +519,8 @@ export default function Dashboard({
                             }
                             description={
                                 activeProject
-                                    ? 'Progres proyek portofolio yang sedang Anda kerjakan.'
-                                    : 'Mulai proyek untuk membuktikan skill melalui portofolio.'
+                                    ? 'Progres proyek portofolio yang sedang kamu kerjakan.'
+                                    : 'Mulai proyek ketika kamu siap menerapkan kemampuan yang sudah dipelajari.'
                             }
                             accent="orange"
                         />
@@ -541,9 +539,8 @@ export default function Dashboard({
                                     </h2>
 
                                     <p className="mt-2 max-w-xl text-sm font-medium text-muted-foreground">
-                                        Grafik ini hanya menampilkan waktu
-                                        belajar yang benar-benar tercatat pada
-                                        sistem.
+                                        Grafik ini menampilkan waktu belajar
+                                        yang benar-benar tercatat di sistem.
                                     </p>
                                 </div>
 
@@ -576,6 +573,7 @@ export default function Dashboard({
                                                     stopColor="#aac8f5"
                                                     stopOpacity={0.85}
                                                 />
+
                                                 <stop
                                                     offset="95%"
                                                     stopColor="#aac8f5"
@@ -656,7 +654,7 @@ export default function Dashboard({
                                         </p>
 
                                         <h2 className="mt-1 text-2xl font-black">
-                                            Prioritas hari ini
+                                            Prioritas belajar
                                         </h2>
                                     </div>
 
@@ -678,8 +676,8 @@ export default function Dashboard({
                                         <p className="mt-3 text-sm leading-6 font-medium text-muted-foreground">
                                             {nextItem.status ===
                                             'needs_reinforcement'
-                                                ? 'Materi ini perlu diperkuat karena evaluasi sebelumnya belum memenuhi batas kelulusan.'
-                                                : 'Lanjutkan materi ini untuk menjaga progres roadmap Anda tetap bergerak.'}
+                                                ? 'Materi ini perlu dipelajari kembali karena evaluasi sebelumnya belum memenuhi batas kelulusan.'
+                                                : 'Materi ini menjadi salah satu langkah berikutnya dalam jalur belajarmu.'}
                                         </p>
 
                                         <div className="mt-6">
@@ -716,13 +714,13 @@ export default function Dashboard({
                                         <BookOpenCheck className="size-9" />
 
                                         <h3 className="mt-4 text-lg font-black">
-                                            Tidak ada materi aktif
+                                            Belum ada materi aktif
                                         </h3>
 
                                         <p className="mt-2 max-w-sm text-sm font-medium text-muted-foreground">
-                                            Periksa roadmap atau selesaikan
-                                            Assesment untuk mendapatkan langkah
-                                            belajar berikutnya.
+                                            Periksa jalur belajar atau
+                                            selesaikan asesmen untuk mendapatkan
+                                            rekomendasi berikutnya.
                                         </p>
 
                                         <Button
@@ -732,7 +730,7 @@ export default function Dashboard({
                                             className="mt-5"
                                         >
                                             <Link href="/roadmap">
-                                                Buka roadmap
+                                                Buka jalur belajar
                                             </Link>
                                         </Button>
                                     </div>
@@ -746,22 +744,23 @@ export default function Dashboard({
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                                 <div>
                                     <p className="text-xs font-black tracking-[0.13em] text-muted-foreground uppercase">
-                                        Skill profile
+                                        Peta kemampuan
                                     </p>
 
                                     <h2 className="mt-1 text-2xl font-black tracking-[-0.035em]">
-                                        Posisi skill Anda sekarang
+                                        Posisi kemampuanmu sekarang
                                     </h2>
 
                                     <p className="mt-2 text-sm font-medium text-muted-foreground">
-                                        Bandingkan level sekarang dengan target
-                                        untuk {career.name}.
+                                        Bandingkan hasilmu sekarang dengan
+                                        target penguasaan untuk jurusan{' '}
+                                        {career.name}.
                                     </p>
                                 </div>
 
                                 <Button asChild variant="ghost" size="sm">
                                     <Link href="/skills">
-                                        Detail skill
+                                        Lihat detail
                                         <ArrowRight />
                                     </Link>
                                 </Button>
@@ -859,7 +858,7 @@ export default function Dashboard({
                                     <Target className="size-8" />
 
                                     <p className="mt-3 font-black">
-                                        Data skill belum tersedia.
+                                        Data kemampuan belum tersedia.
                                     </p>
                                 </div>
                             )}
@@ -869,11 +868,11 @@ export default function Dashboard({
                             <div className="flex items-start justify-between gap-4">
                                 <div>
                                     <p className="text-xs font-black tracking-[0.13em] text-muted-foreground uppercase">
-                                        Komposisi readiness
+                                        Komposisi kesiapan
                                     </p>
 
                                     <h2 className="mt-1 text-2xl font-black tracking-[-0.035em]">
-                                        Dari mana skor berasal?
+                                        Dari mana skor ini berasal?
                                     </h2>
                                 </div>
 
@@ -893,10 +892,11 @@ export default function Dashboard({
 
                             <div className="mt-7 rounded-[10px] border-2 border-foreground bg-muted/50 p-4">
                                 <p className="text-xs leading-5 font-semibold text-muted-foreground">
-                                    Skor readiness adalah indikator internal
-                                    SkillPath AI untuk membantu menentukan
-                                    prioritas belajar. Angka ini bukan jaminan
-                                    diterima bekerja.
+                                    Skor ini adalah indikator internal SkillPath
+                                    untuk membantu membaca perkembangan dan
+                                    menentukan prioritas belajar. Skor ini bukan
+                                    nilai akademik resmi dan bukan jaminan hasil
+                                    di dunia kerja.
                                 </p>
                             </div>
                         </div>
@@ -907,11 +907,11 @@ export default function Dashboard({
                             <div className="flex items-start justify-between gap-4">
                                 <div>
                                     <p className="text-xs font-black tracking-[0.13em] text-muted-foreground uppercase">
-                                        Skill gaps
+                                        Prioritas kemampuan
                                     </p>
 
                                     <h2 className="mt-1 text-2xl font-black tracking-[-0.035em]">
-                                        Yang perlu dikejar
+                                        Yang masih perlu diperkuat
                                     </h2>
                                 </div>
 
@@ -940,7 +940,7 @@ export default function Dashboard({
                                                         </h3>
 
                                                         <span className="rounded-full border-2 border-foreground bg-accent px-2.5 py-0.5 font-mono text-[10px] font-black text-[#171717]">
-                                                            GAP {item.gap}
+                                                            SELISIH {item.gap}
                                                         </span>
                                                     </div>
 
@@ -978,12 +978,13 @@ export default function Dashboard({
                                         <CheckCircle2 className="size-8" />
 
                                         <h3 className="mt-3 font-black">
-                                            Tidak ada gap utama
+                                            Tidak ada kemampuan utama yang
+                                            tertinggal
                                         </h3>
 
                                         <p className="mt-1 text-sm font-medium text-muted-foreground">
-                                            Skill utama Anda sudah memenuhi
-                                            target saat ini.
+                                            Kemampuan utamamu sudah memenuhi
+                                            target yang digunakan saat ini.
                                         </p>
                                     </div>
                                 )}
@@ -995,7 +996,7 @@ export default function Dashboard({
                                 className="mt-5 w-full"
                             >
                                 <Link href="/skills">
-                                    Buka analisis lengkap
+                                    Buka peta kemampuan
                                     <ArrowRight />
                                 </Link>
                             </Button>
@@ -1006,7 +1007,7 @@ export default function Dashboard({
                                 <div className="flex items-center justify-between gap-3">
                                     <div>
                                         <p className="text-xs font-black tracking-[0.13em] uppercase">
-                                            Portfolio
+                                            Portofolio
                                         </p>
 
                                         <h2 className="mt-1 text-2xl font-black">
@@ -1060,9 +1061,9 @@ export default function Dashboard({
                                         </div>
 
                                         <p className="mt-5 text-sm leading-6 font-medium text-muted-foreground">
-                                            Gunakan proyek ini untuk menerapkan
-                                            skill yang sudah dipelajari dan
-                                            membangun bukti kompetensi yang
+                                            Gunakan proyek ini untuk
+                                            mempraktikkan kemampuan yang sudah
+                                            dipelajari dan membangun bukti yang
                                             dapat dimasukkan ke portofolio.
                                         </p>
 
@@ -1084,9 +1085,9 @@ export default function Dashboard({
                                         </h3>
 
                                         <p className="mt-2 max-w-sm text-sm leading-6 font-medium text-muted-foreground">
-                                            Pilih proyek rekomendasi yang sesuai
-                                            dengan gap skill dan target karier
-                                            Anda.
+                                            Pilih proyek yang sesuai dengan
+                                            kemampuan yang sudah kamu miliki dan
+                                            bagian yang ingin kamu latih.
                                         </p>
 
                                         <Button asChild className="mt-5">

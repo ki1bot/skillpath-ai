@@ -22,14 +22,14 @@ export function CareerForm({ career }: { career?: Career }) {
                 <>
                     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                         <InputField
-                            label="Nama karier"
+                            label="Nama jurusan"
                             name="name"
                             defaultValue={career?.name}
                             required
                         />
 
                         <InputField
-                            label="Tingkat kesulitan"
+                            label="Tingkat"
                             name="difficulty"
                             defaultValue={career?.difficulty ?? 'Menengah'}
                             required
@@ -45,7 +45,7 @@ export function CareerForm({ career }: { career?: Career }) {
                     </div>
 
                     <InputField
-                        label="Tagline"
+                        label="Ringkasan singkat"
                         name="tagline"
                         defaultValue={career?.tagline}
                         required
@@ -61,7 +61,7 @@ export function CareerForm({ career }: { career?: Career }) {
 
                     <ArrayFields
                         name="responsibilities"
-                        label="Tanggung jawab utama"
+                        label="Bidang utama"
                         values={career?.responsibilities}
                     />
 
@@ -76,7 +76,7 @@ export function CareerForm({ career }: { career?: Career }) {
 
                     {Object.keys(errors).length > 0 && (
                         <p className="text-sm font-bold text-destructive">
-                            Periksa kembali data karier yang Anda masukkan.
+                            Periksa kembali data jurusan yang dimasukkan.
                         </p>
                     )}
 
@@ -87,7 +87,7 @@ export function CareerForm({ career }: { career?: Career }) {
                             <Plus className="size-4" />
                         )}
 
-                        {career ? 'Simpan perubahan' : 'Tambah karier'}
+                        {career ? 'Simpan perubahan' : 'Tambah jurusan'}
                     </Button>
                 </>
             )}

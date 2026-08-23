@@ -18,7 +18,7 @@ export function ProjectsSection({ projects, careers, skills }: Props) {
     return (
         <AdminPanel
             title="Proyek portofolio"
-            description="Proyek digunakan sebagai bukti penerapan kemampuan, bukan sebagai pengganti assesment."
+            description="Proyek digunakan untuk menerapkan kemampuan yang sudah dipelajari. Proyek bukan pengganti asesmen."
             accentClass="bg-[var(--neo-lime)] text-[#171717]"
         >
             <AdminDetails title="Tambah proyek baru">
@@ -30,14 +30,14 @@ export function ProjectsSection({ projects, careers, skills }: Props) {
                     <AdminDetails
                         key={project.id}
                         title={project.title}
-                        meta={`${project.career?.name ?? 'Tanpa karier'} · ${project.skills.length} kebutuhan kemampuan`}
+                        meta={`${project.career?.name ?? 'Tanpa jurusan'} · ${project.skills.length} kebutuhan kemampuan`}
                     >
                         <div className="grid gap-7">
                             <ProjectForm project={project} careers={careers} />
 
                             <div className="border-t-2 border-foreground/15 pt-6">
                                 <h3 className="font-black">
-                                    Kebutuhan kemampuan proyek
+                                    Kemampuan yang dibutuhkan proyek
                                 </h3>
 
                                 <Form
@@ -48,13 +48,13 @@ export function ProjectsSection({ projects, careers, skills }: Props) {
                                     {({ processing }) => (
                                         <>
                                             <SelectField
-                                                label="Keahlian"
+                                                label="Kemampuan"
                                                 name="skill_id"
                                                 defaultValue=""
                                                 required
                                             >
                                                 <option value="">
-                                                    Pilih keahlian
+                                                    Pilih kemampuan
                                                 </option>
 
                                                 {skills.map((skill) => (

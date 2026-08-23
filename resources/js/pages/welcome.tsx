@@ -5,12 +5,13 @@ import {
     BrainCircuit,
     Check,
     GitBranch,
+    GraduationCap,
     Layers3,
-    Target,
     TimerReset,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { getStudyProgramDefinition } from '@/lib/academic-programs';
 
 type Career = {
     id: number;
@@ -41,46 +42,73 @@ type ProcessStep = {
 
 const processSteps: ProcessStep[] = [
     {
-        icon: Target,
+        icon: GraduationCap,
         number: '01',
-        title: 'Cek kemampuan',
-        text: 'Jawab tugas singkat untuk melihat kemampuan yang sudah kamu punya.',
+        title: 'Pilih jurusan',
+        text: 'Mulai dengan memilih jurusan yang sedang kamu jalani agar asesmen sesuai dengan bidang yang kamu pelajari.',
         accent: 'bg-[var(--neo-lime)]',
     },
     {
         icon: BarChart3,
         number: '02',
-        title: 'Lihat selisih',
-        text: 'Bandingkan kemampuanmu dengan kebutuhan jalur karier yang dipilih.',
+        title: 'Kerjakan asesmen',
+        text: 'Jawab 9 pertanyaan yang mewakili 3 bidang utama dan 9 kemampuan dalam jurusanmu.',
         accent: 'bg-[var(--neo-blue)]',
     },
     {
         icon: GitBranch,
         number: '03',
-        title: 'Tentukan prioritas',
-        text: 'Dahulukan kemampuan yang paling penting dan menjadi prasyarat untuk materi lain.',
+        title: 'Lihat peta kemampuan',
+        text: 'Bandingkan kemampuanmu sekarang dengan target penguasaan setiap kemampuan di jurusanmu.',
         accent: 'bg-[var(--neo-yellow)]',
     },
     {
         icon: Layers3,
         number: '04',
-        title: 'Mulai belajar',
-        text: 'Kerjakan materi, latihan, dan evaluasi dalam urutan yang jelas.',
+        title: 'Ikuti jalur belajar',
+        text: 'Pelajari materi yang paling perlu diperkuat lebih dulu dalam urutan yang jelas.',
         accent: 'bg-[var(--neo-orange)]',
     },
     {
         icon: BrainCircuit,
         number: '05',
-        title: 'Buat proyek',
-        text: 'Gunakan kemampuan yang sudah cukup kuat untuk mengerjakan proyek portofolio.',
+        title: 'Terapkan lewat proyek',
+        text: 'Gunakan kemampuan yang sudah kamu pelajari untuk mengerjakan proyek dan membangun portofolio.',
         accent: 'bg-[var(--neo-pink)]',
     },
     {
         icon: TimerReset,
         number: '06',
-        title: 'Evaluasi lagi',
-        text: 'Lihat perkembanganmu dan tentukan langkah berikutnya dari hasil terbaru.',
+        title: 'Evaluasi perkembangan',
+        text: 'Ulangi asesmen dan evaluasi setelah belajar untuk melihat perubahan kemampuanmu.',
         accent: 'bg-[var(--neo-lime)]',
+    },
+];
+
+const diagnosis = [
+    {
+        name: 'SQL dan Pengolahan Data',
+        current: 78,
+        target: 75,
+        color: '#C7FF5E',
+    },
+    {
+        name: 'Database Management',
+        current: 42,
+        target: 75,
+        color: '#FF8FAB',
+    },
+    {
+        name: 'UI Design',
+        current: 60,
+        target: 65,
+        color: '#79D7FF',
+    },
+    {
+        name: 'User Research',
+        current: 35,
+        target: 65,
+        color: '#FF8FAB',
     },
 ];
 
@@ -88,12 +116,12 @@ export default function Welcome({ careers, stats }: Props) {
     const statItems = [
         {
             value: stats.careers,
-            label: 'Jalur karier',
+            label: 'Jurusan',
             accent: 'bg-[var(--neo-lime)]',
         },
         {
             value: stats.skills,
-            label: 'Keahlian terstruktur',
+            label: 'Kemampuan jurusan',
             accent: 'bg-[var(--neo-blue)]',
         },
         {
@@ -103,81 +131,55 @@ export default function Welcome({ careers, stats }: Props) {
         },
     ];
 
-    const diagnosis = [
-        {
-            name: 'Dasar Pemrograman',
-            current: 80,
-            target: 75,
-            color: '#C7FF5E',
-        },
-        {
-            name: 'Basis Data',
-            current: 30,
-            target: 75,
-            color: '#FF8FAB',
-        },
-        {
-            name: 'REST API',
-            current: 20,
-            target: 85,
-            color: '#FF8FAB',
-        },
-        {
-            name: 'Git & GitHub',
-            current: 45,
-            target: 65,
-            color: '#79D7FF',
-        },
-    ];
-
     return (
         <>
             <main className="pb-12 sm:pb-16">
                 <section className="neo-page grid gap-10 pt-10 sm:pt-14 lg:grid-cols-[1.03fr_0.97fr] lg:items-center lg:gap-14 lg:pt-16">
                     <div>
                         <span className="neo-label">
-                            Belajar sesuai kebutuhanmu
+                            Belajar sesuai jurusanmu
                         </span>
 
                         <h1 className="neo-heading mt-6 max-w-4xl text-[clamp(3.2rem,7vw,6rem)]">
-                            Tahu harus belajar apa, dan mulai dari mana.
+                            Tahu kemampuanmu sekarang, lalu belajar dari bagian
+                            yang paling perlu.
                         </h1>
 
                         <p className="mt-6 max-w-2xl text-lg leading-8 font-semibold text-muted-foreground sm:text-xl">
-                            Pilih tujuan karier, cek kemampuanmu sekarang, lalu
-                            mulai dari bagian yang memang paling perlu
-                            ditingkatkan.
+                            Pilih jurusanmu, kerjakan asesmen dari tiga bidang
+                            utama, lalu lihat kemampuan mana yang sudah kuat dan
+                            mana yang masih perlu dikembangkan.
                         </p>
 
                         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                             <Button asChild size="lg">
                                 <Link href="/register" prefetch>
-                                    Mulai Assesment
+                                    Mulai asesmen
                                     <ArrowRight />
                                 </Link>
                             </Button>
 
                             <Button asChild size="lg" variant="outline">
                                 <Link href="/karier" prefetch>
-                                    Lihat jalur karier
+                                    Lihat pilihan jurusan
                                 </Link>
                             </Button>
                         </div>
 
                         <div className="mt-9 grid gap-3 text-sm font-extrabold sm:grid-cols-3">
                             <span className="flex items-center gap-2">
-                                <Check className="size-4 shrink-0" />
-                                Mulai dari kemampuan yang sudah ada
+                                <Check className="size-4 shrink-0" />5 jurusan
+                                yang berbeda
                             </span>
 
                             <span className="flex items-center gap-2">
-                                <Check className="size-4 shrink-0" />
-                                Setiap langkah punya tujuan
+                                <Check className="size-4 shrink-0" />3 bidang
+                                utama per jurusan
                             </span>
 
                             <span className="flex items-center gap-2">
-                                <Check className="size-4 shrink-0" />
-                                Hasil bisa diperiksa kembali
+                                <Check className="size-4 shrink-0" />9 kemampuan
+                                yang dinilai
                             </span>
                         </div>
                     </div>
@@ -187,16 +189,16 @@ export default function Welcome({ careers, stats }: Props) {
                             <div className="mb-7 flex items-start justify-between gap-4">
                                 <div>
                                     <p className="text-xs font-black tracking-[0.16em] text-muted-foreground uppercase">
-                                        Contoh hasil Assesment
+                                        Contoh hasil asesmen
                                     </p>
 
                                     <h2 className="mt-1 text-2xl font-black tracking-tight">
-                                        Pengembang Backend
+                                        Sistem Informasi
                                     </h2>
                                 </div>
 
                                 <div className="flex size-14 shrink-0 items-center justify-center rounded-full border-2 border-[#171717] bg-[var(--neo-yellow)] text-lg font-black text-[#171717]">
-                                    47
+                                    54
                                 </div>
                             </div>
 
@@ -228,21 +230,20 @@ export default function Welcome({ careers, stats }: Props) {
 
                             <div className="mt-7 rounded-[12px] border-2 border-[#171717] bg-[var(--neo-blue)] p-4 text-[#171717]">
                                 <p className="text-xs font-black tracking-[0.14em] uppercase">
-                                    Kenapa basis data didahulukan?
+                                    Kenapa Database Management diprioritaskan?
                                 </p>
 
                                 <p className="mt-1 text-sm leading-relaxed font-semibold">
-                                    Kemampuan basis data masih cukup jauh dari
-                                    target dan dibutuhkan sebelum masuk ke ORM
-                                    serta banyak pekerjaan API. Jadi bagian ini
-                                    lebih masuk akal untuk dipelajari lebih
-                                    dulu.
+                                    Nilainya masih cukup jauh dari target.
+                                    Memperkuat kemampuan ini lebih dulu akan
+                                    membantu saat kamu mempelajari pengembangan
+                                    sistem dan pengelolaan data.
                                 </p>
                             </div>
                         </div>
 
                         <div className="absolute -bottom-5 -left-3 hidden rotate-[-4deg] rounded-[11px] border-2 border-[#171717] bg-secondary px-4 py-3 text-sm font-black text-[#171717] shadow-[4px_4px_0_var(--neo-shadow-color)] sm:block">
-                            Berikutnya: Dasar Basis Data
+                            Berikutnya: Database Management
                         </div>
                     </div>
                 </section>
@@ -271,13 +272,13 @@ export default function Welcome({ careers, stats }: Props) {
                                 </span>
 
                                 <h2 className="neo-heading mt-5 text-4xl sm:text-5xl">
-                                    Enam langkah yang gampang diikuti.
+                                    Mulai dari jurusanmu, bukan dari tebakan.
                                 </h2>
 
                                 <p className="mt-5 max-w-md leading-7 font-semibold text-muted-foreground">
-                                    Setiap rekomendasi punya alasan. Kamu bisa
-                                    melihat kemampuan yang kurang, urutan yang
-                                    disarankan, dan hasil yang sudah dicapai.
+                                    SkillPath membantu melihat kemampuan yang
+                                    sudah kamu punya, bagian yang masih kurang,
+                                    dan urutan belajar yang lebih masuk akal.
                                 </p>
                             </div>
 
@@ -326,13 +327,18 @@ export default function Welcome({ careers, stats }: Props) {
                         <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
                             <div>
                                 <p className="text-xs font-black tracking-[0.18em] uppercase">
-                                    Pilihan jalur karier
+                                    Pilihan jurusan
                                 </p>
 
                                 <h2 className="mt-2 max-w-3xl text-4xl font-black tracking-[-0.045em] sm:text-5xl">
-                                    Pilih tujuan yang benar-benar ingin kamu
-                                    kejar.
+                                    Pilih jurusan, lalu lihat kemampuan yang
+                                    akan dinilai.
                                 </h2>
+
+                                <p className="mt-4 max-w-2xl text-sm leading-6 font-semibold text-[#171717]/70">
+                                    Setiap jurusan memiliki tiga bidang utama
+                                    dan sembilan kemampuan yang berbeda.
+                                </p>
                             </div>
 
                             <Button
@@ -341,47 +347,70 @@ export default function Welcome({ careers, stats }: Props) {
                                 className="border-[#171717] bg-[#fffdf7] text-[#171717]"
                             >
                                 <Link href="/karier" prefetch>
-                                    Lihat semuanya
+                                    Lihat semua jurusan
                                     <ArrowRight />
                                 </Link>
                             </Button>
                         </div>
 
-                        <div className="mt-8 grid gap-5 lg:grid-cols-3">
-                            {careers.map((career, index) => (
-                                <Link
-                                    key={career.id}
-                                    href={`/karier/${career.slug}`}
-                                    prefetch
-                                    className="group rounded-[14px] border-2 border-[#171717] bg-[#fffdf7] p-5 text-[#171717] shadow-[4px_4px_0_#171717] transition-transform hover:-translate-y-1 sm:p-6"
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <span className="rounded-full border-2 border-[#171717] px-3 py-1 text-xs font-black">
-                                            {String(index + 1).padStart(2, '0')}
-                                        </span>
+                        <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                            {careers.map((career, index) => {
+                                const program = getStudyProgramDefinition(
+                                    career.name,
+                                );
 
-                                        <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
-                                    </div>
+                                return (
+                                    <Link
+                                        key={career.id}
+                                        href={`/karier/${career.slug}`}
+                                        prefetch
+                                        className="group rounded-[14px] border-2 border-[#171717] bg-[#fffdf7] p-5 text-[#171717] shadow-[4px_4px_0_#171717] transition-transform hover:-translate-y-1 sm:p-6"
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <span
+                                                className="rounded-full border-2 border-[#171717] px-3 py-1 text-xs font-black"
+                                                style={{
+                                                    backgroundColor:
+                                                        career.accent,
+                                                }}
+                                            >
+                                                {String(index + 1).padStart(
+                                                    2,
+                                                    '0',
+                                                )}
+                                            </span>
 
-                                    <h3 className="mt-8 text-2xl font-black tracking-tight">
-                                        {career.name}
-                                    </h3>
+                                            <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
+                                        </div>
 
-                                    <p className="mt-3 text-sm leading-6 font-semibold text-[#56524c]">
-                                        {career.tagline}
-                                    </p>
+                                        <h3 className="mt-8 text-2xl font-black tracking-tight">
+                                            {career.name}
+                                        </h3>
 
-                                    <div className="mt-6 flex flex-wrap items-center gap-2 text-xs font-black tracking-wide uppercase">
-                                        <span>
-                                            {career.skills_count} keahlian
-                                        </span>
+                                        <p className="mt-3 text-sm leading-6 font-semibold text-[#56524c]">
+                                            {career.tagline}
+                                        </p>
 
-                                        <span>•</span>
+                                        {program && (
+                                            <div className="mt-5 flex flex-wrap gap-2">
+                                                {program.areas.map((area) => (
+                                                    <span
+                                                        key={area.name}
+                                                        className="rounded-full border border-[#171717]/25 px-2.5 py-1 text-[10px] font-black"
+                                                    >
+                                                        {area.name}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        )}
 
-                                        <span>{career.difficulty}</span>
-                                    </div>
-                                </Link>
-                            ))}
+                                        <p className="mt-6 text-xs font-black tracking-wide uppercase">
+                                            3 bidang · {career.skills_count}{' '}
+                                            kemampuan
+                                        </p>
+                                    </Link>
+                                );
+                            })}
                         </div>
                     </div>
                 </section>
@@ -390,18 +419,17 @@ export default function Welcome({ careers, stats }: Props) {
                     <div className="neo-card grid overflow-hidden lg:grid-cols-[1fr_300px]">
                         <div className="p-6 sm:p-9">
                             <p className="text-xs font-black tracking-[0.18em] text-muted-foreground uppercase">
-                                Sudah punya tujuan?
+                                Siap melihat kemampuanmu?
                             </p>
 
                             <h2 className="mt-3 max-w-3xl text-4xl font-black tracking-[-0.045em] sm:text-5xl">
-                                Jangan belajar semuanya sekaligus. Mulai dari
-                                yang paling kamu butuhkan.
+                                Kamu tidak harus menguasai semuanya sekarang.
                             </h2>
 
                             <p className="mt-5 max-w-2xl leading-7 font-semibold text-muted-foreground">
-                                Buat akun, pilih target karier, kerjakan tugas,
-                                lalu lihat bagian mana yang sebaiknya dikerjakan
-                                lebih dahulu.
+                                Pilih jurusan, jawab asesmen sesuai kemampuanmu,
+                                lalu gunakan hasilnya untuk menentukan apa yang
+                                sebaiknya dipelajari lebih dulu.
                             </p>
 
                             <Button asChild size="lg" className="mt-7">
@@ -419,7 +447,7 @@ export default function Welcome({ careers, stats }: Props) {
                                 </p>
 
                                 <p className="mt-3 text-sm font-black tracking-[0.14em] uppercase">
-                                    Mulai dari posisi sekarang
+                                    Mulai dari kemampuanmu sekarang
                                 </p>
                             </div>
                         </div>

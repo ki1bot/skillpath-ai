@@ -29,12 +29,12 @@ export function ProjectForm({ project, careers }: Props) {
                 <>
                     <div className="grid gap-4 md:grid-cols-3">
                         <SelectField
-                            label="Karier"
+                            label="Jurusan"
                             name="career_id"
                             defaultValue={project?.career_id ?? ''}
                             required
                         >
-                            <option value="">Pilih karier</option>
+                            <option value="">Pilih jurusan</option>
 
                             {careers.map((career) => (
                                 <option key={career.id} value={career.id}>

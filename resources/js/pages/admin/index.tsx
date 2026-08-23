@@ -40,7 +40,7 @@ export default function AdminIndex({
                                 </h1>
 
                                 <p className="mt-4 max-w-3xl text-sm leading-7 font-semibold sm:text-base">
-                                    Karier, keahlian, prasyarat, penilaian,
+                                    Jurusan, kemampuan, prasyarat, asesmen,
                                     materi belajar, dan proyek portofolio dapat
                                     dikelola tanpa mencampurkannya dengan hasil
                                     belajar masing-masing mahasiswa.
