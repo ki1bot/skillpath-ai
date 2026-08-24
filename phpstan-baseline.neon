@@ -205,12 +205,6 @@ parameters:
             path: app/Services/AiExplanationService.php
 
         -
-            message: '#^Method App\\Services\\CareerCompatibilityService\:\:userScores\(\) should return Illuminate\\Support\\Collection\<int\|string, float\> but returns Illuminate\\Support\\Collection\<int\<0, max\>, float\>\.$#'
-            identifier: return.type
-            count: 1
-            path: app/Services/CareerCompatibilityService.php
-
-        -
             message: '#^Access to an undefined property App\\Models\\Roadmap\:\:\$completed_items_count\.$#'
             identifier: property.notFound
             count: 1

@@ -158,6 +158,9 @@ class SkillGapService
             ->all();
     }
 
+    /**
+     * @param  array<int, array<string, mixed>>|null  $analysis
+     */
     public function averageMastery(
         User $user,
         ?array $analysis = null,
