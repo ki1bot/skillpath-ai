@@ -29,7 +29,7 @@ class CareerCompatibilityService
 
     /**
      * @param  Collection<int, Career>  $careers
-     * @return array<int<0, max>, array<string, mixed>>
+     * @return array<int, array<string, mixed>>
      */
     public function calculateForCareers(
         User $user,
