@@ -32,16 +32,17 @@ class DashboardTest extends TestCase
     public function test_onboarded_authenticated_users_can_visit_the_dashboard(): void
     {
         $career = Career::create([
-            'name' => 'Backend Developer',
-            'slug' => 'backend-developer',
-            'tagline' => 'Bangun layanan backend yang dapat diandalkan.',
-            'description' => 'Jalur karier untuk pengembangan backend.',
+            'name' => 'Sistem Informasi',
+            'slug' => 'sistem-informasi',
+            'tagline' => 'Menghubungkan data, proses bisnis, sistem, dan kebutuhan pengguna.',
+            'description' => 'Jurusan Sistem Informasi untuk pengujian dashboard.',
             'responsibilities' => [
-                'Merancang API',
-                'Mengelola database',
+                'Analisis Data',
+                'Pengembangan Sistem',
+                'UI/UX',
             ],
             'difficulty' => 'Menengah',
-            'accent' => '#C7FF5E',
+            'accent' => '#79D7FF',
             'is_active' => true,
         ]);
 
@@ -49,7 +50,7 @@ class DashboardTest extends TestCase
             'role' => 'student',
             'study_program' => 'Sistem Informasi',
             'semester' => 5,
-            'interest_area' => 'Backend',
+            'interest_area' => 'Pengembangan Sistem',
             'experience' => 'Pernah membuat aplikasi web.',
             'weekly_study_hours' => 8,
             'target_career_id' => $career->id,

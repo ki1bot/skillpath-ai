@@ -22,6 +22,10 @@ class AcademicAssessmentCleanupSeeder extends Seeder
                 'name' => 'Teknik Informatika',
                 'prefix' => 'ti-',
             ],
+            'sistem-komputer' => [
+                'name' => 'Sistem Komputer',
+                'prefix' => 'sk-',
+            ],
             'psikologi' => [
                 'name' => 'Psikologi',
                 'prefix' => 'psi-',
@@ -31,6 +35,12 @@ class AcademicAssessmentCleanupSeeder extends Seeder
                 'prefix' => 'ikom-',
             ],
         ];
+
+        Assessment::query()
+            ->whereNull(
+                'study_program',
+            )
+            ->delete();
 
         $assessments = Assessment::query()
             ->whereNotNull(
@@ -51,9 +61,7 @@ class AcademicAssessmentCleanupSeeder extends Seeder
                 || $assessment->study_program
                     !== $definition['name']
             ) {
-                $assessment->update([
-                    'is_active' => false,
-                ]);
+                $assessment->delete();
 
                 continue;
             }

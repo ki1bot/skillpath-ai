@@ -2,6 +2,7 @@ export type StudyProgramName =
     | 'Sistem Informasi'
     | 'Manajemen'
     | 'Teknik Informatika'
+    | 'Sistem Komputer'
     | 'Psikologi'
     | 'Ilmu Komunikasi';
 
@@ -99,6 +100,37 @@ export const STUDY_PROGRAMS: readonly StudyProgramDefinition[] = [
             {
                 name: 'Artificial Intelligence',
                 skills: ['Machine Learning', 'Data Science', 'Computer Vision'],
+            },
+        ],
+    },
+    {
+        name: 'Sistem Komputer',
+        description:
+            'Untuk kamu yang ingin memahami perangkat komputasi dari arsitektur digital, embedded system dan IoT, hingga jaringan dan keamanan.',
+        areas: [
+            {
+                name: 'Arsitektur dan Organisasi Komputer',
+                skills: [
+                    'Computer Architecture',
+                    'Digital Logic',
+                    'Microprocessor and Microcontroller',
+                ],
+            },
+            {
+                name: 'Embedded System dan Internet of Things',
+                skills: [
+                    'Embedded Systems',
+                    'Internet of Things',
+                    'Sensor and Actuator Integration',
+                ],
+            },
+            {
+                name: 'Jaringan dan Keamanan Komputer',
+                skills: [
+                    'Computer Networks',
+                    'Network Administration',
+                    'Network Security',
+                ],
             },
         ],
     },

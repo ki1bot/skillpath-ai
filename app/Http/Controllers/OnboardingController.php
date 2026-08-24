@@ -16,6 +16,7 @@ class OnboardingController extends Controller
         'Sistem Informasi',
         'Manajemen',
         'Teknik Informatika',
+        'Sistem Komputer',
         'Psikologi',
         'Ilmu Komunikasi',
     ];
@@ -24,6 +25,7 @@ class OnboardingController extends Controller
         'sistem-informasi',
         'manajemen',
         'teknik-informatika',
+        'sistem-komputer',
         'psikologi',
         'ilmu-komunikasi',
     ];
@@ -49,9 +51,10 @@ class OnboardingController extends Controller
                             WHEN 'sistem-informasi' THEN 1
                             WHEN 'manajemen' THEN 2
                             WHEN 'teknik-informatika' THEN 3
-                            WHEN 'psikologi' THEN 4
-                            WHEN 'ilmu-komunikasi' THEN 5
-                            ELSE 6
+                            WHEN 'sistem-komputer' THEN 4
+                            WHEN 'psikologi' THEN 5
+                            WHEN 'ilmu-komunikasi' THEN 6
+                            ELSE 7
                         END
                         ",
                     )

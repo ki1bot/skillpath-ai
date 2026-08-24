@@ -2,7 +2,7 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
 import publicMethodC5d39d from './public'
 /**
 * @see \App\Http\Controllers\PublicPageController::publicMethod
- * @see app/Http/Controllers/PublicPageController.php:62
+ * @see app/Http/Controllers/PublicPageController.php:63
  * @route '/karier'
  */
 export const publicMethod = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -17,7 +17,7 @@ publicMethod.definition = {
 
 /**
 * @see \App\Http\Controllers\PublicPageController::publicMethod
- * @see app/Http/Controllers/PublicPageController.php:62
+ * @see app/Http/Controllers/PublicPageController.php:63
  * @route '/karier'
  */
 publicMethod.url = (options?: RouteQueryOptions) => {
@@ -26,7 +26,7 @@ publicMethod.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PublicPageController::publicMethod
- * @see app/Http/Controllers/PublicPageController.php:62
+ * @see app/Http/Controllers/PublicPageController.php:63
  * @route '/karier'
  */
 publicMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ publicMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\PublicPageController::publicMethod
- * @see app/Http/Controllers/PublicPageController.php:62
+ * @see app/Http/Controllers/PublicPageController.php:63
  * @route '/karier'
  */
 publicMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ publicMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\PublicPageController::publicMethod
- * @see app/Http/Controllers/PublicPageController.php:62
+ * @see app/Http/Controllers/PublicPageController.php:63
  * @route '/karier'
  */
     const publicMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ publicMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\PublicPageController::publicMethod
- * @see app/Http/Controllers/PublicPageController.php:62
+ * @see app/Http/Controllers/PublicPageController.php:63
  * @route '/karier'
  */
         publicMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -64,7 +64,7 @@ publicMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\PublicPageController::publicMethod
- * @see app/Http/Controllers/PublicPageController.php:62
+ * @see app/Http/Controllers/PublicPageController.php:63
  * @route '/karier'
  */
         publicMethodForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

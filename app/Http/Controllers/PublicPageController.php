@@ -22,6 +22,7 @@ class PublicPageController extends Controller
                     WHERE slug LIKE \'si-%\'
                         OR slug LIKE \'man-%\'
                         OR slug LIKE \'ti-%\'
+                        OR slug LIKE \'sk-%\'
                         OR slug LIKE \'psi-%\'
                         OR slug LIKE \'ikom-%\'
                 ) AS skills,

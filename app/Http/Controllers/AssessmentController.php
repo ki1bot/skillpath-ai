@@ -24,6 +24,8 @@ class AssessmentController extends Controller
         'teknik informatika' => 'Teknik Informatika',
         'informatika' => 'Teknik Informatika',
         'ti' => 'Teknik Informatika',
+        'sistem komputer' => 'Sistem Komputer',
+        'sk' => 'Sistem Komputer',
         'psikologi' => 'Psikologi',
         'ilmu komunikasi' => 'Ilmu Komunikasi',
         'ikom' => 'Ilmu Komunikasi',

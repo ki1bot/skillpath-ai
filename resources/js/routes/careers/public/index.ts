@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\PublicPageController::show
- * @see app/Http/Controllers/PublicPageController.php:104
+ * @see app/Http/Controllers/PublicPageController.php:105
  * @route '/karier/{career}'
  */
 export const show = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\PublicPageController::show
- * @see app/Http/Controllers/PublicPageController.php:104
+ * @see app/Http/Controllers/PublicPageController.php:105
  * @route '/karier/{career}'
  */
 show.url = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions) => {
@@ -49,7 +49,7 @@ show.url = (args: { career: string | { slug: string } } | [career: string | { sl
 
 /**
 * @see \App\Http\Controllers\PublicPageController::show
- * @see app/Http/Controllers/PublicPageController.php:104
+ * @see app/Http/Controllers/PublicPageController.php:105
  * @route '/karier/{career}'
  */
 show.get = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -58,7 +58,7 @@ show.get = (args: { career: string | { slug: string } } | [career: string | { sl
 })
 /**
 * @see \App\Http\Controllers\PublicPageController::show
- * @see app/Http/Controllers/PublicPageController.php:104
+ * @see app/Http/Controllers/PublicPageController.php:105
  * @route '/karier/{career}'
  */
 show.head = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -68,7 +68,7 @@ show.head = (args: { career: string | { slug: string } } | [career: string | { s
 
     /**
 * @see \App\Http\Controllers\PublicPageController::show
- * @see app/Http/Controllers/PublicPageController.php:104
+ * @see app/Http/Controllers/PublicPageController.php:105
  * @route '/karier/{career}'
  */
     const showForm = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -78,7 +78,7 @@ show.head = (args: { career: string | { slug: string } } | [career: string | { s
 
             /**
 * @see \App\Http\Controllers\PublicPageController::show
- * @see app/Http/Controllers/PublicPageController.php:104
+ * @see app/Http/Controllers/PublicPageController.php:105
  * @route '/karier/{career}'
  */
         showForm.get = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -87,7 +87,7 @@ show.head = (args: { career: string | { slug: string } } | [career: string | { s
         })
             /**
 * @see \App\Http\Controllers\PublicPageController::show
- * @see app/Http/Controllers/PublicPageController.php:104
+ * @see app/Http/Controllers/PublicPageController.php:105
  * @route '/karier/{career}'
  */
         showForm.head = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

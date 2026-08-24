@@ -79,7 +79,7 @@ home.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     home.form = homeForm
 /**
 * @see \App\Http\Controllers\PublicPageController::about
- * @see app/Http/Controllers/PublicPageController.php:141
+ * @see app/Http/Controllers/PublicPageController.php:142
  * @route '/tentang'
  */
 export const about = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ about.definition = {
 
 /**
 * @see \App\Http\Controllers\PublicPageController::about
- * @see app/Http/Controllers/PublicPageController.php:141
+ * @see app/Http/Controllers/PublicPageController.php:142
  * @route '/tentang'
  */
 about.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ about.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PublicPageController::about
- * @see app/Http/Controllers/PublicPageController.php:141
+ * @see app/Http/Controllers/PublicPageController.php:142
  * @route '/tentang'
  */
 about.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ about.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\PublicPageController::about
- * @see app/Http/Controllers/PublicPageController.php:141
+ * @see app/Http/Controllers/PublicPageController.php:142
  * @route '/tentang'
  */
 about.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ about.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\PublicPageController::about
- * @see app/Http/Controllers/PublicPageController.php:141
+ * @see app/Http/Controllers/PublicPageController.php:142
  * @route '/tentang'
  */
     const aboutForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ about.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\PublicPageController::about
- * @see app/Http/Controllers/PublicPageController.php:141
+ * @see app/Http/Controllers/PublicPageController.php:142
  * @route '/tentang'
  */
         aboutForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ about.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\PublicPageController::about
- * @see app/Http/Controllers/PublicPageController.php:141
+ * @see app/Http/Controllers/PublicPageController.php:142
  * @route '/tentang'
  */
         aboutForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -157,7 +157,7 @@ about.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     about.form = aboutForm
 /**
 * @see \App\Http\Controllers\PublicPageController::careers
- * @see app/Http/Controllers/PublicPageController.php:62
+ * @see app/Http/Controllers/PublicPageController.php:63
  * @route '/karier'
  */
 export const careers = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -172,7 +172,7 @@ careers.definition = {
 
 /**
 * @see \App\Http\Controllers\PublicPageController::careers
- * @see app/Http/Controllers/PublicPageController.php:62
+ * @see app/Http/Controllers/PublicPageController.php:63
  * @route '/karier'
  */
 careers.url = (options?: RouteQueryOptions) => {
@@ -181,7 +181,7 @@ careers.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PublicPageController::careers
- * @see app/Http/Controllers/PublicPageController.php:62
+ * @see app/Http/Controllers/PublicPageController.php:63
  * @route '/karier'
  */
 careers.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -190,7 +190,7 @@ careers.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\PublicPageController::careers
- * @see app/Http/Controllers/PublicPageController.php:62
+ * @see app/Http/Controllers/PublicPageController.php:63
  * @route '/karier'
  */
 careers.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -200,7 +200,7 @@ careers.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\PublicPageController::careers
- * @see app/Http/Controllers/PublicPageController.php:62
+ * @see app/Http/Controllers/PublicPageController.php:63
  * @route '/karier'
  */
     const careersForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -210,7 +210,7 @@ careers.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\PublicPageController::careers
- * @see app/Http/Controllers/PublicPageController.php:62
+ * @see app/Http/Controllers/PublicPageController.php:63
  * @route '/karier'
  */
         careersForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -219,7 +219,7 @@ careers.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\PublicPageController::careers
- * @see app/Http/Controllers/PublicPageController.php:62
+ * @see app/Http/Controllers/PublicPageController.php:63
  * @route '/karier'
  */
         careersForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -235,7 +235,7 @@ careers.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     careers.form = careersForm
 /**
 * @see \App\Http\Controllers\PublicPageController::career
- * @see app/Http/Controllers/PublicPageController.php:104
+ * @see app/Http/Controllers/PublicPageController.php:105
  * @route '/karier/{career}'
  */
 export const career = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -250,7 +250,7 @@ career.definition = {
 
 /**
 * @see \App\Http\Controllers\PublicPageController::career
- * @see app/Http/Controllers/PublicPageController.php:104
+ * @see app/Http/Controllers/PublicPageController.php:105
  * @route '/karier/{career}'
  */
 career.url = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions) => {
@@ -283,7 +283,7 @@ career.url = (args: { career: string | { slug: string } } | [career: string | { 
 
 /**
 * @see \App\Http\Controllers\PublicPageController::career
- * @see app/Http/Controllers/PublicPageController.php:104
+ * @see app/Http/Controllers/PublicPageController.php:105
  * @route '/karier/{career}'
  */
 career.get = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -292,7 +292,7 @@ career.get = (args: { career: string | { slug: string } } | [career: string | { 
 })
 /**
 * @see \App\Http\Controllers\PublicPageController::career
- * @see app/Http/Controllers/PublicPageController.php:104
+ * @see app/Http/Controllers/PublicPageController.php:105
  * @route '/karier/{career}'
  */
 career.head = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -302,7 +302,7 @@ career.head = (args: { career: string | { slug: string } } | [career: string | {
 
     /**
 * @see \App\Http\Controllers\PublicPageController::career
- * @see app/Http/Controllers/PublicPageController.php:104
+ * @see app/Http/Controllers/PublicPageController.php:105
  * @route '/karier/{career}'
  */
     const careerForm = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -312,7 +312,7 @@ career.head = (args: { career: string | { slug: string } } | [career: string | {
 
             /**
 * @see \App\Http\Controllers\PublicPageController::career
- * @see app/Http/Controllers/PublicPageController.php:104
+ * @see app/Http/Controllers/PublicPageController.php:105
  * @route '/karier/{career}'
  */
         careerForm.get = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -321,7 +321,7 @@ career.head = (args: { career: string | { slug: string } } | [career: string | {
         })
             /**
 * @see \App\Http\Controllers\PublicPageController::career
- * @see app/Http/Controllers/PublicPageController.php:104
+ * @see app/Http/Controllers/PublicPageController.php:105
  * @route '/karier/{career}'
  */
         careerForm.head = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

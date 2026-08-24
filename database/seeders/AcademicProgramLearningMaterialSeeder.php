@@ -30,6 +30,11 @@ class AcademicProgramLearningMaterialSeeder extends Seeder
             ->orWhere(
                 'slug',
                 'like',
+                'sk-%',
+            )
+            ->orWhere(
+                'slug',
+                'like',
                 'psi-%',
             )
             ->orWhere(

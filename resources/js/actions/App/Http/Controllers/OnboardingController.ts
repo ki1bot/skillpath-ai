@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\OnboardingController::show
- * @see app/Http/Controllers/OnboardingController.php:23
+ * @see app/Http/Controllers/OnboardingController.php:33
  * @route '/onboarding'
  */
 export const show = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\OnboardingController::show
- * @see app/Http/Controllers/OnboardingController.php:23
+ * @see app/Http/Controllers/OnboardingController.php:33
  * @route '/onboarding'
  */
 show.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ show.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\OnboardingController::show
- * @see app/Http/Controllers/OnboardingController.php:23
+ * @see app/Http/Controllers/OnboardingController.php:33
  * @route '/onboarding'
  */
 show.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ show.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\OnboardingController::show
- * @see app/Http/Controllers/OnboardingController.php:23
+ * @see app/Http/Controllers/OnboardingController.php:33
  * @route '/onboarding'
  */
 show.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ show.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\OnboardingController::show
- * @see app/Http/Controllers/OnboardingController.php:23
+ * @see app/Http/Controllers/OnboardingController.php:33
  * @route '/onboarding'
  */
     const showForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ show.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\OnboardingController::show
- * @see app/Http/Controllers/OnboardingController.php:23
+ * @see app/Http/Controllers/OnboardingController.php:33
  * @route '/onboarding'
  */
         showForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ show.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\OnboardingController::show
- * @see app/Http/Controllers/OnboardingController.php:23
+ * @see app/Http/Controllers/OnboardingController.php:33
  * @route '/onboarding'
  */
         showForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ show.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     show.form = showForm
 /**
 * @see \App\Http\Controllers\OnboardingController::update
- * @see app/Http/Controllers/OnboardingController.php:51
+ * @see app/Http/Controllers/OnboardingController.php:78
  * @route '/onboarding'
  */
 export const update = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -94,7 +94,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\OnboardingController::update
- * @see app/Http/Controllers/OnboardingController.php:51
+ * @see app/Http/Controllers/OnboardingController.php:78
  * @route '/onboarding'
  */
 update.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ update.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\OnboardingController::update
- * @see app/Http/Controllers/OnboardingController.php:51
+ * @see app/Http/Controllers/OnboardingController.php:78
  * @route '/onboarding'
  */
 update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -113,7 +113,7 @@ update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
 
     /**
 * @see \App\Http\Controllers\OnboardingController::update
- * @see app/Http/Controllers/OnboardingController.php:51
+ * @see app/Http/Controllers/OnboardingController.php:78
  * @route '/onboarding'
  */
     const updateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -128,7 +128,7 @@ update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
 
             /**
 * @see \App\Http\Controllers\OnboardingController::update
- * @see app/Http/Controllers/OnboardingController.php:51
+ * @see app/Http/Controllers/OnboardingController.php:78
  * @route '/onboarding'
  */
         updateForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

@@ -17,7 +17,7 @@ export function CareersSection({ careers, skills }: Props) {
     return (
         <AdminPanel
             title="Jurusan & standar kemampuan"
-            description="Kelola lima jurusan dan kemampuan yang digunakan sebagai target penguasaan di dalam SkillPath."
+            description="Kelola enam jurusan dan kemampuan yang digunakan sebagai target penguasaan di dalam SkillPath."
             accentClass="bg-[var(--neo-lime)] text-[#171717]"
         >
             <AdminDetails title="Tambah jurusan baru">

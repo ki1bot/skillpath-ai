@@ -15,11 +15,13 @@ trait CreatesSkillPathRecommendationUser
     protected function createSkillPathRecommendationUser(): User
     {
         $career = Career::query()
-            ->where('slug', 'backend-developer')
+            ->where('slug', 'sistem-informasi')
             ->firstOrFail();
 
         $assessment = Assessment::query()
             ->where('career_id', $career->id)
+            ->where('study_program', 'Sistem Informasi')
+            ->where('is_active', true)
             ->firstOrFail();
 
         $user = User::factory()->create([
@@ -28,7 +30,7 @@ trait CreatesSkillPathRecommendationUser
             'role' => 'student',
             'study_program' => 'Sistem Informasi',
             'semester' => 5,
-            'interest_area' => 'Backend dan pengembangan produk web',
+            'interest_area' => 'Analisis Data dan Pengembangan Sistem',
             'experience' => 'Pengguna khusus pengujian otomatis.',
             'weekly_study_hours' => 8,
             'target_career_id' => $career->id,
@@ -36,18 +38,15 @@ trait CreatesSkillPathRecommendationUser
         ]);
 
         $scores = [
-            'programming-fundamentals' => 80,
-            'git-github' => 45,
-            'terminal-cli' => 55,
-            'http-fundamentals' => 70,
-            'database-fundamentals' => 30,
-            'sql' => 55,
-            'php-laravel' => 65,
-            'rest-api' => 55,
-            'authentication-authorization' => 50,
-            'validation-error-handling' => 45,
-            'testing-fundamentals' => 45,
-            'deployment-basics' => 10,
+            'si-sql-data-processing' => 80,
+            'si-spreadsheet-data-analysis' => 45,
+            'si-business-intelligence-data-visualization' => 55,
+            'si-database-management' => 30,
+            'si-web-development' => 65,
+            'si-system-analysis-design' => 55,
+            'si-ui-design' => 50,
+            'si-wireframing-prototyping' => 45,
+            'si-user-research' => 40,
         ];
 
         $skills = $career
