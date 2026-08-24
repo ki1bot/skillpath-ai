@@ -35,13 +35,13 @@ class AssessmentEvidenceTest extends TestCase
 
         $this->user = User::factory()
             ->create([
-                'name' => 'Pengguna Pengujian Asesmen',
+                'name' => 'Pengguna Pengujian Assesment',
                 'email' => 'assessment-academic@example.test',
                 'role' => 'student',
                 'study_program' => 'Sistem Informasi',
                 'semester' => 5,
                 'interest_area' => 'Analisis Data dan Pengembangan Sistem',
-                'experience' => 'Pengguna khusus untuk pengujian asesmen akademik.',
+                'experience' => 'Pengguna khusus untuk pengujian Assesment akademik.',
                 'weekly_study_hours' => 8,
                 'target_career_id' => $career->id,
                 'onboarding_completed_at' => now(),

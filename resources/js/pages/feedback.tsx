@@ -139,7 +139,7 @@ export default function FeedbackPage({ feedbacks }: { feedbacks: Feedback[] }) {
 
                             <label>
                                 <span className="mb-2 block text-sm font-black">
-                                    Penilaian opsional
+                                    Assesment opsional
                                 </span>
 
                                 <select
@@ -152,7 +152,7 @@ export default function FeedbackPage({ feedbacks }: { feedbacks: Feedback[] }) {
                                     }
                                     className="h-10 w-full rounded-[9px] border-2 border-foreground bg-background px-3 text-sm font-bold"
                                 >
-                                    <option value="">Tanpa penilaian</option>
+                                    <option value="">Tanpa assesment</option>
                                     <option value="1">1 / 5</option>
                                     <option value="2">2 / 5</option>
                                     <option value="3">3 / 5</option>
@@ -208,7 +208,7 @@ export default function FeedbackPage({ feedbacks }: { feedbacks: Feedback[] }) {
 
                                     {feedback.rating && (
                                         <p className="mt-3 text-xs font-black">
-                                            Penilaian: {feedback.rating}/5
+                                            Assesment: {feedback.rating}/5
                                         </p>
                                     )}
 

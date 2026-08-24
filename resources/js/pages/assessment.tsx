@@ -82,16 +82,16 @@ export default function AssessmentPage({
     if (!question) {
         return (
             <>
-                <Head title="Asesmen Awal" />
+                <Head title="Assesment Awal" />
 
                 <div className="neo-page py-8 md:py-10">
                     <section className="neo-card p-6 sm:p-8">
                         <h1 className="text-3xl font-black">
-                            Pertanyaan asesmen belum tersedia.
+                            Pertanyaan Assesment belum tersedia.
                         </h1>
 
                         <p className="mt-3 text-sm font-medium text-muted-foreground">
-                            Data asesmen untuk jurusan ini belum tersedia.
+                            Data Assesment untuk jurusan ini belum tersedia.
                         </p>
                     </section>
                 </div>
@@ -143,7 +143,7 @@ export default function AssessmentPage({
 
     return (
         <>
-            <Head title="Asesmen Awal" />
+            <Head title="Assesment Awal" />
 
             <div className="neo-page py-8 md:py-10">
                 <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
@@ -168,7 +168,7 @@ export default function AssessmentPage({
                             {latestAttempt && (
                                 <span className="flex items-center gap-1.5 rounded-full border-2 border-[#171717] bg-[var(--neo-yellow)] px-3 py-1 text-xs font-black text-[#171717]">
                                     <History className="size-3.5" />
-                                    Mengulang asesmen
+                                    Mengulang Assesment
                                 </span>
                             )}
                         </div>
@@ -200,7 +200,7 @@ export default function AssessmentPage({
 
                         <p className="mt-4 max-w-3xl text-sm leading-6 font-medium text-muted-foreground">
                             Tidak masalah kalau ada bagian yang belum kamu
-                            kuasai. Tujuan asesmen adalah melihat kemampuanmu
+                            kuasai. Tujuan Assesment adalah melihat kemampuanmu
                             sekarang, bukan mencari nilai sempurna.
                         </p>
 
@@ -311,7 +311,7 @@ export default function AssessmentPage({
 
                                     <p className="mt-1 text-xs font-medium text-muted-foreground">
                                         Jawaban soal memiliki bobot 80%,
-                                        sedangkan penilaian keyakinanmu memiliki
+                                        sedangkan assesment keyakinanmu memiliki
                                         bobot 20%.
                                     </p>
                                 </div>
@@ -367,7 +367,7 @@ export default function AssessmentPage({
 
                                     {form.processing
                                         ? 'Menyimpan hasil...'
-                                        : 'Selesaikan asesmen'}
+                                        : 'Selesaikan Assesment'}
                                 </Button>
                             ) : (
                                 <Button

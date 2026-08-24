@@ -93,7 +93,7 @@ class AcademicAssessmentSeeder extends Seeder
                 ],
                 'man-recruitment-selection' => [
                     'Agar seleksi kandidat lebih konsisten, perusahaan sebaiknya?',
-                    ['Menggunakan kriteria kompetensi dan metode penilaian yang terstruktur', 'Mengandalkan intuisi pewawancara saja', 'Memilih berdasarkan urutan kedatangan', 'Mengabaikan kebutuhan jabatan'],
+                    ['Menggunakan kriteria kompetensi dan metode assesment yang terstruktur', 'Mengandalkan intuisi pewawancara saja', 'Memilih berdasarkan urutan kedatangan', 'Mengabaikan kebutuhan jabatan'],
                     'A',
                 ],
                 'man-performance-management' => [
@@ -213,8 +213,8 @@ class AcademicAssessmentSeeder extends Seeder
                     'A',
                 ],
                 'psi-psychological-assessment' => [
-                    'Alat asesmen psikologis sebaiknya dipilih terutama berdasarkan?',
-                    ['Tujuan asesmen, bukti validitas, reliabilitas, dan kesesuaian penggunaannya', 'Popularitas di media sosial', 'Warna instrumen', 'Kemudahan mendapatkan skor tinggi'],
+                    'Alat Assesment psikologis sebaiknya dipilih terutama berdasarkan?',
+                    ['Tujuan Assesment, bukti validitas, reliabilitas, dan kesesuaian penggunaannya', 'Popularitas di media sosial', 'Warna instrumen', 'Kemudahan mendapatkan skor tinggi'],
                     'A',
                 ],
                 'psi-counseling-skills' => [
@@ -328,7 +328,7 @@ class AcademicAssessmentSeeder extends Seeder
                     'study_program' => $studyProgram,
                 ],
                 [
-                    'title' => 'Asesmen Awal '.$studyProgram,
+                    'title' => 'Assesment Awal '.$studyProgram,
                     'description' => 'Jawab 9 pertanyaan yang mewakili 3 bidang utama pada jurusan '.$studyProgram.'. Hasilnya digunakan untuk memperbarui profil kemampuan awal Anda.',
                     'duration_minutes' => 18,
                     'is_active' => true,

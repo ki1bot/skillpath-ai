@@ -48,7 +48,7 @@ class AcademicAssessmentSkillSeeder extends Seeder
             ['sk-network-security', 'Network Security', 'Jaringan dan Keamanan Komputer', 'Menerapkan prinsip keamanan jaringan melalui segmentasi, firewall, kontrol akses, monitoring, dan mitigasi ancaman.', 'Menengah'],
             ['psi-employee-behavior', 'Employee Behavior', 'Psikologi Industri dan Organisasi', 'Memahami faktor psikologis yang memengaruhi perilaku, motivasi, dan kinerja individu di tempat kerja.', 'Menengah'],
             ['psi-organizational-development', 'Organizational Development', 'Psikologi Industri dan Organisasi', 'Menganalisis perubahan organisasi dan merancang intervensi untuk meningkatkan efektivitas organisasi.', 'Menengah'],
-            ['psi-psychological-assessment', 'Psychological Assessment', 'Psikologi Industri dan Organisasi', 'Memahami prinsip dasar penggunaan alat asesmen psikologis secara tepat, etis, dan berbasis tujuan.', 'Menengah'],
+            ['psi-psychological-assessment', 'Psychological Assessment', 'Psikologi Industri dan Organisasi', 'Memahami prinsip dasar penggunaan alat Assesment psikologis secara tepat, etis, dan berbasis tujuan.', 'Menengah'],
             ['psi-counseling-skills', 'Counseling Skills', 'Konseling', 'Menerapkan keterampilan dasar konseling seperti attending, active listening, probing, dan refleksi.', 'Menengah'],
             ['psi-interpersonal-communication', 'Interpersonal Communication', 'Konseling', 'Membangun komunikasi dua arah yang jelas, empatik, dan sesuai konteks hubungan interpersonal.', 'Dasar'],
             ['psi-emotional-intelligence', 'Emotional Intelligence', 'Konseling', 'Mengenali, memahami, dan mengelola emosi diri serta merespons emosi orang lain secara adaptif.', 'Menengah'],

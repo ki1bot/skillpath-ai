@@ -79,8 +79,8 @@ class AcademicAssessmentCleanupSeeder extends Seeder
                 ->delete();
 
             $assessment->update([
-                'title' => 'Asesmen Awal '.$definition['name'],
-                'description' => 'Jawab 9 pertanyaan sesuai kemampuanmu sekarang. Hasil asesmen digunakan untuk melihat bagian yang sudah kuat dan kemampuan yang masih perlu dikembangkan.',
+                'title' => 'Assesment Awal '.$definition['name'],
+                'description' => 'Jawab 9 pertanyaan sesuai kemampuanmu sekarang. Hasil Assesment digunakan untuk melihat bagian yang sudah kuat dan kemampuan yang masih perlu dikembangkan.',
                 'duration_minutes' => 18,
                 'is_active' => true,
             ]);

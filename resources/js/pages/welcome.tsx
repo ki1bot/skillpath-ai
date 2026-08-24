@@ -45,13 +45,13 @@ const processSteps: ProcessStep[] = [
         icon: GraduationCap,
         number: '01',
         title: 'Pilih jurusan',
-        text: 'Mulai dengan memilih jurusan yang sedang kamu jalani agar asesmen sesuai dengan bidang yang kamu pelajari.',
+        text: 'Mulai dengan memilih jurusan yang sedang kamu jalani agar Assesment sesuai dengan bidang yang kamu pelajari.',
         accent: 'bg-[var(--neo-lime)]',
     },
     {
         icon: BarChart3,
         number: '02',
-        title: 'Kerjakan asesmen',
+        title: 'Kerjakan Assesment',
         text: 'Jawab 9 pertanyaan yang mewakili 3 bidang utama dan 9 kemampuan dalam jurusanmu.',
         accent: 'bg-[var(--neo-blue)]',
     },
@@ -80,7 +80,7 @@ const processSteps: ProcessStep[] = [
         icon: TimerReset,
         number: '06',
         title: 'Evaluasi perkembangan',
-        text: 'Ulangi asesmen dan evaluasi setelah belajar untuk melihat perubahan kemampuanmu.',
+        text: 'Ulangi Assesment dan evaluasi setelah belajar untuk melihat perubahan kemampuanmu.',
         accent: 'bg-[var(--neo-lime)]',
     },
 ];
@@ -146,7 +146,7 @@ export default function Welcome({ careers, stats }: Props) {
                         </h1>
 
                         <p className="mt-6 max-w-2xl text-lg leading-8 font-semibold text-muted-foreground sm:text-xl">
-                            Pilih jurusanmu, kerjakan asesmen dari tiga bidang
+                            Pilih jurusanmu, kerjakan Assesment dari tiga bidang
                             utama, lalu lihat kemampuan mana yang sudah kuat dan
                             mana yang masih perlu dikembangkan.
                         </p>
@@ -154,7 +154,7 @@ export default function Welcome({ careers, stats }: Props) {
                         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                             <Button asChild size="lg">
                                 <Link href="/register" prefetch>
-                                    Mulai asesmen
+                                    Mulai Assesment
                                     <ArrowRight />
                                 </Link>
                             </Button>
@@ -189,7 +189,7 @@ export default function Welcome({ careers, stats }: Props) {
                             <div className="mb-7 flex items-start justify-between gap-4">
                                 <div>
                                     <p className="text-xs font-black tracking-[0.16em] text-muted-foreground uppercase">
-                                        Contoh hasil asesmen
+                                        Contoh hasil Assesment
                                     </p>
 
                                     <h2 className="mt-1 text-2xl font-black tracking-tight">
@@ -427,9 +427,10 @@ export default function Welcome({ careers, stats }: Props) {
                             </h2>
 
                             <p className="mt-5 max-w-2xl leading-7 font-semibold text-muted-foreground">
-                                Pilih jurusan, jawab asesmen sesuai kemampuanmu,
-                                lalu gunakan hasilnya untuk menentukan apa yang
-                                sebaiknya dipelajari lebih dulu.
+                                Pilih jurusan, jawab Assesment sesuai
+                                kemampuanmu, lalu gunakan hasilnya untuk
+                                menentukan apa yang sebaiknya dipelajari lebih
+                                dulu.
                             </p>
 
                             <Button asChild size="lg" className="mt-7">

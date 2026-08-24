@@ -99,7 +99,7 @@ class EnforceIdleTimeout
             ->route('login')
             ->with(
                 'status',
-                "Sesi Anda berakhir karena tidak ada aktivitas selama {$timeoutMinutes} menit. Silakan masuk kembali.",
+                "Sesimu berakhir karena tidak ada aktivitas selama {$timeoutMinutes} menit. Silakan masuk kembali.",
             )
             ->withCookie(
                 Cookie::forget(

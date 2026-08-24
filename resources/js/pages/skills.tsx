@@ -195,7 +195,7 @@ export default function Skills({ career, skills, averageMastery }: Props) {
                     <Button asChild variant="outline">
                         <Link href="/assessment">
                             <RotateCcw />
-                            Ulangi asesmen
+                            Ulangi Assesment
                         </Link>
                     </Button>
                 </div>

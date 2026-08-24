@@ -23,7 +23,7 @@ const principles: Principle[] = [
     {
         icon: Database,
         title: 'Kemampuan disimpan sebagai data',
-        text: 'Target penguasaan, bobot, hasil asesmen, materi, evaluasi, dan progres disimpan sebagai data agar rekomendasi dapat diperiksa kembali.',
+        text: 'Target penguasaan, bobot, hasil Assesment, materi, evaluasi, dan progres disimpan sebagai data agar rekomendasi dapat diperiksa kembali.',
     },
     {
         icon: GitBranch,
@@ -33,12 +33,12 @@ const principles: Principle[] = [
     {
         icon: ShieldCheck,
         title: 'Perkembangan harus terlihat',
-        text: 'Menyelesaikan materi saja belum cukup. Asesmen, evaluasi, aktivitas belajar, dan proyek ikut digunakan untuk melihat perkembanganmu.',
+        text: 'Menyelesaikan materi saja belum cukup. Assesment, evaluasi, aktivitas belajar, dan proyek ikut digunakan untuk melihat perkembanganmu.',
     },
     {
         icon: Bot,
         title: 'AI membantu menjelaskan',
-        text: 'AI digunakan untuk membantu menjelaskan hasil yang sudah dihitung sistem. AI tidak menentukan nilai asesmen dan tidak boleh membuat kemampuan atau hasil baru di luar data yang tersedia.',
+        text: 'AI digunakan untuk membantu menjelaskan hasil yang sudah dihitung sistem. AI tidak menentukan nilai Assesment dan tidak boleh membuat kemampuan atau hasil baru di luar data yang tersedia.',
     },
 ];
 
@@ -59,9 +59,9 @@ export default function About() {
                     <p className="mt-6 text-lg leading-relaxed font-medium text-muted-foreground">
                         SkillPath AI menggunakan jurusan sebagai dasar pemetaan
                         kemampuan. Mahasiswa memilih jurusan, mengerjakan
-                        asesmen, melihat hasil kemampuan, lalu mendapatkan jalur
-                        belajar yang disusun berdasarkan bagian yang masih perlu
-                        dikembangkan.
+                        Assesment, melihat hasil kemampuan, lalu mendapatkan
+                        jalur belajar yang disusun berdasarkan bagian yang masih
+                        perlu dikembangkan.
                     </p>
                 </div>
 

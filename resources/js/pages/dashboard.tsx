@@ -719,8 +719,8 @@ export default function Dashboard({
 
                                         <p className="mt-2 max-w-sm text-sm font-medium text-muted-foreground">
                                             Periksa jalur belajar atau
-                                            selesaikan asesmen untuk mendapatkan
-                                            rekomendasi berikutnya.
+                                            selesaikan Assesment untuk
+                                            mendapatkan rekomendasi berikutnya.
                                         </p>
 
                                         <Button

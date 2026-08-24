@@ -10,9 +10,6 @@ use Illuminate\Support\Collection;
 
 class CareerCompatibilityService
 {
-    /**
-     * @return array<string, mixed>
-     */
     public function calculate(
         User $user,
         Career $career,
@@ -27,10 +24,6 @@ class CareerCompatibilityService
         );
     }
 
-    /**
-     * @param  Collection<int, Career>  $careers
-     * @return array<int, array<string, mixed>>
-     */
     public function calculateForCareers(
         User $user,
         Collection $careers,
@@ -52,9 +45,6 @@ class CareerCompatibilityService
             ->all();
     }
 
-    /**
-     * @return Collection<int|string, float>
-     */
     private function userScores(
         User $user,
     ): Collection {
@@ -75,10 +65,6 @@ class CareerCompatibilityService
             );
     }
 
-    /**
-     * @param  Collection<int|string, float>  $scores
-     * @return array<string, mixed>
-     */
     private function calculateWithScores(
         Career $career,
         Collection $scores,
@@ -231,15 +217,15 @@ class CareerCompatibilityService
         float $score,
     ): string {
         if ($score >= 85) {
-            return 'Sangat cocok';
+            return 'Sangat siap';
         }
 
         if ($score >= 70) {
-            return 'Cocok';
+            return 'Siap';
         }
 
         if ($score >= 50) {
-            return 'Cukup cocok';
+            return 'Cukup siap';
         }
 
         if ($score > 0) {

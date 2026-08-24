@@ -147,7 +147,7 @@ class SkillCatalogExpansionTest extends TestCase
                         $skill->id,
                     )
                     ->exists(),
-                "Skill akademik {$skill->slug} belum memiliki soal asesmen.",
+                "Skill akademik {$skill->slug} belum memiliki soal Assesment.",
             );
 
             $this->assertTrue(

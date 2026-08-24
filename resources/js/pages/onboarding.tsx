@@ -79,8 +79,8 @@ export default function Onboarding({
                     <p className="mt-4 max-w-3xl text-sm leading-7 font-semibold sm:text-base">
                         Setiap jurusan memiliki tiga bidang utama dan sembilan
                         kemampuan yang akan dinilai. Pilih jurusanmu, isi profil
-                        belajar, lalu kerjakan asesmen awal agar SkillPath dapat
-                        melihat kemampuanmu sekarang.
+                        belajar, lalu kerjakan Assesment awal agar SkillPath
+                        dapat melihat kemampuanmu sekarang.
                     </p>
                 </section>
 
@@ -107,7 +107,7 @@ export default function Onboarding({
                                 <p className="mt-4 text-sm leading-6 font-medium text-muted-foreground">
                                     Klik salah satu jurusan untuk melihat bidang
                                     dan kemampuan yang akan dinilai dalam
-                                    asesmen.
+                                    Assesment.
                                 </p>
                             </div>
 
@@ -380,7 +380,9 @@ export default function Onboarding({
                                 form.processing || !form.data.target_career_id
                             }
                         >
-                            {editing ? 'Simpan perubahan' : 'Lanjut ke asesmen'}
+                            {editing
+                                ? 'Simpan perubahan'
+                                : 'Lanjut ke Assesment'}
                             <ArrowRight />
                         </Button>
                     </section>

@@ -41,6 +41,17 @@ type Career = {
 };
 
 export default function Careers({ careers }: { careers: Career[] }) {
+    const areaCount = careers.reduce((total, career) => {
+        const program = getStudyProgramDefinition(career.name);
+
+        return total + (program?.areas.length ?? 0);
+    }, 0);
+
+    const skillCount = careers.reduce(
+        (total, career) => total + career.skills.length,
+        0,
+    );
+
     return (
         <>
             <Head title="Pilihan Jurusan" />
@@ -48,7 +59,8 @@ export default function Careers({ careers }: { careers: Career[] }) {
             <main className="neo-page py-14 lg:py-20">
                 <div className="max-w-4xl">
                     <span className="neo-label">
-                        5 jurusan · 15 bidang · 45 kemampuan
+                        {careers.length} jurusan · {areaCount} bidang ·{' '}
+                        {skillCount} kemampuan
                     </span>
 
                     <h1 className="neo-heading mt-6 text-5xl sm:text-6xl">
@@ -59,7 +71,7 @@ export default function Careers({ careers }: { careers: Career[] }) {
                     <p className="mt-5 text-lg leading-relaxed font-medium text-muted-foreground">
                         Setiap jurusan memiliki tiga bidang utama. Di dalam
                         setiap bidang ada tiga kemampuan yang digunakan
-                        SkillPath sebagai dasar asesmen dan penyusunan jalur
+                        SkillPath sebagai dasar assesment dan penyusunan jalur
                         belajar.
                     </p>
                 </div>

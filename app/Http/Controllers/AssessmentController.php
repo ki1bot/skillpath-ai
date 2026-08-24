@@ -49,7 +49,7 @@ class AssessmentController extends Controller
             return redirect()
                 ->route('onboarding.show')
                 ->withErrors([
-                    'study_program' => 'Pilih salah satu jurusan yang tersedia sebelum melanjutkan ke asesmen.',
+                    'study_program' => 'Pilih salah satu jurusan yang tersedia sebelum melanjutkan ke Assesment.',
                 ]);
         }
 
@@ -63,7 +63,7 @@ class AssessmentController extends Controller
                 ->route('onboarding.show')
                 ->with(
                     'error',
-                    'Asesmen untuk jurusan ini belum tersedia. Periksa kembali data asesmen di server.',
+                    'Assesment untuk jurusan ini belum tersedia. Periksa kembali data Assesment di server.',
                 );
         }
 
@@ -156,7 +156,7 @@ class AssessmentController extends Controller
             return redirect()
                 ->route('onboarding.show')
                 ->withErrors([
-                    'study_program' => 'Pilih salah satu jurusan yang tersedia sebelum melanjutkan ke asesmen.',
+                    'study_program' => 'Pilih salah satu jurusan yang tersedia sebelum melanjutkan ke Assesment.',
                 ]);
         }
 
@@ -170,7 +170,7 @@ class AssessmentController extends Controller
                 ->route('onboarding.show')
                 ->with(
                     'error',
-                    'Asesmen untuk jurusan ini belum tersedia. Periksa kembali data asesmen di server.',
+                    'Assesment untuk jurusan ini belum tersedia. Periksa kembali data Assesment di server.',
                 );
         }
 
@@ -210,7 +210,7 @@ class AssessmentController extends Controller
                 )
             ) {
                 throw ValidationException::withMessages([
-                    'answers' => 'Jawab semua pertanyaan dan isi tingkat keyakinanmu sebelum menyelesaikan asesmen.',
+                    'answers' => 'Jawab semua pertanyaan dan isi tingkat keyakinanmu sebelum menyelesaikan Assesment.',
                 ]);
             }
         }
@@ -313,7 +313,7 @@ class AssessmentController extends Controller
 
         $roadmapService->regenerate(
             $freshUser,
-            'Hasil asesmen '.$studyProgram.' '
+            'Hasil Assesment '.$studyProgram.' '
                 .now()->format('d M Y'),
         );
 
@@ -326,7 +326,7 @@ class AssessmentController extends Controller
             ->route('skills.index')
             ->with(
                 'success',
-                'Asesmen '.$studyProgram.' selesai. Hasil kemampuanmu sudah disimpan dan roadmap diperbarui.',
+                'Assesment '.$studyProgram.' selesai. Hasil kemampuanmu sudah disimpan dan roadmap diperbarui.',
             );
     }
 

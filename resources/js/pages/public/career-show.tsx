@@ -107,7 +107,7 @@ export default function CareerShow({ career }: { career: Career }) {
                                         <div>
                                             <p className="text-xs font-black uppercase">
                                                 Kesiapan belajar berdasarkan
-                                                hasil asesmen
+                                                hasil Assesment
                                             </p>
 
                                             <p className="mt-1 font-mono text-3xl font-black">
@@ -198,9 +198,10 @@ export default function CareerShow({ career }: { career: Career }) {
                         </h2>
 
                         <p className="mt-4 max-w-3xl leading-7 font-medium text-muted-foreground">
-                            Setiap bidang memiliki tiga kemampuan. Hasil asesmen
-                            digunakan untuk melihat posisi kemampuanmu sekarang
-                            dan menentukan bagian yang masih perlu dikembangkan.
+                            Setiap bidang memiliki tiga kemampuan. Hasil
+                            Assesment digunakan untuk melihat posisi kemampuanmu
+                            sekarang dan menentukan bagian yang masih perlu
+                            dikembangkan.
                         </p>
                     </div>
 
@@ -296,7 +297,7 @@ export default function CareerShow({ career }: { career: Career }) {
 
                         <p className="mt-3 max-w-3xl text-sm leading-6 font-semibold">
                             Proyek digunakan untuk menerapkan kemampuan yang
-                            sudah dipelajari. Proyek bukan pengganti asesmen,
+                            sudah dipelajari. Proyek bukan pengganti Assesment,
                             tetapi menjadi tempat untuk mempraktikkan kemampuan
                             dalam bentuk yang lebih nyata.
                         </p>
@@ -342,8 +343,8 @@ export default function CareerShow({ career }: { career: Career }) {
 
                     <h2 className="mt-3 text-4xl font-black tracking-[-0.045em]">
                         {career.compatibility
-                            ? 'Ulangi asesmen setelah belajar untuk melihat perkembangan kemampuanmu.'
-                            : 'Kerjakan asesmen untuk melihat kemampuan yang sudah kuat dan yang masih perlu dipelajari.'}
+                            ? 'Ulangi Assesment setelah belajar untuk melihat perkembangan kemampuanmu.'
+                            : 'Kerjakan Assesment untuk melihat kemampuan yang sudah kuat dan yang masih perlu dipelajari.'}
                     </h2>
 
                     <Button asChild size="lg" className="mt-7">
@@ -355,8 +356,8 @@ export default function CareerShow({ career }: { career: Career }) {
                             }
                         >
                             {career.compatibility
-                                ? 'Ulangi asesmen'
-                                : 'Mulai asesmen'}
+                                ? 'Ulangi Assesment'
+                                : 'Mulai Assesment'}
                             <ArrowRight />
                         </Link>
                     </Button>

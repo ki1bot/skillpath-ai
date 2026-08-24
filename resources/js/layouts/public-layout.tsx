@@ -120,17 +120,21 @@ export default function PublicLayout({
             <footer className="mt-16 border-t-2 border-foreground bg-foreground text-background sm:mt-20">
                 <div className="neo-page flex flex-col gap-3 py-8 text-sm md:flex-row md:items-center md:justify-between">
                     <div className="font-bold">
-                        <p>© {new Date().getFullYear()} All rights reserved.</p>
+                        <p>
+                            © {new Date().getFullYear()} SkillPath AI. Hak cipta
+                            dilindungi.
+                        </p>
 
                         <p>
-                            SkillPath AI — membantu menentukan langkah belajar
-                            berikutnya.
+                            Membantu kamu menentukan langkah belajar berikutnya
+                            dengan lebih jelas.
                         </p>
                     </div>
 
                     <p className="max-w-xl text-background/65 md:text-right">
-                        Gunakan hasil asesmen dan progres sebagai panduan untuk
-                        menentukan kemampuan yang perlu dikembangkan.
+                        Gunakan hasil assesment dan perkembangan belajarmu
+                        sebagai panduan untuk menentukan kemampuan yang perlu
+                        dikembangkan.
                     </p>
                 </div>
             </footer>

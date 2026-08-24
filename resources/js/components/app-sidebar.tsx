@@ -60,7 +60,7 @@ export function AppSidebar() {
             icon: UserRound,
         },
         {
-            title: 'Assessment',
+            title: 'Asessment',
             href: '/assessment',
             icon: ClipboardCheck,
         },
@@ -70,7 +70,7 @@ export function AppSidebar() {
             icon: Map,
         },
         {
-            title: 'Keahlian',
+            title: 'Kemampuan',
             href: '/skills',
             icon: Target,
         },
@@ -88,7 +88,7 @@ export function AppSidebar() {
 
     const adminItems: NavItem[] = [
         {
-            title: 'Dashboard Admin',
+            title: 'Dashboard Administrator',
             href: '/admin/dashboard',
             icon: LayoutDashboard,
         },

@@ -158,9 +158,6 @@ class SkillGapService
             ->all();
     }
 
-    /**
-     * @param  array<int, array<string, mixed>>|null  $analysis
-     */
     public function averageMastery(
         User $user,
         ?array $analysis = null,
@@ -224,13 +221,13 @@ class SkillGapService
         int $dependentCount,
     ): string {
         if ($gap <= 0) {
-            return "$skill sudah memenuhi standar target $target karena skor Anda saat ini $current.";
+            return "$skill sudah mencapai target. Nilaimu saat ini $current dari target $target.";
         }
 
         $dependency = $dependentCount > 0
-            ? " Skill ini juga menjadi fondasi bagi $dependentCount skill lanjutan."
+            ? " Kemampuan ini juga menjadi dasar untuk $dependentCount kemampuan lain."
             : '';
 
-        return "$skill diprioritaskan karena skor Anda $current dari target $target, sehingga masih ada gap $gap poin.$dependency";
+        return "$skill perlu diprioritaskan karena nilaimu saat ini $current, sementara targetnya $target. Masih ada selisih $gap poin.$dependency";
     }
 }

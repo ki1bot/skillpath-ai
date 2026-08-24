@@ -114,8 +114,8 @@ class ProjectReadinessService
             $recommendation = [
                 'level' => 'recommended',
                 'rank' => 0,
-                'label' => 'Direkomendasikan sekarang',
-                'message' => 'Seluruh prasyarat minimum proyek sudah terpenuhi. Proyek ini paling sesuai untuk dikerjakan pada kondisi kemampuan Anda saat ini.',
+                'label' => 'Bisa dikerjakan sekarang',
+                'message' => 'Semua kemampuan minimum yang dibutuhkan sudah terpenuhi. Proyek ini cocok dikerjakan dengan kemampuanmu saat ini.',
             ];
         } else {
             $missingRatio = $requirements->count() > 0
@@ -123,7 +123,7 @@ class ProjectReadinessService
                 : 0;
 
             $gapText = $topGapNames === []
-                ? 'beberapa skill prasyarat'
+                ? 'beberapa kemampuan dasar'
                 : implode(', ', $topGapNames);
 
             if (
@@ -134,14 +134,14 @@ class ProjectReadinessService
                     'level' => 'strengthen',
                     'rank' => 1,
                     'label' => 'Perlu penguatan',
-                    'message' => "Kesiapan Anda sudah cukup dekat, tetapi {$gapText} masih perlu diperkuat sebelum proyek ini menjadi rekomendasi utama.",
+                    'message' => "Kemampuanmu sudah cukup dekat dengan kebutuhan proyek, tetapi {$gapText} masih perlu diperkuat sebelum proyek ini menjadi pilihan utama.",
                 ];
             } else {
                 $recommendation = [
                     'level' => 'challenge',
                     'rank' => 2,
-                    'label' => 'Challenge',
-                    'message' => "Gap kemampuan untuk proyek ini masih cukup besar, terutama pada {$gapText}. Anda tetap boleh memulai sebagai challenge, tetapi waktu pengerjaan dan risiko hambatannya lebih tinggi.",
+                    'label' => 'Tantangan',
+                    'message' => "Masih ada beberapa kemampuan yang perlu diperkuat, terutama pada {$gapText}. Kamu tetap bisa memulai proyek ini sebagai tantangan, tetapi kemungkinan membutuhkan waktu dan usaha yang lebih besar.",
                 ];
             }
         }

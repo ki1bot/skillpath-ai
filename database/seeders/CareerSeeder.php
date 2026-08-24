@@ -42,7 +42,7 @@ class CareerSeeder extends Seeder
                 'name' => 'Teknik Informatika',
                 'slug' => 'teknik-informatika',
                 'tagline' => 'Bangun dasar pemrograman, pahami sistem komputer, lalu kenali penerapan kecerdasan buatan.',
-                'description' => 'Di Teknik Informatika, kemampuanmu dipetakan melalui Pemrograman dan Rekayasa Perangkat Lunak, Jaringan dan Sistem Komputer, serta Artificial Intelligence. Total ada sembilan kemampuan yang digunakan sebagai dasar asesmen dan jalur belajarmu.',
+                'description' => 'Di Teknik Informatika, kemampuanmu dipetakan melalui Pemrograman dan Rekayasa Perangkat Lunak, Jaringan dan Sistem Komputer, serta Artificial Intelligence. Total ada sembilan kemampuan yang digunakan sebagai dasar Assesment dan jalur belajarmu.',
                 'responsibilities' => [
                     'Pemrograman dan Rekayasa Perangkat Lunak',
                     'Jaringan dan Sistem Komputer',
@@ -56,7 +56,7 @@ class CareerSeeder extends Seeder
                 'name' => 'Sistem Komputer',
                 'slug' => 'sistem-komputer',
                 'tagline' => 'Pahami arsitektur komputer, embedded system, IoT, jaringan, dan keamanan komputer.',
-                'description' => 'Di Sistem Komputer, kemampuanmu dipetakan melalui Arsitektur dan Organisasi Komputer, Embedded System dan Internet of Things, serta Jaringan dan Keamanan Komputer. Setiap bidang memiliki tiga kemampuan, sehingga ada sembilan kemampuan yang digunakan sebagai dasar asesmen dan jalur belajarmu.',
+                'description' => 'Di Sistem Komputer, kemampuanmu dipetakan melalui Arsitektur dan Organisasi Komputer, Embedded System dan Internet of Things, serta Jaringan dan Keamanan Komputer. Setiap bidang memiliki tiga kemampuan, sehingga ada sembilan kemampuan yang digunakan sebagai dasar Assesment dan jalur belajarmu.',
                 'responsibilities' => [
                     'Arsitektur dan Organisasi Komputer',
                     'Embedded System dan Internet of Things',

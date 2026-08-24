@@ -7,7 +7,7 @@ import type { AuthLayoutProps } from '@/types';
 const benefits = [
     'Pilih jurusan yang sedang kamu jalani',
     'Lihat kemampuan yang sudah kuat dan yang masih perlu dikembangkan',
-    'Ikuti jalur belajar berdasarkan hasil asesmenmu',
+    'Ikuti jalur belajar berdasarkan hasil Assesmentmu',
 ];
 
 export default function AuthSimpleLayout({
@@ -64,7 +64,7 @@ export default function AuthSimpleLayout({
 
                     <p className="max-w-md text-xs leading-5 font-medium text-background/50">
                         Rekomendasi dibuat dari struktur kemampuan jurusan,
-                        hasil asesmen, evaluasi, dan progres yang tercatat di
+                        hasil Assesment, evaluasi, dan progres yang tercatat di
                         sistem.
                     </p>
                 </div>

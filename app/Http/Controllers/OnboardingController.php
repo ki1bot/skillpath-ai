@@ -209,7 +209,7 @@ class OnboardingController extends Controller
                 )
                 ->with(
                     'success',
-                    'Profil tersimpan. Sekarang jawab asesmen untuk jurusan '.$career->name.'.',
+                    'Profil belajarmu sudah tersimpan. Sekarang lanjutkan dengan assesment untuk jurusan '.$career->name.'.',
                 );
         }
 
@@ -263,7 +263,7 @@ class OnboardingController extends Controller
             ->route('dashboard')
             ->with(
                 'success',
-                'Profil belajar sudah diperbarui.',
+                'Profil belajarmu sudah diperbarui.',
             );
     }
 }

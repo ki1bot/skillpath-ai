@@ -50,7 +50,7 @@ export default function AdminDashboard({ stats, overview }: Props) {
 
                                 <p className="mt-4 max-w-3xl text-sm leading-7 font-semibold sm:text-base">
                                     Dashboard menampilkan ringkasan mahasiswa,
-                                    jurusan, kemampuan, asesmen, materi, dan
+                                    jurusan, kemampuan, Assesment, materi, dan
                                     proyek yang tersimpan di sistem.
                                 </p>
                             </div>
@@ -125,7 +125,7 @@ export default function AdminDashboard({ stats, overview }: Props) {
                         </div>
 
                         <p className="mt-6 text-xs font-black tracking-[0.12em] text-muted-foreground uppercase">
-                            Asesmen aktif
+                            Assesment aktif
                         </p>
 
                         <p className="mt-2 text-4xl font-black tracking-[-0.04em]">
@@ -133,8 +133,8 @@ export default function AdminDashboard({ stats, overview }: Props) {
                         </p>
 
                         <p className="mt-2 text-sm leading-6 font-semibold text-muted-foreground">
-                            Asesmen yang saat ini tersedia untuk digunakan oleh
-                            mahasiswa.
+                            Assesment yang saat ini tersedia untuk digunakan
+                            oleh mahasiswa.
                         </p>
                     </article>
                 </section>
@@ -156,7 +156,7 @@ export default function AdminDashboard({ stats, overview }: Props) {
                                 <p className="mt-3 text-sm leading-6 font-semibold text-muted-foreground">
                                     Halaman ini digunakan untuk melihat jumlah
                                     mahasiswa, jurusan, kemampuan, materi,
-                                    proyek, asesmen, dan status data aktif.
+                                    proyek, Assesment, dan status data aktif.
                                 </p>
                             </div>
                         </div>
@@ -186,7 +186,7 @@ export default function AdminDashboard({ stats, overview }: Props) {
 
                                 <p className="mt-3 text-sm leading-6 font-semibold text-muted-foreground">
                                     Buat, ubah, hubungkan, atau hapus data
-                                    jurusan, kemampuan, asesmen, materi, dan
+                                    jurusan, kemampuan, Assesment, materi, dan
                                     proyek dari halaman pengelolaan.
                                 </p>
                             </div>
