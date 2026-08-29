@@ -141,10 +141,8 @@ export default function Welcome({ careers, stats }: Props) {
                         </span>
 
                         <h1 className="neo-heading mt-6 max-w-4xl text-5xl sm:text-6xl lg:text-7xl">
-                            Kenali kemampuanmu.
-                            <span className="block text-muted-foreground">
-                                Cari tahu apa yang perlu kamu pelajari.
-                            </span>
+                            Kenali kemampuanmu. Cari tahu apa yang perlu kamu
+                            pelajari.
                         </h1>
 
                         <p className="mt-6 max-w-2xl text-base leading-7 font-semibold text-muted-foreground sm:text-lg sm:leading-8">
