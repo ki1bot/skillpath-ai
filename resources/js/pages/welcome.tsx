@@ -3,7 +3,6 @@ import {
     ArrowRight,
     BarChart3,
     BookOpenText,
-    BrainCircuit,
     Check,
     GraduationCap,
     Route,
