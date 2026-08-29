@@ -56,7 +56,7 @@ export default function FeedbackPage({ feedbacks }: { feedbacks: Feedback[] }) {
                 <section className="neo-hero neo-accent-blue border-[#171717]">
                     <span className="neo-label bg-[#fffdf7]">
                         <MessageSquareText className="size-4" />
-                        Masukan pengguna
+                        Masukkan pengguna
                     </span>
 
                     <h1 className="mt-5 text-4xl font-black tracking-[-0.045em] sm:text-5xl">

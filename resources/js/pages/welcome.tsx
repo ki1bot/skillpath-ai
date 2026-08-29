@@ -620,10 +620,6 @@ export default function Welcome({ careers, stats }: Props) {
 
                     <div className="flex min-h-56 items-center justify-center border-t-2 border-[#171717] bg-[var(--neo-lime)] p-7 lg:border-t-0 lg:border-l-2">
                         <div className="text-center">
-                            <div className="mx-auto flex size-16 items-center justify-center rounded-[13px] border-2 border-[#171717] bg-[#fffdf8] shadow-[4px_4px_0_#171717]">
-                                <BrainCircuit className="size-8" />
-                            </div>
-
                             <p className="mt-5 text-lg font-black">
                                 Assessment
                             </p>
