@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             AcademicAssessmentSeeder::class,
             AcademicAssessmentCleanupSeeder::class,
             AcademicProgramLearningMaterialSeeder::class,
+            AcademicPortfolioProjectSeeder::class,
         ]);
     }
 }

@@ -41,12 +41,18 @@ trait CreatesSkillPathRecommendationUser
             'si-sql-data-processing' => 80,
             'si-spreadsheet-data-analysis' => 45,
             'si-business-intelligence-data-visualization' => 55,
+            'si-data-visualization' => 60,
+            'si-scenario-based-data-analysis' => 50,
             'si-database-management' => 30,
             'si-web-development' => 65,
             'si-system-analysis-design' => 55,
+            'si-erd-uml' => 55,
+            'si-problem-solving' => 60,
             'si-ui-design' => 50,
             'si-wireframing-prototyping' => 45,
+            'si-prototyping' => 50,
             'si-user-research' => 40,
+            'si-usability' => 45,
         ];
 
         $skills = $career

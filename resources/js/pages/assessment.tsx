@@ -49,6 +49,10 @@ export default function AssessmentPage({
 
     const program = getStudyProgramDefinition(assessment.study_program);
 
+    const assessedSkillCount =
+        program?.areas.reduce((total, area) => total + area.skills.length, 0) ??
+        0;
+
     const question = assessment.questions[index];
 
     const initialRatings = useMemo(
@@ -193,7 +197,8 @@ export default function AssessmentPage({
                                 </p>
 
                                 <h2 className="text-xl font-black">
-                                    3 bidang dan 9 kemampuan
+                                    {program.areas.length} bidang dan{' '}
+                                    {assessedSkillCount} kemampuan
                                 </h2>
                             </div>
                         </div>

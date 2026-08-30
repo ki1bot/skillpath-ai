@@ -48,12 +48,12 @@ class AssessmentEvidenceTest extends TestCase
             ]);
     }
 
-    public function test_academic_assessment_contains_nine_multiple_choice_questions(): void
+    public function test_academic_assessment_contains_fifteen_multiple_choice_questions(): void
     {
         $assessment = $this->assessment();
 
         $this->assertCount(
-            9,
+            15,
             $assessment->questions,
         );
 
@@ -81,6 +81,7 @@ class AssessmentEvidenceTest extends TestCase
     public function test_academic_assessment_uses_objective_answer_and_self_rating_components(): void
     {
         $assessment = $this->assessment();
+
         $payload = $this->validPayload(
             $assessment,
         );

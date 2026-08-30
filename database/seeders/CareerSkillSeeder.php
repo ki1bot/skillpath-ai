@@ -12,70 +12,106 @@ class CareerSkillSeeder extends Seeder
     {
         $maps = [
             'sistem-informasi' => [
-                'si-sql-data-processing' => [75, 1.25, true],
-                'si-spreadsheet-data-analysis' => [70, 1.10, true],
-                'si-business-intelligence-data-visualization' => [70, 1.15, true],
-                'si-database-management' => [75, 1.25, true],
-                'si-web-development' => [75, 1.20, true],
-                'si-system-analysis-design' => [75, 1.25, true],
-                'si-ui-design' => [65, 1.00, true],
-                'si-wireframing-prototyping' => [65, 1.00, true],
-                'si-user-research' => [65, 1.00, true],
+                'si-sql-data-processing',
+                'si-spreadsheet-data-analysis',
+                'si-business-intelligence-data-visualization',
+                'si-data-visualization',
+                'si-scenario-based-data-analysis',
+                'si-database-management',
+                'si-web-development',
+                'si-system-analysis-design',
+                'si-erd-uml',
+                'si-problem-solving',
+                'si-ui-design',
+                'si-wireframing-prototyping',
+                'si-prototyping',
+                'si-user-research',
+                'si-usability',
             ],
             'manajemen' => [
-                'man-branding' => [70, 1.10, true],
-                'man-digital-marketing' => [75, 1.20, true],
-                'man-market-research' => [75, 1.20, true],
-                'man-financial-planning' => [70, 1.15, true],
-                'man-financial-analysis' => [75, 1.25, true],
-                'man-investment-management' => [70, 1.10, true],
-                'man-recruitment-selection' => [70, 1.10, true],
-                'man-performance-management' => [75, 1.20, true],
-                'man-talent-management' => [70, 1.10, true],
+                'man-branding',
+                'man-digital-marketing',
+                'man-market-research',
+                'man-marketing-strategy',
+                'man-campaign-analysis',
+                'man-financial-planning',
+                'man-financial-analysis',
+                'man-financial-ratios',
+                'man-investment-management',
+                'man-financial-decision-making',
+                'man-recruitment-selection',
+                'man-candidate-selection',
+                'man-interview',
+                'man-performance-management',
+                'man-talent-management',
             ],
             'teknik-informatika' => [
-                'ti-algorithms-data-structures' => [80, 1.35, true],
-                'ti-object-oriented-programming' => [80, 1.30, true],
-                'ti-software-engineering' => [80, 1.30, true],
-                'ti-computer-networks' => [75, 1.20, true],
-                'ti-operating-systems' => [75, 1.20, true],
-                'ti-cybersecurity' => [75, 1.25, true],
-                'ti-machine-learning' => [75, 1.25, true],
-                'ti-data-science' => [75, 1.25, true],
-                'ti-computer-vision' => [70, 1.15, true],
+                'ti-algorithms-data-structures',
+                'ti-data-structures',
+                'ti-object-oriented-programming',
+                'ti-software-engineering',
+                'ti-debugging',
+                'ti-computer-networks',
+                'ti-operating-systems',
+                'ti-network-troubleshooting',
+                'ti-cybersecurity',
+                'ti-system-administration',
+                'ti-machine-learning',
+                'ti-data-science',
+                'ti-statistics',
+                'ti-model-evaluation',
+                'ti-computer-vision',
             ],
             'sistem-komputer' => [
-                'sk-computer-architecture' => [80, 1.30, true],
-                'sk-digital-logic' => [80, 1.30, true],
-                'sk-microprocessor-microcontroller' => [75, 1.25, true],
-                'sk-embedded-systems' => [80, 1.30, true],
-                'sk-internet-of-things' => [75, 1.25, true],
-                'sk-sensor-actuator-integration' => [75, 1.20, true],
-                'sk-computer-networks' => [75, 1.20, true],
-                'sk-network-administration' => [75, 1.20, true],
-                'sk-network-security' => [80, 1.30, true],
+                'sk-computer-architecture',
+                'sk-digital-logic',
+                'sk-processor',
+                'sk-memory',
+                'sk-microprocessor-microcontroller',
+                'sk-microcontroller',
+                'sk-embedded-systems',
+                'sk-internet-of-things',
+                'sk-sensor-actuator-integration',
+                'sk-actuator',
+                'sk-computer-networks',
+                'sk-network-administration',
+                'sk-network-security',
+                'sk-firewall',
+                'sk-threat-detection',
             ],
             'psikologi' => [
-                'psi-employee-behavior' => [70, 1.15, true],
-                'psi-organizational-development' => [70, 1.15, true],
-                'psi-psychological-assessment' => [75, 1.25, true],
-                'psi-counseling-skills' => [75, 1.25, true],
-                'psi-interpersonal-communication' => [75, 1.20, true],
-                'psi-emotional-intelligence' => [70, 1.15, true],
-                'psi-research-methodology' => [75, 1.25, true],
-                'psi-interview-observation' => [70, 1.15, true],
-                'psi-survey-data-analysis' => [75, 1.20, true],
+                'psi-employee-behavior',
+                'psi-organizational-behavior',
+                'psi-work-style-assessment',
+                'psi-psychological-assessment',
+                'psi-organizational-development',
+                'psi-interpersonal-communication',
+                'psi-counseling-skills',
+                'psi-empathy',
+                'psi-emotional-intelligence',
+                'psi-counseling-scenario',
+                'psi-research-methodology',
+                'psi-interview-observation',
+                'psi-observation',
+                'psi-survey-data-analysis',
+                'psi-data-analysis',
             ],
             'ilmu-komunikasi' => [
-                'ikom-media-relations' => [70, 1.15, true],
-                'ikom-corporate-communication' => [75, 1.20, true],
-                'ikom-crisis-communication' => [75, 1.20, true],
-                'ikom-news-writing' => [75, 1.20, true],
-                'ikom-journalistic-interview' => [70, 1.15, true],
-                'ikom-news-reporting' => [75, 1.20, true],
-                'ikom-content-creation' => [75, 1.20, true],
-                'ikom-social-media-management' => [75, 1.20, true],
-                'ikom-video-production' => [70, 1.10, true],
+                'ikom-media-relations',
+                'ikom-corporate-communication',
+                'ikom-crisis-communication',
+                'ikom-public-communication',
+                'ikom-reputation-management',
+                'ikom-news-writing',
+                'ikom-journalistic-interview',
+                'ikom-news-reporting',
+                'ikom-fact-checking',
+                'ikom-journalistic-ethics',
+                'ikom-content-creation',
+                'ikom-social-media-management',
+                'ikom-video-production',
+                'ikom-content-strategy',
+                'ikom-audience-analysis',
             ],
         ];
 
@@ -83,41 +119,31 @@ class CareerSkillSeeder extends Seeder
             ->get()
             ->keyBy('slug');
 
-        foreach ($maps as $careerSlug => $mapping) {
+        foreach ($maps as $careerSlug => $skillSlugs) {
             $career = Career::query()
-                ->where(
-                    'slug',
-                    $careerSlug,
-                )
+                ->where('slug', $careerSlug)
                 ->firstOrFail();
 
             $sync = [];
 
-            foreach (
-                $mapping as $skillSlug => [
-                    $target,
-                    $weight,
-                    $isRequired,
-                ]
-            ) {
-                $skill = $skills->get(
-                    $skillSlug,
-                );
+            foreach ($skillSlugs as $skillSlug) {
+                $skill = $skills->get($skillSlug);
 
                 if (! $skill) {
                     continue;
                 }
 
+                $targetLevel = $skill->difficulty === 'Dasar' ? 70 : 75;
+                $weight = $skill->difficulty === 'Dasar' ? 1.10 : 1.20;
+
                 $sync[$skill->id] = [
-                    'target_level' => $target,
+                    'target_level' => $targetLevel,
                     'importance_weight' => $weight,
-                    'is_required' => $isRequired,
+                    'is_required' => true,
                 ];
             }
 
-            $career
-                ->skills()
-                ->sync($sync);
+            $career->skills()->sync($sync);
         }
     }
 }

@@ -60,7 +60,7 @@ export function AppSidebar() {
             icon: UserRound,
         },
         {
-            title: 'Asessment',
+            title: 'Assessment',
             href: '/assessment',
             icon: ClipboardCheck,
         },

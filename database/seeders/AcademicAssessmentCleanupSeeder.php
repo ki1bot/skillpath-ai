@@ -37,15 +37,11 @@ class AcademicAssessmentCleanupSeeder extends Seeder
         ];
 
         Assessment::query()
-            ->whereNull(
-                'study_program',
-            )
+            ->whereNull('study_program')
             ->delete();
 
         $assessments = Assessment::query()
-            ->whereNotNull(
-                'study_program',
-            )
+            ->whereNotNull('study_program')
             ->with('career')
             ->get();
 
@@ -58,8 +54,7 @@ class AcademicAssessmentCleanupSeeder extends Seeder
 
             if (
                 ! $definition
-                || $assessment->study_program
-                    !== $definition['name']
+                || $assessment->study_program !== $definition['name']
             ) {
                 $assessment->delete();
 
@@ -80,8 +75,8 @@ class AcademicAssessmentCleanupSeeder extends Seeder
 
             $assessment->update([
                 'title' => 'Assesment Awal '.$definition['name'],
-                'description' => 'Jawab 9 pertanyaan sesuai kemampuanmu sekarang. Hasil Assesment digunakan untuk melihat bagian yang sudah kuat dan kemampuan yang masih perlu dikembangkan.',
-                'duration_minutes' => 18,
+                'description' => 'Jawab 15 pertanyaan sesuai kemampuanmu sekarang. Hasil Assesment digunakan untuk melihat bagian yang sudah kuat dan kemampuan yang masih perlu dikembangkan.',
+                'duration_minutes' => 30,
                 'is_active' => true,
             ]);
         }
