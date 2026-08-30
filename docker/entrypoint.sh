@@ -4,6 +4,16 @@ set -euo pipefail
 
 PORT="${PORT:-8080}"
 
+rm -f \
+    /etc/apache2/mods-enabled/mpm_event.conf \
+    /etc/apache2/mods-enabled/mpm_event.load \
+    /etc/apache2/mods-enabled/mpm_worker.conf \
+    /etc/apache2/mods-enabled/mpm_worker.load \
+    /etc/apache2/mods-enabled/mpm_prefork.conf \
+    /etc/apache2/mods-enabled/mpm_prefork.load
+
+a2enmod mpm_prefork >/dev/null
+
 sed -ri "s/^Listen [0-9]+$/Listen ${PORT}/" /etc/apache2/ports.conf
 sed -ri "s/<VirtualHost \*:[0-9]+>/<VirtualHost *:${PORT}>/" /etc/apache2/sites-available/000-default.conf
 sed -ri "s#DocumentRoot /var/www/html#DocumentRoot /var/www/html/public#" /etc/apache2/sites-available/000-default.conf
@@ -36,4 +46,4 @@ php artisan optimize
 
 apache2ctl configtest
 
-exec "$@"
+exec docker-php-entrypoint "$@"
