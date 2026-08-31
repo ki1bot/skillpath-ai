@@ -330,8 +330,7 @@ class AiExplanationService
 
             if (is_array($definition['fallback_models'])) {
                 foreach (
-                    $definition['fallback_models']
-                    as $fallbackModel
+                    $definition['fallback_models'] as $fallbackModel
                 ) {
                     if (
                         ! is_string($fallbackModel)
