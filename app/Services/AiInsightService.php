@@ -481,6 +481,14 @@ class AiInsightService
         return null;
     }
 
+    /**
+     * @return list<array{
+     *     name: string,
+     *     key: string,
+     *     base_url: string,
+     *     models: list<string>
+     * }>
+     */
     private function configuredProviders(): array
     {
         $definitions = [
@@ -596,6 +604,23 @@ class AiInsightService
         return $providers;
     }
 
+    /**
+     * @param  list<array{
+     *     name: string,
+     *     key: string,
+     *     base_url: string,
+     *     models: list<string>
+     * }>  $providers
+     * @return list<array{
+     *     provider: array{
+     *         name: string,
+     *         key: string,
+     *         base_url: string,
+     *         models: list<string>
+     *     },
+     *     model: string
+     * }>
+     */
     private function orderedAttempts(
         array $providers,
     ): array {
