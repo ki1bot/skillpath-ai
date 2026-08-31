@@ -18,6 +18,11 @@ class AiInsightServiceTest extends TestCase
         parent::setUp();
 
         Cache::flush();
+
+        config([
+            'services.tokenrouter.key' => null,
+            'services.xkiro.key' => null,
+        ]);
     }
 
     public function test_ai_insights_do_not_inject_default_text_when_api_key_is_not_configured(): void
@@ -25,9 +30,8 @@ class AiInsightServiceTest extends TestCase
         config([
             'services.gemini.key' => null,
             'services.openrouter.key' => null,
-            'services.openrouter.model' => 'openrouter/free',
-            'services.openrouter.fallback_models' => [],
-            'services.openrouter.base_url' => 'https://openrouter.ai/api/v1',
+            'services.tokenrouter.key' => null,
+            'services.xkiro.key' => null,
         ]);
 
         $user = User::factory()->create([
@@ -73,7 +77,7 @@ class AiInsightServiceTest extends TestCase
         config([
             'services.gemini.key' => null,
             'services.openrouter.key' => 'test-openrouter-key',
-            'services.openrouter.model' => 'openrouter/free',
+            'services.openrouter.model' => 'minimax/minimax-m3:free',
             'services.openrouter.fallback_models' => [],
             'services.openrouter.base_url' => 'https://openrouter.ai/api/v1',
         ]);
@@ -82,7 +86,7 @@ class AiInsightServiceTest extends TestCase
             'https://openrouter.ai/api/v1/chat/completions' => Http::response(
                 [
                     'id' => 'generation-test',
-                    'model' => 'openai/gpt-oss-120b:free',
+                    'model' => 'minimax/minimax-m3:free',
                     'choices' => [
                         [
                             'index' => 0,
@@ -122,7 +126,7 @@ class AiInsightServiceTest extends TestCase
         );
 
         $this->assertSame(
-            'openai/gpt-oss-120b:free',
+            'minimax/minimax-m3:free',
             $result['model'],
         );
 
@@ -144,7 +148,159 @@ class AiInsightServiceTest extends TestCase
         Http::assertSent(
             fn ($request) => $request->url()
                 === 'https://openrouter.ai/api/v1/chat/completions'
-                && $request['model'] === 'openrouter/free',
+                && $request['model']
+                === 'minimax/minimax-m3:free'
+                && isset($request['provider']['allow_fallbacks']),
+        );
+    }
+
+    public function test_ai_insights_can_use_tokenrouter_chat_completion_response(): void
+    {
+        config([
+            'services.gemini.key' => null,
+            'services.openrouter.key' => null,
+            'services.tokenrouter.key' => 'test-tokenrouter-key',
+            'services.tokenrouter.model' => 'z-ai/glm-5.3-free',
+            'services.tokenrouter.fallback_models' => [],
+            'services.tokenrouter.base_url' => 'https://api.tokenrouter.com/v1',
+            'services.xkiro.key' => null,
+        ]);
+
+        Http::fake([
+            'https://api.tokenrouter.com/v1/chat/completions' => Http::response(
+                [
+                    'id' => 'tokenrouter-test',
+                    'model' => 'glm-5.3',
+                    'choices' => [
+                        [
+                            'index' => 0,
+                            'message' => [
+                                'role' => 'assistant',
+                                'content' => '<PROGRESS>Perkembangan dari TokenRouter berhasil dibuat.</PROGRESS>'
+                                    .'<SCHEDULE>Jadwal dari TokenRouter berhasil dibuat.</SCHEDULE>'
+                                    .'<OBSTACLES>Kendala dari TokenRouter berhasil dikelompokkan.</OBSTACLES>',
+                            ],
+                            'finish_reason' => 'stop',
+                        ],
+                    ],
+                ],
+                200,
+            ),
+        ]);
+
+        $user = User::factory()->create([
+            'weekly_study_hours' => 6,
+        ]);
+
+        $result = app(AiInsightService::class)
+            ->progress(
+                $user,
+                [
+                    'score' => 25,
+                    'skill_mastery' => 30,
+                    'roadmap_completion' => 10,
+                    'project_score' => 0,
+                    'consistency' => 20,
+                    'evaluation_score' => 0,
+                ],
+            );
+
+        $this->assertTrue(
+            $result['generated_by_ai'],
+        );
+
+        $this->assertSame(
+            'glm-5.3',
+            $result['model'],
+        );
+
+        $this->assertSame(
+            'Perkembangan dari TokenRouter berhasil dibuat.',
+            $result['progress'],
+        );
+
+        Http::assertSent(
+            fn ($request) => $request->url()
+                === 'https://api.tokenrouter.com/v1/chat/completions'
+                && $request['model']
+                === 'z-ai/glm-5.3-free'
+                && ! isset($request['provider']),
+        );
+    }
+
+    public function test_ai_insights_can_use_xkiro_chat_completion_response(): void
+    {
+        config([
+            'services.gemini.key' => null,
+            'services.openrouter.key' => null,
+            'services.tokenrouter.key' => null,
+            'services.xkiro.key' => 'test-xkiro-key',
+            'services.xkiro.model' => 'deepseek/deepseek-v4-pro',
+            'services.xkiro.fallback_models' => [
+                'mistralai/mistral-large-2512',
+            ],
+            'services.xkiro.base_url' => 'https://api.xkiro.com/v1',
+        ]);
+
+        Http::fake([
+            'https://api.xkiro.com/v1/chat/completions' => Http::response(
+                [
+                    'id' => 'xkiro-test',
+                    'model' => 'deepseek/deepseek-v4-pro',
+                    'choices' => [
+                        [
+                            'index' => 0,
+                            'message' => [
+                                'role' => 'assistant',
+                                'content' => '<PROGRESS>Perkembangan dari xKiro berhasil dibuat.</PROGRESS>'
+                                    .'<SCHEDULE>Jadwal dari xKiro berhasil dibuat.</SCHEDULE>'
+                                    .'<OBSTACLES>Kendala dari xKiro berhasil dikelompokkan.</OBSTACLES>',
+                            ],
+                            'finish_reason' => 'stop',
+                        ],
+                    ],
+                ],
+                200,
+            ),
+        ]);
+
+        $user = User::factory()->create([
+            'weekly_study_hours' => 6,
+        ]);
+
+        $result = app(AiInsightService::class)
+            ->progress(
+                $user,
+                [
+                    'score' => 25,
+                    'skill_mastery' => 30,
+                    'roadmap_completion' => 10,
+                    'project_score' => 0,
+                    'consistency' => 20,
+                    'evaluation_score' => 0,
+                ],
+            );
+
+        $this->assertTrue(
+            $result['generated_by_ai'],
+        );
+
+        $this->assertSame(
+            'deepseek/deepseek-v4-pro',
+            $result['model'],
+        );
+
+        $this->assertSame(
+            'Perkembangan dari xKiro berhasil dibuat.',
+            $result['progress'],
+        );
+
+        Http::assertSent(
+            fn ($request) => $request->url()
+                === 'https://api.xkiro.com/v1/chat/completions'
+                && $request['model']
+                === 'deepseek/deepseek-v4-pro'
+                && ! isset($request['provider']),
         );
     }
 
@@ -230,7 +386,7 @@ class AiInsightServiceTest extends TestCase
         config([
             'services.gemini.key' => null,
             'services.openrouter.key' => 'test-openrouter-key',
-            'services.openrouter.model' => 'openai/gpt-oss-20b:free',
+            'services.openrouter.model' => 'minimax/minimax-m3:free',
             'services.openrouter.fallback_models' => [
                 'openrouter/free',
             ],
@@ -239,7 +395,10 @@ class AiInsightServiceTest extends TestCase
 
         Http::fake(
             function ($request) {
-                if ($request['model'] === 'openai/gpt-oss-20b:free') {
+                if (
+                    $request['model']
+                    === 'minimax/minimax-m3:free'
+                ) {
                     return Http::response(
                         [],
                         503,
@@ -249,7 +408,7 @@ class AiInsightServiceTest extends TestCase
                 return Http::response(
                     [
                         'id' => 'generation-fallback',
-                        'model' => 'openai/gpt-oss-120b:free',
+                        'model' => 'nvidia/nemotron-3-ultra-550b-a55b:free',
                         'choices' => [
                             [
                                 'index' => 0,
@@ -290,7 +449,7 @@ class AiInsightServiceTest extends TestCase
         );
 
         $this->assertSame(
-            'openai/gpt-oss-120b:free',
+            'nvidia/nemotron-3-ultra-550b-a55b:free',
             $result['model'],
         );
 
@@ -303,7 +462,7 @@ class AiInsightServiceTest extends TestCase
 
         Http::assertSent(
             fn ($request) => $request['model']
-                === 'openai/gpt-oss-20b:free',
+                === 'minimax/minimax-m3:free',
         );
 
         Http::assertSent(
@@ -317,7 +476,7 @@ class AiInsightServiceTest extends TestCase
         config([
             'services.gemini.key' => null,
             'services.openrouter.key' => 'test-openrouter-key',
-            'services.openrouter.model' => 'openrouter/free',
+            'services.openrouter.model' => 'minimax/minimax-m3:free',
             'services.openrouter.fallback_models' => [],
             'services.openrouter.base_url' => 'https://openrouter.ai/api/v1',
         ]);
@@ -326,7 +485,7 @@ class AiInsightServiceTest extends TestCase
             'https://openrouter.ai/api/v1/chat/completions' => Http::response(
                 [
                     'id' => 'generation-test',
-                    'model' => 'openai/gpt-oss-120b:free',
+                    'model' => 'minimax/minimax-m3:free',
                     'choices' => [
                         [
                             'index' => 0,
@@ -396,8 +555,16 @@ class AiInsightServiceTest extends TestCase
 
         Http::fake(
             function ($request) {
-                if (str_contains($request->url(), 'gemini-3.5-flash-lite')) {
-                    return Http::response([], 503);
+                if (
+                    str_contains(
+                        $request->url(),
+                        'gemini-3.5-flash-lite',
+                    )
+                ) {
+                    return Http::response(
+                        [],
+                        503,
+                    );
                 }
 
                 return Http::response(
@@ -442,8 +609,15 @@ class AiInsightServiceTest extends TestCase
                 ],
             );
 
-        $this->assertTrue($result['generated_by_ai']);
-        $this->assertSame('gemini-3.1-flash-lite', $result['model']);
+        $this->assertTrue(
+            $result['generated_by_ai'],
+        );
+
+        $this->assertSame(
+            'gemini-3.1-flash-lite',
+            $result['model'],
+        );
+
         Http::assertSentCount(2);
     }
 }

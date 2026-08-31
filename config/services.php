@@ -54,12 +54,12 @@ return [
     'ai' => [
         'request_timeout' => max(
             3,
-            (int) env('AI_REQUEST_TIMEOUT', 12),
+            (int) env('AI_REQUEST_TIMEOUT', 20),
         ),
 
         'attempt_timeout' => max(
             2,
-            (int) env('AI_ATTEMPT_TIMEOUT', 6),
+            (int) env('AI_ATTEMPT_TIMEOUT', 4),
         ),
 
         'connect_timeout' => max(
@@ -78,7 +78,7 @@ return [
 
         'model' => env(
             'OPENROUTER_MODEL',
-            'openai/gpt-oss-20b:free',
+            'minimax/minimax-m3:free',
         ),
 
         'fallback_models' => array_values(
@@ -99,6 +99,64 @@ return [
         'base_url' => env(
             'OPENROUTER_BASE_URL',
             'https://openrouter.ai/api/v1',
+        ),
+    ],
+
+    'tokenrouter' => [
+        'key' => env('TOKENROUTER_API_KEY'),
+
+        'model' => env(
+            'TOKENROUTER_MODEL',
+            'z-ai/glm-5.3-free',
+        ),
+
+        'fallback_models' => array_values(
+            array_filter(
+                array_map(
+                    'trim',
+                    explode(
+                        ',',
+                        (string) env(
+                            'TOKENROUTER_FALLBACK_MODELS',
+                            '',
+                        ),
+                    ),
+                ),
+            ),
+        ),
+
+        'base_url' => env(
+            'TOKENROUTER_BASE_URL',
+            'https://api.tokenrouter.com/v1',
+        ),
+    ],
+
+    'xkiro' => [
+        'key' => env('XKIRO_API_KEY'),
+
+        'model' => env(
+            'XKIRO_MODEL',
+            'deepseek/deepseek-v4-pro',
+        ),
+
+        'fallback_models' => array_values(
+            array_filter(
+                array_map(
+                    'trim',
+                    explode(
+                        ',',
+                        (string) env(
+                            'XKIRO_FALLBACK_MODELS',
+                            'mistralai/mistral-large-2512',
+                        ),
+                    ),
+                ),
+            ),
+        ),
+
+        'base_url' => env(
+            'XKIRO_BASE_URL',
+            'https://api.xkiro.com/v1',
         ),
     ],
 

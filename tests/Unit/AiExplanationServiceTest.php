@@ -16,18 +16,20 @@ class AiExplanationServiceTest extends TestCase
         parent::setUp();
 
         Cache::flush();
+
+        config([
+            'services.tokenrouter.key' => null,
+            'services.xkiro.key' => null,
+        ]);
     }
 
-    public function test_no_explanation_is_returned_when_openrouter_is_not_configured(): void
+    public function test_no_explanation_is_returned_when_ai_providers_are_not_configured(): void
     {
         config([
             'services.gemini.key' => null,
             'services.openrouter.key' => null,
-            'services.openrouter.model' => 'openai/gpt-oss-20b:free',
-            'services.openrouter.fallback_models' => [
-                'openrouter/free',
-            ],
-            'services.openrouter.base_url' => 'https://openrouter.ai/api/v1',
+            'services.tokenrouter.key' => null,
+            'services.xkiro.key' => null,
         ]);
 
         $result = app(AiExplanationService::class)
@@ -54,7 +56,7 @@ class AiExplanationServiceTest extends TestCase
         config([
             'services.gemini.key' => null,
             'services.openrouter.key' => 'test-openrouter-key',
-            'services.openrouter.model' => 'openai/gpt-oss-20b:free',
+            'services.openrouter.model' => 'minimax/minimax-m3:free',
             'services.openrouter.fallback_models' => [
                 'openrouter/free',
             ],
@@ -65,7 +67,7 @@ class AiExplanationServiceTest extends TestCase
             'https://openrouter.ai/api/v1/chat/completions' => Http::response(
                 [
                     'id' => 'generation-test',
-                    'model' => 'openai/gpt-oss-20b:free',
+                    'model' => 'minimax/minimax-m3:free',
                     'choices' => [
                         [
                             'index' => 0,
@@ -92,7 +94,7 @@ class AiExplanationServiceTest extends TestCase
         );
 
         $this->assertSame(
-            'openai/gpt-oss-20b:free',
+            'minimax/minimax-m3:free',
             $result->model,
         );
 
@@ -104,8 +106,123 @@ class AiExplanationServiceTest extends TestCase
         Http::assertSent(
             fn ($request) => $request->url()
                 === 'https://openrouter.ai/api/v1/chat/completions'
-                && $request['model'] === 'openai/gpt-oss-20b:free'
-                && ! isset($request['response_format']),
+                && $request['model']
+                === 'minimax/minimax-m3:free'
+                && isset($request['provider']['allow_fallbacks']),
+        );
+    }
+
+    public function test_valid_indonesian_tokenrouter_response_is_displayed(): void
+    {
+        config([
+            'services.gemini.key' => null,
+            'services.openrouter.key' => null,
+            'services.tokenrouter.key' => 'test-tokenrouter-key',
+            'services.tokenrouter.model' => 'z-ai/glm-5.3-free',
+            'services.tokenrouter.fallback_models' => [],
+            'services.tokenrouter.base_url' => 'https://api.tokenrouter.com/v1',
+            'services.xkiro.key' => null,
+        ]);
+
+        Http::fake([
+            'https://api.tokenrouter.com/v1/chat/completions' => Http::response(
+                [
+                    'id' => 'tokenrouter-test',
+                    'model' => 'glm-5.3',
+                    'choices' => [
+                        [
+                            'index' => 0,
+                            'message' => [
+                                'role' => 'assistant',
+                                'content' => 'Database menjadi prioritas utama karena kemampuan saat ini masih 30 dari target 75. Kesenjangan tersebut perlu ditutup sebelum mempelajari kemampuan lanjutan.',
+                            ],
+                            'finish_reason' => 'stop',
+                        ],
+                    ],
+                ],
+                200,
+            ),
+        ]);
+
+        $result = app(AiExplanationService::class)
+            ->skillGapSummary(
+                $this->user(),
+                $this->analysis(),
+            );
+
+        $this->assertTrue(
+            $result->generatedByAi,
+        );
+
+        $this->assertSame(
+            'glm-5.3',
+            $result->model,
+        );
+
+        Http::assertSent(
+            fn ($request) => $request->url()
+                === 'https://api.tokenrouter.com/v1/chat/completions'
+                && $request['model']
+                === 'z-ai/glm-5.3-free'
+                && ! isset($request['provider']),
+        );
+    }
+
+    public function test_valid_indonesian_xkiro_response_is_displayed(): void
+    {
+        config([
+            'services.gemini.key' => null,
+            'services.openrouter.key' => null,
+            'services.tokenrouter.key' => null,
+            'services.xkiro.key' => 'test-xkiro-key',
+            'services.xkiro.model' => 'deepseek/deepseek-v4-pro',
+            'services.xkiro.fallback_models' => [
+                'mistralai/mistral-large-2512',
+            ],
+            'services.xkiro.base_url' => 'https://api.xkiro.com/v1',
+        ]);
+
+        Http::fake([
+            'https://api.xkiro.com/v1/chat/completions' => Http::response(
+                [
+                    'id' => 'xkiro-test',
+                    'model' => 'deepseek/deepseek-v4-pro',
+                    'choices' => [
+                        [
+                            'index' => 0,
+                            'message' => [
+                                'role' => 'assistant',
+                                'content' => 'Database menjadi prioritas utama karena kemampuan saat ini masih 30 dari target 75. Kesenjangan tersebut perlu ditutup sebelum mempelajari kemampuan lanjutan.',
+                            ],
+                            'finish_reason' => 'stop',
+                        ],
+                    ],
+                ],
+                200,
+            ),
+        ]);
+
+        $result = app(AiExplanationService::class)
+            ->skillGapSummary(
+                $this->user(),
+                $this->analysis(),
+            );
+
+        $this->assertTrue(
+            $result->generatedByAi,
+        );
+
+        $this->assertSame(
+            'deepseek/deepseek-v4-pro',
+            $result->model,
+        );
+
+        Http::assertSent(
+            fn ($request) => $request->url()
+                === 'https://api.xkiro.com/v1/chat/completions'
+                && $request['model']
+                === 'deepseek/deepseek-v4-pro'
+                && ! isset($request['provider']),
         );
     }
 
@@ -170,7 +287,7 @@ class AiExplanationServiceTest extends TestCase
         config([
             'services.gemini.key' => null,
             'services.openrouter.key' => 'test-openrouter-key',
-            'services.openrouter.model' => 'openai/gpt-oss-20b:free',
+            'services.openrouter.model' => 'minimax/minimax-m3:free',
             'services.openrouter.fallback_models' => [],
             'services.openrouter.base_url' => 'https://openrouter.ai/api/v1',
         ]);
@@ -179,7 +296,7 @@ class AiExplanationServiceTest extends TestCase
             'https://openrouter.ai/api/v1/chat/completions' => Http::response(
                 [
                     'id' => 'generation-test',
-                    'model' => 'openai/gpt-oss-20b:free',
+                    'model' => 'minimax/minimax-m3:free',
                     'choices' => [
                         [
                             'index' => 0,
@@ -228,8 +345,16 @@ class AiExplanationServiceTest extends TestCase
 
         Http::fake(
             function ($request) {
-                if (str_contains($request->url(), 'gemini-3.5-flash-lite')) {
-                    return Http::response([], 503);
+                if (
+                    str_contains(
+                        $request->url(),
+                        'gemini-3.5-flash-lite',
+                    )
+                ) {
+                    return Http::response(
+                        [],
+                        503,
+                    );
                 }
 
                 return Http::response(
@@ -259,8 +384,15 @@ class AiExplanationServiceTest extends TestCase
                 $this->analysis(),
             );
 
-        $this->assertTrue($result->generatedByAi);
-        $this->assertSame('gemini-3.1-flash-lite', $result->model);
+        $this->assertTrue(
+            $result->generatedByAi,
+        );
+
+        $this->assertSame(
+            'gemini-3.1-flash-lite',
+            $result->model,
+        );
+
         Http::assertSentCount(2);
     }
 
