@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Assessment;
+use App\Models\AssessmentQuestion;
 use App\Models\AssessmentResult;
 use App\Models\UserSkill;
 use App\Services\CareerReadinessService;
 use App\Services\RoadmapService;
+use App\Support\AcademicAssessmentCatalog;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -17,8 +20,6 @@ use Inertia\Response;
 
 class AssessmentController extends Controller
 {
-    private const QUESTION_LIMIT = 25;
-
     private const STUDY_PROGRAM_ALIASES = [
         'sistem informasi' => 'Sistem Informasi',
         'si' => 'Sistem Informasi',
@@ -69,26 +70,56 @@ class AssessmentController extends Controller
                 );
         }
 
-        $assessment->load('career');
-
-        $questions = $assessment
-            ->questions()
-            ->with('skill')
-            ->inRandomOrder()
-            ->limit(self::QUESTION_LIMIT)
-            ->get();
+        $skillSlugs = AcademicAssessmentCatalog::skillSlugs(
+            $studyProgram,
+        );
 
         if (
-            $questions->count()
-            !== self::QUESTION_LIMIT
+            count($skillSlugs)
+            !== AcademicAssessmentCatalog::SKILLS_PER_PROGRAM
         ) {
             return redirect()
                 ->route('dashboard')
                 ->with(
                     'error',
-                    'Bank soal Assesment belum lengkap. Setiap jurusan harus memiliki minimal '.self::QUESTION_LIMIT.' soal.',
+                    'Konfigurasi skill Assesment jurusan belum lengkap.',
                 );
         }
+
+        $assessment->load('career');
+
+        $questionPool = $assessment
+            ->questions()
+            ->whereHas(
+                'skill',
+                fn ($query) => $query->whereIn(
+                    'slug',
+                    $skillSlugs,
+                ),
+            )
+            ->with('skill')
+            ->get();
+
+        if (
+            ! $this->hasValidQuestionPool(
+                $questionPool,
+                $skillSlugs,
+            )
+        ) {
+            return redirect()
+                ->route('dashboard')
+                ->with(
+                    'error',
+                    'Bank soal Assesment belum lengkap. Setiap jurusan harus memiliki 27 soal dari 9 skill inti, dengan 3 soal pada setiap skill.',
+                );
+        }
+
+        $questions = $questionPool
+            ->shuffle()
+            ->take(
+                AcademicAssessmentCatalog::QUESTION_LIMIT,
+            )
+            ->values();
 
         $request->session()->put(
             $this->questionSessionKey(
@@ -117,7 +148,7 @@ class AssessmentController extends Controller
             ],
             'questions' => $questions
                 ->map(
-                    fn ($question) => [
+                    fn (AssessmentQuestion $question) => [
                         'id' => $question->id,
                         'question_type' => $question
                             ->question_type,
@@ -204,6 +235,10 @@ class AssessmentController extends Controller
                 );
         }
 
+        $skillSlugs = AcademicAssessmentCatalog::skillSlugs(
+            $studyProgram,
+        );
+
         $sessionKey = $this->questionSessionKey(
             $assessment->id,
             $user->id,
@@ -236,7 +271,7 @@ class AssessmentController extends Controller
 
         if (
             $questionIds->count()
-            !== self::QUESTION_LIMIT
+            !== AcademicAssessmentCatalog::QUESTION_LIMIT
         ) {
             $request
                 ->session()
@@ -256,11 +291,18 @@ class AssessmentController extends Controller
                 'id',
                 $questionIds->all(),
             )
+            ->whereHas(
+                'skill',
+                fn ($query) => $query->whereIn(
+                    'slug',
+                    $skillSlugs,
+                ),
+            )
             ->get();
 
         if (
             $questions->count()
-            !== self::QUESTION_LIMIT
+            !== AcademicAssessmentCatalog::QUESTION_LIMIT
         ) {
             $request
                 ->session()
@@ -423,7 +465,7 @@ class AssessmentController extends Controller
                 ) {
                     $average = round(
                         array_sum($scores)
-                        / count($scores),
+                            / count($scores),
                         2,
                     );
 
@@ -467,6 +509,52 @@ class AssessmentController extends Controller
                 'success',
                 'Assesment '.$studyProgram.' selesai. Hasil kemampuanmu sudah disimpan dan roadmap diperbarui.',
             );
+    }
+
+    /**
+     * @param  Collection<int, AssessmentQuestion>  $questions
+     * @param  list<string>  $skillSlugs
+     */
+    private function hasValidQuestionPool(
+        Collection $questions,
+        array $skillSlugs,
+    ): bool {
+        if (
+            $questions->count()
+            !== AcademicAssessmentCatalog::QUESTION_POOL_SIZE
+        ) {
+            return false;
+        }
+
+        if (
+            $questions
+                ->pluck('skill.slug')
+                ->filter()
+                ->unique()
+                ->count()
+            !== AcademicAssessmentCatalog::SKILLS_PER_PROGRAM
+        ) {
+            return false;
+        }
+
+        foreach ($skillSlugs as $skillSlug) {
+            $questionCount = $questions
+                ->filter(
+                    fn (AssessmentQuestion $question) => $question
+                        ->skill
+                        ?->slug === $skillSlug,
+                )
+                ->count();
+
+            if (
+                $questionCount
+                !== AcademicAssessmentCatalog::QUESTIONS_PER_SKILL
+            ) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function findAssessment(

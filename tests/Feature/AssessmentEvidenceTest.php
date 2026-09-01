@@ -8,6 +8,7 @@ use App\Models\AssessmentResult;
 use App\Models\Career;
 use App\Models\User;
 use App\Models\UserSkill;
+use App\Support\AcademicAssessmentCatalog;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -56,9 +57,29 @@ class AssessmentEvidenceTest extends TestCase
         $assessment = $this->assessment();
 
         $this->assertCount(
-            30,
+            AcademicAssessmentCatalog::QUESTION_POOL_SIZE,
             $assessment->questions,
         );
+
+        $this->assertSame(
+            AcademicAssessmentCatalog::SKILLS_PER_PROGRAM,
+            $assessment
+                ->questions
+                ->pluck('skill_id')
+                ->unique()
+                ->count(),
+        );
+
+        foreach (
+            $assessment
+                ->questions
+                ->groupBy('skill_id') as $questions
+        ) {
+            $this->assertCount(
+                AcademicAssessmentCatalog::QUESTIONS_PER_SKILL,
+                $questions,
+            );
+        }
 
         $response = $this
             ->actingAs(
@@ -81,7 +102,7 @@ class AssessmentEvidenceTest extends TestCase
                     )
                     ->has(
                         'assessment.questions',
-                        25,
+                        AcademicAssessmentCatalog::QUESTION_LIMIT,
                     ),
             );
 
@@ -90,12 +111,12 @@ class AssessmentEvidenceTest extends TestCase
         );
 
         $this->assertCount(
-            25,
+            AcademicAssessmentCatalog::QUESTION_LIMIT,
             $questionIds,
         );
 
         $this->assertCount(
-            25,
+            AcademicAssessmentCatalog::QUESTION_LIMIT,
             array_unique($questionIds),
         );
 
@@ -111,8 +132,16 @@ class AssessmentEvidenceTest extends TestCase
             ->get();
 
         $this->assertCount(
-            25,
+            AcademicAssessmentCatalog::QUESTION_LIMIT,
             $questions,
+        );
+
+        $this->assertSame(
+            AcademicAssessmentCatalog::SKILLS_PER_PROGRAM,
+            $questions
+                ->pluck('skill_id')
+                ->unique()
+                ->count(),
         );
 
         foreach ($questions as $question) {
@@ -216,7 +245,7 @@ class AssessmentEvidenceTest extends TestCase
         );
 
         $this->assertSame(
-            25,
+            AcademicAssessmentCatalog::QUESTION_LIMIT,
             AssessmentResult::query()
                 ->where(
                     'user_id',
@@ -316,7 +345,9 @@ class AssessmentEvidenceTest extends TestCase
 
         $questions = $assessment
             ->questions
-            ->take(25)
+            ->take(
+                AcademicAssessmentCatalog::QUESTION_LIMIT,
+            )
             ->values();
 
         $payload = $this->validPayload(
@@ -369,7 +400,9 @@ class AssessmentEvidenceTest extends TestCase
                 'is_active',
                 true,
             )
-            ->with('questions')
+            ->with(
+                'questions.skill',
+            )
             ->firstOrFail();
     }
 

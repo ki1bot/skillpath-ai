@@ -59,9 +59,10 @@ class AcademicProgramLearningMaterialSeeder extends Seeder
                 )
                 ->first();
 
-            if (! $question) {
-                continue;
-            }
+            $quiz = $this->quizData(
+                $skill,
+                $question,
+            );
 
             $core = LearningMaterial::updateOrCreate(
                 [
@@ -86,10 +87,10 @@ class AcademicProgramLearningMaterialSeeder extends Seeder
                     'resource_title' => 'Materi pembelajaran SkillPath',
                     'resource_url' => null,
                     'practice_task' => 'Buat latihan sederhana yang menunjukkan pemahamanmu tentang '.$skill->name.'. Jelaskan langkah yang kamu lakukan, hasilnya, dan bagian yang menurutmu masih perlu diperbaiki.',
-                    'quiz_question' => $question->prompt,
-                    'quiz_options' => $question->options,
-                    'quiz_answer' => $question->correct_answer,
-                    'quiz_explanation' => $question->explanation,
+                    'quiz_question' => $quiz['question'],
+                    'quiz_options' => $quiz['options'],
+                    'quiz_answer' => $quiz['answer'],
+                    'quiz_explanation' => $quiz['explanation'],
                 ],
             );
 
@@ -114,12 +115,54 @@ class AcademicProgramLearningMaterialSeeder extends Seeder
                     'resource_title' => 'Materi penguatan SkillPath',
                     'resource_url' => null,
                     'practice_task' => 'Ulangi latihan '.$skill->name.' dengan contoh yang lebih sederhana. Tuliskan apa yang sebelumnya kurang tepat dan bagaimana kamu memperbaikinya.',
-                    'quiz_question' => $question->prompt,
-                    'quiz_options' => $question->options,
-                    'quiz_answer' => $question->correct_answer,
-                    'quiz_explanation' => $question->explanation,
+                    'quiz_question' => $quiz['question'],
+                    'quiz_options' => $quiz['options'],
+                    'quiz_answer' => $quiz['answer'],
+                    'quiz_explanation' => $quiz['explanation'],
                 ],
             );
         }
+    }
+
+    /**
+     * @return array{
+     *     question: string,
+     *     options: array<string, string>,
+     *     answer: string,
+     *     explanation: string
+     * }
+     */
+    private function quizData(
+        Skill $skill,
+        ?AssessmentQuestion $question,
+    ): array {
+        if ($question) {
+            $options = $question->options;
+
+            if (
+                is_array($options)
+                && $options !== []
+            ) {
+                return [
+                    'question' => $question->prompt,
+                    'options' => $options,
+                    'answer' => $question->correct_answer,
+                    'explanation' => $question->explanation
+                        ?? 'Jawaban dinilai berdasarkan pemahaman konsep '.$skill->name.'.',
+                ];
+            }
+        }
+
+        return [
+            'question' => 'Pernyataan mana yang paling tepat menggambarkan cara mempelajari '.$skill->name.'?',
+            'options' => [
+                'A' => 'Memahami konsep utamanya, melihat penerapan, lalu mencoba latihan yang relevan.',
+                'B' => 'Menghafal istilah tanpa memahami konteks atau penerapannya.',
+                'C' => 'Mengabaikan konsep dasar dan langsung meniru hasil akhir.',
+                'D' => 'Menghindari latihan dan evaluasi agar tidak menemukan kesalahan.',
+            ],
+            'answer' => 'A',
+            'explanation' => 'Pembelajaran '.$skill->name.' perlu mencakup pemahaman konsep, konteks penerapan, dan latihan yang dapat dievaluasi.',
+        ];
     }
 }

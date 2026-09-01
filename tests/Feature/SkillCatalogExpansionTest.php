@@ -7,6 +7,7 @@ use App\Models\Career;
 use App\Models\LearningMaterial;
 use App\Models\PortfolioProject;
 use App\Models\Skill;
+use App\Support\AcademicAssessmentCatalog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -91,12 +92,12 @@ class SkillCatalogExpansionTest extends TestCase
             $this->assertCount(
                 15,
                 $career->skills,
-                "Jurusan {$career->name} harus memiliki tepat 15 skill.",
+                "Jurusan {$career->name} harus memiliki tepat 15 skill akademik keseluruhan.",
             );
         }
     }
 
-    public function test_each_program_has_thirty_assessment_questions_in_question_bank(): void
+    public function test_each_program_has_twenty_seven_assessment_questions_across_nine_core_skills(): void
     {
         $careers = Career::query()
             ->where(
@@ -104,9 +105,15 @@ class SkillCatalogExpansionTest extends TestCase
                 true,
             )
             ->with(
-                'assessments.questions',
+                'assessments.questions.skill',
             )
             ->get();
+
+        $this->assertSame(
+            162,
+            AssessmentQuestion::query()
+                ->count(),
+        );
 
         foreach ($careers as $career) {
             $assessment = $career
@@ -121,20 +128,33 @@ class SkillCatalogExpansionTest extends TestCase
                 "Jurusan {$career->name} belum memiliki Assesment.",
             );
 
-            $this->assertCount(
-                30,
-                $assessment->questions,
-                "Bank soal Assesment {$career->name} harus memiliki tepat 30 soal.",
+            $expectedSkillSlugs = AcademicAssessmentCatalog::skillSlugs(
+                $career->name,
             );
 
-            $this->assertSame(
-                15,
-                $assessment
-                    ->questions
-                    ->pluck('skill_id')
-                    ->unique()
-                    ->count(),
-                "Bank soal Assesment {$career->name} harus mencakup seluruh 15 skill jurusan.",
+            $this->assertCount(
+                AcademicAssessmentCatalog::SKILLS_PER_PROGRAM,
+                $expectedSkillSlugs,
+            );
+
+            $this->assertCount(
+                AcademicAssessmentCatalog::QUESTION_POOL_SIZE,
+                $assessment->questions,
+                "Bank soal Assesment {$career->name} harus memiliki tepat 27 soal.",
+            );
+
+            $actualSkillSlugs = $assessment
+                ->questions
+                ->pluck('skill.slug')
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
+
+            $this->assertEqualsCanonicalizing(
+                $expectedSkillSlugs,
+                $actualSkillSlugs,
+                "Skill Assesment {$career->name} tidak sesuai dengan 9 skill inti jurusan.",
             );
 
             foreach (
@@ -143,9 +163,9 @@ class SkillCatalogExpansionTest extends TestCase
                     ->groupBy('skill_id') as $questions
             ) {
                 $this->assertCount(
-                    2,
+                    AcademicAssessmentCatalog::QUESTIONS_PER_SKILL,
                     $questions,
-                    "Setiap skill pada Assesment {$career->name} harus memiliki tepat 2 soal di bank soal.",
+                    "Setiap skill inti Assesment {$career->name} harus memiliki tepat 3 soal.",
                 );
             }
         }
@@ -182,7 +202,7 @@ class SkillCatalogExpansionTest extends TestCase
         );
     }
 
-    public function test_academic_skills_have_assessment_and_learning_materials(): void
+    public function test_all_academic_skills_have_learning_materials(): void
     {
         $academicSkills = $this->academicSkills();
 
@@ -192,27 +212,6 @@ class SkillCatalogExpansionTest extends TestCase
         );
 
         foreach ($academicSkills as $skill) {
-            $this->assertTrue(
-                AssessmentQuestion::query()
-                    ->where(
-                        'skill_id',
-                        $skill->id,
-                    )
-                    ->exists(),
-                "Skill akademik {$skill->slug} belum memiliki soal Assesment.",
-            );
-
-            $this->assertSame(
-                2,
-                AssessmentQuestion::query()
-                    ->where(
-                        'skill_id',
-                        $skill->id,
-                    )
-                    ->count(),
-                "Skill akademik {$skill->slug} harus memiliki tepat 2 soal Assesment.",
-            );
-
             $this->assertTrue(
                 $skill
                     ->materials()
