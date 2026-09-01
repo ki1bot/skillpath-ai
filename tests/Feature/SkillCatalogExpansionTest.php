@@ -140,8 +140,7 @@ class SkillCatalogExpansionTest extends TestCase
             foreach (
                 $assessment
                     ->questions
-                    ->groupBy('skill_id')
-                as $questions
+                    ->groupBy('skill_id') as $questions
             ) {
                 $this->assertCount(
                     2,
