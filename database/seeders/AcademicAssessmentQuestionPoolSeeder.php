@@ -1345,6 +1345,7 @@ class AcademicAssessmentQuestionPoolSeeder extends Seeder
                 ->map(
                     fn ($id) => (int) $id,
                 )
+                ->values()
                 ->all();
 
             $this->deleteUnusedQuestions(
@@ -1355,15 +1356,6 @@ class AcademicAssessmentQuestionPoolSeeder extends Seeder
             foreach (
                 $questionsBySkill as $skillSlug => $questions
             ) {
-                if (
-                    count($questions)
-                    !== AcademicAssessmentCatalog::QUESTIONS_PER_SKILL
-                ) {
-                    throw new RuntimeException(
-                        'Skill '.$skillSlug.' harus memiliki tepat 3 soal.',
-                    );
-                }
-
                 $skill = $skills->get(
                     $skillSlug,
                 );
@@ -1460,6 +1452,7 @@ class AcademicAssessmentQuestionPoolSeeder extends Seeder
                     ->map(
                         fn ($id) => (int) $id,
                     )
+                    ->values()
                     ->all();
 
                 $this->deleteUnusedQuestions(

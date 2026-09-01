@@ -137,12 +137,11 @@ class AcademicProgramLearningMaterialSeeder extends Seeder
         ?AssessmentQuestion $question,
     ): array {
         if ($question) {
-            $options = $question->options;
+            $options = $this->questionOptions(
+                $question,
+            );
 
-            if (
-                is_array($options)
-                && $options !== []
-            ) {
+            if ($options !== null) {
                 return [
                     'question' => $question->prompt,
                     'options' => $options,
@@ -164,5 +163,41 @@ class AcademicProgramLearningMaterialSeeder extends Seeder
             'answer' => 'A',
             'explanation' => 'Pembelajaran '.$skill->name.' perlu mencakup pemahaman konsep, konteks penerapan, dan latihan yang dapat dievaluasi.',
         ];
+    }
+
+    /**
+     * @return array<string, string>|null
+     */
+    private function questionOptions(
+        AssessmentQuestion $question,
+    ): ?array {
+        $rawOptions = $question->getAttribute(
+            'options',
+        );
+
+        if (
+            ! is_array($rawOptions)
+            || $rawOptions === []
+        ) {
+            return null;
+        }
+
+        $options = [];
+
+        foreach ($rawOptions as $key => $value) {
+            if (! is_string($value)) {
+                return null;
+            }
+
+            $options[
+                (string) $key
+            ] = $value;
+        }
+
+        if ($options === []) {
+            return null;
+        }
+
+        return $options;
     }
 }
