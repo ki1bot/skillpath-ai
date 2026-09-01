@@ -81,14 +81,17 @@ trait CreatesSkillPathRecommendationUser
                 ],
             );
 
+            $correct = $score >= 70;
+
             AssessmentResult::create([
                 'user_id' => $user->id,
                 'assessment_id' => $assessment->id,
                 'skill_id' => $skill->id,
                 'attempt_uuid' => $attemptUuid,
-                'score' => $score,
-                'is_correct' => $score >= 70,
-                'self_rating' => min($score, 100),
+                'score' => $correct
+                    ? 100
+                    : 0,
+                'is_correct' => $correct,
                 'answer' => null,
             ]);
         }

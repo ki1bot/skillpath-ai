@@ -18,7 +18,6 @@ class AssessmentResult extends Model
         'attempt_uuid',
         'score',
         'is_correct',
-        'self_rating',
         'answer',
         'response_text',
         'evidence_url',
@@ -31,7 +30,6 @@ class AssessmentResult extends Model
         return [
             'score' => 'float',
             'is_correct' => 'boolean',
-            'self_rating' => 'integer',
         ];
     }
 

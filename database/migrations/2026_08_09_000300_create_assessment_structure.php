@@ -38,7 +38,6 @@ return new class extends Migration
             $table->uuid('attempt_uuid')->index();
             $table->decimal('score', 5, 2);
             $table->boolean('is_correct');
-            $table->unsignedTinyInteger('self_rating')->default(0);
             $table->string('answer')->nullable();
             $table->timestamps();
         });

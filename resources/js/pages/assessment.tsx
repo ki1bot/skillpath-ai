@@ -7,7 +7,7 @@ import {
     GraduationCap,
     History,
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { getStudyProgramDefinition } from '@/lib/academic-programs';
 
@@ -35,7 +35,6 @@ type Assessment = {
 
 type FormData = {
     answers: Record<number, string>;
-    self_ratings: Record<number, number>;
 };
 
 export default function AssessmentPage({
@@ -55,17 +54,8 @@ export default function AssessmentPage({
 
     const question = assessment.questions[index];
 
-    const initialRatings = useMemo(
-        () =>
-            Object.fromEntries(
-                assessment.questions.map((item) => [item.id, 50]),
-            ),
-        [assessment.questions],
-    );
-
     const form = useForm<FormData>({
         answers: {},
-        self_ratings: initialRatings,
     });
 
     const completedCount = assessment.questions.filter((item) =>
@@ -103,8 +93,6 @@ export default function AssessmentPage({
         );
     }
 
-    const currentRating = form.data.self_ratings[question.id] ?? 50;
-
     const currentAnswer = form.data.answers[question.id] ?? '';
 
     const isLastQuestion = index === assessment.questions.length - 1;
@@ -112,13 +100,6 @@ export default function AssessmentPage({
     const selectAnswer = (value: string) => {
         form.setData('answers', {
             ...form.data.answers,
-            [question.id]: value,
-        });
-    };
-
-    const setRating = (value: number) => {
-        form.setData('self_ratings', {
-            ...form.data.self_ratings,
             [question.id]: value,
         });
     };
@@ -305,44 +286,6 @@ export default function AssessmentPage({
                                     );
                                 },
                             )}
-                        </div>
-
-                        <div className="mt-8 rounded-[14px] border-2 border-foreground bg-muted p-5">
-                            <div className="flex items-center justify-between gap-4">
-                                <div>
-                                    <p className="text-sm font-black">
-                                        Seberapa yakin kamu dengan jawabanmu?
-                                    </p>
-
-                                    <p className="mt-1 text-xs font-medium text-muted-foreground">
-                                        Jawaban soal memiliki bobot 80%,
-                                        sedangkan assesment keyakinanmu memiliki
-                                        bobot 20%.
-                                    </p>
-                                </div>
-
-                                <span className="font-mono text-xl font-black">
-                                    {currentRating}
-                                </span>
-                            </div>
-
-                            <input
-                                type="range"
-                                min={0}
-                                max={100}
-                                step={5}
-                                value={currentRating}
-                                onChange={(event) =>
-                                    setRating(Number(event.target.value))
-                                }
-                                className="mt-5 w-full accent-black"
-                            />
-
-                            <div className="mt-1 flex justify-between text-[10px] font-black tracking-wide text-muted-foreground uppercase">
-                                <span>Belum yakin</span>
-
-                                <span>Sangat yakin</span>
-                            </div>
                         </div>
 
                         {form.errors.answers && (

@@ -165,7 +165,7 @@ class AssessmentEvidenceTest extends TestCase
         }
     }
 
-    public function test_academic_assessment_uses_objective_answer_and_self_rating_components(): void
+    public function test_academic_assessment_uses_objective_answers_only(): void
     {
         $assessment = $this->assessment();
 
@@ -215,17 +215,12 @@ class AssessmentEvidenceTest extends TestCase
             ->firstOrFail();
 
         $this->assertSame(
-            90.0,
+            100.0,
             (float) $result->score,
         );
 
         $this->assertTrue(
             $result->is_correct,
-        );
-
-        $this->assertSame(
-            50,
-            $result->self_rating,
         );
 
         $this->assertNull(
@@ -274,7 +269,7 @@ class AssessmentEvidenceTest extends TestCase
             ->firstOrFail();
 
         $this->assertSame(
-            90.0,
+            100.0,
             (float) $userSkill->score,
         );
 
@@ -467,30 +462,23 @@ class AssessmentEvidenceTest extends TestCase
     /**
      * @param  Collection<int, AssessmentQuestion>  $questions
      * @return array{
-     *     answers: array<int, string>,
-     *     self_ratings: array<int, int>
+     *     answers: array<int, string>
      * }
      */
     private function validPayload(
         Collection $questions,
     ): array {
         $answers = [];
-        $ratings = [];
 
         foreach ($questions as $question) {
             $answers[
                 $question->id
             ] = $question
                 ->correct_answer;
-
-            $ratings[
-                $question->id
-            ] = 50;
         }
 
         return [
             'answers' => $answers,
-            'self_ratings' => $ratings,
         ];
     }
 

@@ -326,16 +326,6 @@ class AssessmentController extends Controller
                 'string',
                 'in:A,B,C,D',
             ],
-            'self_ratings' => [
-                'required',
-                'array',
-            ],
-            'self_ratings.*' => [
-                'required',
-                'integer',
-                'min:0',
-                'max:100',
-            ],
         ]);
 
         $expectedIds = $questionIds
@@ -355,22 +345,7 @@ class AssessmentController extends Controller
             ->values()
             ->all();
 
-        $ratingIds = collect(
-            array_keys(
-                $validated['self_ratings'],
-            ),
-        )
-            ->map(
-                fn ($id) => (int) $id,
-            )
-            ->sort()
-            ->values()
-            ->all();
-
-        if (
-            $answerIds !== $expectedIds
-            || $ratingIds !== $expectedIds
-        ) {
+        if ($answerIds !== $expectedIds) {
             throw ValidationException::withMessages([
                 'answers' => 'Jawab tepat 25 pertanyaan yang diberikan pada sesi Assesment ini.',
             ]);
@@ -382,13 +357,9 @@ class AssessmentController extends Controller
                     $question->id,
                     $validated['answers'],
                 )
-                || ! array_key_exists(
-                    $question->id,
-                    $validated['self_ratings'],
-                )
             ) {
                 throw ValidationException::withMessages([
-                    'answers' => 'Jawab semua pertanyaan dan isi tingkat keyakinanmu sebelum menyelesaikan Assesment.',
+                    'answers' => 'Jawab semua pertanyaan sebelum menyelesaikan Assesment.',
                 ]);
             }
         }
@@ -410,31 +381,14 @@ class AssessmentController extends Controller
                         'answers'
                     ][$question->id];
 
-                    $selfRating = (int) $validated[
-                        'self_ratings'
-                    ][$question->id];
-
                     $correct = (
                         $answer
                         === $question->correct_answer
                     );
 
-                    $score = (
-                        $correct
-                            ? 80
-                            : 0
-                    ) + (
-                        $selfRating
-                        * 0.20
-                    );
-
-                    $score = round(
-                        min(
-                            $score,
-                            100,
-                        ),
-                        2,
-                    );
+                    $score = $correct
+                        ? 100.0
+                        : 0.0;
 
                     AssessmentResult::create([
                         'user_id' => $user->id,
@@ -447,7 +401,6 @@ class AssessmentController extends Controller
                         'attempt_uuid' => $attemptUuid,
                         'score' => $score,
                         'is_correct' => $correct,
-                        'self_rating' => $selfRating,
                         'answer' => $answer,
                         'response_text' => null,
                         'evidence_url' => null,
