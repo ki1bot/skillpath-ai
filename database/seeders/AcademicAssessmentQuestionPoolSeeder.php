@@ -865,6 +865,18 @@ class AcademicAssessmentQuestionPoolSeeder extends Seeder
         }
     }
 
+    /**
+     * @return array{
+     *     skill_slug: string,
+     *     prompt: string,
+     *     options: array{
+     *         0: string,
+     *         1: string,
+     *         2: string,
+     *         3: string
+     *     }
+     * }
+     */
     private function question(
         string $skillSlug,
         string $prompt,
