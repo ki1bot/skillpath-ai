@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             AcademicAssessmentSkillSeeder::class,
             CareerSkillSeeder::class,
             AcademicAssessmentSeeder::class,
+            AcademicAssessmentQuestionPoolSeeder::class,
             AcademicAssessmentCleanupSeeder::class,
             AcademicProgramLearningMaterialSeeder::class,
             AcademicPortfolioProjectSeeder::class,

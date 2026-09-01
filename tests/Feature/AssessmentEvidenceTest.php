@@ -3,11 +3,14 @@
 namespace Tests\Feature;
 
 use App\Models\Assessment;
+use App\Models\AssessmentQuestion;
 use App\Models\AssessmentResult;
 use App\Models\Career;
 use App\Models\User;
 use App\Models\UserSkill;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class AssessmentEvidenceTest extends TestCase
@@ -48,16 +51,71 @@ class AssessmentEvidenceTest extends TestCase
             ]);
     }
 
-    public function test_academic_assessment_contains_fifteen_multiple_choice_questions(): void
+    public function test_academic_assessment_displays_twenty_five_random_multiple_choice_questions(): void
     {
         $assessment = $this->assessment();
 
         $this->assertCount(
-            15,
+            30,
             $assessment->questions,
         );
 
-        foreach ($assessment->questions as $question) {
+        $response = $this
+            ->actingAs(
+                $this->user,
+            )
+            ->get(
+                route(
+                    'assessment.show',
+                ),
+            );
+
+        $response
+            ->assertOk()
+            ->assertInertia(
+                fn (Assert $page) => $page
+                    ->component('assessment')
+                    ->where(
+                        'assessment.study_program',
+                        'Sistem Informasi',
+                    )
+                    ->has(
+                        'assessment.questions',
+                        25,
+                    ),
+            );
+
+        $questionIds = $this->selectedQuestionIds(
+            $assessment,
+        );
+
+        $this->assertCount(
+            25,
+            $questionIds,
+        );
+
+        $this->assertCount(
+            25,
+            array_unique($questionIds),
+        );
+
+        $questions = AssessmentQuestion::query()
+            ->where(
+                'assessment_id',
+                $assessment->id,
+            )
+            ->whereIn(
+                'id',
+                $questionIds,
+            )
+            ->get();
+
+        $this->assertCount(
+            25,
+            $questions,
+        );
+
+        foreach ($questions as $question) {
             $this->assertSame(
                 'multiple_choice',
                 $question->question_type,
@@ -82,13 +140,15 @@ class AssessmentEvidenceTest extends TestCase
     {
         $assessment = $this->assessment();
 
-        $payload = $this->validPayload(
+        $questions = $this->startAssessment(
             $assessment,
         );
 
-        $question = $assessment
-            ->questions
-            ->first();
+        $payload = $this->validPayload(
+            $questions,
+        );
+
+        $question = $questions->first();
 
         $this->assertNotNull(
             $question,
@@ -155,6 +215,24 @@ class AssessmentEvidenceTest extends TestCase
             $result->experience_evidence_url,
         );
 
+        $this->assertSame(
+            25,
+            AssessmentResult::query()
+                ->where(
+                    'user_id',
+                    $this->user->id,
+                )
+                ->where(
+                    'assessment_id',
+                    $assessment->id,
+                )
+                ->where(
+                    'attempt_uuid',
+                    $result->attempt_uuid,
+                )
+                ->count(),
+        );
+
         $userSkill = UserSkill::query()
             ->where(
                 'user_id',
@@ -185,13 +263,15 @@ class AssessmentEvidenceTest extends TestCase
     {
         $assessment = $this->assessment();
 
-        $payload = $this->validPayload(
+        $questions = $this->startAssessment(
             $assessment,
         );
 
-        $question = $assessment
-            ->questions
-            ->first();
+        $payload = $this->validPayload(
+            $questions,
+        );
+
+        $question = $questions->first();
 
         $this->assertNotNull(
             $question,
@@ -230,6 +310,49 @@ class AssessmentEvidenceTest extends TestCase
         );
     }
 
+    public function test_assessment_submission_requires_active_random_question_session(): void
+    {
+        $assessment = $this->assessment();
+
+        $questions = $assessment
+            ->questions
+            ->take(25)
+            ->values();
+
+        $payload = $this->validPayload(
+            $questions,
+        );
+
+        $this->actingAs(
+            $this->user,
+        )
+            ->post(
+                route(
+                    'assessment.submit',
+                ),
+                $payload,
+            )
+            ->assertRedirect(
+                route(
+                    'assessment.show',
+                ),
+            );
+
+        $this->assertSame(
+            0,
+            AssessmentResult::query()
+                ->where(
+                    'user_id',
+                    $this->user->id,
+                )
+                ->where(
+                    'assessment_id',
+                    $assessment->id,
+                )
+                ->count(),
+        );
+    }
+
     private function assessment(): Assessment
     {
         return Assessment::query()
@@ -250,15 +373,78 @@ class AssessmentEvidenceTest extends TestCase
             ->firstOrFail();
     }
 
-    private function validPayload(
+    /**
+     * @return Collection<int, AssessmentQuestion>
+     */
+    private function startAssessment(
         Assessment $assessment,
+    ): Collection {
+        $this->actingAs(
+            $this->user,
+        )
+            ->get(
+                route(
+                    'assessment.show',
+                ),
+            )
+            ->assertOk();
+
+        $questionIds = $this->selectedQuestionIds(
+            $assessment,
+        );
+
+        return AssessmentQuestion::query()
+            ->where(
+                'assessment_id',
+                $assessment->id,
+            )
+            ->whereIn(
+                'id',
+                $questionIds,
+            )
+            ->get();
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function selectedQuestionIds(
+        Assessment $assessment,
+    ): array {
+        $questionIds = session()->get(
+            $this->questionSessionKey(
+                $assessment,
+            ),
+        );
+
+        $this->assertIsArray(
+            $questionIds,
+        );
+
+        return collect(
+            $questionIds,
+        )
+            ->map(
+                fn ($id) => (int) $id,
+            )
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  Collection<int, AssessmentQuestion>  $questions
+     * @return array{
+     *     answers: array<int, string>,
+     *     self_ratings: array<int, int>
+     * }
+     */
+    private function validPayload(
+        Collection $questions,
     ): array {
         $answers = [];
         $ratings = [];
 
-        foreach (
-            $assessment->questions as $question
-        ) {
+        foreach ($questions as $question) {
             $answers[
                 $question->id
             ] = $question
@@ -273,5 +459,14 @@ class AssessmentEvidenceTest extends TestCase
             'answers' => $answers,
             'self_ratings' => $ratings,
         ];
+    }
+
+    private function questionSessionKey(
+        Assessment $assessment,
+    ): string {
+        return 'assessment.question_ids.'
+            .$assessment->id
+            .'.'
+            .$this->user->id;
     }
 }

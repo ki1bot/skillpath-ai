@@ -51,8 +51,14 @@ class SkillCatalogExpansionTest extends TestCase
         ];
 
         $careers = Career::query()
-            ->whereIn('slug', $programSlugs)
-            ->where('is_active', true)
+            ->whereIn(
+                'slug',
+                $programSlugs,
+            )
+            ->where(
+                'is_active',
+                true,
+            )
             ->with('skills')
             ->get();
 
@@ -64,14 +70,20 @@ class SkillCatalogExpansionTest extends TestCase
         $this->assertSame(
             6,
             Career::query()
-                ->where('is_active', true)
+                ->where(
+                    'is_active',
+                    true,
+                )
                 ->count(),
         );
 
         $this->assertSame(
             0,
             Career::query()
-                ->where('difficulty', 'Legacy')
+                ->where(
+                    'difficulty',
+                    'Legacy',
+                )
                 ->count(),
         );
 
@@ -84,17 +96,25 @@ class SkillCatalogExpansionTest extends TestCase
         }
     }
 
-    public function test_each_program_has_fifteen_assessment_questions(): void
+    public function test_each_program_has_thirty_assessment_questions_in_question_bank(): void
     {
         $careers = Career::query()
-            ->where('is_active', true)
-            ->with('assessments.questions')
+            ->where(
+                'is_active',
+                true,
+            )
+            ->with(
+                'assessments.questions',
+            )
             ->get();
 
         foreach ($careers as $career) {
             $assessment = $career
                 ->assessments
-                ->firstWhere('study_program', $career->name);
+                ->firstWhere(
+                    'study_program',
+                    $career->name,
+                );
 
             $this->assertNotNull(
                 $assessment,
@@ -102,10 +122,33 @@ class SkillCatalogExpansionTest extends TestCase
             );
 
             $this->assertCount(
-                15,
+                30,
                 $assessment->questions,
-                "Assesment {$career->name} harus memiliki tepat 15 soal.",
+                "Bank soal Assesment {$career->name} harus memiliki tepat 30 soal.",
             );
+
+            $this->assertSame(
+                15,
+                $assessment
+                    ->questions
+                    ->pluck('skill_id')
+                    ->unique()
+                    ->count(),
+                "Bank soal Assesment {$career->name} harus mencakup seluruh 15 skill jurusan.",
+            );
+
+            foreach (
+                $assessment
+                    ->questions
+                    ->groupBy('skill_id')
+                as $questions
+            ) {
+                $this->assertCount(
+                    2,
+                    $questions,
+                    "Setiap skill pada Assesment {$career->name} harus memiliki tepat 2 soal di bank soal.",
+                );
+            }
         }
     }
 
@@ -114,16 +157,28 @@ class SkillCatalogExpansionTest extends TestCase
         $this->assertSame(
             90,
             LearningMaterial::query()
-                ->where('material_type', 'core')
-                ->where('is_active', true)
+                ->where(
+                    'material_type',
+                    'core',
+                )
+                ->where(
+                    'is_active',
+                    true,
+                )
                 ->count(),
         );
 
         $this->assertSame(
             90,
             LearningMaterial::query()
-                ->where('material_type', 'reinforcement')
-                ->where('is_active', true)
+                ->where(
+                    'material_type',
+                    'reinforcement',
+                )
+                ->where(
+                    'is_active',
+                    true,
+                )
                 ->count(),
         );
     }
@@ -140,16 +195,36 @@ class SkillCatalogExpansionTest extends TestCase
         foreach ($academicSkills as $skill) {
             $this->assertTrue(
                 AssessmentQuestion::query()
-                    ->where('skill_id', $skill->id)
+                    ->where(
+                        'skill_id',
+                        $skill->id,
+                    )
                     ->exists(),
                 "Skill akademik {$skill->slug} belum memiliki soal Assesment.",
+            );
+
+            $this->assertSame(
+                2,
+                AssessmentQuestion::query()
+                    ->where(
+                        'skill_id',
+                        $skill->id,
+                    )
+                    ->count(),
+                "Skill akademik {$skill->slug} harus memiliki tepat 2 soal Assesment.",
             );
 
             $this->assertTrue(
                 $skill
                     ->materials()
-                    ->where('material_type', 'core')
-                    ->where('is_active', true)
+                    ->where(
+                        'material_type',
+                        'core',
+                    )
+                    ->where(
+                        'is_active',
+                        true,
+                    )
                     ->exists(),
                 "Skill akademik {$skill->slug} belum memiliki materi utama.",
             );
@@ -157,8 +232,14 @@ class SkillCatalogExpansionTest extends TestCase
             $this->assertTrue(
                 $skill
                     ->materials()
-                    ->where('material_type', 'reinforcement')
-                    ->where('is_active', true)
+                    ->where(
+                        'material_type',
+                        'reinforcement',
+                    )
+                    ->where(
+                        'is_active',
+                        true,
+                    )
                     ->exists(),
                 "Skill akademik {$skill->slug} belum memiliki materi penguatan.",
             );
@@ -201,13 +282,19 @@ class SkillCatalogExpansionTest extends TestCase
         ];
 
         $careers = Career::query()
-            ->where('is_active', true)
-            ->with('projects.skills')
+            ->where(
+                'is_active',
+                true,
+            )
+            ->with(
+                'projects.skills',
+            )
             ->get();
 
         $this->assertSame(
             18,
-            PortfolioProject::query()->count(),
+            PortfolioProject::query()
+                ->count(),
         );
 
         foreach ($careers as $career) {
@@ -218,12 +305,19 @@ class SkillCatalogExpansionTest extends TestCase
             );
 
             $this->assertEqualsCanonicalizing(
-                $expectedProjects[$career->name],
-                $career->projects->pluck('title')->all(),
+                $expectedProjects[
+                    $career->name
+                ],
+                $career
+                    ->projects
+                    ->pluck('title')
+                    ->all(),
                 "Daftar proyek {$career->name} tidak sesuai PDF.",
             );
 
-            foreach ($career->projects as $project) {
+            foreach (
+                $career->projects as $project
+            ) {
                 $this->assertCount(
                     5,
                     $project->skills,
@@ -236,12 +330,36 @@ class SkillCatalogExpansionTest extends TestCase
     private function academicSkills()
     {
         return Skill::query()
-            ->where('slug', 'like', 'si-%')
-            ->orWhere('slug', 'like', 'man-%')
-            ->orWhere('slug', 'like', 'ti-%')
-            ->orWhere('slug', 'like', 'sk-%')
-            ->orWhere('slug', 'like', 'psi-%')
-            ->orWhere('slug', 'like', 'ikom-%')
+            ->where(
+                'slug',
+                'like',
+                'si-%',
+            )
+            ->orWhere(
+                'slug',
+                'like',
+                'man-%',
+            )
+            ->orWhere(
+                'slug',
+                'like',
+                'ti-%',
+            )
+            ->orWhere(
+                'slug',
+                'like',
+                'sk-%',
+            )
+            ->orWhere(
+                'slug',
+                'like',
+                'psi-%',
+            )
+            ->orWhere(
+                'slug',
+                'like',
+                'ikom-%',
+            )
             ->get();
     }
 }

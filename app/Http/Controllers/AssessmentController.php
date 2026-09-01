@@ -17,6 +17,8 @@ use Inertia\Response;
 
 class AssessmentController extends Controller
 {
+    private const QUESTION_LIMIT = 25;
+
     private const STUDY_PROGRAM_ALIASES = [
         'sistem informasi' => 'Sistem Informasi',
         'si' => 'Sistem Informasi',
@@ -67,10 +69,40 @@ class AssessmentController extends Controller
                 );
         }
 
-        $assessment->load([
-            'career',
-            'questions.skill',
-        ]);
+        $assessment->load('career');
+
+        $questions = $assessment
+            ->questions()
+            ->with('skill')
+            ->inRandomOrder()
+            ->limit(self::QUESTION_LIMIT)
+            ->get();
+
+        if (
+            $questions->count()
+            !== self::QUESTION_LIMIT
+        ) {
+            return redirect()
+                ->route('dashboard')
+                ->with(
+                    'error',
+                    'Bank soal Assesment belum lengkap. Setiap jurusan harus memiliki minimal '.self::QUESTION_LIMIT.' soal.',
+                );
+        }
+
+        $request->session()->put(
+            $this->questionSessionKey(
+                $assessment->id,
+                $user->id,
+            ),
+            $questions
+                ->pluck('id')
+                ->map(
+                    fn ($id) => (int) $id,
+                )
+                ->values()
+                ->all(),
+        );
 
         $payload = [
             'id' => $assessment->id,
@@ -83,9 +115,7 @@ class AssessmentController extends Controller
                     ->career
                     ->name,
             ],
-            'questions' => $assessment
-                ->questions
-                ->sortBy('id')
+            'questions' => $questions
                 ->map(
                     fn ($question) => [
                         'id' => $question->id,
@@ -174,7 +204,75 @@ class AssessmentController extends Controller
                 );
         }
 
-        $assessment->load('questions');
+        $sessionKey = $this->questionSessionKey(
+            $assessment->id,
+            $user->id,
+        );
+
+        $storedQuestionIds = $request
+            ->session()
+            ->get($sessionKey);
+
+        if (! is_array($storedQuestionIds)) {
+            return redirect()
+                ->route('assessment.show')
+                ->with(
+                    'error',
+                    'Sesi Assesment sudah tidak berlaku. Soal baru sudah disiapkan, silakan kerjakan kembali.',
+                );
+        }
+
+        $questionIds = collect(
+            $storedQuestionIds,
+        )
+            ->map(
+                fn ($id) => (int) $id,
+            )
+            ->filter(
+                fn (int $id) => $id > 0,
+            )
+            ->unique()
+            ->values();
+
+        if (
+            $questionIds->count()
+            !== self::QUESTION_LIMIT
+        ) {
+            $request
+                ->session()
+                ->forget($sessionKey);
+
+            return redirect()
+                ->route('assessment.show')
+                ->with(
+                    'error',
+                    'Sesi Assesment tidak valid. Soal baru sudah disiapkan.',
+                );
+        }
+
+        $questions = $assessment
+            ->questions()
+            ->whereIn(
+                'id',
+                $questionIds->all(),
+            )
+            ->get();
+
+        if (
+            $questions->count()
+            !== self::QUESTION_LIMIT
+        ) {
+            $request
+                ->session()
+                ->forget($sessionKey);
+
+            return redirect()
+                ->route('assessment.show')
+                ->with(
+                    'error',
+                    'Sebagian soal Assesment sudah berubah. Silakan mulai Assesment kembali.',
+                );
+        }
 
         $validated = $request->validate([
             'answers' => [
@@ -198,7 +296,45 @@ class AssessmentController extends Controller
             ],
         ]);
 
-        foreach ($assessment->questions as $question) {
+        $expectedIds = $questionIds
+            ->sort()
+            ->values()
+            ->all();
+
+        $answerIds = collect(
+            array_keys(
+                $validated['answers'],
+            ),
+        )
+            ->map(
+                fn ($id) => (int) $id,
+            )
+            ->sort()
+            ->values()
+            ->all();
+
+        $ratingIds = collect(
+            array_keys(
+                $validated['self_ratings'],
+            ),
+        )
+            ->map(
+                fn ($id) => (int) $id,
+            )
+            ->sort()
+            ->values()
+            ->all();
+
+        if (
+            $answerIds !== $expectedIds
+            || $ratingIds !== $expectedIds
+        ) {
+            throw ValidationException::withMessages([
+                'answers' => 'Jawab tepat 25 pertanyaan yang diberikan pada sesi Assesment ini.',
+            ]);
+        }
+
+        foreach ($questions as $question) {
             if (
                 ! array_key_exists(
                     $question->id,
@@ -220,15 +356,14 @@ class AssessmentController extends Controller
         DB::transaction(
             function () use (
                 $assessment,
+                $questions,
                 $validated,
                 $user,
                 $attemptUuid,
             ) {
                 $skillScores = [];
 
-                foreach (
-                    $assessment->questions as $question
-                ) {
+                foreach ($questions as $question) {
                     $answer = (string) $validated[
                         'answers'
                     ][$question->id];
@@ -307,6 +442,10 @@ class AssessmentController extends Controller
             },
         );
 
+        $request
+            ->session()
+            ->forget($sessionKey);
+
         $freshUser = $user->fresh([
             'targetCareer',
         ]);
@@ -343,7 +482,10 @@ class AssessmentController extends Controller
                 'study_program',
                 $studyProgram,
             )
-            ->where('is_active', true)
+            ->where(
+                'is_active',
+                true,
+            )
             ->first();
     }
 
@@ -361,5 +503,15 @@ class AssessmentController extends Controller
         return self::STUDY_PROGRAM_ALIASES[
             $normalized
         ] ?? null;
+    }
+
+    private function questionSessionKey(
+        int $assessmentId,
+        int $userId,
+    ): string {
+        return 'assessment.question_ids.'
+            .$assessmentId
+            .'.'
+            .$userId;
     }
 }
