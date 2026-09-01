@@ -1529,7 +1529,7 @@ class AcademicAssessmentQuestionPoolSeeder extends Seeder
     }
 
     /**
-     * @param  list<int>  $questionIds
+     * @param  array<int, int>  $questionIds
      */
     private function deleteUnusedQuestions(
         array $questionIds,

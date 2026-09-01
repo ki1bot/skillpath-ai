@@ -194,10 +194,6 @@ class AcademicProgramLearningMaterialSeeder extends Seeder
             ] = $value;
         }
 
-        if ($options === []) {
-            return null;
-        }
-
         return $options;
     }
 }
