@@ -11,7 +11,6 @@ use App\Services\CareerReadinessService;
 use App\Services\ProjectReadinessService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -82,7 +81,10 @@ class ProjectController extends Controller
             404,
         );
 
-        $portfolioProject->load(['career', 'skills']);
+        $portfolioProject->load([
+            'career',
+            'skills',
+        ]);
 
         $userProject = UserProject::query()
             ->where('user_id', $user->id)
@@ -164,7 +166,7 @@ class ProjectController extends Controller
         if (! $userProject->wasRecentlyCreated) {
             return back()->with(
                 'success',
-                'Proyek ini sudah pernah dimulai. Lanjutkan dari progres terakhir Anda.',
+                'Proyek ini sudah pernah dimulai. Lanjutkan pengerjaan proyek dan kirim bukti Google Drive setelah selesai.',
             );
         }
 
@@ -182,7 +184,7 @@ class ProjectController extends Controller
             'success',
             $readiness['recommendation']['level'] === 'challenge'
                 ? 'Proyek dimulai sebagai challenge. Prioritaskan skill yang masih memiliki gap agar risiko pengerjaan tetap terkendali.'
-                : 'Proyek dimulai. Gunakan checklist fitur sebagai batas minimum pengerjaan.',
+                : 'Proyek dimulai. Kerjakan fitur minimum dan unggah hasil ke Google Drive setelah proyek selesai.',
         );
     }
 
@@ -197,99 +199,79 @@ class ProjectController extends Controller
         );
 
         $validated = $request->validate([
-            'progress_percentage' => [
-                'required',
-                'integer',
-                'min:0',
-                'max:100',
-            ],
             'repository_url' => [
-                'nullable',
+                'required',
                 'string',
                 new ExternalEvidenceUrl,
                 'max:1000',
             ],
-            'notes' => [
-                'nullable',
-                'string',
-                'max:3000',
-            ],
         ]);
 
-        $completed = $validated['progress_percentage'] === 100;
-
-        $repositoryUrl = trim(
-            (string) ($validated['repository_url'] ?? ''),
+        $googleDriveUrl = trim(
+            (string) $validated['repository_url'],
         );
 
-        $notes = trim(
-            (string) ($validated['notes'] ?? ''),
+        $host = strtolower(
+            (string) parse_url(
+                $googleDriveUrl,
+                PHP_URL_HOST,
+            ),
         );
 
-        if ($completed && $repositoryUrl === '') {
-            throw ValidationException::withMessages([
-                'repository_url' => 'Proyek hanya dapat ditandai 100% setelah tautan repository atau bukti eksternal disertakan.',
-            ]);
-        }
+        $path = trim(
+            (string) parse_url(
+                $googleDriveUrl,
+                PHP_URL_PATH,
+            ),
+            '/',
+        );
 
         if (
-            $completed
-            && Str::length($notes) < 80
+            $host !== 'drive.google.com'
+            || $path === ''
         ) {
             throw ValidationException::withMessages([
-                'notes' => 'Untuk menyelesaikan proyek, jelaskan hasil, bagian yang sudah berfungsi, dan bukti penyelesaian minimal 80 karakter.',
+                'repository_url' => 'Masukkan link Google Drive yang valid dari https://drive.google.com/.',
             ]);
         }
 
         $userProject = UserProject::query()
-            ->where('user_id', $request->user()->id)
-            ->where('portfolio_project_id', $portfolioProject->id)
+            ->where(
+                'user_id',
+                $request->user()->id,
+            )
+            ->where(
+                'portfolio_project_id',
+                $portfolioProject->id,
+            )
             ->firstOrFail();
 
         $userProject->update([
-            'progress_percentage' => $validated['progress_percentage'],
-            'repository_url' => $repositoryUrl !== ''
-                ? $repositoryUrl
-                : null,
-            'notes' => $notes !== ''
-                ? $notes
-                : null,
-            'status' => $completed
-                ? 'completed'
-                : 'in_progress',
-            'completed_at' => $completed
-                ? now()
-                : null,
+            'progress_percentage' => 100,
+            'repository_url' => $googleDriveUrl,
+            'notes' => null,
+            'status' => 'completed',
+            'completed_at' => now(),
         ]);
 
         ProgressLog::create([
             'user_id' => $request->user()->id,
-            'activity_type' => $completed
-                ? 'project_completed'
-                : 'project_progress',
+            'activity_type' => 'project_completed',
             'minutes_spent' => 0,
-            'progress_percentage' => $validated['progress_percentage'],
-            'notes' => $notes !== ''
-                ? $notes
-                : null,
-            'evidence_url' => $repositoryUrl !== ''
-                ? $repositoryUrl
-                : null,
+            'progress_percentage' => 100,
+            'notes' => 'Bukti penyelesaian proyek disimpan melalui Google Drive.',
+            'evidence_url' => $googleDriveUrl,
             'logged_at' => now(),
         ]);
 
         $readinessService->snapshot(
             $request->user(),
-            $completed
-                ? 'project_completed'
-                : 'project_progress',
+            'project_completed',
         );
 
         return back()->with(
             'success',
-            $completed
-                ? 'Proyek ditandai selesai dengan bukti eksternal yang tercatat.'
-                : 'Progres proyek diperbarui.',
+            'Proyek berhasil diselesaikan dan bukti Google Drive sudah disimpan.',
         );
     }
 }

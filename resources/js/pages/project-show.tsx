@@ -62,9 +62,7 @@ interface ProjectReadiness {
 
 interface UserProject {
     status: string;
-    progress_percentage: number;
     repository_url?: string | null;
-    notes?: string | null;
 }
 
 interface AiFeedback {
@@ -94,9 +92,7 @@ export default function ProjectShow({
     const [isRetryingAi, setIsRetryingAi] = useState(false);
 
     const progressForm = useForm({
-        progress_percentage: userProject?.progress_percentage ?? 0,
         repository_url: userProject?.repository_url ?? '',
-        notes: userProject?.notes ?? '',
     });
 
     const updateProgress = (event: React.FormEvent) => {
@@ -119,11 +115,25 @@ export default function ProjectShow({
         });
     };
 
-    const isCompleting = progressForm.data.progress_percentage === 100;
-    const completionEvidenceReady =
-        !isCompleting ||
-        (progressForm.data.repository_url.trim().startsWith('https://') &&
-            progressForm.data.notes.trim().length >= 80);
+    const googleDriveUrl = progressForm.data.repository_url.trim();
+
+    const googleDriveLinkReady = (() => {
+        if (!googleDriveUrl) {
+            return false;
+        }
+
+        try {
+            const url = new URL(googleDriveUrl);
+
+            return (
+                url.protocol === 'https:' &&
+                url.hostname === 'drive.google.com' &&
+                url.pathname !== '/'
+            );
+        } catch {
+            return false;
+        }
+    })();
 
     const recommendationClass =
         recommendationClasses[readiness.recommendation.level];
@@ -234,9 +244,11 @@ export default function ProjectShow({
                                         <p className="font-black">
                                             {item.name}
                                         </p>
+
                                         <p className="mt-2 font-mono text-xs font-black">
                                             {item.current} / {item.required}
                                         </p>
+
                                         <p className="mt-2 text-xs font-semibold text-muted-foreground">
                                             Gap {item.gap} poin · bobot{' '}
                                             {item.weight}
@@ -287,11 +299,10 @@ export default function ProjectShow({
                                 </p>
 
                                 <p className="mt-4 text-xs leading-5 font-bold text-muted-foreground">
-                                    AI hanya membaca deskripsi proyek,
-                                    readiness, progres, dan catatan yang
-                                    tersimpan di SkillPath AI. Sistem tidak
-                                    mengklaim membaca source code atau
-                                    repository pengguna.
+                                    AI hanya membaca deskripsi proyek, kesiapan,
+                                    dan status proyek yang tersimpan di
+                                    SkillPath AI. Sistem tidak membuka atau
+                                    membaca isi file Google Drive pengguna.
                                 </p>
                             </CardContent>
                         </Card>
@@ -331,6 +342,7 @@ export default function ProjectShow({
                                                 : undefined
                                         }
                                     />
+
                                     {isRetryingAi
                                         ? 'Memuat ulang...'
                                         : 'Coba lagi'}
@@ -471,7 +483,7 @@ export default function ProjectShow({
                                 <p className="mt-1 max-w-3xl text-sm leading-6 font-medium">
                                     {readiness.recommendation.level ===
                                     'recommended'
-                                        ? 'Prasyarat minimum sudah terpenuhi. Memulai proyek tidak mengubah skor skill; progres dan bukti proyek dicatat terpisah.'
+                                        ? 'Prasyarat minimum sudah terpenuhi. Mulai proyek, kerjakan sesuai kriteria, lalu unggah hasil ke Google Drive sebagai bukti penyelesaian.'
                                         : readiness.recommendation.message}
                                 </p>
                             </div>
@@ -483,6 +495,7 @@ export default function ProjectShow({
                                 {({ processing }) => (
                                     <Button disabled={processing} size="lg">
                                         <Play className="size-4" />
+
                                         {readiness.recommendation.level ===
                                         'challenge'
                                             ? 'Mulai sebagai challenge'
@@ -496,7 +509,7 @@ export default function ProjectShow({
                     <Card>
                         <CardHeader className="border-b-2 border-[#171717] bg-[var(--neo-lime)] text-[#171717]">
                             <CardTitle className="text-xl font-black">
-                                Catat progres proyek
+                                Kirim bukti proyek
                             </CardTitle>
                         </CardHeader>
 
@@ -505,40 +518,17 @@ export default function ProjectShow({
                                 onSubmit={updateProgress}
                                 className="grid gap-5"
                             >
-                                <label className="grid gap-2 text-sm font-black">
-                                    Progres:{' '}
-                                    {progressForm.data.progress_percentage}%
-                                    <input
-                                        type="range"
-                                        min="0"
-                                        max="100"
-                                        step="5"
-                                        value={
-                                            progressForm.data
-                                                .progress_percentage
-                                        }
-                                        onChange={(event) =>
-                                            progressForm.setData(
-                                                'progress_percentage',
-                                                Number(event.target.value),
-                                            )
-                                        }
-                                        className="accent-secondary"
-                                    />
-                                </label>
-
-                                {isCompleting && (
-                                    <div className="rounded-[12px] border-2 border-[#171717] bg-[var(--neo-yellow)] p-4 text-sm leading-6 font-bold text-[#171717]">
-                                        Progres 100% hanya dapat disimpan jika
-                                        ada tautan bukti HTTPS eksternal dan
-                                        catatan penyelesaian minimal 80
-                                        karakter. SkillPath memvalidasi format
-                                        bukti, bukan isi source code.
-                                    </div>
-                                )}
+                                <div className="rounded-[12px] border-2 border-foreground bg-muted p-4">
+                                    <p className="text-sm leading-6 font-semibold">
+                                        Setelah proyek selesai, unggah hasil
+                                        atau dokumentasi proyek ke Google Drive.
+                                        Tempel link Google Drive di bawah ini
+                                        untuk menandai proyek sebagai selesai.
+                                    </p>
+                                </div>
 
                                 <label className="grid gap-2 text-sm font-black">
-                                    URL repositori / bukti
+                                    Link Google Drive
                                     <div className="relative">
                                         <Input
                                             type="url"
@@ -551,12 +541,16 @@ export default function ProjectShow({
                                                     event.target.value,
                                                 )
                                             }
-                                            placeholder="https://github.com/..."
-                                            required={isCompleting}
+                                            placeholder="https://drive.google.com/file/d/..."
+                                            required
                                         />
 
                                         <ExternalLink className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2" />
                                     </div>
+                                    <span className="text-xs font-semibold text-muted-foreground">
+                                        Gunakan link HTTPS dari
+                                        drive.google.com.
+                                    </span>
                                     {progressForm.errors.repository_url && (
                                         <span className="text-xs text-destructive">
                                             {progressForm.errors.repository_url}
@@ -564,46 +558,18 @@ export default function ProjectShow({
                                     )}
                                 </label>
 
-                                <label className="grid gap-2 text-sm font-black">
-                                    Catatan pengerjaan
-                                    <textarea
-                                        value={progressForm.data.notes}
-                                        onChange={(event) =>
-                                            progressForm.setData(
-                                                'notes',
-                                                event.target.value,
-                                            )
-                                        }
-                                        rows={5}
-                                        minLength={
-                                            isCompleting ? 80 : undefined
-                                        }
-                                        required={isCompleting}
-                                        className="w-full resize-y rounded-[10px] border-2 border-foreground bg-card p-3 text-sm font-medium text-foreground shadow-[2px_2px_0_var(--neo-shadow-color)] transition-[box-shadow,border-color,background-color] outline-none placeholder:font-medium placeholder:text-muted-foreground focus:border-foreground focus:bg-card focus:ring-2 focus:ring-secondary"
-                                        placeholder="Apa yang selesai, apa yang berfungsi, bukti apa yang tersedia, dan apa yang masih perlu ditingkatkan?"
-                                    />
-                                    <span className="text-xs font-semibold text-muted-foreground">
-                                        {progressForm.data.notes.trim().length}
-                                        {isCompleting
-                                            ? '/80 karakter minimum'
-                                            : ' karakter'}
-                                    </span>
-                                    {progressForm.errors.notes && (
-                                        <span className="text-xs text-destructive">
-                                            {progressForm.errors.notes}
-                                        </span>
-                                    )}
-                                </label>
-
                                 <Button
                                     disabled={
                                         progressForm.processing ||
-                                        !completionEvidenceReady
+                                        !googleDriveLinkReady
                                     }
                                     className="w-fit"
                                 >
                                     <Save className="size-4" />
-                                    Simpan progres
+
+                                    {progressForm.processing
+                                        ? 'Menyimpan...'
+                                        : 'Selesaikan proyek'}
                                 </Button>
                             </form>
                         </CardContent>
