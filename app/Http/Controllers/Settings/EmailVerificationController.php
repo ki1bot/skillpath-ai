@@ -184,7 +184,7 @@ class EmailVerificationController extends Controller
 
         return Cache::add(
             $this->resendCacheKey($userId),
-            $expiresAt->timestamp,
+            $expiresAt->getTimestamp(),
             $expiresAt,
         );
     }
@@ -201,7 +201,7 @@ class EmailVerificationController extends Controller
             return 0;
         }
 
-        $remaining = (int) $availableAt - now()->timestamp;
+        $remaining = (int) $availableAt - now()->getTimestamp();
 
         if ($remaining <= 0) {
             Cache::forget($cacheKey);
