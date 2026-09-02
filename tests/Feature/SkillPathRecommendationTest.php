@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Evaluation;
 use App\Models\LearningMaterial;
 use App\Models\Roadmap;
 use App\Models\RoadmapItem;
@@ -90,7 +91,7 @@ class SkillPathRecommendationTest extends TestCase
         }
     }
 
-    public function test_evaluation_requires_external_evidence_and_meaningful_reflection(): void
+    public function test_evaluation_requires_google_drive_evidence(): void
     {
         [$material, $item] = $this->databaseMaterialAndRoadmapItem();
 
@@ -116,8 +117,24 @@ class SkillPathRecommendationTest extends TestCase
                 [
                     'answer' => $material
                         ->quiz_answer,
-                    'reflection' => $this
-                        ->validReflection(),
+                ],
+            )
+            ->assertSessionHasErrors([
+                'practical_evidence_url',
+            ]);
+
+        $this->actingAs(
+            $this->user,
+        )
+            ->post(
+                route(
+                    'roadmap.evaluate',
+                    $item,
+                ),
+                [
+                    'answer' => $material
+                        ->quiz_answer,
+                    'practical_evidence_url' => 'https://github.com/example/project',
                 ],
             )
             ->assertSessionHasErrors([
@@ -145,6 +162,79 @@ class SkillPathRecommendationTest extends TestCase
         $this->assertNotSame(
             'completed',
             $item->status,
+        );
+    }
+
+    public function test_evaluation_accepts_google_drive_evidence_without_reflection(): void
+    {
+        [$material, $item] = $this->databaseMaterialAndRoadmapItem();
+
+        $this->actingAs(
+            $this->user,
+        )
+            ->post(
+                route(
+                    'roadmap.evaluate',
+                    $item,
+                ),
+                [
+                    'answer' => $material
+                        ->quiz_answer,
+                    'practical_evidence_url' => 'https://drive.google.com/file/d/skillpath-evidence/view',
+                ],
+            )
+            ->assertSessionHasNoErrors();
+
+        $item->refresh();
+
+        $this->assertSame(
+            'completed',
+            $item->status,
+        );
+
+        $this->assertSame(
+            100.0,
+            (float) $item->evaluation_score,
+        );
+
+        $evaluation = Evaluation::query()
+            ->where(
+                'user_id',
+                $this->user->id,
+            )
+            ->where(
+                'roadmap_item_id',
+                $item->id,
+            )
+            ->latest('id')
+            ->firstOrFail();
+
+        $this->assertTrue(
+            $evaluation->passed,
+        );
+
+        $this->assertSame(
+            100.0,
+            $evaluation->score,
+        );
+
+        $this->assertSame(
+            80.0,
+            $evaluation->knowledge_score,
+        );
+
+        $this->assertSame(
+            20.0,
+            $evaluation->evidence_score,
+        );
+
+        $this->assertSame(
+            0.0,
+            $evaluation->reflection_score,
+        );
+
+        $this->assertNull(
+            $evaluation->reflection,
         );
     }
 
@@ -192,9 +282,7 @@ class SkillPathRecommendationTest extends TestCase
                 ),
                 [
                     'answer' => $wrongAnswer,
-                    'practical_evidence_url' => 'https://example.com/evidence/database-failure',
-                    'reflection' => $this
-                        ->validReflection(),
+                    'practical_evidence_url' => 'https://drive.google.com/file/d/database-failure/view',
                 ],
             )
             ->assertRedirect(
@@ -318,10 +406,5 @@ class SkillPathRecommendationTest extends TestCase
             $material,
             $item,
         ];
-    }
-
-    private function validReflection(): string
-    {
-        return 'Saya memahami konsep utama materi, mencoba latihan praktik, menemukan bagian yang sempat salah, lalu memperbaikinya dan memastikan hasil akhirnya berjalan sesuai tujuan pembelajaran.';
     }
 }

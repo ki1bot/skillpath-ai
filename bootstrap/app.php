@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnforceIdleTimeout;
 use App\Http\Middleware\EnsureAdmin;
+use App\Http\Middleware\EnsureEmailVerified;
 use App\Http\Middleware\EnsureUserManager;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -38,6 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->web(append: [
             HandleAppearance::class,
+            EnsureEmailVerified::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
@@ -65,6 +67,8 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
+            fn (Request $request) => $request->is('api/*')
+                || $request->expectsJson(),
         );
-    })->create();
+    })
+    ->create();

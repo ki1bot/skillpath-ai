@@ -8,14 +8,13 @@ use App\Models\ProgressLog;
 use App\Models\Roadmap;
 use App\Models\RoadmapItem;
 use App\Models\UserSkill;
-use App\Rules\ExternalEvidenceUrl;
+use App\Rules\GoogleDriveUrl;
 use App\Services\AdaptiveRoadmapService;
 use App\Services\AiInsightService;
 use App\Services\CareerReadinessService;
 use App\Services\RoadmapService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -256,8 +255,6 @@ class RoadmapController extends Controller
                             ->knowledge_score,
                         'evidence_score' => $evaluation
                             ->evidence_score,
-                        'reflection_score' => $evaluation
-                            ->reflection_score,
                         'passed' => $evaluation
                             ->passed,
                         'feedback' => $evaluation
@@ -337,7 +334,7 @@ class RoadmapController extends Controller
             'evidence_url' => [
                 'nullable',
                 'string',
-                new ExternalEvidenceUrl,
+                new GoogleDriveUrl,
                 'max:1000',
             ],
         ]);
@@ -415,14 +412,8 @@ class RoadmapController extends Controller
             'practical_evidence_url' => [
                 'required',
                 'string',
-                new ExternalEvidenceUrl,
+                new GoogleDriveUrl,
                 'max:1000',
-            ],
-            'reflection' => [
-                'required',
-                'string',
-                'min:80',
-                'max:3000',
             ],
         ]);
 
@@ -435,26 +426,15 @@ class RoadmapController extends Controller
         );
 
         $knowledgeScore = $correct
-            ? 70
+            ? 80
             : 0;
 
         $evidenceScore = 20;
 
-        $reflection = trim(
-            $validated['reflection'],
-        );
-
-        $reflectionScore = Str::length(
-            $reflection,
-        ) >= 80
-            ? 10
-            : 0;
-
         $score = round(
             min(
                 $knowledgeScore
-                + $evidenceScore
-                + $reflectionScore,
+                + $evidenceScore,
                 100,
             ),
             2,
@@ -465,9 +445,8 @@ class RoadmapController extends Controller
         if ($passed) {
             $feedback = (
                 "Evaluasi lulus dengan skor {$score}/100. "
-                ."Pemahaman konsep {$knowledgeScore}/70, "
-                ."bukti praktik {$evidenceScore}/20, "
-                ."dan refleksi {$reflectionScore}/10."
+                ."Pemahaman konsep {$knowledgeScore}/80 dan "
+                ."bukti praktik {$evidenceScore}/20."
             );
         } else {
             $feedback = $material
@@ -484,7 +463,7 @@ class RoadmapController extends Controller
             'score' => $score,
             'knowledge_score' => $knowledgeScore,
             'evidence_score' => $evidenceScore,
-            'reflection_score' => $reflectionScore,
+            'reflection_score' => 0,
             'passed' => $passed,
             'answer' => $validated[
                 'answer'
@@ -492,7 +471,7 @@ class RoadmapController extends Controller
             'evidence_url' => $validated[
                 'practical_evidence_url'
             ],
-            'reflection' => $reflection,
+            'reflection' => null,
             'feedback' => $feedback,
         ]);
 

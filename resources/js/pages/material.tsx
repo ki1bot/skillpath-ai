@@ -42,7 +42,6 @@ type Evaluation = {
     score: number;
     knowledge_score: number;
     evidence_score: number;
-    reflection_score: number;
     passed: boolean;
     feedback: string;
     created_at: string;
@@ -63,6 +62,26 @@ type AiExercise = {
     generatedByAi: boolean;
     model: string | null;
     message: string | null;
+};
+
+const isGoogleDriveUrl = (value: string): boolean => {
+    const normalized = value.trim();
+
+    if (!normalized) {
+        return false;
+    }
+
+    try {
+        const url = new URL(normalized);
+
+        return (
+            url.protocol === 'https:' &&
+            url.hostname.toLowerCase() === 'drive.google.com' &&
+            url.pathname !== '/'
+        );
+    } catch {
+        return false;
+    }
 };
 
 export default function MaterialPage({
@@ -87,7 +106,6 @@ export default function MaterialPage({
     const evaluationForm = useForm({
         answer: '',
         practical_evidence_url: '',
-        reflection: '',
     });
 
     const latestEvaluation = item.evaluations?.[0];
@@ -95,12 +113,16 @@ export default function MaterialPage({
     const hasAiExercise =
         aiExercise?.generatedByAi === true && Boolean(aiExercise.content);
 
+    const evaluationEvidenceValid = isGoogleDriveUrl(
+        evaluationForm.data.practical_evidence_url,
+    );
+
+    const progressEvidenceValid =
+        progressForm.data.evidence_url.trim() === '' ||
+        isGoogleDriveUrl(progressForm.data.evidence_url);
+
     const evaluationReady =
-        Boolean(evaluationForm.data.answer) &&
-        evaluationForm.data.practical_evidence_url
-            .trim()
-            .startsWith('https://') &&
-        evaluationForm.data.reflection.trim().length >= 80;
+        Boolean(evaluationForm.data.answer) && evaluationEvidenceValid;
 
     const retryAiExercise = () => {
         setIsRetryingAi(true);
@@ -312,6 +334,7 @@ export default function MaterialPage({
                                                         : undefined
                                                 }
                                             />
+
                                             {isRetryingAi
                                                 ? 'Memuat ulang...'
                                                 : 'Coba lagi'}
@@ -331,17 +354,16 @@ export default function MaterialPage({
                             </h2>
 
                             <p className="mt-3 max-w-3xl text-sm leading-6 font-semibold text-muted-foreground">
-                                Materi hanya dinyatakan selesai jika jawaban
-                                konsep benar, bukti praktik menggunakan tautan
-                                HTTPS eksternal, dan refleksi berisi minimal 80
-                                karakter. Tautan diperiksa format dan host-nya,
-                                bukan isi repository atau dokumennya.
+                                Materi dinyatakan selesai jika jawaban konsep
+                                benar dan bukti latihan menggunakan link Google
+                                Drive yang valid. Sistem memeriksa format
+                                tautannya, bukan membaca isi file Google Drive.
                             </p>
 
-                            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                            <div className="mt-4 grid gap-3 sm:grid-cols-2">
                                 <div className="neo-card-flat p-4">
                                     <p className="font-mono text-xl font-black">
-                                        70
+                                        80
                                     </p>
 
                                     <p className="mt-1 text-xs font-bold">
@@ -355,17 +377,7 @@ export default function MaterialPage({
                                     </p>
 
                                     <p className="mt-1 text-xs font-bold">
-                                        Bukti praktik
-                                    </p>
-                                </div>
-
-                                <div className="neo-card-flat p-4">
-                                    <p className="font-mono text-xl font-black">
-                                        10
-                                    </p>
-
-                                    <p className="mt-1 text-xs font-bold">
-                                        Refleksi belajar
+                                        Bukti Google Drive
                                     </p>
                                 </div>
                             </div>
@@ -426,7 +438,7 @@ export default function MaterialPage({
 
                                 <label className="mt-2">
                                     <span className="mb-2 block text-sm font-black">
-                                        Bukti latihan praktik wajib
+                                        Bukti latihan praktik Google Drive
                                     </span>
 
                                     <Input
@@ -441,15 +453,25 @@ export default function MaterialPage({
                                                 event.target.value,
                                             )
                                         }
-                                        placeholder="https://github.com/... atau https://deployment.example.com"
+                                        placeholder="https://drive.google.com/file/d/..."
                                         required
                                     />
 
                                     <p className="mt-2 text-xs leading-5 font-semibold text-muted-foreground">
-                                        Gunakan HTTPS dan host eksternal. URL
-                                        localhost, jaringan privat, atau URL
-                                        dengan kredensial akan ditolak.
+                                        Unggah hasil latihan atau dokumentasi ke
+                                        Google Drive, aktifkan akses yang
+                                        sesuai, lalu tempel link
+                                        drive.google.com di sini.
                                     </p>
+
+                                    {evaluationForm.data.practical_evidence_url.trim()
+                                        .length > 0 &&
+                                        !evaluationEvidenceValid && (
+                                            <p className="mt-2 text-xs font-bold text-destructive">
+                                                Gunakan link HTTPS dari
+                                                drive.google.com.
+                                            </p>
+                                        )}
 
                                     {evaluationForm.errors
                                         .practical_evidence_url && (
@@ -462,43 +484,6 @@ export default function MaterialPage({
                                     )}
                                 </label>
 
-                                <label>
-                                    <span className="mb-2 block text-sm font-black">
-                                        Refleksi hasil belajar wajib
-                                    </span>
-
-                                    <Textarea
-                                        rows={5}
-                                        value={evaluationForm.data.reflection}
-                                        onChange={(event) =>
-                                            evaluationForm.setData(
-                                                'reflection',
-                                                event.target.value,
-                                            )
-                                        }
-                                        placeholder="Jelaskan apa yang dipahami, kesalahan yang ditemukan, dan bagaimana Anda memperbaikinya. Minimal 80 karakter."
-                                        minLength={80}
-                                        required
-                                    />
-
-                                    <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs font-semibold text-muted-foreground">
-                                        <span>Minimal 80 karakter.</span>
-                                        <span className="font-mono font-black">
-                                            {
-                                                evaluationForm.data.reflection.trim()
-                                                    .length
-                                            }
-                                            /80
-                                        </span>
-                                    </div>
-
-                                    {evaluationForm.errors.reflection && (
-                                        <p className="mt-2 text-xs font-bold text-destructive">
-                                            {evaluationForm.errors.reflection}
-                                        </p>
-                                    )}
-                                </label>
-
                                 <Button
                                     className="mt-2 justify-self-start"
                                     disabled={
@@ -506,7 +491,9 @@ export default function MaterialPage({
                                         evaluationForm.processing
                                     }
                                 >
-                                    Kirim evaluasi
+                                    {evaluationForm.processing
+                                        ? 'Memeriksa...'
+                                        : 'Kirim evaluasi'}
                                 </Button>
                             </form>
 
@@ -525,10 +512,9 @@ export default function MaterialPage({
 
                                     <p className="mt-2">
                                         Konsep:{' '}
-                                        {latestEvaluation.knowledge_score}/70 ·
+                                        {latestEvaluation.knowledge_score}/80 ·
                                         Bukti: {latestEvaluation.evidence_score}
-                                        /20 · Refleksi:{' '}
-                                        {latestEvaluation.reflection_score}/10
+                                        /20
                                     </p>
 
                                     <p className="mt-2">
@@ -631,7 +617,7 @@ export default function MaterialPage({
 
                                 <label className="block">
                                     <span className="mb-2 block text-xs font-black">
-                                        Tautan bukti opsional
+                                        Bukti Google Drive opsional
                                     </span>
 
                                     <Input
@@ -643,8 +629,17 @@ export default function MaterialPage({
                                                 event.target.value,
                                             )
                                         }
-                                        placeholder="https://..."
+                                        placeholder="https://drive.google.com/file/d/..."
                                     />
+
+                                    {progressForm.data.evidence_url.trim() !==
+                                        '' &&
+                                        !progressEvidenceValid && (
+                                            <p className="mt-2 text-xs font-bold text-destructive">
+                                                Gunakan link HTTPS dari
+                                                drive.google.com.
+                                            </p>
+                                        )}
 
                                     {progressForm.errors.evidence_url && (
                                         <p className="mt-2 text-xs font-bold text-destructive">
@@ -658,7 +653,10 @@ export default function MaterialPage({
                                 type="submit"
                                 variant="outline"
                                 className="mt-5 w-full"
-                                disabled={progressForm.processing}
+                                disabled={
+                                    progressForm.processing ||
+                                    !progressEvidenceValid
+                                }
                             >
                                 <Save />
                                 Simpan perkembangan
@@ -677,8 +675,8 @@ export default function MaterialPage({
 
                         <div className="rounded-[14px] border-2 border-[#171717] bg-[var(--neo-yellow)] p-5 text-sm leading-relaxed font-bold text-[#171717]">
                             Perkembangan manual tetap dibatasi sampai 95%.
-                            Materi hanya mencapai 100% setelah evaluasi berbasis
-                            bukti dinyatakan lulus.
+                            Materi hanya mencapai 100% setelah jawaban evaluasi
+                            benar dan bukti Google Drive diterima.
                         </div>
                     </aside>
                 </div>

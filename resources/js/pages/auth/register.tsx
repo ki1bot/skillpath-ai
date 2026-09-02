@@ -45,7 +45,9 @@ export default function Register({ passwordRules }: Props) {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="email">Alamat email</Label>
+                                <Label htmlFor="email">
+                                    Alamat email aktif
+                                </Label>
 
                                 <Input
                                     id="email"
@@ -56,6 +58,13 @@ export default function Register({ passwordRules }: Props) {
                                     name="email"
                                     placeholder="nama@email.com"
                                 />
+
+                                <p className="text-xs leading-5 font-medium text-muted-foreground">
+                                    Gunakan Gmail atau alamat email lain yang
+                                    benar-benar dapat Anda buka. Setelah akun
+                                    dibuat, kode verifikasi 6 digit akan dikirim
+                                    ke alamat ini.
+                                </p>
 
                                 <InputError message={errors.email} />
                             </div>
@@ -103,6 +112,13 @@ export default function Register({ passwordRules }: Props) {
                                 />
                             </div>
 
+                            <div className="rounded-[10px] border-2 border-foreground bg-muted p-4 text-xs leading-5 font-semibold">
+                                Akun belum dapat menggunakan Dashboard,
+                                Assessment, Jalur Belajar, Proyek, atau fitur
+                                lainnya sebelum alamat email berhasil
+                                diverifikasi.
+                            </div>
+
                             <Button
                                 type="submit"
                                 className="mt-2 w-full"
@@ -112,7 +128,10 @@ export default function Register({ passwordRules }: Props) {
                                 data-test="register-user-button"
                             >
                                 {processing && <Spinner />}
-                                {processing ? 'Membuat akun...' : 'Buat akun'}
+
+                                {processing
+                                    ? 'Membuat akun...'
+                                    : 'Buat akun dan verifikasi email'}
                             </Button>
                         </div>
 
@@ -131,5 +150,6 @@ export default function Register({ passwordRules }: Props) {
 
 Register.layout = {
     title: 'Buat akun baru',
-    description: 'Lengkapi data berikut untuk mulai menggunakan SkillPath AI.',
+    description:
+        'Gunakan alamat email aktif karena verifikasi email wajib sebelum SkillPath AI dapat digunakan.',
 };
