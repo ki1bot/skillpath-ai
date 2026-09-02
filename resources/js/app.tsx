@@ -48,7 +48,7 @@ createInertiaApp({
         return (
             <>
                 {app}
-                <Toaster />
+                <Toaster duration={5000} />
             </>
         );
     },

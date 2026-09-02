@@ -3,6 +3,8 @@ import { useEffect } from 'react';
 import { toast } from 'sonner';
 import type { FlashToast } from '@/types/ui';
 
+const TOAST_DURATION_MS = 5000;
+
 export function useFlashToast(): void {
     useEffect(() => {
         return router.on('flash', (event) => {
@@ -13,7 +15,9 @@ export function useFlashToast(): void {
                 return;
             }
 
-            toast[data.type](data.message);
+            toast[data.type](data.message, {
+                duration: TOAST_DURATION_MS,
+            });
         });
     }, []);
 }

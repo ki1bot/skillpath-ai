@@ -13,9 +13,14 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use Throwable;
 
 class EmailVerificationController extends Controller
 {
+    private const CODE_TTL_MINUTES = 10;
+
+    private const RESEND_COOLDOWN_SECONDS = 300;
+
     public function show(Request $request): Response|RedirectResponse
     {
         $user = $this->authenticatedUser($request);
@@ -27,6 +32,9 @@ class EmailVerificationController extends Controller
         return Inertia::render('settings/verify-email', [
             'email' => $user->email,
             'status' => $request->session()->get('status'),
+            'resendAvailableIn' => $this->resendCooldownRemaining(
+                $user->id,
+            ),
         ]);
     }
 
@@ -43,20 +51,40 @@ class EmailVerificationController extends Controller
             return to_route('profile.edit');
         }
 
+        if ($this->resendCooldownRemaining($user->id) > 0) {
+            return to_route('email-verification.show')
+                ->with('status', 'verification-code-cooldown');
+        }
+
+        if (! $this->beginResendCooldown($user->id)) {
+            return to_route('email-verification.show')
+                ->with('status', 'verification-code-cooldown');
+        }
+
         $code = (string) random_int(100000, 999999);
 
-        Cache::put(
-            $this->cacheKey($user->id),
-            [
-                'email' => Str::lower((string) $user->email),
-                'code_hash' => $this->hashCode($code),
-            ],
-            now()->addMinutes(10),
-        );
+        try {
+            Cache::put(
+                $this->cacheKey($user->id),
+                [
+                    'email' => Str::lower((string) $user->email),
+                    'code_hash' => $this->hashCode($code),
+                ],
+                now()->addMinutes(self::CODE_TTL_MINUTES),
+            );
 
-        Mail::to((string) $user->email)->send(
-            new EmailVerificationCodeMail($code),
-        );
+            Mail::to((string) $user->email)->send(
+                new EmailVerificationCodeMail($code),
+            );
+        } catch (Throwable $exception) {
+            Cache::forget($this->cacheKey($user->id));
+            Cache::forget($this->resendCacheKey($user->id));
+
+            report($exception);
+
+            return to_route('email-verification.show')
+                ->with('status', 'verification-code-failed');
+        }
 
         return to_route('email-verification.show')
             ->with('status', 'verification-code-sent');
@@ -90,15 +118,23 @@ class EmailVerificationController extends Controller
 
         if (! hash_equals($storedEmail, $currentEmail)) {
             Cache::forget($this->cacheKey($user->id));
+            Cache::forget($this->resendCacheKey($user->id));
 
             throw ValidationException::withMessages([
                 'code' => 'Email akun berubah. Kirim kode verifikasi baru.',
             ]);
         }
 
-        $submittedCodeHash = $this->hashCode((string) $validated['code']);
+        $submittedCodeHash = $this->hashCode(
+            (string) $validated['code'],
+        );
 
-        if (! hash_equals((string) $payload['code_hash'], $submittedCodeHash)) {
+        if (
+            ! hash_equals(
+                (string) $payload['code_hash'],
+                $submittedCodeHash,
+            )
+        ) {
             throw ValidationException::withMessages([
                 'code' => 'Kode verifikasi tidak valid.',
             ]);
@@ -109,6 +145,7 @@ class EmailVerificationController extends Controller
         ])->save();
 
         Cache::forget($this->cacheKey($user->id));
+        Cache::forget($this->resendCacheKey($user->id));
 
         Inertia::flash('toast', [
             'type' => 'success',
@@ -132,6 +169,47 @@ class EmailVerificationController extends Controller
     private function cacheKey(int $userId): string
     {
         return 'email-verification:'.$userId;
+    }
+
+    private function resendCacheKey(int $userId): string
+    {
+        return 'email-verification-resend:'.$userId;
+    }
+
+    private function beginResendCooldown(int $userId): bool
+    {
+        $expiresAt = now()->addSeconds(
+            self::RESEND_COOLDOWN_SECONDS,
+        );
+
+        return Cache::add(
+            $this->resendCacheKey($userId),
+            $expiresAt->timestamp,
+            $expiresAt,
+        );
+    }
+
+    private function resendCooldownRemaining(int $userId): int
+    {
+        $cacheKey = $this->resendCacheKey($userId);
+        $availableAt = Cache::get($cacheKey);
+
+        if (
+            ! is_int($availableAt)
+            && ! is_numeric($availableAt)
+        ) {
+            return 0;
+        }
+
+        $remaining = (int) $availableAt - now()->timestamp;
+
+        if ($remaining <= 0) {
+            Cache::forget($cacheKey);
+
+            return 0;
+        }
+
+        return $remaining;
     }
 
     private function hashCode(string $code): string

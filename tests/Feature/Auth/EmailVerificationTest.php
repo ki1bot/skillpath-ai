@@ -64,6 +64,68 @@ class EmailVerificationTest extends TestCase
         );
     }
 
+    public function test_user_must_wait_five_minutes_before_requesting_new_verification_code(): void
+    {
+        Mail::fake();
+
+        $user = User::factory()
+            ->unverified()
+            ->create();
+
+        $this->actingAs($user)
+            ->post(
+                route('email-verification.send'),
+            )
+            ->assertRedirect(
+                route('email-verification.show'),
+            )
+            ->assertSessionHas(
+                'status',
+                'verification-code-sent',
+            );
+
+        Mail::assertSent(
+            EmailVerificationCodeMail::class,
+            1,
+        );
+
+        $this->actingAs($user)
+            ->post(
+                route('email-verification.send'),
+            )
+            ->assertRedirect(
+                route('email-verification.show'),
+            )
+            ->assertSessionHas(
+                'status',
+                'verification-code-cooldown',
+            );
+
+        Mail::assertSent(
+            EmailVerificationCodeMail::class,
+            1,
+        );
+
+        $this->travel(5)->minutes();
+
+        $this->actingAs($user)
+            ->post(
+                route('email-verification.send'),
+            )
+            ->assertRedirect(
+                route('email-verification.show'),
+            )
+            ->assertSessionHas(
+                'status',
+                'verification-code-sent',
+            );
+
+        Mail::assertSent(
+            EmailVerificationCodeMail::class,
+            2,
+        );
+    }
+
     public function test_user_can_verify_email_with_valid_code(): void
     {
         Mail::fake();

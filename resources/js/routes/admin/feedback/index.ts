@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Admin\FeedbackController::index
- * @see app/Http/Controllers/Admin/FeedbackController.php:14
+ * @see app/Http/Controllers/Admin/FeedbackController.php:15
  * @route '/admin/feedback'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\FeedbackController::index
- * @see app/Http/Controllers/Admin/FeedbackController.php:14
+ * @see app/Http/Controllers/Admin/FeedbackController.php:15
  * @route '/admin/feedback'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Admin\FeedbackController::index
- * @see app/Http/Controllers/Admin/FeedbackController.php:14
+ * @see app/Http/Controllers/Admin/FeedbackController.php:15
  * @route '/admin/feedback'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Admin\FeedbackController::index
- * @see app/Http/Controllers/Admin/FeedbackController.php:14
+ * @see app/Http/Controllers/Admin/FeedbackController.php:15
  * @route '/admin/feedback'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Admin\FeedbackController::index
- * @see app/Http/Controllers/Admin/FeedbackController.php:14
+ * @see app/Http/Controllers/Admin/FeedbackController.php:15
  * @route '/admin/feedback'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Admin\FeedbackController::index
- * @see app/Http/Controllers/Admin/FeedbackController.php:14
+ * @see app/Http/Controllers/Admin/FeedbackController.php:15
  * @route '/admin/feedback'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Admin\FeedbackController::index
- * @see app/Http/Controllers/Admin/FeedbackController.php:14
+ * @see app/Http/Controllers/Admin/FeedbackController.php:15
  * @route '/admin/feedback'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\Admin\FeedbackController::update
- * @see app/Http/Controllers/Admin/FeedbackController.php:29
+ * @see app/Http/Controllers/Admin/FeedbackController.php:38
  * @route '/admin/feedback/{feedback}'
  */
 export const update = (args: { feedback: number | { id: number } } | [feedback: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -94,7 +94,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\FeedbackController::update
- * @see app/Http/Controllers/Admin/FeedbackController.php:29
+ * @see app/Http/Controllers/Admin/FeedbackController.php:38
  * @route '/admin/feedback/{feedback}'
  */
 update.url = (args: { feedback: number | { id: number } } | [feedback: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -127,7 +127,7 @@ update.url = (args: { feedback: number | { id: number } } | [feedback: number | 
 
 /**
 * @see \App\Http\Controllers\Admin\FeedbackController::update
- * @see app/Http/Controllers/Admin/FeedbackController.php:29
+ * @see app/Http/Controllers/Admin/FeedbackController.php:38
  * @route '/admin/feedback/{feedback}'
  */
 update.patch = (args: { feedback: number | { id: number } } | [feedback: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -137,7 +137,7 @@ update.patch = (args: { feedback: number | { id: number } } | [feedback: number 
 
     /**
 * @see \App\Http\Controllers\Admin\FeedbackController::update
- * @see app/Http/Controllers/Admin/FeedbackController.php:29
+ * @see app/Http/Controllers/Admin/FeedbackController.php:38
  * @route '/admin/feedback/{feedback}'
  */
     const updateForm = (args: { feedback: number | { id: number } } | [feedback: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -152,7 +152,7 @@ update.patch = (args: { feedback: number | { id: number } } | [feedback: number 
 
             /**
 * @see \App\Http\Controllers\Admin\FeedbackController::update
- * @see app/Http/Controllers/Admin/FeedbackController.php:29
+ * @see app/Http/Controllers/Admin/FeedbackController.php:38
  * @route '/admin/feedback/{feedback}'
  */
         updateForm.patch = (args: { feedback: number | { id: number } } | [feedback: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

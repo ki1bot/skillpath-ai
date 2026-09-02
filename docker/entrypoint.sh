@@ -28,9 +28,6 @@ mkdir -p \
 chown -R www-data:www-data storage bootstrap/cache
 
 php artisan config:clear
-php artisan route:clear
-php artisan event:clear
-php artisan view:clear
 
 php artisan migrate --force
 
@@ -42,6 +39,7 @@ if [ ! -L public/storage ]; then
     php artisan storage:link
 fi
 
+php artisan optimize:clear
 php artisan optimize
 
 apache2ctl configtest

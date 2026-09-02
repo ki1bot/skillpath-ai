@@ -1,4 +1,5 @@
 import { Form, Head, Link } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -9,9 +10,64 @@ import { edit } from '@/routes/profile';
 type Props = {
     email: string;
     status?: string;
+    resendAvailableIn: number;
 };
 
-export default function VerifyEmail({ email, status }: Props) {
+const formatRemainingTime = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+};
+
+export default function VerifyEmail({
+    email,
+    status,
+    resendAvailableIn,
+}: Props) {
+    const [visibleStatus, setVisibleStatus] = useState(status);
+    const [remainingSeconds, setRemainingSeconds] = useState(
+        Math.max(0, resendAvailableIn),
+    );
+
+    useEffect(() => {
+        setVisibleStatus(status);
+
+        if (!status) {
+            return;
+        }
+
+        const timeout = window.setTimeout(() => {
+            setVisibleStatus(undefined);
+        }, 5000);
+
+        return () => {
+            window.clearTimeout(timeout);
+        };
+    }, [status]);
+
+    useEffect(() => {
+        const initialRemaining = Math.max(0, resendAvailableIn);
+
+        setRemainingSeconds(initialRemaining);
+
+        if (initialRemaining === 0) {
+            return;
+        }
+
+        const startedAt = Date.now();
+
+        const interval = window.setInterval(() => {
+            const elapsedSeconds = Math.floor((Date.now() - startedAt) / 1000);
+
+            setRemainingSeconds(Math.max(0, initialRemaining - elapsedSeconds));
+        }, 1000);
+
+        return () => {
+            window.clearInterval(interval);
+        };
+    }, [resendAvailableIn]);
+
     return (
         <>
             <Head title="Verifikasi email" />
@@ -25,7 +81,7 @@ export default function VerifyEmail({ email, status }: Props) {
                     description={`Kode verifikasi akan dikirim ke ${email}`}
                 />
 
-                {status === 'verification-required' && (
+                {visibleStatus === 'verification-required' && (
                     <div className="rounded-[10px] border-2 border-foreground bg-[var(--neo-yellow)] p-4 text-sm font-semibold text-[#171717]">
                         Verifikasi email wajib sebelum Dashboard, Assessment,
                         Jalur Belajar, Proyek, dan fitur utama SkillPath AI
@@ -33,17 +89,25 @@ export default function VerifyEmail({ email, status }: Props) {
                     </div>
                 )}
 
-                {status === 'verification-code-sent' && (
+                {visibleStatus === 'verification-code-sent' && (
                     <div className="rounded-[10px] border-2 border-foreground bg-secondary p-4 text-sm font-semibold text-[#171717]">
                         Kode verifikasi 6 digit telah dikirim ke {email}. Kode
-                        berlaku selama 10 menit.
+                        berlaku selama 10 menit. Kode baru dapat diminta setelah
+                        5 menit.
                     </div>
                 )}
 
-                {status === 'verification-code-failed' && (
+                {visibleStatus === 'verification-code-cooldown' && (
+                    <div className="rounded-[10px] border-2 border-foreground bg-[var(--neo-yellow)] p-4 text-sm font-semibold text-[#171717]">
+                        Kode baru belum dapat dikirim. Tunggu hingga waktu 5
+                        menit selesai sebelum meminta kode berikutnya.
+                    </div>
+                )}
+
+                {visibleStatus === 'verification-code-failed' && (
                     <div className="rounded-[10px] border-2 border-foreground bg-[var(--neo-pink)] p-4 text-sm font-semibold text-[#171717]">
                         Kode belum berhasil dikirim. Pastikan alamat email
-                        benar, lalu gunakan tombol Kirim ulang kode.
+                        benar, lalu coba kirim ulang setelah beberapa saat.
                     </div>
                 )}
 
@@ -108,11 +172,15 @@ export default function VerifyEmail({ email, status }: Props) {
                             <Button
                                 type="submit"
                                 variant="outline"
-                                disabled={processing}
+                                disabled={processing || remainingSeconds > 0}
                             >
                                 {processing
                                     ? 'Mengirim ulang...'
-                                    : 'Kirim ulang kode'}
+                                    : remainingSeconds > 0
+                                      ? `Kirim ulang dalam ${formatRemainingTime(
+                                            remainingSeconds,
+                                        )}`
+                                      : 'Kirim ulang kode'}
                             </Button>
                         )}
                     </Form>

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\RoadmapController::index
- * @see app/Http/Controllers/RoadmapController.php:24
+ * @see app/Http/Controllers/RoadmapController.php:23
  * @route '/roadmap'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\RoadmapController::index
- * @see app/Http/Controllers/RoadmapController.php:24
+ * @see app/Http/Controllers/RoadmapController.php:23
  * @route '/roadmap'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\RoadmapController::index
- * @see app/Http/Controllers/RoadmapController.php:24
+ * @see app/Http/Controllers/RoadmapController.php:23
  * @route '/roadmap'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\RoadmapController::index
- * @see app/Http/Controllers/RoadmapController.php:24
+ * @see app/Http/Controllers/RoadmapController.php:23
  * @route '/roadmap'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\RoadmapController::index
- * @see app/Http/Controllers/RoadmapController.php:24
+ * @see app/Http/Controllers/RoadmapController.php:23
  * @route '/roadmap'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\RoadmapController::index
- * @see app/Http/Controllers/RoadmapController.php:24
+ * @see app/Http/Controllers/RoadmapController.php:23
  * @route '/roadmap'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\RoadmapController::index
- * @see app/Http/Controllers/RoadmapController.php:24
+ * @see app/Http/Controllers/RoadmapController.php:23
  * @route '/roadmap'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\RoadmapController::material
- * @see app/Http/Controllers/RoadmapController.php:135
+ * @see app/Http/Controllers/RoadmapController.php:134
  * @route '/roadmap/materials/{material}'
  */
 export const material = (args: { material: string | { slug: string } } | [material: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ material.definition = {
 
 /**
 * @see \App\Http\Controllers\RoadmapController::material
- * @see app/Http/Controllers/RoadmapController.php:135
+ * @see app/Http/Controllers/RoadmapController.php:134
  * @route '/roadmap/materials/{material}'
  */
 material.url = (args: { material: string | { slug: string } } | [material: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions) => {
@@ -127,7 +127,7 @@ material.url = (args: { material: string | { slug: string } } | [material: strin
 
 /**
 * @see \App\Http\Controllers\RoadmapController::material
- * @see app/Http/Controllers/RoadmapController.php:135
+ * @see app/Http/Controllers/RoadmapController.php:134
  * @route '/roadmap/materials/{material}'
  */
 material.get = (args: { material: string | { slug: string } } | [material: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -136,7 +136,7 @@ material.get = (args: { material: string | { slug: string } } | [material: strin
 })
 /**
 * @see \App\Http\Controllers\RoadmapController::material
- * @see app/Http/Controllers/RoadmapController.php:135
+ * @see app/Http/Controllers/RoadmapController.php:134
  * @route '/roadmap/materials/{material}'
  */
 material.head = (args: { material: string | { slug: string } } | [material: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -146,7 +146,7 @@ material.head = (args: { material: string | { slug: string } } | [material: stri
 
     /**
 * @see \App\Http\Controllers\RoadmapController::material
- * @see app/Http/Controllers/RoadmapController.php:135
+ * @see app/Http/Controllers/RoadmapController.php:134
  * @route '/roadmap/materials/{material}'
  */
     const materialForm = (args: { material: string | { slug: string } } | [material: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -156,7 +156,7 @@ material.head = (args: { material: string | { slug: string } } | [material: stri
 
             /**
 * @see \App\Http\Controllers\RoadmapController::material
- * @see app/Http/Controllers/RoadmapController.php:135
+ * @see app/Http/Controllers/RoadmapController.php:134
  * @route '/roadmap/materials/{material}'
  */
         materialForm.get = (args: { material: string | { slug: string } } | [material: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -165,7 +165,7 @@ material.head = (args: { material: string | { slug: string } } | [material: stri
         })
             /**
 * @see \App\Http\Controllers\RoadmapController::material
- * @see app/Http/Controllers/RoadmapController.php:135
+ * @see app/Http/Controllers/RoadmapController.php:134
  * @route '/roadmap/materials/{material}'
  */
         materialForm.head = (args: { material: string | { slug: string } } | [material: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -181,7 +181,7 @@ material.head = (args: { material: string | { slug: string } } | [material: stri
     material.form = materialForm
 /**
 * @see \App\Http\Controllers\RoadmapController::progress
- * @see app/Http/Controllers/RoadmapController.php:305
+ * @see app/Http/Controllers/RoadmapController.php:302
  * @route '/roadmap/items/{roadmapItem}/progress'
  */
 export const progress = (args: { roadmapItem: number | { id: number } } | [roadmapItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -196,7 +196,7 @@ progress.definition = {
 
 /**
 * @see \App\Http\Controllers\RoadmapController::progress
- * @see app/Http/Controllers/RoadmapController.php:305
+ * @see app/Http/Controllers/RoadmapController.php:302
  * @route '/roadmap/items/{roadmapItem}/progress'
  */
 progress.url = (args: { roadmapItem: number | { id: number } } | [roadmapItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -229,7 +229,7 @@ progress.url = (args: { roadmapItem: number | { id: number } } | [roadmapItem: n
 
 /**
 * @see \App\Http\Controllers\RoadmapController::progress
- * @see app/Http/Controllers/RoadmapController.php:305
+ * @see app/Http/Controllers/RoadmapController.php:302
  * @route '/roadmap/items/{roadmapItem}/progress'
  */
 progress.patch = (args: { roadmapItem: number | { id: number } } | [roadmapItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -239,7 +239,7 @@ progress.patch = (args: { roadmapItem: number | { id: number } } | [roadmapItem:
 
     /**
 * @see \App\Http\Controllers\RoadmapController::progress
- * @see app/Http/Controllers/RoadmapController.php:305
+ * @see app/Http/Controllers/RoadmapController.php:302
  * @route '/roadmap/items/{roadmapItem}/progress'
  */
     const progressForm = (args: { roadmapItem: number | { id: number } } | [roadmapItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -254,7 +254,7 @@ progress.patch = (args: { roadmapItem: number | { id: number } } | [roadmapItem:
 
             /**
 * @see \App\Http\Controllers\RoadmapController::progress
- * @see app/Http/Controllers/RoadmapController.php:305
+ * @see app/Http/Controllers/RoadmapController.php:302
  * @route '/roadmap/items/{roadmapItem}/progress'
  */
         progressForm.patch = (args: { roadmapItem: number | { id: number } } | [roadmapItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -270,7 +270,7 @@ progress.patch = (args: { roadmapItem: number | { id: number } } | [roadmapItem:
     progress.form = progressForm
 /**
 * @see \App\Http\Controllers\RoadmapController::evaluate
- * @see app/Http/Controllers/RoadmapController.php:392
+ * @see app/Http/Controllers/RoadmapController.php:389
  * @route '/roadmap/items/{roadmapItem}/evaluate'
  */
 export const evaluate = (args: { roadmapItem: number | { id: number } } | [roadmapItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -285,7 +285,7 @@ evaluate.definition = {
 
 /**
 * @see \App\Http\Controllers\RoadmapController::evaluate
- * @see app/Http/Controllers/RoadmapController.php:392
+ * @see app/Http/Controllers/RoadmapController.php:389
  * @route '/roadmap/items/{roadmapItem}/evaluate'
  */
 evaluate.url = (args: { roadmapItem: number | { id: number } } | [roadmapItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -318,7 +318,7 @@ evaluate.url = (args: { roadmapItem: number | { id: number } } | [roadmapItem: n
 
 /**
 * @see \App\Http\Controllers\RoadmapController::evaluate
- * @see app/Http/Controllers/RoadmapController.php:392
+ * @see app/Http/Controllers/RoadmapController.php:389
  * @route '/roadmap/items/{roadmapItem}/evaluate'
  */
 evaluate.post = (args: { roadmapItem: number | { id: number } } | [roadmapItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -328,7 +328,7 @@ evaluate.post = (args: { roadmapItem: number | { id: number } } | [roadmapItem: 
 
     /**
 * @see \App\Http\Controllers\RoadmapController::evaluate
- * @see app/Http/Controllers/RoadmapController.php:392
+ * @see app/Http/Controllers/RoadmapController.php:389
  * @route '/roadmap/items/{roadmapItem}/evaluate'
  */
     const evaluateForm = (args: { roadmapItem: number | { id: number } } | [roadmapItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -338,7 +338,7 @@ evaluate.post = (args: { roadmapItem: number | { id: number } } | [roadmapItem: 
 
             /**
 * @see \App\Http\Controllers\RoadmapController::evaluate
- * @see app/Http/Controllers/RoadmapController.php:392
+ * @see app/Http/Controllers/RoadmapController.php:389
  * @route '/roadmap/items/{roadmapItem}/evaluate'
  */
         evaluateForm.post = (args: { roadmapItem: number | { id: number } } | [roadmapItem: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

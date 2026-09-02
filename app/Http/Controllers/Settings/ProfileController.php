@@ -32,7 +32,14 @@ class ProfileController extends Controller
 
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
-            Cache::forget('email-verification:'.$user->id);
+
+            Cache::forget(
+                'email-verification:'.$user->id,
+            );
+
+            Cache::forget(
+                'email-verification-resend:'.$user->id,
+            );
         }
 
         $user->save();
@@ -54,7 +61,13 @@ class ProfileController extends Controller
 
         Auth::logout();
 
-        Cache::forget('email-verification:'.$user->id);
+        Cache::forget(
+            'email-verification:'.$user->id,
+        );
+
+        Cache::forget(
+            'email-verification-resend:'.$user->id,
+        );
 
         $user->delete();
 

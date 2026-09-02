@@ -84,6 +84,27 @@ class RegistrationTest extends TestCase
                 'test.user@gmail.com',
             ),
         );
+
+        Mail::assertSent(
+            EmailVerificationCodeMail::class,
+            1,
+        );
+
+        $this->post(
+            route('email-verification.send'),
+        )
+            ->assertRedirect(
+                route('email-verification.show'),
+            )
+            ->assertSessionHas(
+                'status',
+                'verification-code-cooldown',
+            );
+
+        Mail::assertSent(
+            EmailVerificationCodeMail::class,
+            1,
+        );
     }
 
     public function test_registration_rejects_invalid_email_format(): void

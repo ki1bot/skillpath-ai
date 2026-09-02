@@ -13,6 +13,10 @@ use Throwable;
 
 class RegisterResponse implements RegisterResponseContract
 {
+    private const CODE_TTL_MINUTES = 10;
+
+    private const RESEND_COOLDOWN_SECONDS = 300;
+
     public function toResponse($request): mixed
     {
         $user = Auth::user();
@@ -29,6 +33,7 @@ class RegisterResponse implements RegisterResponseContract
             );
 
             $cacheKey = 'email-verification:'.$user->id;
+            $resendCacheKey = 'email-verification-resend:'.$user->id;
 
             Cache::put(
                 $cacheKey,
@@ -40,7 +45,7 @@ class RegisterResponse implements RegisterResponseContract
                         $code,
                     ),
                 ],
-                now()->addMinutes(10),
+                now()->addMinutes(self::CODE_TTL_MINUTES),
             );
 
             try {
@@ -52,9 +57,20 @@ class RegisterResponse implements RegisterResponseContract
                     ),
                 );
 
+                $cooldownUntil = now()->addSeconds(
+                    self::RESEND_COOLDOWN_SECONDS,
+                );
+
+                Cache::put(
+                    $resendCacheKey,
+                    $cooldownUntil->timestamp,
+                    $cooldownUntil,
+                );
+
                 $status = 'verification-code-sent';
             } catch (Throwable $exception) {
                 Cache::forget($cacheKey);
+                Cache::forget($resendCacheKey);
 
                 report($exception);
 

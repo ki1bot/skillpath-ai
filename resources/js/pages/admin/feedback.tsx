@@ -83,7 +83,7 @@ function FeedbackReviewCard({ feedback }: { feedback: Feedback }) {
                 <div className="flex flex-col justify-between gap-5 lg:flex-row">
                     <div className="min-w-0">
                         <div className="flex flex-wrap gap-2">
-                            <span className="neo-label bg-muted">
+                            <span className="neo-label bg-[#fffdf7] text-[#171717]">
                                 {categoryLabels[feedback.category] ??
                                     feedback.category}
                             </span>
