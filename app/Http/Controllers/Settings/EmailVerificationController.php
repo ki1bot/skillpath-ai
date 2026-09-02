@@ -29,12 +29,15 @@ class EmailVerificationController extends Controller
             return to_route('profile.edit');
         }
 
+        $status = $request->session()->get('status');
+
         return Inertia::render('settings/verify-email', [
             'email' => $user->email,
-            'status' => $request->session()->get('status'),
+            'status' => is_string($status) ? $status : null,
             'resendAvailableIn' => $this->resendCooldownRemaining(
                 $user->id,
             ),
+            'verificationStateId' => (string) Str::uuid(),
         ]);
     }
 

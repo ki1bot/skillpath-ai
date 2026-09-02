@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Settings\EmailVerificationController::show
- * @see app/Http/Controllers/Settings/EmailVerificationController.php:19
+ * @see app/Http/Controllers/Settings/EmailVerificationController.php:24
  * @route '/settings/profile/verify-email'
  */
 export const show = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\EmailVerificationController::show
- * @see app/Http/Controllers/Settings/EmailVerificationController.php:19
+ * @see app/Http/Controllers/Settings/EmailVerificationController.php:24
  * @route '/settings/profile/verify-email'
  */
 show.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ show.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Settings\EmailVerificationController::show
- * @see app/Http/Controllers/Settings/EmailVerificationController.php:19
+ * @see app/Http/Controllers/Settings/EmailVerificationController.php:24
  * @route '/settings/profile/verify-email'
  */
 show.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ show.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Settings\EmailVerificationController::show
- * @see app/Http/Controllers/Settings/EmailVerificationController.php:19
+ * @see app/Http/Controllers/Settings/EmailVerificationController.php:24
  * @route '/settings/profile/verify-email'
  */
 show.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ show.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Settings\EmailVerificationController::show
- * @see app/Http/Controllers/Settings/EmailVerificationController.php:19
+ * @see app/Http/Controllers/Settings/EmailVerificationController.php:24
  * @route '/settings/profile/verify-email'
  */
     const showForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ show.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Settings\EmailVerificationController::show
- * @see app/Http/Controllers/Settings/EmailVerificationController.php:19
+ * @see app/Http/Controllers/Settings/EmailVerificationController.php:24
  * @route '/settings/profile/verify-email'
  */
         showForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ show.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Settings\EmailVerificationController::show
- * @see app/Http/Controllers/Settings/EmailVerificationController.php:19
+ * @see app/Http/Controllers/Settings/EmailVerificationController.php:24
  * @route '/settings/profile/verify-email'
  */
         showForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ show.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     show.form = showForm
 /**
 * @see \App\Http\Controllers\Settings\EmailVerificationController::send
- * @see app/Http/Controllers/Settings/EmailVerificationController.php:33
+ * @see app/Http/Controllers/Settings/EmailVerificationController.php:44
  * @route '/settings/profile/verify-email/send'
  */
 export const send = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -94,7 +94,7 @@ send.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\EmailVerificationController::send
- * @see app/Http/Controllers/Settings/EmailVerificationController.php:33
+ * @see app/Http/Controllers/Settings/EmailVerificationController.php:44
  * @route '/settings/profile/verify-email/send'
  */
 send.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ send.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Settings\EmailVerificationController::send
- * @see app/Http/Controllers/Settings/EmailVerificationController.php:33
+ * @see app/Http/Controllers/Settings/EmailVerificationController.php:44
  * @route '/settings/profile/verify-email/send'
  */
 send.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -113,7 +113,7 @@ send.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\Settings\EmailVerificationController::send
- * @see app/Http/Controllers/Settings/EmailVerificationController.php:33
+ * @see app/Http/Controllers/Settings/EmailVerificationController.php:44
  * @route '/settings/profile/verify-email/send'
  */
     const sendForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -123,7 +123,7 @@ send.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\Settings\EmailVerificationController::send
- * @see app/Http/Controllers/Settings/EmailVerificationController.php:33
+ * @see app/Http/Controllers/Settings/EmailVerificationController.php:44
  * @route '/settings/profile/verify-email/send'
  */
         sendForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -134,7 +134,7 @@ send.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     send.form = sendForm
 /**
 * @see \App\Http\Controllers\Settings\EmailVerificationController::verify
- * @see app/Http/Controllers/Settings/EmailVerificationController.php:65
+ * @see app/Http/Controllers/Settings/EmailVerificationController.php:96
  * @route '/settings/profile/verify-email'
  */
 export const verify = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -149,7 +149,7 @@ verify.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\EmailVerificationController::verify
- * @see app/Http/Controllers/Settings/EmailVerificationController.php:65
+ * @see app/Http/Controllers/Settings/EmailVerificationController.php:96
  * @route '/settings/profile/verify-email'
  */
 verify.url = (options?: RouteQueryOptions) => {
@@ -158,7 +158,7 @@ verify.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Settings\EmailVerificationController::verify
- * @see app/Http/Controllers/Settings/EmailVerificationController.php:65
+ * @see app/Http/Controllers/Settings/EmailVerificationController.php:96
  * @route '/settings/profile/verify-email'
  */
 verify.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -168,7 +168,7 @@ verify.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\Settings\EmailVerificationController::verify
- * @see app/Http/Controllers/Settings/EmailVerificationController.php:65
+ * @see app/Http/Controllers/Settings/EmailVerificationController.php:96
  * @route '/settings/profile/verify-email'
  */
     const verifyForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -178,7 +178,7 @@ verify.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\Settings\EmailVerificationController::verify
- * @see app/Http/Controllers/Settings/EmailVerificationController.php:65
+ * @see app/Http/Controllers/Settings/EmailVerificationController.php:96
  * @route '/settings/profile/verify-email'
  */
         verifyForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
