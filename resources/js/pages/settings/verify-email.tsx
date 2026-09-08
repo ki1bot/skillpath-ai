@@ -155,11 +155,7 @@ export default function VerifyEmail({
             <h1 className="sr-only">Verifikasi email</h1>
 
             <div className="space-y-6">
-                <Heading
-                    variant="small"
-                    title="Verifikasi alamat email"
-                    description={`Kode verifikasi akan dikirim ke ${email}`}
-                />
+                <Heading variant="small" title="Verifikasi alamat email" />
 
                 {status && (
                     <VerificationStatusNotice
@@ -176,11 +172,6 @@ export default function VerifyEmail({
 
                     <p className="mt-2 font-mono text-sm font-black break-all">
                         {email}
-                    </p>
-
-                    <p className="mt-2 text-xs leading-5 font-medium text-muted-foreground">
-                        Jika alamat di atas salah atau tidak dapat Anda akses,
-                        ubah alamat email melalui pengaturan profil.
                     </p>
                 </div>
 
@@ -231,12 +222,6 @@ export default function VerifyEmail({
                         <Link href={edit()}>Ubah alamat email</Link>
                     </Button>
                 </div>
-
-                <p className="text-sm leading-6 font-medium text-muted-foreground">
-                    Verifikasi membuktikan bahwa alamat email tersebut dapat
-                    Anda akses. Tanpa kode yang benar, akun tidak dapat
-                    menggunakan fitur utama SkillPath AI.
-                </p>
             </div>
         </>
     );
