@@ -59,13 +59,6 @@ export default function Register({ passwordRules }: Props) {
                                     placeholder="nama@email.com"
                                 />
 
-                                <p className="text-xs leading-5 font-medium text-muted-foreground">
-                                    Gunakan Gmail atau alamat email lain yang
-                                    benar-benar dapat Anda buka. Setelah akun
-                                    dibuat, kode verifikasi 6 digit akan dikirim
-                                    ke alamat ini.
-                                </p>
-
                                 <InputError message={errors.email} />
                             </div>
 
@@ -110,13 +103,6 @@ export default function Register({ passwordRules }: Props) {
                                 <InputError
                                     message={errors.password_confirmation}
                                 />
-                            </div>
-
-                            <div className="rounded-[10px] border-2 border-foreground bg-muted p-4 text-xs leading-5 font-semibold">
-                                Akun belum dapat menggunakan Dashboard,
-                                Assessment, Jalur Belajar, Proyek, atau fitur
-                                lainnya sebelum alamat email berhasil
-                                diverifikasi.
                             </div>
 
                             <Button

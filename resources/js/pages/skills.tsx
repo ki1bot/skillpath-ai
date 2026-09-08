@@ -44,6 +44,8 @@ type Props = {
 
 type AiState = 'loading' | 'ready' | 'error';
 
+const AI_SUMMARY_TIMEOUT_MS = 25_000;
+
 const statusMap = {
     terpenuhi: {
         label: 'Sudah sesuai target',
@@ -88,7 +90,7 @@ export default function Skills({ career, skills, averageMastery }: Props) {
         const timeout = window.setTimeout(() => {
             timedOut = true;
             controller.abort();
-        }, 15000);
+        }, AI_SUMMARY_TIMEOUT_MS);
 
         setSummary(null);
         setModel(null);
