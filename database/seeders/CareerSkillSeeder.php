@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Career;
 use App\Models\Skill;
+use App\Support\SkillPathScoringPolicy;
 use Illuminate\Database\Seeder;
 
 class CareerSkillSeeder extends Seeder
@@ -133,12 +134,9 @@ class CareerSkillSeeder extends Seeder
                     continue;
                 }
 
-                $targetLevel = $skill->difficulty === 'Dasar' ? 70 : 75;
-                $weight = $skill->difficulty === 'Dasar' ? 1.10 : 1.20;
-
                 $sync[$skill->id] = [
-                    'target_level' => $targetLevel,
-                    'importance_weight' => $weight,
+                    'target_level' => SkillPathScoringPolicy::FUNCTIONAL_LEVEL,
+                    'importance_weight' => SkillPathScoringPolicy::DEFAULT_IMPORTANCE_WEIGHT,
                     'is_required' => true,
                 ];
             }

@@ -52,7 +52,7 @@ class AssessmentEvidenceTest extends TestCase
             ]);
     }
 
-    public function test_academic_assessment_displays_twenty_five_random_multiple_choice_questions(): void
+    public function test_academic_assessment_displays_all_twenty_seven_balanced_multiple_choice_questions(): void
     {
         $assessment = $this->assessment();
 
@@ -143,6 +143,15 @@ class AssessmentEvidenceTest extends TestCase
                 ->unique()
                 ->count(),
         );
+
+        foreach (
+            $questions->groupBy('skill_id') as $skillQuestions
+        ) {
+            $this->assertCount(
+                AcademicAssessmentCatalog::QUESTIONS_PER_SKILL,
+                $skillQuestions,
+            );
+        }
 
         foreach ($questions as $question) {
             $this->assertSame(

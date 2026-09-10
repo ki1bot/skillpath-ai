@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\PortfolioProject;
 use App\Models\User;
+use App\Support\SkillPathScoringPolicy;
 
 class ProjectReadinessService
 {
@@ -110,6 +111,14 @@ class ProjectReadinessService
             ->pluck('name')
             ->all();
 
+        $hasFoundationalCoverage = $requirements
+            ->every(
+                fn (array $item) => (
+                    $item['current']
+                    >= SkillPathScoringPolicy::EMERGING_LEVEL
+                ),
+            );
+
         if ($missing->isEmpty()) {
             $recommendation = [
                 'level' => 'recommended',
@@ -118,36 +127,31 @@ class ProjectReadinessService
                 'message' => 'Semua kemampuan minimum yang dibutuhkan sudah terpenuhi. Proyek ini cocok dikerjakan dengan kemampuanmu saat ini.',
             ];
         } else {
-            $missingRatio = $requirements->count() > 0
-                ? $missing->count() / $requirements->count()
-                : 0;
-
             $gapText = $topGapNames === []
                 ? 'beberapa kemampuan dasar'
                 : implode(', ', $topGapNames);
 
-            if (
-                $score >= 70
-                && $missingRatio <= 0.4
-            ) {
+            if ($hasFoundationalCoverage) {
                 $recommendation = [
                     'level' => 'strengthen',
                     'rank' => 1,
                     'label' => 'Perlu penguatan',
-                    'message' => "Kemampuanmu sudah cukup dekat dengan kebutuhan proyek, tetapi {$gapText} masih perlu diperkuat sebelum proyek ini menjadi pilihan utama.",
+                    'message' => "Kamu sudah menunjukkan kemampuan awal pada seluruh prasyarat proyek, tetapi {$gapText} masih berada di bawah level minimum proyek dan perlu diperkuat.",
                 ];
             } else {
                 $recommendation = [
                     'level' => 'challenge',
                     'rank' => 2,
                     'label' => 'Tantangan',
-                    'message' => "Masih ada beberapa kemampuan yang perlu diperkuat, terutama pada {$gapText}. Kamu tetap bisa memulai proyek ini sebagai tantangan, tetapi kemungkinan membutuhkan waktu dan usaha yang lebih besar.",
+                    'message' => "Masih ada prasyarat yang belum menunjukkan kemampuan awal yang cukup, terutama pada {$gapText}. Proyek tetap dapat diambil sebagai tantangan, tetapi risiko hambatan pengerjaan lebih tinggi.",
                 ];
             }
         }
 
         return [
             'score' => $score,
+            'score_type' => 'readiness',
+            'quality_assessed' => false,
             'ready' => $ready,
             'missing_count' => $missing->count(),
             'requirements' => $requirements->all(),

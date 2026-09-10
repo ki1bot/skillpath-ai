@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Support\SkillPathScoringPolicy;
 
 class SkillGapService
 {
@@ -47,41 +48,25 @@ class SkillGapService
                         0,
                     );
 
-                    $weight = (float) $skill
-                        ->pivot
-                        ->importance_weight;
+                    $weight = max(
+                        (float) $skill
+                            ->pivot
+                            ->importance_weight,
+                        0.1,
+                    );
 
                     $dependentCount = $skill
                         ->dependents
                         ->count();
 
-                    $baseDependencyFactor = $skill
-                        ->dependents
-                        ->map(
-                            fn ($dependent) => (float) $dependent
-                                ->pivot
-                                ->factor,
-                        )
-                        ->max() ?: 1.0;
-
-                    $prerequisiteFactor = $dependentCount > 0
-                        ? $baseDependencyFactor
-                            + min(
-                                ($dependentCount - 1) * 0.05,
-                                0.25,
-                            )
-                        : 1.0;
-
                     $priority = round(
-                        $gap
-                            * $weight
-                            * $prerequisiteFactor,
+                        $gap * $weight,
                         2,
                     );
 
                     $status = match (true) {
                         $gap <= 0 => 'terpenuhi',
-                        $gap >= 30 => 'kesenjangan_tinggi',
+                        $gap >= SkillPathScoringPolicy::HIGH_GAP_THRESHOLD => 'kesenjangan_tinggi',
                         default => 'perlu_ditingkatkan',
                     };
 
@@ -104,10 +89,6 @@ class SkillGapService
                             1,
                         ),
                         'importance_weight' => $weight,
-                        'prerequisite_factor' => round(
-                            $prerequisiteFactor,
-                            2,
-                        ),
                         'priority' => $priority,
                         'status' => $status,
                         'required' => (bool) $skill
@@ -228,7 +209,7 @@ class SkillGapService
         }
 
         $dependency = $dependentCount > 0
-            ? " Kemampuan ini juga menjadi dasar untuk $dependentCount kemampuan lain."
+            ? " Kemampuan ini juga menjadi prasyarat untuk $dependentCount kemampuan lain sehingga ditempatkan lebih awal pada roadmap."
             : '';
 
         return "$skill perlu diprioritaskan karena nilaimu saat ini $current, sementara targetnya $target. Masih ada selisih $gap poin.$dependency";

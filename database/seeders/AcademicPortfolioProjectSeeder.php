@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Career;
 use App\Models\PortfolioProject;
 use App\Models\Skill;
+use App\Support\SkillPathScoringPolicy;
 use Illuminate\Database\Seeder;
 
 class AcademicPortfolioProjectSeeder extends Seeder
@@ -101,8 +102,8 @@ class AcademicPortfolioProjectSeeder extends Seeder
                 }
 
                 $sync[$skill->id] = [
-                    'required_level' => 65,
-                    'weight' => 1.00,
+                    'required_level' => SkillPathScoringPolicy::FUNCTIONAL_LEVEL,
+                    'weight' => SkillPathScoringPolicy::DEFAULT_PROJECT_WEIGHT,
                 ];
             }
 

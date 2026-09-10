@@ -259,7 +259,7 @@ class ProjectController extends Controller
             'activity_type' => 'project_completed',
             'minutes_spent' => 0,
             'progress_percentage' => 100,
-            'notes' => 'Bukti penyelesaian proyek disimpan melalui Google Drive.',
+            'notes' => 'Bukti penyelesaian proyek disimpan melalui Google Drive. Status completed mencatat penyelesaian workflow dan bukan penilaian kualitas isi proyek.',
             'evidence_url' => $googleDriveUrl,
             'logged_at' => now(),
         ]);
@@ -271,7 +271,7 @@ class ProjectController extends Controller
 
         return back()->with(
             'success',
-            'Proyek berhasil diselesaikan dan bukti Google Drive sudah disimpan.',
+            'Bukti proyek berhasil disimpan dan progres ditandai selesai. Status ini mencatat penyelesaian proyek, bukan nilai kualitas isi proyek.',
         );
     }
 }

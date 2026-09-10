@@ -59,7 +59,7 @@ class AcademicAssessmentSeeder extends Seeder
                 ],
                 [
                     'title' => 'Assesment Awal '.$studyProgram,
-                    'description' => 'Jawab 25 pertanyaan yang dipilih secara acak dari bank 27 soal yang mewakili 9 kemampuan inti jurusan '.$studyProgram.'. Hasilnya digunakan untuk memperbarui profil kemampuan awal Anda.',
+                    'description' => 'Jawab 27 pertanyaan yang mewakili 9 kemampuan inti jurusan '.$studyProgram.', masing-masing 3 pertanyaan untuk setiap kemampuan. Hasilnya digunakan untuk memperbarui profil kemampuan awal Anda.',
                     'duration_minutes' => 30,
                     'is_active' => true,
                 ],

@@ -9,6 +9,7 @@ use App\Models\UserSkill;
 use App\Services\CareerReadinessService;
 use App\Services\RoadmapService;
 use App\Support\AcademicAssessmentCatalog;
+use App\Support\SkillPathScoringPolicy;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -116,9 +117,6 @@ class AssessmentController extends Controller
 
         $questions = $questionPool
             ->shuffle()
-            ->take(
-                AcademicAssessmentCatalog::QUESTION_LIMIT,
-            )
             ->values();
 
         $request->session()->put(
@@ -347,7 +345,9 @@ class AssessmentController extends Controller
 
         if ($answerIds !== $expectedIds) {
             throw ValidationException::withMessages([
-                'answers' => 'Jawab tepat 25 pertanyaan yang diberikan pada sesi Assesment ini.',
+                'answers' => 'Jawab tepat '
+                    .AcademicAssessmentCatalog::QUESTION_LIMIT
+                    .' pertanyaan yang diberikan pada sesi Assesment ini.',
             ]);
         }
 
@@ -387,8 +387,8 @@ class AssessmentController extends Controller
                     );
 
                     $score = $correct
-                        ? 100.0
-                        : 0.0;
+                        ? SkillPathScoringPolicy::ASSESSMENT_CORRECT_SCORE
+                        : SkillPathScoringPolicy::ASSESSMENT_INCORRECT_SCORE;
 
                     AssessmentResult::create([
                         'user_id' => $user->id,

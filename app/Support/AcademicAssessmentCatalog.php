@@ -4,14 +4,14 @@ namespace App\Support;
 
 final class AcademicAssessmentCatalog
 {
-    public const QUESTION_LIMIT = 25;
-
     public const QUESTIONS_PER_SKILL = 3;
 
     public const SKILLS_PER_PROGRAM = 9;
 
     public const QUESTION_POOL_SIZE = self::QUESTIONS_PER_SKILL
         * self::SKILLS_PER_PROGRAM;
+
+    public const QUESTION_LIMIT = self::QUESTION_POOL_SIZE;
 
     private const PROGRAMS = [
         'Sistem Informasi' => [
