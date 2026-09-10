@@ -45,7 +45,7 @@ class AssessmentStartService
                 ->route('dashboard')
                 ->with(
                     'error',
-                    'Bank soal Assesment belum lengkap. Setiap jurusan harus memiliki 30 soal dari 9 skill inti sebelum Assesment dapat dimulai.',
+                    'Bank soal Assesment belum lengkap. Setiap jurusan harus memiliki tepat 30 soal sebelum Assesment dapat dimulai.',
                 );
         }
 
@@ -55,14 +55,13 @@ class AssessmentStartService
                 $assessment,
                 $user->id,
                 $questionPool,
-                $skillSlugs,
             )
         ) {
             return redirect()
                 ->route('assessment.show')
                 ->with(
                     'error',
-                    'Sistem gagal menyiapkan soal Assesment secara lengkap. Silakan coba kembali.',
+                    'Sistem gagal menyiapkan 30 soal Assesment. Silakan coba kembali.',
                 );
         }
 

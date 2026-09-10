@@ -75,9 +75,9 @@ class AcademicAssessmentCleanupSeeder extends Seeder
 
             $assessment->update([
                 'title' => 'Assesment Awal '.$definition['name'],
-                'description' => 'Kerjakan 25 pertanyaan acak yang mewakili 9 kemampuan inti jurusan '
+                'description' => 'Kerjakan 30 pertanyaan yang diacak untuk setiap sesi Assesment jurusan '
                     .$definition['name']
-                    .'. Lima pertanyaan lain dari bank soal disiapkan sebagai soal cadangan untuk setiap sesi Assesment.',
+                    .'. Seluruh pertanyaan berasal dari bank soal Assesment jurusan dan tidak dibuat berdasarkan materi pembelajaran.',
                 'duration_minutes' => 30,
                 'is_active' => true,
             ]);

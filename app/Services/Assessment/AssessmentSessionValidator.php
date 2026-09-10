@@ -11,12 +11,10 @@ class AssessmentSessionValidator
     /**
      * @param  Collection<int, AssessmentQuestion>  $questionPool
      * @param  list<int>  $questionIds
-     * @param  list<int>  $reserveQuestionIds
      */
     public function isValid(
         Collection $questionPool,
         array $questionIds,
-        array $reserveQuestionIds,
     ): bool {
         if (
             count($questionIds)
@@ -26,32 +24,18 @@ class AssessmentSessionValidator
         }
 
         if (
-            count($reserveQuestionIds)
-            !== AcademicAssessmentCatalog::RESERVE_QUESTION_LIMIT
-        ) {
-            return false;
-        }
-
-        if (
-            array_intersect(
-                $questionIds,
-                $reserveQuestionIds,
-            ) !== []
-        ) {
-            return false;
-        }
-
-        $storedIds = array_merge(
-            $questionIds,
-            $reserveQuestionIds,
-        );
-
-        if (
             count(
                 array_unique(
-                    $storedIds,
+                    $questionIds,
                 ),
             )
+            !== AcademicAssessmentCatalog::QUESTION_LIMIT
+        ) {
+            return false;
+        }
+
+        if (
+            $questionPool->count()
             !== AcademicAssessmentCatalog::QUESTION_POOL_SIZE
         ) {
             return false;
@@ -63,66 +47,16 @@ class AssessmentSessionValidator
             $poolIds[] = (int) $question->id;
         }
 
-        sort(
-            $storedIds,
-        );
+        $sessionIds = $questionIds;
 
         sort(
             $poolIds,
         );
 
-        if ($storedIds !== $poolIds) {
-            return false;
-        }
-
-        return $this->hasBalancedSkillDistribution(
-            $questionPool,
-            $questionIds,
-        );
-    }
-
-    /**
-     * @param  Collection<int, AssessmentQuestion>  $questionPool
-     * @param  list<int>  $questionIds
-     */
-    private function hasBalancedSkillDistribution(
-        Collection $questionPool,
-        array $questionIds,
-    ): bool {
-        $questionLookup = array_fill_keys(
-            $questionIds,
-            true,
-        );
-
-        $skillCounts = [];
-
-        foreach ($questionPool as $question) {
-            if (! isset($questionLookup[$question->id])) {
-                continue;
-            }
-
-            $skillId = (int) $question->skill_id;
-
-            $skillCounts[$skillId] = (
-                $skillCounts[$skillId]
-                ?? 0
-            ) + 1;
-        }
-
         sort(
-            $skillCounts,
+            $sessionIds,
         );
 
-        return $skillCounts === [
-            2,
-            2,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-            3,
-        ];
+        return $sessionIds === $poolIds;
     }
 }

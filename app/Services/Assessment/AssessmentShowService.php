@@ -51,7 +51,7 @@ class AssessmentShowService
                 ->route('dashboard')
                 ->with(
                     'error',
-                    'Bank soal Assesment belum lengkap. Setiap jurusan harus memiliki 30 soal dari 9 skill inti sebelum Assesment dapat dimulai.',
+                    'Bank soal Assesment belum lengkap. Setiap jurusan harus memiliki tepat 30 soal sebelum Assesment dapat dimulai.',
                 );
         }
 
@@ -97,7 +97,6 @@ class AssessmentShowService
                     'description' => $assessment->description,
                     'duration_minutes' => $assessment->duration_minutes,
                     'question_limit' => AcademicAssessmentCatalog::QUESTION_LIMIT,
-                    'reserve_question_count' => AcademicAssessmentCatalog::RESERVE_QUESTION_LIMIT,
                     'skill_count' => AcademicAssessmentCatalog::SKILLS_PER_PROGRAM,
                     'started' => $state['started'],
                     'career' => [

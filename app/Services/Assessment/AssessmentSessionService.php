@@ -19,7 +19,6 @@ class AssessmentSessionService
      * @param  Collection<int, AssessmentQuestion>  $questionPool
      * @return array{
      *     question_ids: list<int>,
-     *     reserve_question_ids: list<int>,
      *     has_stored_session: bool,
      *     started: bool
      * }
@@ -38,37 +37,31 @@ class AssessmentSessionService
 
         return [
             'question_ids' => $stored['question_ids'],
-            'reserve_question_ids' => $stored['reserve_question_ids'],
             'has_stored_session' => $stored['has_stored_session'],
             'started' => $this->validator->isValid(
                 $questionPool,
                 $stored['question_ids'],
-                $stored['reserve_question_ids'],
             ),
         ];
     }
 
     /**
      * @param  Collection<int, AssessmentQuestion>  $questionPool
-     * @param  list<string>  $skillSlugs
      */
     public function start(
         Request $request,
         Assessment $assessment,
         int $userId,
         Collection $questionPool,
-        array $skillSlugs,
     ): bool {
-        $session = $this->builder->build(
+        $questionIds = $this->builder->build(
             $questionPool,
-            $skillSlugs,
         );
 
         if (
             ! $this->validator->isValid(
                 $questionPool,
-                $session['question_ids'],
-                $session['reserve_question_ids'],
+                $questionIds,
             )
         ) {
             return false;
@@ -78,8 +71,7 @@ class AssessmentSessionService
             $request,
             $assessment,
             $userId,
-            $session['question_ids'],
-            $session['reserve_question_ids'],
+            $questionIds,
         );
 
         return true;

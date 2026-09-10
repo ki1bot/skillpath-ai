@@ -1,16 +1,15 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import {
     ArrowLeft,
     ArrowRight,
     CheckCircle2,
     Clock3,
-    GraduationCap,
     History,
     Play,
     RotateCcw,
-    ShieldCheck,
+    ShieldAlert,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -21,7 +20,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { getStudyProgramDefinition } from '@/lib/academic-programs';
 
 type Question = {
     id: number;
@@ -29,11 +27,6 @@ type Question = {
     prompt: string;
     options: Record<'A' | 'B' | 'C' | 'D', string>;
     difficulty: string;
-    skill: {
-        id: number;
-        name: string;
-        category: string;
-    };
 };
 
 type Assessment = {
@@ -43,7 +36,6 @@ type Assessment = {
     description: string;
     duration_minutes: number;
     question_limit: number;
-    reserve_question_count: number;
     skill_count: number;
     started: boolean;
     questions: Question[];
@@ -52,6 +44,9 @@ type Assessment = {
 type FormData = {
     answers: Record<number, string>;
 };
+
+const leaveAssessmentMessage =
+    'Assesment sedang dikerjakan. Jawaban yang belum dikirim akan hilang jika kamu meninggalkan halaman ini. Apakah kamu yakin ingin meninggalkan Assesment?';
 
 export default function AssessmentPage({
     assessment,
@@ -63,11 +58,7 @@ export default function AssessmentPage({
     const [index, setIndex] = useState(0);
     const [startDialogOpen, setStartDialogOpen] = useState(!assessment.started);
 
-    const program = getStudyProgramDefinition(assessment.study_program);
-
-    const academicSkillCount =
-        program?.areas.reduce((total, area) => total + area.skills.length, 0) ??
-        0;
+    const allowNavigationRef = useRef(false);
 
     const isRepeat = Boolean(latestAttempt);
 
@@ -100,6 +91,40 @@ export default function AssessmentPage({
 
     const isLastQuestion =
         Boolean(question) && index === assessment.questions.length - 1;
+
+    useEffect(() => {
+        if (!assessment.started) {
+            return;
+        }
+
+        const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+            if (allowNavigationRef.current) {
+                return;
+            }
+
+            event.preventDefault();
+            event.returnValue = '';
+        };
+
+        const removeBeforeListener = router.on('before', (event) => {
+            if (allowNavigationRef.current) {
+                return;
+            }
+
+            const confirmed = window.confirm(leaveAssessmentMessage);
+
+            if (!confirmed) {
+                event.preventDefault();
+            }
+        });
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            removeBeforeListener();
+        };
+    }, [assessment.started]);
 
     const beginAssessment = () => {
         if (startForm.processing) {
@@ -143,7 +168,19 @@ export default function AssessmentPage({
             return;
         }
 
-        form.post('/assessment');
+        allowNavigationRef.current = true;
+
+        form.post('/assessment', {
+            onError: () => {
+                allowNavigationRef.current = false;
+            },
+            onCancel: () => {
+                allowNavigationRef.current = false;
+            },
+            onFinish: () => {
+                allowNavigationRef.current = false;
+            },
+        });
     };
 
     return (
@@ -160,12 +197,14 @@ export default function AssessmentPage({
                         </h1>
 
                         <p className="mt-4 text-sm leading-relaxed font-medium text-muted-foreground">
-                            Assesment menggunakan{' '}
+                            Assesment jurusan{' '}
+                            <strong>{assessment.study_program}</strong>{' '}
+                            menggunakan{' '}
                             <strong>
                                 {assessment.question_limit} pertanyaan
                             </strong>{' '}
-                            yang dipilih secara acak dari bank soal jurusan{' '}
-                            <strong>{assessment.study_program}</strong>.
+                            yang seluruh urutannya diacak setiap kali kamu
+                            memulai atau mengulangi Assesment.
                         </p>
 
                         <div className="mt-4 flex flex-wrap gap-2">
@@ -174,12 +213,11 @@ export default function AssessmentPage({
                             </span>
 
                             <span className="rounded-full border-2 border-foreground bg-card px-3 py-1 text-xs font-black">
-                                {assessment.skill_count} kemampuan inti
+                                {assessment.question_limit} soal acak
                             </span>
 
                             <span className="rounded-full border-2 border-foreground bg-card px-3 py-1 text-xs font-black">
-                                {assessment.reserve_question_count} soal
-                                cadangan
+                                {assessment.skill_count} kemampuan inti
                             </span>
 
                             {latestAttempt && (
@@ -200,74 +238,8 @@ export default function AssessmentPage({
                     </div>
                 </div>
 
-                {program && (
-                    <section className="neo-card mt-8 p-5 sm:p-6">
-                        <div className="flex items-center gap-3">
-                            <span className="flex size-10 items-center justify-center rounded-[10px] border-2 border-[#171717] bg-[var(--neo-yellow)] text-[#171717]">
-                                <GraduationCap className="size-5" />
-                            </span>
-
-                            <div>
-                                <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                    Cakupan jurusan
-                                </p>
-
-                                <h2 className="text-xl font-black">
-                                    {program.areas.length} bidang dan{' '}
-                                    {academicSkillCount} kemampuan akademik
-                                </h2>
-                            </div>
-                        </div>
-
-                        <p className="mt-4 max-w-3xl text-sm leading-6 font-medium text-muted-foreground">
-                            Dari cakupan jurusan ini, Assesment mengukur{' '}
-                            {assessment.skill_count} kemampuan inti melalui{' '}
-                            {assessment.question_limit} pertanyaan yang dipilih
-                            untuk sesi yang sedang dikerjakan.
-                        </p>
-
-                        <div className="mt-6 grid gap-4 lg:grid-cols-3">
-                            {program.areas.map((area, areaIndex) => (
-                                <div
-                                    key={area.name}
-                                    className="rounded-[14px] border-2 border-foreground bg-muted p-4"
-                                >
-                                    <div className="flex items-start gap-3">
-                                        <span className="flex size-7 shrink-0 items-center justify-center rounded-full border-2 border-foreground bg-background text-xs font-black">
-                                            {areaIndex + 1}
-                                        </span>
-
-                                        <div>
-                                            <p className="text-xs font-black tracking-[0.12em] text-muted-foreground uppercase">
-                                                Bidang {areaIndex + 1}
-                                            </p>
-
-                                            <h3 className="mt-1 text-base font-black">
-                                                {area.name}
-                                            </h3>
-                                        </div>
-                                    </div>
-
-                                    <ul className="mt-4 space-y-2">
-                                        {area.skills.map((skill) => (
-                                            <li
-                                                key={skill}
-                                                className="flex gap-2 text-sm leading-5 font-semibold"
-                                            >
-                                                <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
-
-                                                <span>{skill}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
-                )}
-
                 {!assessment.started ? (
-                    <section className="neo-card mt-6 p-6 sm:p-8">
+                    <section className="neo-card mt-8 p-6 sm:p-8">
                         <div className="flex size-12 items-center justify-center rounded-[12px] border-2 border-[#171717] bg-[var(--neo-blue)] text-[#171717]">
                             {isRepeat ? (
                                 <RotateCcw className="size-6" />
@@ -283,9 +255,10 @@ export default function AssessmentPage({
                         </h2>
 
                         <p className="mt-3 max-w-3xl text-sm leading-6 font-semibold text-muted-foreground">
-                            Sistem baru akan mengacak soal setelah kamu
-                            mengonfirmasi. Selama sesi masih aktif, refresh
-                            halaman tidak akan membuat set soal baru.
+                            Sistem akan menggunakan seluruh 30 soal Assesment
+                            jurusan dan mengacak urutannya ketika kamu
+                            mengonfirmasi. Soal tidak dipilih berdasarkan materi
+                            pembelajaran.
                         </p>
 
                         <div className="mt-5 grid gap-3 sm:grid-cols-3">
@@ -301,21 +274,21 @@ export default function AssessmentPage({
 
                             <div className="neo-card-flat p-4">
                                 <p className="font-mono text-2xl font-black">
-                                    {assessment.reserve_question_count}
-                                </p>
-
-                                <p className="mt-1 text-xs font-bold">
-                                    Soal cadangan
-                                </p>
-                            </div>
-
-                            <div className="neo-card-flat p-4">
-                                <p className="font-mono text-2xl font-black">
                                     {assessment.skill_count}
                                 </p>
 
                                 <p className="mt-1 text-xs font-bold">
                                     Kemampuan inti
+                                </p>
+                            </div>
+
+                            <div className="neo-card-flat p-4">
+                                <p className="font-mono text-2xl font-black">
+                                    {assessment.duration_minutes}
+                                </p>
+
+                                <p className="mt-1 text-xs font-bold">
+                                    Menit estimasi
                                 </p>
                             </div>
                         </div>
@@ -331,9 +304,9 @@ export default function AssessmentPage({
                         </Button>
                     </section>
                 ) : question ? (
-                    <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_300px]">
+                    <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_300px]">
                         <section className="neo-card p-6 sm:p-8">
-                            <div className="mb-7 flex flex-wrap items-start justify-between gap-4">
+                            <div className="mb-7 flex flex-wrap items-center justify-between gap-4">
                                 <div>
                                     <p className="text-xs font-black tracking-[0.15em] text-muted-foreground uppercase">
                                         Pertanyaan {index + 1} dari{' '}
@@ -341,19 +314,13 @@ export default function AssessmentPage({
                                     </p>
 
                                     <h2 className="mt-2 text-xl font-black">
-                                        {question.skill.name}
+                                        Assesment {assessment.study_program}
                                     </h2>
                                 </div>
 
-                                <div className="flex flex-wrap gap-2">
-                                    <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-blue)] px-3 py-1 text-xs font-black text-[#171717]">
-                                        {question.skill.category}
-                                    </span>
-
-                                    <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-yellow)] px-3 py-1 text-xs font-black text-[#171717]">
-                                        {question.difficulty}
-                                    </span>
-                                </div>
+                                <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-yellow)] px-3 py-1 text-xs font-black text-[#171717]">
+                                    {question.difficulty}
+                                </span>
                             </div>
 
                             <h3 className="text-2xl leading-snug font-black tracking-tight">
@@ -464,33 +431,41 @@ export default function AssessmentPage({
 
                             <section className="neo-surface p-5">
                                 <p className="text-sm leading-6 font-semibold">
-                                    Jawab apa adanya. Hasil yang jujur lebih
-                                    berguna untuk menentukan bagian mana yang
-                                    perlu kamu pelajari lebih dulu.
+                                    Jawab sesuai kemampuanmu saat ini. Hasil
+                                    Assesment digunakan untuk memperbarui profil
+                                    kemampuan dan roadmap belajar.
                                 </p>
                             </section>
 
-                            <section className="neo-surface p-5">
+                            <section className="rounded-[14px] border-2 border-[#171717] bg-[var(--neo-yellow)] p-5 text-[#171717]">
                                 <div className="flex items-start gap-3">
-                                    <ShieldCheck className="mt-0.5 size-5 shrink-0" />
+                                    <ShieldAlert className="mt-0.5 size-5 shrink-0" />
 
-                                    <p className="text-sm leading-6 font-semibold">
-                                        Lima soal cadangan disimpan di server
-                                        dan tidak dihitung sebagai jawaban
-                                        Assesment utama.
-                                    </p>
+                                    <div>
+                                        <p className="text-sm font-black">
+                                            Jangan tinggalkan Assesment
+                                        </p>
+
+                                        <p className="mt-2 text-xs leading-5 font-semibold">
+                                            Jika kamu keluar, refresh, atau
+                                            menutup halaman sebelum hasil
+                                            dikirim, jawaban yang sudah dipilih
+                                            pada halaman ini dapat hilang.
+                                        </p>
+                                    </div>
                                 </div>
                             </section>
                         </aside>
                     </div>
                 ) : (
-                    <section className="neo-card mt-6 p-6 sm:p-8">
+                    <section className="neo-card mt-8 p-6 sm:p-8">
                         <h2 className="text-2xl font-black">
                             Sesi Assesment tidak memiliki pertanyaan.
                         </h2>
 
                         <p className="mt-3 text-sm font-medium text-muted-foreground">
-                            Silakan kembali dan mulai Assesment baru.
+                            Silakan mulai kembali Assesment untuk membuat sesi
+                            baru.
                         </p>
                     </section>
                 )}
@@ -513,15 +488,16 @@ export default function AssessmentPage({
 
                         <DialogDescription className="leading-6 font-medium">
                             {isRepeat
-                                ? `Apakah kamu yakin ingin mengulangi Assesment ${assessment.study_program}? Sistem akan mengacak 25 soal utama dan 5 soal cadangan untuk sesi baru. Hasil Assesment sebelumnya tetap tersimpan sebagai riwayat, tetapi nilai kemampuan terbaru dan roadmap akan diperbarui setelah Assesment baru selesai.`
-                                : `Apakah kamu yakin ingin memulai Assesment ${assessment.study_program}? Sistem akan mengacak 25 soal utama dan menyiapkan 5 soal cadangan untuk sesi ini.`}
+                                ? `Apakah kamu yakin ingin mengulangi Assesment ${assessment.study_program}? Seluruh 30 soal akan digunakan kembali dengan urutan yang diacak untuk sesi baru. Hasil Assesment sebelumnya tetap tersimpan sebagai riwayat, sedangkan nilai kemampuan dan roadmap akan diperbarui setelah Assesment baru selesai.`
+                                : `Apakah kamu yakin ingin memulai Assesment ${assessment.study_program}? Seluruh 30 soal akan digunakan dan urutannya diacak untuk sesi ini.`}
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="rounded-[12px] border-2 border-foreground bg-muted p-4 text-sm leading-6 font-semibold">
-                        Setelah sesi dibuat, set soal tetap sama selama sesi
-                        tersebut masih aktif. Soal baru hanya diacak ketika kamu
-                        secara eksplisit memulai atau mengulangi Assesment.
+                        Setelah Assesment dimulai, urutan 30 soal akan tetap
+                        sama selama sesi masih aktif. Refresh tidak membuat
+                        urutan soal baru, tetapi jawaban yang belum dikirim
+                        dapat hilang dari halaman.
                     </div>
 
                     <DialogFooter>

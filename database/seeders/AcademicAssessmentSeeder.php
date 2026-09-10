@@ -59,9 +59,9 @@ class AcademicAssessmentSeeder extends Seeder
                 ],
                 [
                     'title' => 'Assesment Awal '.$studyProgram,
-                    'description' => 'Kerjakan 25 pertanyaan acak yang mewakili 9 kemampuan inti jurusan '
+                    'description' => 'Kerjakan 30 pertanyaan yang diacak untuk setiap sesi Assesment jurusan '
                         .$studyProgram
-                        .'. Lima pertanyaan lain dari bank soal disiapkan sebagai soal cadangan untuk setiap sesi Assesment.',
+                        .'. Seluruh pertanyaan berasal dari bank soal Assesment jurusan dan tidak dibuat berdasarkan materi pembelajaran.',
                     'duration_minutes' => 30,
                     'is_active' => true,
                 ],

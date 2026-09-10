@@ -20,12 +20,7 @@ final class AcademicAssessmentCatalog
     public const QUESTION_POOL_SIZE = self::BASE_QUESTION_POOL_SIZE
         + self::SUPPLEMENTAL_QUESTION_COUNT;
 
-    public const QUESTION_LIMIT = 25;
-
-    public const RESERVE_QUESTION_LIMIT = 5;
-
-    public const REDUCED_SKILLS_PER_SESSION = self::BASE_QUESTION_POOL_SIZE
-        - self::QUESTION_LIMIT;
+    public const QUESTION_LIMIT = self::QUESTION_POOL_SIZE;
 
     private const PROGRAMS = [
         'Sistem Informasi' => [

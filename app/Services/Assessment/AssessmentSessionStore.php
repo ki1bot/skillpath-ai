@@ -10,7 +10,6 @@ class AssessmentSessionStore
     /**
      * @return array{
      *     question_ids: list<int>,
-     *     reserve_question_ids: list<int>,
      *     has_stored_session: bool
      * }
      */
@@ -30,38 +29,30 @@ class AssessmentSessionStore
                 ),
         );
 
-        $reserveQuestionIds = $this->normalizeQuestionIds(
-            $request
-                ->session()
-                ->get(
-                    $this->reserveQuestionSessionKey(
-                        $assessment->id,
-                        $userId,
-                    ),
-                ),
-        );
-
         return [
             'question_ids' => $questionIds,
-            'reserve_question_ids' => $reserveQuestionIds,
-            'has_stored_session' => (
-                $questionIds !== []
-                || $reserveQuestionIds !== []
-            ),
+            'has_stored_session' => $questionIds !== [],
         ];
     }
 
     /**
      * @param  list<int>  $questionIds
-     * @param  list<int>  $reserveQuestionIds
      */
     public function write(
         Request $request,
         Assessment $assessment,
         int $userId,
         array $questionIds,
-        array $reserveQuestionIds,
     ): void {
+        $request
+            ->session()
+            ->forget(
+                $this->legacyReserveQuestionSessionKey(
+                    $assessment->id,
+                    $userId,
+                ),
+            );
+
         $request
             ->session()
             ->put(
@@ -70,16 +61,6 @@ class AssessmentSessionStore
                     $userId,
                 ),
                 $questionIds,
-            );
-
-        $request
-            ->session()
-            ->put(
-                $this->reserveQuestionSessionKey(
-                    $assessment->id,
-                    $userId,
-                ),
-                $reserveQuestionIds,
             );
     }
 
@@ -95,7 +76,7 @@ class AssessmentSessionStore
                     $assessment->id,
                     $userId,
                 ),
-                $this->reserveQuestionSessionKey(
+                $this->legacyReserveQuestionSessionKey(
                     $assessment->id,
                     $userId,
                 ),
@@ -142,7 +123,7 @@ class AssessmentSessionStore
             .$userId;
     }
 
-    private function reserveQuestionSessionKey(
+    private function legacyReserveQuestionSessionKey(
         int $assessmentId,
         int $userId,
     ): string {

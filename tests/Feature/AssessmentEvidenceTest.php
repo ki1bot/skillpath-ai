@@ -88,10 +88,6 @@ class AssessmentEvidenceTest extends TestCase
                         'assessment.question_limit',
                         AcademicAssessmentCatalog::QUESTION_LIMIT,
                     )
-                    ->where(
-                        'assessment.reserve_question_count',
-                        AcademicAssessmentCatalog::RESERVE_QUESTION_LIMIT,
-                    )
                     ->has(
                         'assessment.questions',
                         0,
@@ -105,17 +101,9 @@ class AssessmentEvidenceTest extends TestCase
                 ),
             ),
         );
-
-        $this->assertNull(
-            session()->get(
-                $this->reserveQuestionSessionKey(
-                    $assessment,
-                ),
-            ),
-        );
     }
 
-    public function test_starting_assessment_creates_twenty_five_active_and_five_reserve_questions(): void
+    public function test_starting_assessment_creates_thirty_question_session(): void
     {
         $assessment = $this->assessment();
 
@@ -138,18 +126,9 @@ class AssessmentEvidenceTest extends TestCase
             $assessment,
         );
 
-        $reserveQuestionIds = $this->reserveQuestionIds(
-            $assessment,
-        );
-
         $this->assertCount(
             AcademicAssessmentCatalog::QUESTION_LIMIT,
             $questionIds,
-        );
-
-        $this->assertCount(
-            AcademicAssessmentCatalog::RESERVE_QUESTION_LIMIT,
-            $reserveQuestionIds,
         );
 
         $this->assertCount(
@@ -159,31 +138,28 @@ class AssessmentEvidenceTest extends TestCase
             ),
         );
 
-        $this->assertCount(
-            AcademicAssessmentCatalog::RESERVE_QUESTION_LIMIT,
-            array_unique(
-                $reserveQuestionIds,
-            ),
+        $poolIds = $assessment
+            ->questions
+            ->pluck('id')
+            ->map(
+                fn ($id) => (int) $id,
+            )
+            ->values()
+            ->all();
+
+        $sessionIds = $questionIds;
+
+        sort(
+            $poolIds,
+        );
+
+        sort(
+            $sessionIds,
         );
 
         $this->assertSame(
-            [],
-            array_values(
-                array_intersect(
-                    $questionIds,
-                    $reserveQuestionIds,
-                ),
-            ),
-        );
-
-        $this->assertCount(
-            AcademicAssessmentCatalog::QUESTION_POOL_SIZE,
-            array_unique(
-                array_merge(
-                    $questionIds,
-                    $reserveQuestionIds,
-                ),
-            ),
+            $poolIds,
+            $sessionIds,
         );
 
         $questions = AssessmentQuestion::query()
@@ -210,28 +186,12 @@ class AssessmentEvidenceTest extends TestCase
                 ->count(),
         );
 
-        $distribution = $questions
-            ->groupBy('skill_id')
-            ->map(
-                fn (Collection $skillQuestions) => $skillQuestions->count(),
-            )
-            ->sort()
-            ->values()
-            ->all();
-
-        $this->assertSame(
-            [
-                2,
-                2,
-                3,
-                3,
-                3,
-                3,
-                3,
-                3,
-                3,
-            ],
-            $distribution,
+        $this->assertNull(
+            session()->get(
+                $this->legacyReserveQuestionSessionKey(
+                    $assessment,
+                ),
+            ),
         );
 
         $this
@@ -250,6 +210,10 @@ class AssessmentEvidenceTest extends TestCase
                     ->where(
                         'assessment.started',
                         true,
+                    )
+                    ->where(
+                        'assessment.question_limit',
+                        AcademicAssessmentCatalog::QUESTION_LIMIT,
                     )
                     ->has(
                         'assessment.questions',
@@ -270,10 +234,6 @@ class AssessmentEvidenceTest extends TestCase
             $assessment,
         );
 
-        $reserveIdsBefore = $this->reserveQuestionIds(
-            $assessment,
-        );
-
         $this
             ->actingAs(
                 $this->user,
@@ -288,13 +248,6 @@ class AssessmentEvidenceTest extends TestCase
         $this->assertSame(
             $questionIdsBefore,
             $this->selectedQuestionIds(
-                $assessment,
-            ),
-        );
-
-        $this->assertSame(
-            $reserveIdsBefore,
-            $this->reserveQuestionIds(
                 $assessment,
             ),
         );
@@ -427,7 +380,7 @@ class AssessmentEvidenceTest extends TestCase
 
         $this->assertNull(
             session()->get(
-                $this->reserveQuestionSessionKey(
+                $this->legacyReserveQuestionSessionKey(
                     $assessment,
                 ),
             ),
@@ -491,9 +444,6 @@ class AssessmentEvidenceTest extends TestCase
 
         $questions = $assessment
             ->questions
-            ->take(
-                AcademicAssessmentCatalog::QUESTION_LIMIT,
-            )
             ->values();
 
         $payload = $this->validPayload(
@@ -615,40 +565,13 @@ class AssessmentEvidenceTest extends TestCase
             $questionIds,
         );
 
-        return collect(
-            $questionIds,
-        )
-            ->map(
-                fn ($id) => (int) $id,
-            )
-            ->values()
-            ->all();
-    }
+        $normalizedQuestionIds = [];
 
-    /**
-     * @return list<int>
-     */
-    private function reserveQuestionIds(
-        Assessment $assessment,
-    ): array {
-        $questionIds = session()->get(
-            $this->reserveQuestionSessionKey(
-                $assessment,
-            ),
-        );
+        foreach ($questionIds as $questionId) {
+            $normalizedQuestionIds[] = (int) $questionId;
+        }
 
-        $this->assertIsArray(
-            $questionIds,
-        );
-
-        return collect(
-            $questionIds,
-        )
-            ->map(
-                fn ($id) => (int) $id,
-            )
-            ->values()
-            ->all();
+        return $normalizedQuestionIds;
     }
 
     /**
@@ -683,7 +606,7 @@ class AssessmentEvidenceTest extends TestCase
             .$this->user->id;
     }
 
-    private function reserveQuestionSessionKey(
+    private function legacyReserveQuestionSessionKey(
         Assessment $assessment,
     ): string {
         return 'assessment.reserve_question_ids.'
