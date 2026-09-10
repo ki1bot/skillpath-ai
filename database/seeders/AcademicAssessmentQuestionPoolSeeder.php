@@ -1446,7 +1446,10 @@ class AcademicAssessmentQuestionPoolSeeder extends Seeder
 
                 $extraQuestionIds = $existingQuestions
                     ->slice(
-                        AcademicAssessmentCatalog::QUESTIONS_PER_SKILL,
+                        AcademicAssessmentCatalog::questionCapacityForSkill(
+                            $studyProgram,
+                            $skillSlug,
+                        ),
                     )
                     ->pluck('id')
                     ->map(
@@ -1466,11 +1469,23 @@ class AcademicAssessmentQuestionPoolSeeder extends Seeder
                 ->count();
 
             if (
-                $questionCount
-                !== AcademicAssessmentCatalog::QUESTION_POOL_SIZE
+                ! in_array(
+                    $questionCount,
+                    [
+                        AcademicAssessmentCatalog::BASE_QUESTION_POOL_SIZE,
+                        AcademicAssessmentCatalog::QUESTION_POOL_SIZE,
+                    ],
+                    true,
+                )
             ) {
                 throw new RuntimeException(
-                    'Bank soal '.$studyProgram.' harus memiliki tepat 27 soal, tetapi ditemukan '.$questionCount.'.',
+                    'Bank soal '.$studyProgram.' harus memiliki '
+                        .AcademicAssessmentCatalog::BASE_QUESTION_POOL_SIZE
+                        .' soal dasar atau '
+                        .AcademicAssessmentCatalog::QUESTION_POOL_SIZE
+                        .' soal setelah soal tambahan dibuat, tetapi ditemukan '
+                        .$questionCount
+                        .'.',
                 );
             }
         }

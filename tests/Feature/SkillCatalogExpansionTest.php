@@ -97,7 +97,7 @@ class SkillCatalogExpansionTest extends TestCase
         }
     }
 
-    public function test_each_program_has_twenty_seven_assessment_questions_across_nine_core_skills(): void
+    public function test_each_program_has_thirty_assessment_questions_across_nine_core_skills(): void
     {
         $careers = Career::query()
             ->where(
@@ -110,7 +110,7 @@ class SkillCatalogExpansionTest extends TestCase
             ->get();
 
         $this->assertSame(
-            162,
+            180,
             AssessmentQuestion::query()
                 ->count(),
         );
@@ -140,7 +140,7 @@ class SkillCatalogExpansionTest extends TestCase
             $this->assertCount(
                 AcademicAssessmentCatalog::QUESTION_POOL_SIZE,
                 $assessment->questions,
-                "Bank soal Assesment {$career->name} harus memiliki tepat 27 soal.",
+                "Bank soal Assesment {$career->name} harus memiliki tepat 30 soal.",
             );
 
             $actualSkillSlugs = $assessment
@@ -157,17 +157,31 @@ class SkillCatalogExpansionTest extends TestCase
                 "Skill Assesment {$career->name} tidak sesuai dengan 9 skill inti jurusan.",
             );
 
-            foreach (
-                $assessment
-                    ->questions
-                    ->groupBy('skill_id') as $questions
-            ) {
-                $this->assertCount(
-                    AcademicAssessmentCatalog::QUESTIONS_PER_SKILL,
-                    $questions,
-                    "Setiap skill inti Assesment {$career->name} harus memiliki tepat 3 soal.",
-                );
-            }
+            $distribution = $assessment
+                ->questions
+                ->groupBy('skill_id')
+                ->map(
+                    fn ($questions) => $questions->count(),
+                )
+                ->sort()
+                ->values()
+                ->all();
+
+            $this->assertSame(
+                [
+                    3,
+                    3,
+                    3,
+                    3,
+                    3,
+                    3,
+                    4,
+                    4,
+                    4,
+                ],
+                $distribution,
+                "Distribusi bank soal {$career->name} harus terdiri dari enam skill dengan 3 soal dan tiga skill dengan 4 soal.",
+            );
         }
     }
 

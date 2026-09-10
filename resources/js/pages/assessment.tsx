@@ -6,9 +6,21 @@ import {
     Clock3,
     GraduationCap,
     History,
+    Play,
+    RotateCcw,
+    ShieldCheck,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { getStudyProgramDefinition } from '@/lib/academic-programs';
 
 type Question = {
@@ -30,6 +42,10 @@ type Assessment = {
     title: string;
     description: string;
     duration_minutes: number;
+    question_limit: number;
+    reserve_question_count: number;
+    skill_count: number;
+    started: boolean;
     questions: Question[];
 };
 
@@ -45,18 +61,23 @@ export default function AssessmentPage({
     latestAttempt?: string | null;
 }) {
     const [index, setIndex] = useState(0);
+    const [startDialogOpen, setStartDialogOpen] = useState(!assessment.started);
 
     const program = getStudyProgramDefinition(assessment.study_program);
 
-    const assessedSkillCount =
+    const academicSkillCount =
         program?.areas.reduce((total, area) => total + area.skills.length, 0) ??
         0;
 
-    const question = assessment.questions[index];
+    const isRepeat = Boolean(latestAttempt);
+
+    const startForm = useForm({});
 
     const form = useForm<FormData>({
         answers: {},
     });
+
+    const question = assessment.questions[index];
 
     const completedCount = assessment.questions.filter((item) =>
         Boolean(form.data.answers[item.id]),
@@ -73,31 +94,30 @@ export default function AssessmentPage({
             Boolean(form.data.answers[item.id]),
         );
 
-    if (!question) {
-        return (
-            <>
-                <Head title="Assesment Awal" />
+    const currentAnswer = question
+        ? (form.data.answers[question.id] ?? '')
+        : '';
 
-                <div className="neo-page py-8 md:py-10">
-                    <section className="neo-card p-6 sm:p-8">
-                        <h1 className="text-3xl font-black">
-                            Pertanyaan Assesment belum tersedia.
-                        </h1>
+    const isLastQuestion =
+        Boolean(question) && index === assessment.questions.length - 1;
 
-                        <p className="mt-3 text-sm font-medium text-muted-foreground">
-                            Data Assesment untuk jurusan ini belum tersedia.
-                        </p>
-                    </section>
-                </div>
-            </>
-        );
-    }
+    const beginAssessment = () => {
+        if (startForm.processing) {
+            return;
+        }
 
-    const currentAnswer = form.data.answers[question.id] ?? '';
+        setStartDialogOpen(false);
 
-    const isLastQuestion = index === assessment.questions.length - 1;
+        startForm.post('/assessment/start', {
+            preserveScroll: true,
+        });
+    };
 
     const selectAnswer = (value: string) => {
+        if (!question) {
+            return;
+        }
+
         form.setData('answers', {
             ...form.data.answers,
             [question.id]: value,
@@ -140,8 +160,11 @@ export default function AssessmentPage({
                         </h1>
 
                         <p className="mt-4 text-sm leading-relaxed font-medium text-muted-foreground">
-                            Kamu akan menjawab {assessment.questions.length}{' '}
-                            pertanyaan dari tiga bidang utama jurusan{' '}
+                            Assesment menggunakan{' '}
+                            <strong>
+                                {assessment.question_limit} pertanyaan
+                            </strong>{' '}
+                            yang dipilih secara acak dari bank soal jurusan{' '}
                             <strong>{assessment.study_program}</strong>.
                         </p>
 
@@ -150,10 +173,22 @@ export default function AssessmentPage({
                                 Jurusan: {assessment.study_program}
                             </span>
 
+                            <span className="rounded-full border-2 border-foreground bg-card px-3 py-1 text-xs font-black">
+                                {assessment.skill_count} kemampuan inti
+                            </span>
+
+                            <span className="rounded-full border-2 border-foreground bg-card px-3 py-1 text-xs font-black">
+                                {assessment.reserve_question_count} soal
+                                cadangan
+                            </span>
+
                             {latestAttempt && (
                                 <span className="flex items-center gap-1.5 rounded-full border-2 border-[#171717] bg-[var(--neo-yellow)] px-3 py-1 text-xs font-black text-[#171717]">
                                     <History className="size-3.5" />
-                                    Mengulang Assesment
+
+                                    {assessment.started
+                                        ? 'Mengulang Assesment'
+                                        : 'Pernah mengikuti Assesment'}
                                 </span>
                             )}
                         </div>
@@ -174,20 +209,21 @@ export default function AssessmentPage({
 
                             <div>
                                 <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                    Yang dinilai
+                                    Cakupan jurusan
                                 </p>
 
                                 <h2 className="text-xl font-black">
                                     {program.areas.length} bidang dan{' '}
-                                    {assessedSkillCount} kemampuan
+                                    {academicSkillCount} kemampuan akademik
                                 </h2>
                             </div>
                         </div>
 
                         <p className="mt-4 max-w-3xl text-sm leading-6 font-medium text-muted-foreground">
-                            Tidak masalah kalau ada bagian yang belum kamu
-                            kuasai. Tujuan Assesment adalah melihat kemampuanmu
-                            sekarang, bukan mencari nilai sempurna.
+                            Dari cakupan jurusan ini, Assesment mengukur{' '}
+                            {assessment.skill_count} kemampuan inti melalui{' '}
+                            {assessment.question_limit} pertanyaan yang dipilih
+                            untuk sesi yang sedang dikerjakan.
                         </p>
 
                         <div className="mt-6 grid gap-4 lg:grid-cols-3">
@@ -230,145 +266,287 @@ export default function AssessmentPage({
                     </section>
                 )}
 
-                <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_300px]">
-                    <section className="neo-card p-6 sm:p-8">
-                        <div className="mb-7 flex flex-wrap items-start justify-between gap-4">
-                            <div>
-                                <p className="text-xs font-black tracking-[0.15em] text-muted-foreground uppercase">
-                                    Pertanyaan {index + 1} dari{' '}
-                                    {assessment.questions.length}
+                {!assessment.started ? (
+                    <section className="neo-card mt-6 p-6 sm:p-8">
+                        <div className="flex size-12 items-center justify-center rounded-[12px] border-2 border-[#171717] bg-[var(--neo-blue)] text-[#171717]">
+                            {isRepeat ? (
+                                <RotateCcw className="size-6" />
+                            ) : (
+                                <Play className="size-6" />
+                            )}
+                        </div>
+
+                        <h2 className="mt-5 text-2xl font-black">
+                            {isRepeat
+                                ? 'Siap mengulangi Assesment?'
+                                : 'Siap memulai Assesment?'}
+                        </h2>
+
+                        <p className="mt-3 max-w-3xl text-sm leading-6 font-semibold text-muted-foreground">
+                            Sistem baru akan mengacak soal setelah kamu
+                            mengonfirmasi. Selama sesi masih aktif, refresh
+                            halaman tidak akan membuat set soal baru.
+                        </p>
+
+                        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                            <div className="neo-card-flat p-4">
+                                <p className="font-mono text-2xl font-black">
+                                    {assessment.question_limit}
                                 </p>
 
-                                <h2 className="mt-2 text-xl font-black">
-                                    {question.skill.name}
-                                </h2>
+                                <p className="mt-1 text-xs font-bold">
+                                    Soal yang dikerjakan
+                                </p>
                             </div>
 
-                            <div className="flex flex-wrap gap-2">
-                                <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-blue)] px-3 py-1 text-xs font-black text-[#171717]">
-                                    {question.skill.category}
-                                </span>
+                            <div className="neo-card-flat p-4">
+                                <p className="font-mono text-2xl font-black">
+                                    {assessment.reserve_question_count}
+                                </p>
 
-                                <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-yellow)] px-3 py-1 text-xs font-black text-[#171717]">
-                                    {question.difficulty}
-                                </span>
+                                <p className="mt-1 text-xs font-bold">
+                                    Soal cadangan
+                                </p>
+                            </div>
+
+                            <div className="neo-card-flat p-4">
+                                <p className="font-mono text-2xl font-black">
+                                    {assessment.skill_count}
+                                </p>
+
+                                <p className="mt-1 text-xs font-bold">
+                                    Kemampuan inti
+                                </p>
                             </div>
                         </div>
 
-                        <h3 className="text-2xl leading-snug font-black tracking-tight">
-                            {question.prompt}
-                        </h3>
+                        <Button
+                            type="button"
+                            className="mt-6"
+                            onClick={() => setStartDialogOpen(true)}
+                        >
+                            {isRepeat ? <RotateCcw /> : <Play />}
 
-                        <div className="mt-7 grid gap-3">
-                            {Object.entries(question.options).map(
-                                ([key, value]) => {
-                                    const selected = currentAnswer === key;
-
-                                    return (
-                                        <button
-                                            key={key}
-                                            type="button"
-                                            onClick={() => selectAnswer(key)}
-                                            className={`flex items-start gap-4 rounded-[12px] border-2 border-foreground p-4 text-left text-sm font-semibold transition-[transform,box-shadow,background-color] ${
-                                                selected
-                                                    ? 'translate-x-[2px] translate-y-[2px] bg-secondary text-[#171717] shadow-none'
-                                                    : 'bg-card shadow-[3px_3px_0_var(--neo-shadow-color)] hover:-translate-y-[1px]'
-                                            }`}
-                                        >
-                                            <span className="flex size-7 shrink-0 items-center justify-center rounded-[8px] border-2 border-foreground bg-background font-mono text-xs font-black text-foreground">
-                                                {key}
-                                            </span>
-
-                                            <span className="pt-1 leading-relaxed">
-                                                {value}
-                                            </span>
-                                        </button>
-                                    );
-                                },
-                            )}
-                        </div>
-
-                        {form.errors.answers && (
-                            <p className="mt-5 text-sm font-bold text-destructive">
-                                {form.errors.answers}
-                            </p>
-                        )}
-
-                        <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={goPrevious}
-                                disabled={index === 0}
-                            >
-                                <ArrowLeft />
-                                Sebelumnya
-                            </Button>
-
-                            {isLastQuestion ? (
-                                <Button
-                                    type="button"
-                                    onClick={submit}
-                                    disabled={!complete || form.processing}
-                                >
-                                    <CheckCircle2 />
-
-                                    {form.processing
-                                        ? 'Menyimpan hasil...'
-                                        : 'Selesaikan Assesment'}
-                                </Button>
-                            ) : (
-                                <Button
-                                    type="button"
-                                    onClick={goNext}
-                                    disabled={!currentAnswer}
-                                >
-                                    Pertanyaan berikutnya
-                                    <ArrowRight />
-                                </Button>
-                            )}
-                        </div>
+                            {isRepeat ? 'Ulangi Assesment' : 'Mulai Assesment'}
+                        </Button>
                     </section>
-
-                    <aside className="space-y-5">
-                        <section className="neo-card p-5">
-                            <div className="flex items-center justify-between gap-3">
+                ) : question ? (
+                    <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_300px]">
+                        <section className="neo-card p-6 sm:p-8">
+                            <div className="mb-7 flex flex-wrap items-start justify-between gap-4">
                                 <div>
-                                    <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                        Progres
+                                    <p className="text-xs font-black tracking-[0.15em] text-muted-foreground uppercase">
+                                        Pertanyaan {index + 1} dari{' '}
+                                        {assessment.questions.length}
                                     </p>
 
-                                    <p className="mt-1 text-2xl font-black">
-                                        {progress}%
-                                    </p>
+                                    <h2 className="mt-2 text-xl font-black">
+                                        {question.skill.name}
+                                    </h2>
                                 </div>
 
-                                <span className="font-mono text-sm font-black">
-                                    {completedCount}/
-                                    {assessment.questions.length}
-                                </span>
+                                <div className="flex flex-wrap gap-2">
+                                    <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-blue)] px-3 py-1 text-xs font-black text-[#171717]">
+                                        {question.skill.category}
+                                    </span>
+
+                                    <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-yellow)] px-3 py-1 text-xs font-black text-[#171717]">
+                                        {question.difficulty}
+                                    </span>
+                                </div>
                             </div>
 
-                            <div className="mt-4 h-3 overflow-hidden rounded-full border-2 border-foreground bg-background">
-                                <div
-                                    className="h-full bg-secondary transition-[width]"
-                                    style={{
-                                        width: `${progress}%`,
-                                    }}
-                                />
+                            <h3 className="text-2xl leading-snug font-black tracking-tight">
+                                {question.prompt}
+                            </h3>
+
+                            <div className="mt-7 grid gap-3">
+                                {Object.entries(question.options).map(
+                                    ([key, value]) => {
+                                        const selected = currentAnswer === key;
+
+                                        return (
+                                            <button
+                                                key={key}
+                                                type="button"
+                                                onClick={() =>
+                                                    selectAnswer(key)
+                                                }
+                                                className={`flex items-start gap-4 rounded-[12px] border-2 border-foreground p-4 text-left text-sm font-semibold transition-[transform,box-shadow,background-color] ${
+                                                    selected
+                                                        ? 'translate-x-[2px] translate-y-[2px] bg-secondary text-[#171717] shadow-none'
+                                                        : 'bg-card shadow-[3px_3px_0_var(--neo-shadow-color)] hover:-translate-y-[1px]'
+                                                }`}
+                                            >
+                                                <span className="flex size-7 shrink-0 items-center justify-center rounded-[8px] border-2 border-foreground bg-background font-mono text-xs font-black text-foreground">
+                                                    {key}
+                                                </span>
+
+                                                <span className="pt-1 leading-relaxed">
+                                                    {value}
+                                                </span>
+                                            </button>
+                                        );
+                                    },
+                                )}
+                            </div>
+
+                            {form.errors.answers && (
+                                <p className="mt-5 text-sm font-bold text-destructive">
+                                    {form.errors.answers}
+                                </p>
+                            )}
+
+                            <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={goPrevious}
+                                    disabled={index === 0}
+                                >
+                                    <ArrowLeft />
+                                    Sebelumnya
+                                </Button>
+
+                                {isLastQuestion ? (
+                                    <Button
+                                        type="button"
+                                        onClick={submit}
+                                        disabled={!complete || form.processing}
+                                    >
+                                        <CheckCircle2 />
+
+                                        {form.processing
+                                            ? 'Menyimpan hasil...'
+                                            : 'Selesaikan Assesment'}
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        type="button"
+                                        onClick={goNext}
+                                        disabled={!currentAnswer}
+                                    >
+                                        Pertanyaan berikutnya
+                                        <ArrowRight />
+                                    </Button>
+                                )}
                             </div>
                         </section>
 
-                        <section className="neo-surface p-5">
-                            <p className="text-sm leading-6 font-semibold">
-                                Jawab apa adanya. Hasil yang jujur lebih berguna
-                                untuk menentukan bagian mana yang perlu kamu
-                                pelajari lebih dulu.
-                            </p>
-                        </section>
-                    </aside>
-                </div>
+                        <aside className="space-y-5">
+                            <section className="neo-card p-5">
+                                <div className="flex items-center justify-between gap-3">
+                                    <div>
+                                        <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
+                                            Progres
+                                        </p>
+
+                                        <p className="mt-1 text-2xl font-black">
+                                            {progress}%
+                                        </p>
+                                    </div>
+
+                                    <span className="font-mono text-sm font-black">
+                                        {completedCount}/
+                                        {assessment.questions.length}
+                                    </span>
+                                </div>
+
+                                <div className="mt-4 h-3 overflow-hidden rounded-full border-2 border-foreground bg-background">
+                                    <div
+                                        className="h-full bg-secondary transition-[width]"
+                                        style={{
+                                            width: `${progress}%`,
+                                        }}
+                                    />
+                                </div>
+                            </section>
+
+                            <section className="neo-surface p-5">
+                                <p className="text-sm leading-6 font-semibold">
+                                    Jawab apa adanya. Hasil yang jujur lebih
+                                    berguna untuk menentukan bagian mana yang
+                                    perlu kamu pelajari lebih dulu.
+                                </p>
+                            </section>
+
+                            <section className="neo-surface p-5">
+                                <div className="flex items-start gap-3">
+                                    <ShieldCheck className="mt-0.5 size-5 shrink-0" />
+
+                                    <p className="text-sm leading-6 font-semibold">
+                                        Lima soal cadangan disimpan di server
+                                        dan tidak dihitung sebagai jawaban
+                                        Assesment utama.
+                                    </p>
+                                </div>
+                            </section>
+                        </aside>
+                    </div>
+                ) : (
+                    <section className="neo-card mt-6 p-6 sm:p-8">
+                        <h2 className="text-2xl font-black">
+                            Sesi Assesment tidak memiliki pertanyaan.
+                        </h2>
+
+                        <p className="mt-3 text-sm font-medium text-muted-foreground">
+                            Silakan kembali dan mulai Assesment baru.
+                        </p>
+                    </section>
+                )}
             </div>
+
+            <Dialog
+                open={!assessment.started && startDialogOpen}
+                onOpenChange={setStartDialogOpen}
+            >
+                <DialogContent
+                    showCloseButton={false}
+                    className="border-2 border-foreground shadow-[5px_5px_0_var(--neo-shadow-color)]"
+                >
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-black">
+                            {isRepeat
+                                ? 'Ulangi Assesment?'
+                                : 'Mulai Assesment?'}
+                        </DialogTitle>
+
+                        <DialogDescription className="leading-6 font-medium">
+                            {isRepeat
+                                ? `Apakah kamu yakin ingin mengulangi Assesment ${assessment.study_program}? Sistem akan mengacak 25 soal utama dan 5 soal cadangan untuk sesi baru. Hasil Assesment sebelumnya tetap tersimpan sebagai riwayat, tetapi nilai kemampuan terbaru dan roadmap akan diperbarui setelah Assesment baru selesai.`
+                                : `Apakah kamu yakin ingin memulai Assesment ${assessment.study_program}? Sistem akan mengacak 25 soal utama dan menyiapkan 5 soal cadangan untuk sesi ini.`}
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="rounded-[12px] border-2 border-foreground bg-muted p-4 text-sm leading-6 font-semibold">
+                        Setelah sesi dibuat, set soal tetap sama selama sesi
+                        tersebut masih aktif. Soal baru hanya diacak ketika kamu
+                        secara eksplisit memulai atau mengulangi Assesment.
+                    </div>
+
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button type="button" variant="outline">
+                                Batal
+                            </Button>
+                        </DialogClose>
+
+                        <Button
+                            type="button"
+                            onClick={beginAssessment}
+                            disabled={startForm.processing}
+                        >
+                            {isRepeat ? <RotateCcw /> : <Play />}
+
+                            {startForm.processing
+                                ? 'Menyiapkan soal...'
+                                : isRepeat
+                                  ? 'Ya, ulangi Assesment'
+                                  : 'Ya, mulai Assesment'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }

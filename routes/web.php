@@ -81,6 +81,14 @@ Route::middleware([
     )->name('assessment.show');
 
     Route::post(
+        '/assessment/start',
+        [
+            AssessmentController::class,
+            'start',
+        ],
+    )->name('assessment.start');
+
+    Route::post(
         '/assessment',
         [
             AssessmentController::class,

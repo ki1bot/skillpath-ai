@@ -52,7 +52,7 @@ class AssessmentEvidenceTest extends TestCase
             ]);
     }
 
-    public function test_academic_assessment_displays_all_twenty_seven_balanced_multiple_choice_questions(): void
+    public function test_assessment_waits_for_explicit_start_before_creating_random_session(): void
     {
         $assessment = $this->assessment();
 
@@ -60,26 +60,6 @@ class AssessmentEvidenceTest extends TestCase
             AcademicAssessmentCatalog::QUESTION_POOL_SIZE,
             $assessment->questions,
         );
-
-        $this->assertSame(
-            AcademicAssessmentCatalog::SKILLS_PER_PROGRAM,
-            $assessment
-                ->questions
-                ->pluck('skill_id')
-                ->unique()
-                ->count(),
-        );
-
-        foreach (
-            $assessment
-                ->questions
-                ->groupBy('skill_id') as $questions
-        ) {
-            $this->assertCount(
-                AcademicAssessmentCatalog::QUESTIONS_PER_SKILL,
-                $questions,
-            );
-        }
 
         $response = $this
             ->actingAs(
@@ -100,13 +80,65 @@ class AssessmentEvidenceTest extends TestCase
                         'assessment.study_program',
                         'Sistem Informasi',
                     )
+                    ->where(
+                        'assessment.started',
+                        false,
+                    )
+                    ->where(
+                        'assessment.question_limit',
+                        AcademicAssessmentCatalog::QUESTION_LIMIT,
+                    )
+                    ->where(
+                        'assessment.reserve_question_count',
+                        AcademicAssessmentCatalog::RESERVE_QUESTION_LIMIT,
+                    )
                     ->has(
                         'assessment.questions',
-                        AcademicAssessmentCatalog::QUESTION_LIMIT,
+                        0,
                     ),
             );
 
+        $this->assertNull(
+            session()->get(
+                $this->questionSessionKey(
+                    $assessment,
+                ),
+            ),
+        );
+
+        $this->assertNull(
+            session()->get(
+                $this->reserveQuestionSessionKey(
+                    $assessment,
+                ),
+            ),
+        );
+    }
+
+    public function test_starting_assessment_creates_twenty_five_active_and_five_reserve_questions(): void
+    {
+        $assessment = $this->assessment();
+
+        $this
+            ->actingAs(
+                $this->user,
+            )
+            ->post(
+                route(
+                    'assessment.start',
+                ),
+            )
+            ->assertRedirect(
+                route(
+                    'assessment.show',
+                ),
+            );
+
         $questionIds = $this->selectedQuestionIds(
+            $assessment,
+        );
+
+        $reserveQuestionIds = $this->reserveQuestionIds(
             $assessment,
         );
 
@@ -116,8 +148,42 @@ class AssessmentEvidenceTest extends TestCase
         );
 
         $this->assertCount(
+            AcademicAssessmentCatalog::RESERVE_QUESTION_LIMIT,
+            $reserveQuestionIds,
+        );
+
+        $this->assertCount(
             AcademicAssessmentCatalog::QUESTION_LIMIT,
-            array_unique($questionIds),
+            array_unique(
+                $questionIds,
+            ),
+        );
+
+        $this->assertCount(
+            AcademicAssessmentCatalog::RESERVE_QUESTION_LIMIT,
+            array_unique(
+                $reserveQuestionIds,
+            ),
+        );
+
+        $this->assertSame(
+            [],
+            array_values(
+                array_intersect(
+                    $questionIds,
+                    $reserveQuestionIds,
+                ),
+            ),
+        );
+
+        $this->assertCount(
+            AcademicAssessmentCatalog::QUESTION_POOL_SIZE,
+            array_unique(
+                array_merge(
+                    $questionIds,
+                    $reserveQuestionIds,
+                ),
+            ),
         );
 
         $questions = AssessmentQuestion::query()
@@ -144,34 +210,94 @@ class AssessmentEvidenceTest extends TestCase
                 ->count(),
         );
 
-        foreach (
-            $questions->groupBy('skill_id') as $skillQuestions
-        ) {
-            $this->assertCount(
-                AcademicAssessmentCatalog::QUESTIONS_PER_SKILL,
-                $skillQuestions,
-            );
-        }
+        $distribution = $questions
+            ->groupBy('skill_id')
+            ->map(
+                fn (Collection $skillQuestions) => $skillQuestions->count(),
+            )
+            ->sort()
+            ->values()
+            ->all();
 
-        foreach ($questions as $question) {
-            $this->assertSame(
-                'multiple_choice',
-                $question->question_type,
-            );
+        $this->assertSame(
+            [
+                2,
+                2,
+                3,
+                3,
+                3,
+                3,
+                3,
+                3,
+                3,
+            ],
+            $distribution,
+        );
 
-            $this->assertFalse(
-                $question->evidence_required,
+        $this
+            ->actingAs(
+                $this->user,
+            )
+            ->get(
+                route(
+                    'assessment.show',
+                ),
+            )
+            ->assertOk()
+            ->assertInertia(
+                fn (Assert $page) => $page
+                    ->component('assessment')
+                    ->where(
+                        'assessment.started',
+                        true,
+                    )
+                    ->has(
+                        'assessment.questions',
+                        AcademicAssessmentCatalog::QUESTION_LIMIT,
+                    ),
             );
+    }
 
-            $this->assertNull(
-                $question->practical_instructions,
-            );
+    public function test_refresh_keeps_the_same_assessment_session(): void
+    {
+        $assessment = $this->assessment();
 
-            $this->assertCount(
-                4,
-                $question->options,
-            );
-        }
+        $this->startAssessment(
+            $assessment,
+        );
+
+        $questionIdsBefore = $this->selectedQuestionIds(
+            $assessment,
+        );
+
+        $reserveIdsBefore = $this->reserveQuestionIds(
+            $assessment,
+        );
+
+        $this
+            ->actingAs(
+                $this->user,
+            )
+            ->get(
+                route(
+                    'assessment.show',
+                ),
+            )
+            ->assertOk();
+
+        $this->assertSame(
+            $questionIdsBefore,
+            $this->selectedQuestionIds(
+                $assessment,
+            ),
+        );
+
+        $this->assertSame(
+            $reserveIdsBefore,
+            $this->reserveQuestionIds(
+                $assessment,
+            ),
+        );
     }
 
     public function test_academic_assessment_uses_objective_answers_only(): void
@@ -289,6 +415,22 @@ class AssessmentEvidenceTest extends TestCase
 
         $this->assertNotNull(
             $userSkill->last_assessed_at,
+        );
+
+        $this->assertNull(
+            session()->get(
+                $this->questionSessionKey(
+                    $assessment,
+                ),
+            ),
+        );
+
+        $this->assertNull(
+            session()->get(
+                $this->reserveQuestionSessionKey(
+                    $assessment,
+                ),
+            ),
         );
     }
 
@@ -419,6 +561,21 @@ class AssessmentEvidenceTest extends TestCase
         $this->actingAs(
             $this->user,
         )
+            ->post(
+                route(
+                    'assessment.start',
+                ),
+            )
+            ->assertRedirect(
+                route(
+                    'assessment.show',
+                ),
+            );
+
+        $this
+            ->actingAs(
+                $this->user,
+            )
             ->get(
                 route(
                     'assessment.show',
@@ -469,6 +626,32 @@ class AssessmentEvidenceTest extends TestCase
     }
 
     /**
+     * @return list<int>
+     */
+    private function reserveQuestionIds(
+        Assessment $assessment,
+    ): array {
+        $questionIds = session()->get(
+            $this->reserveQuestionSessionKey(
+                $assessment,
+            ),
+        );
+
+        $this->assertIsArray(
+            $questionIds,
+        );
+
+        return collect(
+            $questionIds,
+        )
+            ->map(
+                fn ($id) => (int) $id,
+            )
+            ->values()
+            ->all();
+    }
+
+    /**
      * @param  Collection<int, AssessmentQuestion>  $questions
      * @return array{
      *     answers: array<int, string>
@@ -495,6 +678,15 @@ class AssessmentEvidenceTest extends TestCase
         Assessment $assessment,
     ): string {
         return 'assessment.question_ids.'
+            .$assessment->id
+            .'.'
+            .$this->user->id;
+    }
+
+    private function reserveQuestionSessionKey(
+        Assessment $assessment,
+    ): string {
+        return 'assessment.reserve_question_ids.'
             .$assessment->id
             .'.'
             .$this->user->id;
