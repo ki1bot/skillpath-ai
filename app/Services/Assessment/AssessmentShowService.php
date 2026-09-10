@@ -103,8 +103,7 @@ class AssessmentShowService
                     'career' => [
                         'name' => $assessment
                             ->career
-                            ?->name
-                            ?? $studyProgram,
+                            ->name,
                     ],
                     'questions' => $this->poolService->toPayload(
                         $questions,

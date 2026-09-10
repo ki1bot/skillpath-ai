@@ -41,11 +41,9 @@ class AssessmentSessionValidator
             return false;
         }
 
-        $storedIds = array_values(
-            array_merge(
-                $questionIds,
-                $reserveQuestionIds,
-            ),
+        $storedIds = array_merge(
+            $questionIds,
+            $reserveQuestionIds,
         );
 
         if (

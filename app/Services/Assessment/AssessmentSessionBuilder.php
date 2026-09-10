@@ -20,9 +20,7 @@ class AssessmentSessionBuilder
         Collection $questionPool,
         array $skillSlugs,
     ): array {
-        $reducedSkillSlugs = array_values(
-            $skillSlugs,
-        );
+        $reducedSkillSlugs = $skillSlugs;
 
         shuffle(
             $reducedSkillSlugs,
@@ -91,15 +89,11 @@ class AssessmentSessionBuilder
         );
 
         return [
-            'question_ids' => array_values(
-                $questionIds,
-            ),
-            'reserve_question_ids' => array_values(
-                array_slice(
-                    $reserveQuestionIds,
-                    0,
-                    AcademicAssessmentCatalog::RESERVE_QUESTION_LIMIT,
-                ),
+            'question_ids' => $questionIds,
+            'reserve_question_ids' => array_slice(
+                $reserveQuestionIds,
+                0,
+                AcademicAssessmentCatalog::RESERVE_QUESTION_LIMIT,
             ),
         ];
     }
