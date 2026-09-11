@@ -45,9 +45,6 @@ type FormData = {
     answers: Record<number, string>;
 };
 
-const leaveAssessmentMessage =
-    'Assesment sedang dikerjakan. Jawaban yang belum dikirim akan hilang jika kamu meninggalkan halaman ini. Apakah kamu yakin ingin meninggalkan Assesment?';
-
 export default function AssessmentPage({
     assessment,
     latestAttempt,
@@ -57,8 +54,10 @@ export default function AssessmentPage({
 }) {
     const [index, setIndex] = useState(0);
     const [startDialogOpen, setStartDialogOpen] = useState(!assessment.started);
+    const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
 
     const allowNavigationRef = useRef(false);
+    const pendingNavigationRef = useRef<string | null>(null);
 
     const isRepeat = Boolean(latestAttempt);
 
@@ -106,23 +105,59 @@ export default function AssessmentPage({
             event.returnValue = '';
         };
 
-        const removeBeforeListener = router.on('before', (event) => {
-            if (allowNavigationRef.current) {
+        const handleDocumentClick = (event: MouseEvent) => {
+            if (
+                allowNavigationRef.current ||
+                event.defaultPrevented ||
+                event.button !== 0 ||
+                event.ctrlKey ||
+                event.metaKey ||
+                event.shiftKey ||
+                event.altKey
+            ) {
                 return;
             }
 
-            const confirmed = window.confirm(leaveAssessmentMessage);
+            const target = event.target;
 
-            if (!confirmed) {
-                event.preventDefault();
+            if (!(target instanceof Element)) {
+                return;
             }
-        });
+
+            const anchor = target.closest('a[href]');
+
+            if (!(anchor instanceof HTMLAnchorElement)) {
+                return;
+            }
+
+            if (anchor.target === '_blank' || anchor.hasAttribute('download')) {
+                return;
+            }
+
+            const destination = new URL(anchor.href, window.location.href);
+
+            const current = new URL(window.location.href);
+
+            if (destination.href === current.href) {
+                return;
+            }
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            pendingNavigationRef.current = destination.href;
+
+            setLeaveDialogOpen(true);
+        };
 
         window.addEventListener('beforeunload', handleBeforeUnload);
 
+        document.addEventListener('click', handleDocumentClick, true);
+
         return () => {
             window.removeEventListener('beforeunload', handleBeforeUnload);
-            removeBeforeListener();
+
+            document.removeEventListener('click', handleDocumentClick, true);
         };
     }, [assessment.started]);
 
@@ -161,6 +196,39 @@ export default function AssessmentPage({
 
     const goPrevious = () => {
         setIndex((current) => Math.max(current - 1, 0));
+    };
+
+    const cancelLeaveAssessment = () => {
+        pendingNavigationRef.current = null;
+        setLeaveDialogOpen(false);
+    };
+
+    const confirmLeaveAssessment = () => {
+        const destination = pendingNavigationRef.current;
+
+        if (!destination) {
+            setLeaveDialogOpen(false);
+
+            return;
+        }
+
+        const url = new URL(destination, window.location.href);
+
+        pendingNavigationRef.current = null;
+        allowNavigationRef.current = true;
+        setLeaveDialogOpen(false);
+
+        if (url.origin === window.location.origin) {
+            router.visit(`${url.pathname}${url.search}${url.hash}`, {
+                onFinish: () => {
+                    allowNavigationRef.current = false;
+                },
+            });
+
+            return;
+        }
+
+        window.location.assign(url.href);
     };
 
     const submit = () => {
@@ -519,6 +587,64 @@ export default function AssessmentPage({
                                 : isRepeat
                                   ? 'Ya, ulangi Assesment'
                                   : 'Ya, mulai Assesment'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog
+                open={assessment.started && leaveDialogOpen}
+                onOpenChange={(open) => {
+                    setLeaveDialogOpen(open);
+
+                    if (!open) {
+                        pendingNavigationRef.current = null;
+                    }
+                }}
+            >
+                <DialogContent
+                    showCloseButton={false}
+                    className="border-2 border-foreground shadow-[5px_5px_0_var(--neo-shadow-color)]"
+                >
+                    <DialogHeader>
+                        <div className="mb-2 flex size-11 items-center justify-center rounded-[10px] border-2 border-[#171717] bg-[var(--neo-yellow)] text-[#171717]">
+                            <ShieldAlert className="size-5" />
+                        </div>
+
+                        <DialogTitle className="text-2xl font-black">
+                            Tinggalkan Assesment?
+                        </DialogTitle>
+
+                        <DialogDescription className="leading-6 font-medium">
+                            Assesment masih sedang dikerjakan. Jawaban yang
+                            belum dikirim tidak akan tersimpan jika kamu
+                            meninggalkan halaman ini.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="rounded-[12px] border-2 border-foreground bg-muted p-4">
+                        <p className="text-sm leading-6 font-semibold">
+                            Progres saat ini:{' '}
+                            <strong>
+                                {completedCount} dari{' '}
+                                {assessment.questions.length} pertanyaan
+                            </strong>
+                            . Kamu dapat tetap di halaman ini untuk melanjutkan
+                            Assesment.
+                        </p>
+                    </div>
+
+                    <DialogFooter>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={cancelLeaveAssessment}
+                        >
+                            Tetap di Assesment
+                        </Button>
+
+                        <Button type="button" onClick={confirmLeaveAssessment}>
+                            Ya, tinggalkan
                         </Button>
                     </DialogFooter>
                 </DialogContent>
