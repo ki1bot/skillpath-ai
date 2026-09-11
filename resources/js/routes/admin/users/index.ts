@@ -2,7 +2,7 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
 import role from './role'
 /**
 * @see \App\Http\Controllers\Admin\UserManagementController::index
- * @see app/Http/Controllers/Admin/UserManagementController.php:14
+ * @see app/Http/Controllers/Admin/UserManagementController.php:15
  * @route '/admin/users'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -17,7 +17,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\UserManagementController::index
- * @see app/Http/Controllers/Admin/UserManagementController.php:14
+ * @see app/Http/Controllers/Admin/UserManagementController.php:15
  * @route '/admin/users'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -26,7 +26,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Admin\UserManagementController::index
- * @see app/Http/Controllers/Admin/UserManagementController.php:14
+ * @see app/Http/Controllers/Admin/UserManagementController.php:15
  * @route '/admin/users'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Admin\UserManagementController::index
- * @see app/Http/Controllers/Admin/UserManagementController.php:14
+ * @see app/Http/Controllers/Admin/UserManagementController.php:15
  * @route '/admin/users'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Admin\UserManagementController::index
- * @see app/Http/Controllers/Admin/UserManagementController.php:14
+ * @see app/Http/Controllers/Admin/UserManagementController.php:15
  * @route '/admin/users'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Admin\UserManagementController::index
- * @see app/Http/Controllers/Admin/UserManagementController.php:14
+ * @see app/Http/Controllers/Admin/UserManagementController.php:15
  * @route '/admin/users'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -64,7 +64,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Admin\UserManagementController::index
- * @see app/Http/Controllers/Admin/UserManagementController.php:14
+ * @see app/Http/Controllers/Admin/UserManagementController.php:15
  * @route '/admin/users'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

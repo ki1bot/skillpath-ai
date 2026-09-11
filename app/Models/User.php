@@ -129,12 +129,23 @@ class User extends Authenticatable
 
     public function canManageUsers(): bool
     {
-        $emailMatches = Str::lower($this->email)
-            === 'f8goodspoof@gmail.com';
+        $managerEmail = config(
+            'security.user_manager_email',
+        );
 
-        $namedAdmin = $this->name === 'RifqiAdmin'
-            && $this->role === 'admin';
+        if (
+            ! $this->isAdmin()
+            || $this->email_verified_at === null
+            || ! is_string($managerEmail)
+            || trim($managerEmail) === ''
+        ) {
+            return false;
+        }
 
-        return $emailMatches || $namedAdmin;
+        return Str::lower(
+            trim($this->email),
+        ) === Str::lower(
+            trim($managerEmail),
+        );
     }
 }

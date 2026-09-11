@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -43,6 +44,21 @@ class UserManagementController extends Controller
                 'in:admin,student',
             ],
         ]);
+
+        $manager = $request->user();
+
+        if (
+            ! $manager instanceof User
+            || ! $manager->canManageUsers()
+        ) {
+            abort(403);
+        }
+
+        if ($manager->is($user)) {
+            throw ValidationException::withMessages([
+                'role' => 'Role akun pengelola pengguna tidak dapat diubah dari halaman ini.',
+            ]);
+        }
 
         $role = $request
             ->string('role')

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Admin\UserManagementController::update
- * @see app/Http/Controllers/Admin/UserManagementController.php:35
+ * @see app/Http/Controllers/Admin/UserManagementController.php:36
  * @route '/admin/users/{user}/role'
  */
 export const update = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -16,7 +16,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\UserManagementController::update
- * @see app/Http/Controllers/Admin/UserManagementController.php:35
+ * @see app/Http/Controllers/Admin/UserManagementController.php:36
  * @route '/admin/users/{user}/role'
  */
 update.url = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -49,7 +49,7 @@ update.url = (args: { user: number | { id: number } } | [user: number | { id: nu
 
 /**
 * @see \App\Http\Controllers\Admin\UserManagementController::update
- * @see app/Http/Controllers/Admin/UserManagementController.php:35
+ * @see app/Http/Controllers/Admin/UserManagementController.php:36
  * @route '/admin/users/{user}/role'
  */
 update.patch = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -59,7 +59,7 @@ update.patch = (args: { user: number | { id: number } } | [user: number | { id: 
 
     /**
 * @see \App\Http\Controllers\Admin\UserManagementController::update
- * @see app/Http/Controllers/Admin/UserManagementController.php:35
+ * @see app/Http/Controllers/Admin/UserManagementController.php:36
  * @route '/admin/users/{user}/role'
  */
     const updateForm = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -74,7 +74,7 @@ update.patch = (args: { user: number | { id: number } } | [user: number | { id: 
 
             /**
 * @see \App\Http\Controllers\Admin\UserManagementController::update
- * @see app/Http/Controllers/Admin/UserManagementController.php:35
+ * @see app/Http/Controllers/Admin/UserManagementController.php:36
  * @route '/admin/users/{user}/role'
  */
         updateForm.patch = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

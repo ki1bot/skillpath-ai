@@ -11,19 +11,27 @@ class UserManagementTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_owner_email_can_open_user_management_page(): void
+    private const MANAGER_EMAIL = 'user-manager@example.test';
+
+    protected function setUp(): void
     {
-        $owner = User::factory()->create([
-            'name' => 'Nama Berbeda',
-            'email' => 'f8goodspoof@gmail.com',
-            'role' => 'student',
-        ]);
+        parent::setUp();
+
+        config()->set(
+            'security.user_manager_email',
+            self::MANAGER_EMAIL,
+        );
+    }
+
+    public function test_verified_configured_admin_can_open_user_management_page(): void
+    {
+        $manager = $this->manager();
 
         User::factory()->create([
             'role' => 'student',
         ]);
 
-        $this->actingAs($owner)
+        $this->actingAs($manager)
             ->get(route('admin.users.index'))
             ->assertOk()
             ->assertInertia(
@@ -33,25 +41,13 @@ class UserManagementTest extends TestCase
             );
     }
 
-    public function test_rifqi_admin_with_admin_role_can_open_user_management_page(): void
-    {
-        $owner = User::factory()->create([
-            'name' => 'RifqiAdmin',
-            'email' => 'another@example.com',
-            'role' => 'admin',
-        ]);
-
-        $this->actingAs($owner)
-            ->get(route('admin.users.index'))
-            ->assertOk();
-    }
-
-    public function test_student_using_rifqi_admin_name_cannot_open_user_management_page(): void
+    public function test_configured_manager_email_without_admin_role_cannot_manage_users(): void
     {
         $student = User::factory()->create([
-            'name' => 'RifqiAdmin',
-            'email' => 'student@example.com',
+            'name' => 'Manager Student',
+            'email' => self::MANAGER_EMAIL,
             'role' => 'student',
+            'email_verified_at' => now(),
         ]);
 
         $this->actingAs($student)
@@ -59,12 +55,33 @@ class UserManagementTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_regular_admin_cannot_open_user_management_page(): void
+    public function test_unverified_configured_admin_cannot_manage_users(): void
     {
         $admin = User::factory()->create([
-            'name' => 'Admin Biasa',
-            'email' => 'admin@example.com',
+            'name' => 'Manager Belum Terverifikasi',
+            'email' => self::MANAGER_EMAIL,
             'role' => 'admin',
+            'email_verified_at' => null,
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.users.index'))
+            ->assertRedirect(
+                route('email-verification.show'),
+            );
+
+        $this->assertFalse(
+            $admin->canManageUsers(),
+        );
+    }
+
+    public function test_admin_using_rifqi_admin_name_cannot_open_user_management_page(): void
+    {
+        $admin = User::factory()->create([
+            'name' => 'RifqiAdmin',
+            'email' => 'another-admin@example.test',
+            'role' => 'admin',
+            'email_verified_at' => now(),
         ]);
 
         $this->actingAs($admin)
@@ -72,19 +89,66 @@ class UserManagementTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_owner_can_change_student_role_to_admin(): void
+    public function test_regular_admin_cannot_gain_user_manager_access_by_renaming_profile(): void
     {
-        $owner = User::factory()->create([
-            'name' => 'RifqiAdmin',
-            'email' => 'f8goodspoof@gmail.com',
+        $admin = User::factory()->create([
+            'name' => 'Admin Biasa',
+            'email' => 'regular-admin@example.test',
             'role' => 'admin',
+            'email_verified_at' => now(),
         ]);
+
+        $this->actingAs($admin)
+            ->patch(
+                route('profile.update'),
+                [
+                    'name' => 'RifqiAdmin',
+                    'email' => 'regular-admin@example.test',
+                ],
+            )
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(
+                route('profile.edit'),
+            );
+
+        $this->assertSame(
+            'RifqiAdmin',
+            $admin->fresh()->name,
+        );
+
+        $this->actingAs($admin->fresh())
+            ->get(route('admin.users.index'))
+            ->assertForbidden();
+    }
+
+    public function test_user_management_fails_closed_when_manager_email_is_not_configured(): void
+    {
+        config()->set(
+            'security.user_manager_email',
+            null,
+        );
+
+        $admin = User::factory()->create([
+            'name' => 'Admin',
+            'email' => 'admin@example.test',
+            'role' => 'admin',
+            'email_verified_at' => now(),
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.users.index'))
+            ->assertForbidden();
+    }
+
+    public function test_manager_can_change_student_role_to_admin(): void
+    {
+        $manager = $this->manager();
 
         $student = User::factory()->create([
             'role' => 'student',
         ]);
 
-        $this->actingAs($owner)
+        $this->actingAs($manager)
             ->patch(
                 route(
                     'admin.users.role.update',
@@ -103,19 +167,15 @@ class UserManagementTest extends TestCase
         );
     }
 
-    public function test_owner_can_change_admin_role_to_student(): void
+    public function test_manager_can_change_admin_role_to_student(): void
     {
-        $owner = User::factory()->create([
-            'name' => 'RifqiAdmin',
-            'email' => 'f8goodspoof@gmail.com',
-            'role' => 'admin',
-        ]);
+        $manager = $this->manager();
 
         $admin = User::factory()->create([
             'role' => 'admin',
         ]);
 
-        $this->actingAs($owner)
+        $this->actingAs($manager)
             ->patch(
                 route(
                     'admin.users.role.update',
@@ -134,19 +194,39 @@ class UserManagementTest extends TestCase
         );
     }
 
+    public function test_manager_cannot_change_own_role(): void
+    {
+        $manager = $this->manager();
+
+        $this->actingAs($manager)
+            ->patch(
+                route(
+                    'admin.users.role.update',
+                    $manager,
+                ),
+                [
+                    'role' => 'student',
+                ],
+            )
+            ->assertSessionHasErrors([
+                'role' => 'Role akun pengelola pengguna tidak dapat diubah dari halaman ini.',
+            ]);
+
+        $this->assertSame(
+            'admin',
+            $manager->fresh()->role,
+        );
+    }
+
     public function test_role_must_be_admin_or_student(): void
     {
-        $owner = User::factory()->create([
-            'name' => 'RifqiAdmin',
-            'email' => 'f8goodspoof@gmail.com',
-            'role' => 'admin',
-        ]);
+        $manager = $this->manager();
 
         $student = User::factory()->create([
             'role' => 'student',
         ]);
 
-        $this->actingAs($owner)
+        $this->actingAs($manager)
             ->patch(
                 route(
                     'admin.users.role.update',
@@ -162,5 +242,15 @@ class UserManagementTest extends TestCase
             'student',
             $student->fresh()->role,
         );
+    }
+
+    private function manager(): User
+    {
+        return User::factory()->create([
+            'name' => 'User Manager',
+            'email' => self::MANAGER_EMAIL,
+            'role' => 'admin',
+            'email_verified_at' => now(),
+        ]);
     }
 }
