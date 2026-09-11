@@ -32,7 +32,25 @@ php artisan config:clear
 php artisan migrate --force
 
 if [ "${RUN_SEEDER:-false}" = "true" ]; then
+    echo "Running full database seeder..."
+
     php artisan db:seed --force
+elif [ "${RUN_ASSESSMENT_SEEDER:-false}" = "true" ]; then
+    echo "Synchronizing assessment data..."
+
+    php artisan db:seed \
+        --class='Database\Seeders\AcademicAssessmentSeeder' \
+        --force
+
+    php artisan db:seed \
+        --class='Database\Seeders\AcademicAssessmentQuestionPoolSeeder' \
+        --force
+
+    php artisan db:seed \
+        --class='Database\Seeders\AcademicAssessmentCleanupSeeder' \
+        --force
+
+    echo "Assessment data synchronized."
 fi
 
 if [ ! -L public/storage ]; then
