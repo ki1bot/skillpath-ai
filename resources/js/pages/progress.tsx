@@ -3,7 +3,6 @@ import {
     Activity,
     ArrowUpRight,
     BookCheck,
-    BrainCircuit,
     CircleAlert,
     Clock3,
     History,
@@ -288,7 +287,6 @@ export default function Progress({
                         <Card>
                             <CardHeader className="border-b-2 border-[#171717] bg-[var(--neo-blue)] text-[#171717]">
                                 <CardTitle className="flex items-center gap-2 text-xl font-black">
-                                    <BrainCircuit className="size-5" />
                                     AI Learning Coach
                                 </CardTitle>
                             </CardHeader>
@@ -314,7 +312,6 @@ export default function Progress({
                             <CardHeader className="border-b-2 border-[#171717] bg-[var(--neo-blue)] text-[#171717]">
                                 <div className="flex flex-wrap items-center justify-between gap-3">
                                     <CardTitle className="flex items-center gap-2 text-xl font-black">
-                                        <BrainCircuit className="size-5" />
                                         AI Learning Coach
                                     </CardTitle>
 
@@ -327,7 +324,6 @@ export default function Progress({
                             <CardContent className="grid gap-4 pt-6 lg:grid-cols-3">
                                 <div className="neo-card-flat p-5">
                                     <div className="flex items-center gap-2">
-                                        <BrainCircuit className="size-5" />
 
                                         <h3 className="font-black">
                                             Ringkasan perkembangan
@@ -372,7 +368,6 @@ export default function Progress({
                         <Card>
                             <CardHeader className="border-b-2 border-[#171717] bg-[var(--neo-blue)] text-[#171717]">
                                 <CardTitle className="flex items-center gap-2 text-xl font-black">
-                                    <BrainCircuit className="size-5" />
                                     AI Learning Coach
                                 </CardTitle>
                             </CardHeader>

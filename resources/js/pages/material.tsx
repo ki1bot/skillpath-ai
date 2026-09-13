@@ -2,7 +2,6 @@ import { Deferred, Head, Link, router, useForm } from '@inertiajs/react';
 import {
     ArrowLeft,
     BookOpen,
-    BrainCircuit,
     CheckCircle2,
     CircleAlert,
     ExternalLink,
@@ -225,8 +224,6 @@ export default function MaterialPage({
                         fallback={
                             <section className="neo-card overflow-hidden">
                                 <div className="flex items-center gap-3 border-b-2 border-[#171717] bg-[var(--neo-blue)] p-5 text-[#171717]">
-                                    <BrainCircuit className="size-5" />
-
                                     <h2 className="text-xl font-black">
                                         Variasi latihan AI
                                     </h2>
@@ -244,8 +241,6 @@ export default function MaterialPage({
                             <section className="neo-card overflow-hidden">
                                 <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-[#171717] bg-[var(--neo-blue)] p-5 text-[#171717]">
                                     <div className="flex items-center gap-3">
-                                        <BrainCircuit className="size-5" />
-
                                         <h2 className="text-xl font-black">
                                             Variasi latihan AI
                                         </h2>
@@ -272,8 +267,6 @@ export default function MaterialPage({
                         ) : (
                             <section className="neo-card overflow-hidden">
                                 <div className="flex items-center gap-3 border-b-2 border-[#171717] bg-[var(--neo-blue)] p-5 text-[#171717]">
-                                    <BrainCircuit className="size-5" />
-
                                     <h2 className="text-xl font-black">
                                         Variasi latihan AI
                                     </h2>

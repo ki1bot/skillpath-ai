@@ -260,7 +260,6 @@ export default function Skills({ career, skills, averageMastery }: Props) {
                     <section className="neo-card p-6">
                         <div className="flex items-start gap-4">
                             <div className="flex size-10 shrink-0 items-center justify-center rounded-[10px] border-2 border-[#171717] bg-[var(--neo-blue)]">
-                                <BrainCircuit className="size-5 text-[#171717]" />
                             </div>
 
                             <div className="min-w-0 flex-1">
