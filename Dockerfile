@@ -39,8 +39,6 @@ ENV NPM_CONFIG_CACHE=/tmp/npm-cache
 FROM php-base AS development
 
 ENV DOCKER_MODE=development
-ENV APP_ENV=local
-ENV APP_DEBUG=true
 
 WORKDIR /var/www/html
 

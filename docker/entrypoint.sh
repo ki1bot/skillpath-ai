@@ -76,26 +76,8 @@ if [ "${DOCKER_MODE:-production}" = "development" ]; then
     case "$APP_KEY_VALUE" in
         ""|"null"|"NULL"|"Null"|"(null)"|"''")
             gosu "$RUN_AS" php artisan key:generate --force
-
-            APP_KEY_VALUE="$(
-                sed -n 's/^APP_KEY=//p' .env \
-                    | head -n 1 \
-                    | tr -d '\r' \
-                    | sed \
-                        -e 's/^[[:space:]]*//' \
-                        -e 's/[[:space:]]*$//' \
-                        -e 's/^"//' \
-                        -e 's/"$//'
-            )"
             ;;
     esac
-
-    if [ -z "$APP_KEY_VALUE" ]; then
-        echo "APP_KEY generation failed."
-        exit 1
-    fi
-
-    export APP_KEY="$APP_KEY_VALUE"
 
     gosu "$RUN_AS" php artisan config:clear
 
@@ -123,7 +105,7 @@ if [ "${DOCKER_MODE:-production}" = "development" ]; then
 
     gosu "$RUN_AS" php artisan optimize:clear
 
-    exec gosu "$RUN_AS" env APP_KEY="$APP_KEY_VALUE" npx concurrently \
+    exec gosu "$RUN_AS" npx concurrently \
         --kill-others-on-fail \
         --names="server,queue,vite" \
         "php artisan serve --host=0.0.0.0 --port=8000 --no-reload" \

@@ -12,21 +12,12 @@ services:
             - '8000:8000'
             - '5173:5173'
         environment:
-            APP_ENV: local
-            APP_DEBUG: 'true'
-            APP_URL: http://localhost:8000
-
             DB_CONNECTION: pgsql
             DB_HOST: postgres
             DB_PORT: '5432'
             DB_DATABASE: skillpathai
             DB_USERNAME: root
             DB_PASSWORD: 023560R
-
-            SESSION_DRIVER: database
-            QUEUE_CONNECTION: database
-            CACHE_STORE: database
-
             RUN_SEEDER: 'true'
             RUN_ASSESSMENT_SEEDER: 'false'
         volumes:
@@ -36,6 +27,20 @@ services:
         depends_on:
             postgres:
                 condition: service_healthy
+        healthcheck:
+            test:
+                - CMD-SHELL
+                - >-
+                    php -r '$$ch=curl_init("http://127.0.0.1:8000");
+                    curl_setopt($$ch,CURLOPT_NOBODY,true);
+                    curl_setopt($$ch,CURLOPT_RETURNTRANSFER,true);
+                    curl_exec($$ch);
+                    $$code=curl_getinfo($$ch,CURLINFO_HTTP_CODE);
+                    exit($$code >= 200 && $$code < 500 ? 0 : 1);'
+            interval: 3s
+            timeout: 5s
+            retries: 20
+            start_period: 15s
 
     postgres:
         image: postgres:18
