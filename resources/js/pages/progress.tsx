@@ -324,7 +324,6 @@ export default function Progress({
                             <CardContent className="grid gap-4 pt-6 lg:grid-cols-3">
                                 <div className="neo-card-flat p-5">
                                     <div className="flex items-center gap-2">
-
                                         <h3 className="font-black">
                                             Ringkasan perkembangan
                                         </h3>
