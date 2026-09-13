@@ -26,6 +26,11 @@ if [ "${DOCKER_MODE:-production}" = "development" ]; then
         chown "$SOURCE_UID:$SOURCE_GID" .env 2>/dev/null || true
     fi
 
+    if ! grep -q '^APP_KEY=' .env; then
+        printf '\nAPP_KEY=\n' >> .env
+        chown "$SOURCE_UID:$SOURCE_GID" .env 2>/dev/null || true
+    fi
+
     composer_lock_hash="$(sha256sum composer.lock | awk '{print $1}')"
     composer_marker="vendor/.docker-composer-lock"
 
@@ -63,14 +68,34 @@ if [ "${DOCKER_MODE:-production}" = "development" ]; then
             | tr -d '\r' \
             | sed \
                 -e 's/^[[:space:]]*//' \
-                -e 's/[[:space:]]*$//'
+                -e 's/[[:space:]]*$//' \
+                -e 's/^"//' \
+                -e 's/"$//'
     )"
 
     case "$APP_KEY_VALUE" in
-        ""|"null"|"NULL"|"Null"|"(null)"|"\"\""|"''")
+        ""|"null"|"NULL"|"Null"|"(null)"|"''")
             gosu "$RUN_AS" php artisan key:generate --force
+
+            APP_KEY_VALUE="$(
+                sed -n 's/^APP_KEY=//p' .env \
+                    | head -n 1 \
+                    | tr -d '\r' \
+                    | sed \
+                        -e 's/^[[:space:]]*//' \
+                        -e 's/[[:space:]]*$//' \
+                        -e 's/^"//' \
+                        -e 's/"$//'
+            )"
             ;;
     esac
+
+    if [ -z "$APP_KEY_VALUE" ]; then
+        echo "APP_KEY generation failed."
+        exit 1
+    fi
+
+    export APP_KEY="$APP_KEY_VALUE"
 
     gosu "$RUN_AS" php artisan config:clear
 
@@ -98,7 +123,7 @@ if [ "${DOCKER_MODE:-production}" = "development" ]; then
 
     gosu "$RUN_AS" php artisan optimize:clear
 
-    exec gosu "$RUN_AS" npx concurrently \
+    exec gosu "$RUN_AS" env APP_KEY="$APP_KEY_VALUE" npx concurrently \
         --kill-others-on-fail \
         --names="server,queue,vite" \
         "php artisan serve --host=0.0.0.0 --port=8000 --no-reload" \
