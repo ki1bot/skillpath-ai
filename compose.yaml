@@ -1,0 +1,63 @@
+name: skillpath-ai
+
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: development
+        init: true
+        restart: unless-stopped
+        ports:
+            - '8000:8000'
+            - '5173:5173'
+        environment:
+            APP_ENV: local
+            APP_DEBUG: 'true'
+            APP_URL: http://localhost:8000
+
+            DB_CONNECTION: pgsql
+            DB_HOST: postgres
+            DB_PORT: '5432'
+            DB_DATABASE: skillpathai
+            DB_USERNAME: root
+            DB_PASSWORD: 023560R
+
+            SESSION_DRIVER: database
+            QUEUE_CONNECTION: database
+            CACHE_STORE: database
+
+            RUN_SEEDER: 'true'
+            RUN_ASSESSMENT_SEEDER: 'false'
+        volumes:
+            - .:/var/www/html
+            - vendor_data:/var/www/html/vendor
+            - node_modules_data:/var/www/html/node_modules
+        depends_on:
+            postgres:
+                condition: service_healthy
+
+    postgres:
+        image: postgres:18
+        restart: unless-stopped
+        ports:
+            - '5433:5432'
+        environment:
+            POSTGRES_DB: skillpathai
+            POSTGRES_USER: root
+            POSTGRES_PASSWORD: 023560R
+        volumes:
+            - postgres_data:/var/lib/postgresql
+        healthcheck:
+            test:
+                - CMD-SHELL
+                - pg_isready -U root -d skillpathai
+            interval: 5s
+            timeout: 5s
+            retries: 10
+            start_period: 10s
+
+volumes:
+    postgres_data:
+    vendor_data:
+    node_modules_data:
