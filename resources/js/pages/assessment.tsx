@@ -51,8 +51,92 @@ type StoredDraft = {
     current_section: number;
 };
 
+type DraftState = {
+    answers: Record<number, string>;
+    currentSection: number;
+};
+
 const SECTION_SIZE = 10;
 const VALID_ANSWERS = ['A', 'B', 'C', 'D'];
+
+const emptyDraftState = (): DraftState => ({
+    answers: {},
+    currentSection: 0,
+});
+
+const restoreDraftState = (
+    assessment: Assessment,
+    questionIds: number[],
+    sections: Question[][],
+    storageKey: string,
+): DraftState => {
+    if (!assessment.started || typeof window === 'undefined') {
+        return emptyDraftState();
+    }
+
+    const restoredAnswers: Record<number, string> = {};
+    let restoredSection = 0;
+
+    try {
+        const stored = window.localStorage.getItem(storageKey);
+
+        if (!stored) {
+            return emptyDraftState();
+        }
+
+        const parsed = JSON.parse(stored) as StoredDraft;
+
+        const sameQuestionOrder =
+            Array.isArray(parsed.question_ids) &&
+            parsed.question_ids.length === questionIds.length &&
+            parsed.question_ids.every(
+                (id, index) => Number(id) === Number(questionIds[index]),
+            );
+
+        if (!sameQuestionOrder) {
+            return emptyDraftState();
+        }
+
+        assessment.questions.forEach((question) => {
+            const value = parsed.answers?.[String(question.id)];
+
+            if (typeof value === 'string' && VALID_ANSWERS.includes(value)) {
+                restoredAnswers[question.id] = value;
+            }
+        });
+
+        const maximumSection = Math.max(sections.length - 1, 0);
+
+        restoredSection = Math.min(
+            Math.max(Number(parsed.current_section) || 0, 0),
+            maximumSection,
+        );
+
+        for (
+            let sectionIndex = 0;
+            sectionIndex < restoredSection;
+            sectionIndex += 1
+        ) {
+            const section = sections[sectionIndex];
+
+            const sectionComplete = section.every((question) =>
+                Boolean(restoredAnswers[question.id]),
+            );
+
+            if (!sectionComplete) {
+                restoredSection = sectionIndex;
+                break;
+            }
+        }
+    } catch {
+        return emptyDraftState();
+    }
+
+    return {
+        answers: restoredAnswers,
+        currentSection: restoredSection,
+    };
+};
 
 export default function AssessmentPage({
     assessment,
@@ -61,22 +145,6 @@ export default function AssessmentPage({
     assessment: Assessment;
     latestAttempt?: string | null;
 }) {
-    const [answers, setAnswers] = useState<Record<number, string>>({});
-    const [currentSection, setCurrentSection] = useState(0);
-    const [hydrated, setHydrated] = useState(false);
-    const [isOnline, setIsOnline] = useState(true);
-    const [startProcessing, setStartProcessing] = useState(false);
-    const [submitProcessing, setSubmitProcessing] = useState(false);
-    const [abandonProcessing, setAbandonProcessing] = useState(false);
-    const [answerError, setAnswerError] = useState<string | null>(null);
-    const [startDialogOpen, setStartDialogOpen] = useState(!assessment.started);
-    const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
-
-    const allowNavigationRef = useRef(false);
-    const pendingNavigationRef = useRef<string | null>(null);
-
-    const isRepeat = Boolean(latestAttempt);
-
     const storageKey = useMemo(
         () =>
             `skillpath.assessment.${assessment.user_id}.${assessment.id}.draft`,
@@ -103,6 +171,31 @@ export default function AssessmentPage({
 
         return result;
     }, [assessment.questions]);
+
+    const [draftState, setDraftState] = useState<DraftState>(() =>
+        restoreDraftState(assessment, questionIds, sections, storageKey),
+    );
+
+    const [isOnline, setIsOnline] = useState(() =>
+        typeof window === 'undefined' ? true : window.navigator.onLine,
+    );
+
+    const [startProcessing, setStartProcessing] = useState(false);
+    const [submitProcessing, setSubmitProcessing] = useState(false);
+    const [abandonProcessing, setAbandonProcessing] = useState(false);
+    const [answerError, setAnswerError] = useState<string | null>(null);
+
+    const [startDialogOpen, setStartDialogOpen] = useState(!assessment.started);
+
+    const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
+
+    const allowNavigationRef = useRef(false);
+    const pendingNavigationRef = useRef<string | null>(null);
+
+    const answers = draftState.answers;
+    const currentSection = draftState.currentSection;
+
+    const isRepeat = Boolean(latestAttempt);
 
     const currentQuestions = sections[currentSection] ?? [];
 
@@ -135,8 +228,6 @@ export default function AssessmentPage({
     };
 
     useEffect(() => {
-        setIsOnline(window.navigator.onLine);
-
         const handleOnline = () => {
             setIsOnline(true);
         };
@@ -156,87 +247,6 @@ export default function AssessmentPage({
 
     useEffect(() => {
         if (!assessment.started) {
-            removeDraft();
-            setAnswers({});
-            setCurrentSection(0);
-            setHydrated(true);
-
-            return;
-        }
-
-        let restoredAnswers: Record<number, string> = {};
-        let restoredSection = 0;
-
-        try {
-            const stored = window.localStorage.getItem(storageKey);
-
-            if (stored) {
-                const parsed = JSON.parse(stored) as StoredDraft;
-
-                const sameQuestionOrder =
-                    Array.isArray(parsed.question_ids) &&
-                    parsed.question_ids.length === questionIds.length &&
-                    parsed.question_ids.every(
-                        (id, index) =>
-                            Number(id) === Number(questionIds[index]),
-                    );
-
-                if (sameQuestionOrder) {
-                    assessment.questions.forEach((question) => {
-                        const value = parsed.answers?.[String(question.id)];
-
-                        if (
-                            typeof value === 'string' &&
-                            VALID_ANSWERS.includes(value)
-                        ) {
-                            restoredAnswers[question.id] = value;
-                        }
-                    });
-
-                    const maximumSection = Math.max(sections.length - 1, 0);
-
-                    restoredSection = Math.min(
-                        Math.max(Number(parsed.current_section) || 0, 0),
-                        maximumSection,
-                    );
-
-                    for (
-                        let sectionIndex = 0;
-                        sectionIndex < restoredSection;
-                        sectionIndex += 1
-                    ) {
-                        const section = sections[sectionIndex];
-
-                        const sectionComplete = section.every((question) =>
-                            Boolean(restoredAnswers[question.id]),
-                        );
-
-                        if (!sectionComplete) {
-                            restoredSection = sectionIndex;
-                            break;
-                        }
-                    }
-                } else {
-                    removeDraft();
-                }
-            }
-        } catch {
-            removeDraft();
-        }
-
-        setAnswers(restoredAnswers);
-        setCurrentSection(restoredSection);
-        setHydrated(true);
-    }, [
-        assessment.started,
-        assessment.questions,
-        questionIds,
-        sections,
-        storageKey,
-    ]);
-
-    useEffect(() => {
-        if (!assessment.started || !hydrated) {
             return;
         }
 
@@ -258,14 +268,7 @@ export default function AssessmentPage({
         } catch {
             return;
         }
-    }, [
-        answers,
-        assessment.started,
-        currentSection,
-        hydrated,
-        questionIds,
-        storageKey,
-    ]);
+    }, [answers, assessment.started, currentSection, questionIds, storageKey]);
 
     useEffect(() => {
         if (!assessment.started) {
@@ -329,6 +332,8 @@ export default function AssessmentPage({
         }
 
         removeDraft();
+        setDraftState(emptyDraftState());
+        setAnswerError(null);
         setStartDialogOpen(false);
         setStartProcessing(true);
 
@@ -347,9 +352,12 @@ export default function AssessmentPage({
     const selectAnswer = (questionId: number, value: string) => {
         setAnswerError(null);
 
-        setAnswers((current) => ({
+        setDraftState((current) => ({
             ...current,
-            [questionId]: value,
+            answers: {
+                ...current.answers,
+                [questionId]: value,
+            },
         }));
     };
 
@@ -358,9 +366,13 @@ export default function AssessmentPage({
             return;
         }
 
-        setCurrentSection((current) =>
-            Math.min(current + 1, sections.length - 1),
-        );
+        setDraftState((current) => ({
+            ...current,
+            currentSection: Math.min(
+                current.currentSection + 1,
+                sections.length - 1,
+            ),
+        }));
 
         window.scrollTo({
             top: 0,
@@ -369,7 +381,10 @@ export default function AssessmentPage({
     };
 
     const goPreviousSection = () => {
-        setCurrentSection((current) => Math.max(current - 1, 0));
+        setDraftState((current) => ({
+            ...current,
+            currentSection: Math.max(current.currentSection - 1, 0),
+        }));
 
         window.scrollTo({
             top: 0,
@@ -402,6 +417,7 @@ export default function AssessmentPage({
             setAnswerError(
                 'Hubungkan kembali internet sebelum membatalkan Assesment agar sesi di server dapat dihapus dengan benar.',
             );
+
             setLeaveDialogOpen(false);
 
             return;
@@ -417,8 +433,10 @@ export default function AssessmentPage({
                 preserveScroll: true,
                 onSuccess: () => {
                     removeDraft();
+                    setDraftState(emptyDraftState());
 
                     pendingNavigationRef.current = null;
+
                     setLeaveDialogOpen(false);
 
                     window.location.assign(destination);
@@ -450,6 +468,7 @@ export default function AssessmentPage({
             {
                 onSuccess: () => {
                     removeDraft();
+                    setDraftState(emptyDraftState());
                 },
                 onError: (errors) => {
                     allowNavigationRef.current = false;
@@ -920,6 +939,7 @@ export default function AssessmentPage({
                             disabled={startProcessing}
                         >
                             <Play />
+
                             {startProcessing
                                 ? 'Menyiapkan...'
                                 : 'Mulai sekarang'}
