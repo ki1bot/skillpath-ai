@@ -454,7 +454,7 @@ export default function Welcome({ careers, stats }: Props) {
                         <Button
                             asChild
                             variant="outline"
-                            className="border-[#171717] bg-[#fffdf8] text-[#171717]"
+                            className="border-[#171717] bg-[#fffdf8] text-[#171717] hover:bg-[#f3efe6] hover:text-[#171717]"
                         >
                             <Link href="/karier" prefetch>
                                 Lihat semua jurusan
@@ -606,7 +606,7 @@ export default function Welcome({ careers, stats }: Props) {
                                 asChild
                                 size="lg"
                                 variant="outline"
-                                className="border-[#171717] bg-[#fffdf8] text-[#171717]"
+                                className="border-[#171717] bg-[#fffdf8] text-[#171717] hover:bg-[#f3efe6] hover:text-[#171717]"
                             >
                                 <Link href="/tentang" prefetch>
                                     Kenali SkillPath

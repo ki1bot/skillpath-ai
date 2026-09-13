@@ -215,7 +215,7 @@ export default function ProjectShow({
                                     {catalog.skills.map((skill) => (
                                         <span
                                             key={skill}
-                                            className="rounded-full border-2 border-[#171717] bg-[var(--neo-cream)] px-3 py-1.5 text-xs font-black"
+                                            className="rounded-full border-2 border-[#171717] bg-[#f3efe6] px-3 py-1.5 text-xs font-black text-[#171717]"
                                         >
                                             {skill}
                                         </span>

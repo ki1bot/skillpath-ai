@@ -119,14 +119,14 @@ export function AppSidebar() {
     ];
 
     return (
-        <Sidebar collapsible="icon" variant="sidebar">
+        <Sidebar collapsible="offcanvas" variant="sidebar">
             <SidebarHeader className="border-b-2 border-sidebar-border bg-sidebar p-3">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
                             size="lg"
                             asChild
-                            className="h-auto min-h-14 rounded-[10px] border-2 border-transparent px-2 text-sidebar-foreground group-data-[collapsible=icon]:size-10! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0! hover:border-sidebar-border hover:bg-muted hover:text-sidebar-foreground"
+                            className="h-auto min-h-14 rounded-[10px] border-2 border-transparent px-2 text-sidebar-foreground hover:border-sidebar-border hover:bg-muted hover:text-sidebar-foreground"
                         >
                             <Link href="/dashboard" prefetch>
                                 <AppLogo />
