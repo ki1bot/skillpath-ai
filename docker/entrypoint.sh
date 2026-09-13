@@ -57,9 +57,20 @@ if [ "${DOCKER_MODE:-production}" = "development" ]; then
             | gosu "$RUN_AS" tee "$npm_marker" >/dev/null
     fi
 
-    if ! grep -Eq '^APP_KEY=.+$' .env; then
-        gosu "$RUN_AS" php artisan key:generate --force
-    fi
+    APP_KEY_VALUE="$(
+        sed -n 's/^APP_KEY=//p' .env \
+            | head -n 1 \
+            | tr -d '\r' \
+            | sed \
+                -e 's/^[[:space:]]*//' \
+                -e 's/[[:space:]]*$//'
+    )"
+
+    case "$APP_KEY_VALUE" in
+        ""|"null"|"NULL"|"Null"|"(null)"|"\"\""|"''")
+            gosu "$RUN_AS" php artisan key:generate --force
+            ;;
+    esac
 
     gosu "$RUN_AS" php artisan config:clear
 
