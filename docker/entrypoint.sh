@@ -108,7 +108,7 @@ if [ "${DOCKER_MODE:-production}" = "development" ]; then
     exec gosu "$RUN_AS" npx concurrently \
         --kill-others-on-fail \
         --names="server,queue,vite" \
-        "php artisan serve --host=0.0.0.0 --port=8000 --no-reload" \
+        "php artisan serve --host=0.0.0.0 --port=8080 --no-reload" \
         "php artisan queue:listen --tries=1" \
         "npm run dev"
 fi

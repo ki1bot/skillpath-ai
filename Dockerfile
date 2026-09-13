@@ -46,7 +46,7 @@ COPY docker/entrypoint.sh /usr/local/bin/skillpath-entrypoint
 
 RUN chmod +x /usr/local/bin/skillpath-entrypoint
 
-EXPOSE 8000 5173
+EXPOSE 8080 5173
 
 ENTRYPOINT ["/usr/local/bin/skillpath-entrypoint"]
 

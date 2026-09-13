@@ -9,15 +9,18 @@ services:
         init: true
         restart: unless-stopped
         ports:
-            - '8000:8000'
+            - '8080:8080'
             - '5173:5173'
         environment:
+            APP_URL: http://localhost:8080
+
             DB_CONNECTION: pgsql
             DB_HOST: postgres
             DB_PORT: '5432'
             DB_DATABASE: skillpathai
             DB_USERNAME: root
             DB_PASSWORD: 023560R
+
             RUN_SEEDER: 'true'
             RUN_ASSESSMENT_SEEDER: 'false'
         volumes:
@@ -31,11 +34,12 @@ services:
             test:
                 - CMD-SHELL
                 - >-
-                    php -r '$$ch=curl_init("http://127.0.0.1:8000");
+                    php -r '$$ch=curl_init("http://127.0.0.1:8080");
                     curl_setopt($$ch,CURLOPT_NOBODY,true);
                     curl_setopt($$ch,CURLOPT_RETURNTRANSFER,true);
                     curl_exec($$ch);
                     $$code=curl_getinfo($$ch,CURLINFO_HTTP_CODE);
+                    curl_close($$ch);
                     exit($$code >= 200 && $$code < 500 ? 0 : 1);'
             interval: 3s
             timeout: 5s
