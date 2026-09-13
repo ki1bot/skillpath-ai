@@ -21,7 +21,7 @@ services:
             DB_USERNAME: root
             DB_PASSWORD: 023560R
 
-            RUN_SEEDER: 'true'
+            RUN_SEEDER: 'false'
             RUN_ASSESSMENT_SEEDER: 'false'
         volumes:
             - .:/var/www/html
