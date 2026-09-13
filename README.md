@@ -1,4 +1,4 @@
-# SkillPath AI
+# SkillPath AI (Galaxy Space)
 
 SkillPath AI adalah aplikasi web yang membantu mahasiswa memahami kemampuan yang sudah mereka miliki, menemukan bagian yang masih perlu diperkuat, lalu menyusun jalur belajar yang lebih terarah berdasarkan jurusan dan hasil assessment.
 
