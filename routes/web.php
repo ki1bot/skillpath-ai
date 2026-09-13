@@ -89,6 +89,14 @@ Route::middleware([
     )->name('assessment.start');
 
     Route::post(
+        '/assessment/abandon',
+        [
+            AssessmentController::class,
+            'abandon',
+        ],
+    )->name('assessment.abandon');
+
+    Route::post(
         '/assessment',
         [
             AssessmentController::class,

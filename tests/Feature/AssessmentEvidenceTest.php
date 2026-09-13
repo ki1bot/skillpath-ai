@@ -61,6 +61,11 @@ class AssessmentEvidenceTest extends TestCase
             $assessment->questions,
         );
 
+        $this->assertSame(
+            50,
+            AcademicAssessmentCatalog::QUESTION_LIMIT,
+        );
+
         $response = $this
             ->actingAs(
                 $this->user,
@@ -103,7 +108,7 @@ class AssessmentEvidenceTest extends TestCase
         );
     }
 
-    public function test_starting_assessment_creates_thirty_question_session(): void
+    public function test_starting_assessment_creates_fifty_question_session(): void
     {
         $assessment = $this->assessment();
 
@@ -251,6 +256,77 @@ class AssessmentEvidenceTest extends TestCase
                 $assessment,
             ),
         );
+    }
+
+    public function test_abandoning_assessment_clears_active_question_session(): void
+    {
+        $assessment = $this->assessment();
+
+        $this->startAssessment(
+            $assessment,
+        );
+
+        $this->assertNotNull(
+            session()->get(
+                $this->questionSessionKey(
+                    $assessment,
+                ),
+            ),
+        );
+
+        $this
+            ->actingAs(
+                $this->user,
+            )
+            ->post(
+                route(
+                    'assessment.abandon',
+                ),
+            )
+            ->assertRedirect(
+                route(
+                    'assessment.show',
+                ),
+            );
+
+        $this->assertNull(
+            session()->get(
+                $this->questionSessionKey(
+                    $assessment,
+                ),
+            ),
+        );
+
+        $this->assertNull(
+            session()->get(
+                $this->legacyReserveQuestionSessionKey(
+                    $assessment,
+                ),
+            ),
+        );
+
+        $this
+            ->actingAs(
+                $this->user,
+            )
+            ->get(
+                route(
+                    'assessment.show',
+                ),
+            )
+            ->assertOk()
+            ->assertInertia(
+                fn (Assert $page) => $page
+                    ->component('assessment')
+                    ->where(
+                        'assessment.started',
+                        false,
+                    )
+                    ->has(
+                        'assessment.questions',
+                        0,
+                    ),
+            );
     }
 
     public function test_academic_assessment_uses_objective_answers_only(): void

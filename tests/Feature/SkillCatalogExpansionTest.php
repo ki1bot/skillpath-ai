@@ -97,8 +97,18 @@ class SkillCatalogExpansionTest extends TestCase
         }
     }
 
-    public function test_each_program_has_thirty_assessment_questions_across_nine_core_skills(): void
+    public function test_each_program_has_fifty_assessment_questions_across_nine_core_skills(): void
     {
+        $this->assertSame(
+            50,
+            AcademicAssessmentCatalog::QUESTION_POOL_SIZE,
+        );
+
+        $this->assertSame(
+            50,
+            AcademicAssessmentCatalog::QUESTION_LIMIT,
+        );
+
         $careers = Career::query()
             ->where(
                 'is_active',
@@ -110,7 +120,7 @@ class SkillCatalogExpansionTest extends TestCase
             ->get();
 
         $this->assertSame(
-            180,
+            300,
             AssessmentQuestion::query()
                 ->count(),
         );
@@ -140,7 +150,7 @@ class SkillCatalogExpansionTest extends TestCase
             $this->assertCount(
                 AcademicAssessmentCatalog::QUESTION_POOL_SIZE,
                 $assessment->questions,
-                "Bank soal Assesment {$career->name} harus memiliki tepat 30 soal.",
+                "Bank soal Assesment {$career->name} harus memiliki tepat 50 soal.",
             );
 
             $actualSkillSlugs = $assessment
@@ -169,18 +179,18 @@ class SkillCatalogExpansionTest extends TestCase
 
             $this->assertSame(
                 [
-                    3,
-                    3,
-                    3,
-                    3,
-                    3,
-                    3,
-                    4,
-                    4,
-                    4,
+                    5,
+                    5,
+                    5,
+                    5,
+                    6,
+                    6,
+                    6,
+                    6,
+                    6,
                 ],
                 $distribution,
-                "Distribusi bank soal {$career->name} harus terdiri dari enam skill dengan 3 soal dan tiga skill dengan 4 soal.",
+                "Distribusi bank soal {$career->name} harus terdiri dari empat skill dengan 5 soal dan lima skill dengan 6 soal.",
             );
         }
     }

@@ -15,6 +15,7 @@ use App\Services\CareerReadinessService;
 use App\Services\RoadmapService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -339,50 +340,80 @@ class RoadmapController extends Controller
             ],
         ]);
 
-        $roadmapItem->update([
-            'progress_percentage' => max(
-                $roadmapItem
-                    ->progress_percentage,
-                $validated[
-                    'progress_percentage'
-                ],
-            ),
-            'status' => (
-                $roadmapItem->status
-                === 'needs_reinforcement'
-            )
-                ? 'needs_reinforcement'
-                : 'available',
-        ]);
+        $result = DB::transaction(
+            function () use (
+                $request,
+                $roadmapItem,
+                $validated,
+            ): array {
+                $item = RoadmapItem::query()
+                    ->whereKey(
+                        $roadmapItem->id,
+                    )
+                    ->lockForUpdate()
+                    ->firstOrFail();
 
-        ProgressLog::create([
-            'user_id' => $request
-                ->user()
-                ->id,
-            'roadmap_item_id' => $roadmapItem
-                ->id,
-            'activity_type' => 'learning',
-            'minutes_spent' => $validated[
-                'minutes_spent'
-            ],
-            'progress_percentage' => $validated[
-                'progress_percentage'
-            ],
-            'notes' => $validated[
-                'notes'
-            ] ?? null,
-            'obstacle' => $validated[
-                'obstacle'
-            ] ?? null,
-            'evidence_url' => $validated[
-                'evidence_url'
-            ] ?? null,
-            'logged_at' => now(),
-        ]);
+                $this->authorizeItem(
+                    $request,
+                    $item,
+                );
+
+                if ($item->status === 'completed') {
+                    $effectiveProgress = 100;
+                    $effectiveStatus = 'completed';
+                } else {
+                    $effectiveProgress = max(
+                        (int) $item->progress_percentage,
+                        (int) $validated[
+                            'progress_percentage'
+                        ],
+                    );
+
+                    $effectiveStatus = $item->status
+                        === 'needs_reinforcement'
+                        ? 'needs_reinforcement'
+                        : 'available';
+                }
+
+                $item->update([
+                    'progress_percentage' => $effectiveProgress,
+                    'status' => $effectiveStatus,
+                ]);
+
+                ProgressLog::create([
+                    'user_id' => $request
+                        ->user()
+                        ->id,
+                    'roadmap_item_id' => $item->id,
+                    'activity_type' => 'learning',
+                    'minutes_spent' => $validated[
+                        'minutes_spent'
+                    ],
+                    'progress_percentage' => $effectiveProgress,
+                    'notes' => $validated[
+                        'notes'
+                    ] ?? null,
+                    'obstacle' => $validated[
+                        'obstacle'
+                    ] ?? null,
+                    'evidence_url' => $validated[
+                        'evidence_url'
+                    ] ?? null,
+                    'logged_at' => now(),
+                ]);
+
+                return [
+                    'status' => $effectiveStatus,
+                    'progress_percentage' => $effectiveProgress,
+                ];
+            },
+        );
 
         return back()->with(
             'success',
-            'Progres belajar tersimpan. Materi baru dianggap dikuasai setelah evaluasi lulus.',
+            $result['status'] === 'completed'
+                ? 'Aktivitas belajar tersimpan. Status materi tetap selesai.'
+                : 'Progres belajar tersimpan. Materi baru dianggap dikuasai setelah evaluasi lulus.',
         );
     }
 
@@ -398,10 +429,18 @@ class RoadmapController extends Controller
             $roadmapItem,
         );
 
-        $roadmapItem->load([
-            'material.skill',
-            'roadmap',
-        ]);
+        $currentItem = RoadmapItem::query()
+            ->whereKey(
+                $roadmapItem->id,
+            )
+            ->firstOrFail();
+
+        if ($currentItem->status === 'completed') {
+            return back()->with(
+                'success',
+                'Materi ini sudah selesai. Status penyelesaian tetap dipertahankan dan evaluasi tidak perlu diulang.',
+            );
+        }
 
         $validated = $request->validate([
             'answer' => [
@@ -417,186 +456,243 @@ class RoadmapController extends Controller
             ],
         ]);
 
-        $material = $roadmapItem
-            ->material;
-
-        $correct = (
-            $validated['answer']
-            === $material->quiz_answer
-        );
-
-        $knowledgeScore = $correct
-            ? 80
-            : 0;
-
-        $evidenceScore = 20;
-
-        $score = round(
-            min(
-                $knowledgeScore
-                + $evidenceScore,
-                100,
-            ),
-            2,
-        );
-
-        $passed = $correct;
-
-        if ($passed) {
-            $feedback = (
-                "Evaluasi lulus dengan skor {$score}/100. "
-                ."Pemahaman konsep {$knowledgeScore}/80 dan "
-                ."bukti praktik {$evidenceScore}/20."
-            );
-        } else {
-            $feedback = $material
-                ->quiz_explanation
-                ?: 'Jawaban konsep belum tepat. Pelajari kembali materi dan latihan praktik sebelum mencoba evaluasi lagi.';
-        }
-
-        Evaluation::create([
-            'user_id' => $request
-                ->user()
-                ->id,
-            'roadmap_item_id' => $roadmapItem
-                ->id,
-            'score' => $score,
-            'knowledge_score' => $knowledgeScore,
-            'evidence_score' => $evidenceScore,
-            'reflection_score' => 0,
-            'passed' => $passed,
-            'answer' => $validated[
-                'answer'
-            ],
-            'evidence_url' => $validated[
-                'practical_evidence_url'
-            ],
-            'reflection' => null,
-            'feedback' => $feedback,
-        ]);
-
-        $roadmapItem->increment(
-            'evaluation_attempts',
-        );
-
         $user = $request
             ->user()
             ->load('targetCareer');
 
-        $reinforcementItem = null;
+        $result = DB::transaction(
+            function () use (
+                $request,
+                $roadmapItem,
+                $validated,
+                $user,
+                $adaptiveRoadmapService,
+            ): array {
+                $item = RoadmapItem::query()
+                    ->whereKey(
+                        $roadmapItem->id,
+                    )
+                    ->with([
+                        'material.skill',
+                        'roadmap',
+                    ])
+                    ->lockForUpdate()
+                    ->firstOrFail();
 
-        if ($passed) {
-            $current = UserSkill::firstOrNew([
-                'user_id' => $user->id,
-                'skill_id' => $material
-                    ->skill_id,
-            ]);
-
-            $targetSkill = $user
-                ->targetCareer
-                ?->skills()
-                ->where(
-                    'skills.id',
-                    $material->skill_id,
-                )
-                ->first();
-
-            $target = (float) (
-                $targetSkill
-                    ?->pivot
-                    ->target_level
-                ?? 80
-            );
-
-            $currentScore = (float) (
-                $current->score
-                ?? 0
-            );
-
-            $isReinforcement = (
-                $material->material_type
-                === 'reinforcement'
-            );
-
-            $increment = $isReinforcement
-                ? 10
-                : 20;
-
-            $minimumTarget = $isReinforcement
-                ? $target * 0.70
-                : $target * 0.80;
-
-            $newScore = min(
-                100,
-                max(
-                    $currentScore
-                    + $increment,
-                    $minimumTarget,
-                ),
-            );
-
-            $current->fill([
-                'score' => round(
-                    $newScore,
-                    2,
-                ),
-                'source' => 'evaluation',
-                'last_assessed_at' => now(),
-            ])->save();
-
-            $roadmapItem->update([
-                'status' => 'completed',
-                'progress_percentage' => 100,
-                'completed_at' => now(),
-                'evaluation_score' => $score,
-            ]);
-
-            if ($isReinforcement) {
-                $adaptiveRoadmapService
-                    ->handlePassedReinforcement(
-                        $user,
-                        $roadmapItem->fresh([
-                            'material',
-                            'roadmap',
-                        ]),
-                    );
-            }
-        } else {
-            $roadmapItem->update([
-                'evaluation_score' => $score,
-            ]);
-
-            $reinforcementItem = $adaptiveRoadmapService
-                ->handleFailedEvaluation(
-                    $user,
-                    $roadmapItem,
+                $this->authorizeItem(
+                    $request,
+                    $item,
                 );
+
+                if ($item->status === 'completed') {
+                    return [
+                        'already_completed' => true,
+                    ];
+                }
+
+                $material = $item
+                    ->material;
+
+                $correct = (
+                    $validated['answer']
+                    === $material->quiz_answer
+                );
+
+                $knowledgeScore = $correct
+                    ? 80
+                    : 0;
+
+                $evidenceScore = 20;
+
+                $score = round(
+                    min(
+                        $knowledgeScore
+                        + $evidenceScore,
+                        100,
+                    ),
+                    2,
+                );
+
+                $passed = $correct;
+
+                if ($passed) {
+                    $feedback = (
+                        "Evaluasi lulus dengan skor {$score}/100. "
+                        ."Pemahaman konsep {$knowledgeScore}/80 dan "
+                        ."bukti praktik {$evidenceScore}/20."
+                    );
+                } else {
+                    $feedback = $material
+                        ->quiz_explanation
+                        ?: 'Jawaban konsep belum tepat. Pelajari kembali materi dan latihan praktik sebelum mencoba evaluasi lagi.';
+                }
+
+                Evaluation::create([
+                    'user_id' => $user->id,
+                    'roadmap_item_id' => $item
+                        ->id,
+                    'score' => $score,
+                    'knowledge_score' => $knowledgeScore,
+                    'evidence_score' => $evidenceScore,
+                    'reflection_score' => 0,
+                    'passed' => $passed,
+                    'answer' => $validated[
+                        'answer'
+                    ],
+                    'evidence_url' => $validated[
+                        'practical_evidence_url'
+                    ],
+                    'reflection' => null,
+                    'feedback' => $feedback,
+                ]);
+
+                $item->increment(
+                    'evaluation_attempts',
+                );
+
+                $reinforcementItem = null;
+
+                if ($passed) {
+                    $current = UserSkill::firstOrNew([
+                        'user_id' => $user->id,
+                        'skill_id' => $material
+                            ->skill_id,
+                    ]);
+
+                    $targetSkill = $user
+                        ->targetCareer
+                        ?->skills()
+                        ->where(
+                            'skills.id',
+                            $material->skill_id,
+                        )
+                        ->first();
+
+                    $target = (float) (
+                        $targetSkill
+                            ?->pivot
+                            ->target_level
+                        ?? 80
+                    );
+
+                    $currentScore = (float) (
+                        $current->score
+                        ?? 0
+                    );
+
+                    $isReinforcement = (
+                        $material->material_type
+                        === 'reinforcement'
+                    );
+
+                    $increment = $isReinforcement
+                        ? 10
+                        : 20;
+
+                    $minimumTarget = $isReinforcement
+                        ? $target * 0.70
+                        : $target * 0.80;
+
+                    $newScore = min(
+                        100,
+                        max(
+                            $currentScore
+                            + $increment,
+                            $minimumTarget,
+                        ),
+                    );
+
+                    $current->fill([
+                        'score' => round(
+                            $newScore,
+                            2,
+                        ),
+                        'source' => 'evaluation',
+                        'last_assessed_at' => now(),
+                    ])->save();
+
+                    $item->update([
+                        'status' => 'completed',
+                        'progress_percentage' => 100,
+                        'completed_at' => $item->completed_at
+                            ?? now(),
+                        'evaluation_score' => $score,
+                    ]);
+
+                    if ($isReinforcement) {
+                        $adaptiveRoadmapService
+                            ->handlePassedReinforcement(
+                                $user,
+                                $item->fresh([
+                                    'material',
+                                    'roadmap',
+                                ]),
+                            );
+                    }
+                } else {
+                    $item->update([
+                        'evaluation_score' => $score,
+                    ]);
+
+                    $reinforcementItem = $adaptiveRoadmapService
+                        ->handleFailedEvaluation(
+                            $user,
+                            $item,
+                        );
+                }
+
+                $effectiveProgress = $passed
+                    ? 100
+                    : (int) $item
+                        ->fresh()
+                        ->progress_percentage;
+
+                ProgressLog::create([
+                    'user_id' => $user->id,
+                    'roadmap_item_id' => $item
+                        ->id,
+                    'activity_type' => $passed
+                        ? 'evaluation_passed'
+                        : 'evaluation_failed',
+                    'minutes_spent' => 0,
+                    'progress_percentage' => $effectiveProgress,
+                    'notes' => $feedback,
+                    'evidence_url' => $validated[
+                        'practical_evidence_url'
+                    ],
+                    'logged_at' => now(),
+                ]);
+
+                return [
+                    'already_completed' => false,
+                    'passed' => $passed,
+                    'feedback' => $feedback,
+                    'reinforcement_item_id' => $reinforcementItem
+                        ?->id,
+                    'is_reinforcement' => (
+                        $material->material_type
+                        === 'reinforcement'
+                    ),
+                    'material_title' => $material
+                        ->title,
+                    'skill_name' => $material
+                        ->skill
+                        ->name,
+                ];
+            },
+        );
+
+        if ($result['already_completed']) {
+            return back()->with(
+                'success',
+                'Materi ini sudah selesai. Status penyelesaian tetap dipertahankan dan evaluasi tidak perlu diulang.',
+            );
         }
 
-        ProgressLog::create([
-            'user_id' => $user->id,
-            'roadmap_item_id' => $roadmapItem
-                ->id,
-            'activity_type' => $passed
-                ? 'evaluation_passed'
-                : 'evaluation_failed',
-            'minutes_spent' => 0,
-            'progress_percentage' => $passed
-                ? 100
-                : $roadmapItem
-                    ->fresh()
-                    ->progress_percentage,
-            'notes' => $feedback,
-            'evidence_url' => $validated[
-                'practical_evidence_url'
-            ],
-            'logged_at' => now(),
-        ]);
-
-        if ($passed) {
+        if ($result['passed']) {
             $roadmapService->adaptAfterSkillChange(
                 $user,
-                "Roadmap diurutkan ulang setelah evaluasi {$material->title} mengubah skor {$material->skill->name}.",
+                "Roadmap diurutkan ulang setelah evaluasi {$result['material_title']} mengubah skor {$result['skill_name']}.",
             );
         } else {
             $roadmapService->refreshAvailability(
@@ -606,14 +702,14 @@ class RoadmapController extends Controller
 
         $readinessService->snapshot(
             $user->fresh(),
-            $passed
+            $result['passed']
                 ? 'evaluation_passed'
                 : 'evaluation_failed',
         );
 
         if (
-            ! $passed
-            && $reinforcementItem
+            ! $result['passed']
+            && $result['reinforcement_item_id']
         ) {
             return redirect()
                 ->route('roadmap.index')
@@ -624,9 +720,8 @@ class RoadmapController extends Controller
         }
 
         if (
-            $passed
-            && $material->material_type
-                === 'reinforcement'
+            $result['passed']
+            && $result['is_reinforcement']
         ) {
             return redirect()
                 ->route('roadmap.index')
@@ -637,12 +732,12 @@ class RoadmapController extends Controller
         }
 
         return back()->with(
-            $passed
+            $result['passed']
                 ? 'success'
                 : 'error',
-            $passed
-                ? $feedback.' Urutan roadmap berikutnya sudah disesuaikan dengan kemampuan terbaru.'
-                : $feedback,
+            $result['passed']
+                ? $result['feedback'].' Urutan roadmap berikutnya sudah disesuaikan dengan kemampuan terbaru.'
+                : $result['feedback'],
         );
     }
 

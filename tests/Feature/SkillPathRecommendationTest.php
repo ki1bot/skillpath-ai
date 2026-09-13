@@ -193,6 +193,15 @@ class SkillPathRecommendationTest extends TestCase
         );
 
         $this->assertSame(
+            100,
+            (int) $item->progress_percentage,
+        );
+
+        $this->assertNotNull(
+            $item->completed_at,
+        );
+
+        $this->assertSame(
             100.0,
             (float) $item->evaluation_score,
         );
@@ -362,6 +371,241 @@ class SkillPathRecommendationTest extends TestCase
         $this->assertGreaterThanOrEqual(
             1,
             $item->evaluation_attempts,
+        );
+    }
+
+    public function test_completed_roadmap_item_cannot_be_downgraded_by_progress_update(): void
+    {
+        [$material, $item] = $this->databaseMaterialAndRoadmapItem();
+
+        $this->actingAs(
+            $this->user,
+        )
+            ->post(
+                route(
+                    'roadmap.evaluate',
+                    $item,
+                ),
+                [
+                    'answer' => $material
+                        ->quiz_answer,
+                    'practical_evidence_url' => 'https://drive.google.com/file/d/completed-progress/view',
+                ],
+            )
+            ->assertSessionHasNoErrors();
+
+        $item->refresh();
+
+        $this->assertSame(
+            'completed',
+            $item->status,
+        );
+
+        $this->assertSame(
+            100,
+            (int) $item->progress_percentage,
+        );
+
+        $completedAt = $item
+            ->completed_at
+            ?->toISOString();
+
+        $evaluationScore = (float) $item
+            ->evaluation_score;
+
+        $this->actingAs(
+            $this->user,
+        )
+            ->patch(
+                route(
+                    'roadmap.progress',
+                    $item,
+                ),
+                [
+                    'progress_percentage' => 20,
+                    'minutes_spent' => 5,
+                    'notes' => 'Meninjau ulang materi.',
+                    'obstacle' => null,
+                    'evidence_url' => null,
+                ],
+            )
+            ->assertSessionHasNoErrors();
+
+        $item->refresh();
+
+        $this->assertSame(
+            'completed',
+            $item->status,
+        );
+
+        $this->assertSame(
+            100,
+            (int) $item->progress_percentage,
+        );
+
+        $this->assertSame(
+            $completedAt,
+            $item
+                ->completed_at
+                ?->toISOString(),
+        );
+
+        $this->assertSame(
+            $evaluationScore,
+            (float) $item
+                ->evaluation_score,
+        );
+    }
+
+    public function test_completed_roadmap_item_cannot_be_evaluated_again(): void
+    {
+        [$material, $item] = $this->databaseMaterialAndRoadmapItem();
+
+        $this->actingAs(
+            $this->user,
+        )
+            ->post(
+                route(
+                    'roadmap.evaluate',
+                    $item,
+                ),
+                [
+                    'answer' => $material
+                        ->quiz_answer,
+                    'practical_evidence_url' => 'https://drive.google.com/file/d/completed-first/view',
+                ],
+            )
+            ->assertSessionHasNoErrors();
+
+        $item->refresh();
+
+        $this->assertSame(
+            'completed',
+            $item->status,
+        );
+
+        $completedAt = $item
+            ->completed_at
+            ?->toISOString();
+
+        $evaluationCount = Evaluation::query()
+            ->where(
+                'roadmap_item_id',
+                $item->id,
+            )
+            ->count();
+
+        $attemptCount = (int) $item
+            ->evaluation_attempts;
+
+        $evaluationScore = (float) $item
+            ->evaluation_score;
+
+        $skillScore = (float) UserSkill::query()
+            ->where(
+                'user_id',
+                $this->user->id,
+            )
+            ->where(
+                'skill_id',
+                $material->skill_id,
+            )
+            ->value('score');
+
+        $wrongAnswer = collect(
+            array_keys(
+                $material->quiz_options,
+            ),
+        )->first(
+            fn (string $answer): bool => $answer
+                !== $material->quiz_answer,
+        );
+
+        $this->assertNotNull(
+            $wrongAnswer,
+        );
+
+        $this->actingAs(
+            $this->user,
+        )
+            ->post(
+                route(
+                    'roadmap.evaluate',
+                    $item,
+                ),
+                [
+                    'answer' => $wrongAnswer,
+                    'practical_evidence_url' => 'https://drive.google.com/file/d/completed-second/view',
+                ],
+            )
+            ->assertSessionHasNoErrors();
+
+        $item->refresh();
+
+        $this->assertSame(
+            'completed',
+            $item->status,
+        );
+
+        $this->assertSame(
+            100,
+            (int) $item->progress_percentage,
+        );
+
+        $this->assertSame(
+            $completedAt,
+            $item
+                ->completed_at
+                ?->toISOString(),
+        );
+
+        $this->assertSame(
+            $attemptCount,
+            (int) $item
+                ->evaluation_attempts,
+        );
+
+        $this->assertSame(
+            $evaluationScore,
+            (float) $item
+                ->evaluation_score,
+        );
+
+        $this->assertSame(
+            $evaluationCount,
+            Evaluation::query()
+                ->where(
+                    'roadmap_item_id',
+                    $item->id,
+                )
+                ->count(),
+        );
+
+        $this->assertSame(
+            $skillScore,
+            (float) UserSkill::query()
+                ->where(
+                    'user_id',
+                    $this->user->id,
+                )
+                ->where(
+                    'skill_id',
+                    $material->skill_id,
+                )
+                ->value('score'),
+        );
+
+        $this->assertFalse(
+            RoadmapItem::query()
+                ->where(
+                    'roadmap_id',
+                    $item->roadmap_id,
+                )
+                ->where(
+                    'reinforcement_for_roadmap_item_id',
+                    $item->id,
+                )
+                ->exists(),
         );
     }
 

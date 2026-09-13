@@ -46,6 +46,11 @@ type Evaluation = {
 
 type Item = {
     id: number;
+    status: string;
+    progress_percentage: number;
+    evaluation_score?: number | null;
+    evaluation_attempts: number;
+    reinforcement_count: number;
     evaluations: Evaluation[];
 };
 
@@ -94,6 +99,8 @@ export default function MaterialPage({
 
     const latestEvaluation = item.evaluations?.[0];
 
+    const itemCompleted = item.status === 'completed';
+
     const hasAiExercise =
         aiExercise?.generatedByAi === true && Boolean(aiExercise.content);
 
@@ -115,6 +122,10 @@ export default function MaterialPage({
 
     const evaluate = (event: React.FormEvent) => {
         event.preventDefault();
+
+        if (itemCompleted) {
+            return;
+        }
 
         evaluationForm.post(`/roadmap/items/${item.id}/evaluate`, {
             preserveScroll: true,
@@ -152,6 +163,13 @@ export default function MaterialPage({
                             {material.material_type === 'reinforcement' && (
                                 <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-pink)] px-3 py-1 text-xs font-black text-[#171717]">
                                     Materi penguatan
+                                </span>
+                            )}
+
+                            {itemCompleted && (
+                                <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-[#171717] bg-secondary px-3 py-1 text-xs font-black text-[#171717]">
+                                    <CheckCircle2 className="size-3.5" />
+                                    Selesai
                                 </span>
                             )}
                         </div>
@@ -327,144 +345,185 @@ export default function MaterialPage({
                             Evaluasi berbasis bukti
                         </h2>
 
-                        <p className="mt-3 max-w-3xl text-sm leading-6 font-semibold text-muted-foreground">
-                            Materi dinyatakan selesai jika jawaban konsep benar
-                            dan bukti latihan menggunakan link Google Drive yang
-                            valid. Sistem memeriksa format tautannya, bukan
-                            membaca isi file Google Drive.
-                        </p>
+                        {itemCompleted ? (
+                            <div className="mt-5 rounded-[12px] border-2 border-[#171717] bg-secondary p-5 text-[#171717]">
+                                <div className="flex items-start gap-3">
+                                    <CheckCircle2 className="mt-0.5 size-6 shrink-0" />
 
-                        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                            <div className="neo-card-flat p-4">
-                                <p className="font-mono text-xl font-black">
-                                    80
-                                </p>
+                                    <div>
+                                        <p className="font-black">
+                                            Materi sudah selesai
+                                        </p>
 
-                                <p className="mt-1 text-xs font-bold">
-                                    Pemahaman konsep
-                                </p>
+                                        <p className="mt-2 text-sm leading-6 font-semibold">
+                                            Evaluasi untuk materi ini sudah
+                                            dinyatakan lulus. Status
+                                            penyelesaian disimpan dan tidak
+                                            dapat kembali menjadi belum selesai
+                                            akibat refresh, perpindahan halaman,
+                                            atau evaluasi ulang.
+                                        </p>
+
+                                        {item.evaluation_score !== null &&
+                                            item.evaluation_score !==
+                                                undefined && (
+                                                <p className="mt-3 font-mono text-sm font-black">
+                                                    Skor evaluasi:{' '}
+                                                    {item.evaluation_score}/100
+                                                </p>
+                                            )}
+                                    </div>
+                                </div>
                             </div>
-
-                            <div className="neo-card-flat p-4">
-                                <p className="font-mono text-xl font-black">
-                                    20
+                        ) : (
+                            <>
+                                <p className="mt-3 max-w-3xl text-sm leading-6 font-semibold text-muted-foreground">
+                                    Materi dinyatakan selesai jika jawaban
+                                    konsep benar dan bukti latihan menggunakan
+                                    link Google Drive yang valid. Sistem
+                                    memeriksa format tautannya, bukan membaca
+                                    isi file Google Drive.
                                 </p>
 
-                                <p className="mt-1 text-xs font-bold">
-                                    Bukti Google Drive
-                                </p>
-                            </div>
-                        </div>
+                                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                                    <div className="neo-card-flat p-4">
+                                        <p className="font-mono text-xl font-black">
+                                            80
+                                        </p>
 
-                        <p className="mt-6 leading-relaxed font-semibold">
-                            {material.quiz_question}
-                        </p>
+                                        <p className="mt-1 text-xs font-bold">
+                                            Pemahaman konsep
+                                        </p>
+                                    </div>
 
-                        <form onSubmit={evaluate} className="mt-5 grid gap-4">
-                            {Object.entries(material.quiz_options).map(
-                                ([key, text]) => (
-                                    <label
-                                        key={key}
-                                        className={`flex cursor-pointer items-start gap-3 rounded-[12px] border-2 border-foreground p-4 text-sm font-semibold ${
-                                            evaluationForm.data.answer === key
-                                                ? 'bg-secondary text-[#171717]'
-                                                : 'bg-card'
-                                        }`}
-                                    >
-                                        <input
-                                            type="radio"
-                                            name="answer"
-                                            value={key}
-                                            checked={
-                                                evaluationForm.data.answer ===
-                                                key
-                                            }
-                                            onChange={() =>
-                                                evaluationForm.setData(
-                                                    'answer',
-                                                    key,
-                                                )
-                                            }
-                                            className="mt-1 accent-black"
-                                            required
-                                        />
+                                    <div className="neo-card-flat p-4">
+                                        <p className="font-mono text-xl font-black">
+                                            20
+                                        </p>
 
-                                        <span>
-                                            <strong className="mr-2 font-mono">
-                                                {key}.
-                                            </strong>
+                                        <p className="mt-1 text-xs font-bold">
+                                            Bukti Google Drive
+                                        </p>
+                                    </div>
+                                </div>
 
-                                            {text}
-                                        </span>
-                                    </label>
-                                ),
-                            )}
-
-                            {evaluationForm.errors.answer && (
-                                <p className="text-xs font-bold text-destructive">
-                                    {evaluationForm.errors.answer}
-                                </p>
-                            )}
-
-                            <label className="mt-2">
-                                <span className="mb-2 block text-sm font-black">
-                                    Bukti latihan praktik Google Drive
-                                </span>
-
-                                <Input
-                                    type="url"
-                                    value={
-                                        evaluationForm.data
-                                            .practical_evidence_url
-                                    }
-                                    onChange={(event) =>
-                                        evaluationForm.setData(
-                                            'practical_evidence_url',
-                                            event.target.value,
-                                        )
-                                    }
-                                    placeholder="https://drive.google.com/file/d/..."
-                                    required
-                                />
-
-                                <p className="mt-2 text-xs leading-5 font-semibold text-muted-foreground">
-                                    Unggah hasil latihan atau dokumentasi ke
-                                    Google Drive, aktifkan akses yang sesuai,
-                                    lalu tempel link drive.google.com di sini.
+                                <p className="mt-6 leading-relaxed font-semibold">
+                                    {material.quiz_question}
                                 </p>
 
-                                {evaluationForm.data.practical_evidence_url.trim()
-                                    .length > 0 &&
-                                    !evaluationEvidenceValid && (
-                                        <p className="mt-2 text-xs font-bold text-destructive">
-                                            Gunakan link HTTPS dari
-                                            drive.google.com.
+                                <form
+                                    onSubmit={evaluate}
+                                    className="mt-5 grid gap-4"
+                                >
+                                    {Object.entries(material.quiz_options).map(
+                                        ([key, text]) => (
+                                            <label
+                                                key={key}
+                                                className={`flex cursor-pointer items-start gap-3 rounded-[12px] border-2 border-foreground p-4 text-sm font-semibold ${
+                                                    evaluationForm.data
+                                                        .answer === key
+                                                        ? 'bg-secondary text-[#171717]'
+                                                        : 'bg-card'
+                                                }`}
+                                            >
+                                                <input
+                                                    type="radio"
+                                                    name="answer"
+                                                    value={key}
+                                                    checked={
+                                                        evaluationForm.data
+                                                            .answer === key
+                                                    }
+                                                    onChange={() =>
+                                                        evaluationForm.setData(
+                                                            'answer',
+                                                            key,
+                                                        )
+                                                    }
+                                                    className="mt-1 accent-black"
+                                                    required
+                                                />
+
+                                                <span>
+                                                    <strong className="mr-2 font-mono">
+                                                        {key}.
+                                                    </strong>
+
+                                                    {text}
+                                                </span>
+                                            </label>
+                                        ),
+                                    )}
+
+                                    {evaluationForm.errors.answer && (
+                                        <p className="text-xs font-bold text-destructive">
+                                            {evaluationForm.errors.answer}
                                         </p>
                                     )}
 
-                                {evaluationForm.errors
-                                    .practical_evidence_url && (
-                                    <p className="mt-2 text-xs font-bold text-destructive">
-                                        {
-                                            evaluationForm.errors
-                                                .practical_evidence_url
-                                        }
-                                    </p>
-                                )}
-                            </label>
+                                    <label className="mt-2">
+                                        <span className="mb-2 block text-sm font-black">
+                                            Bukti latihan praktik Google Drive
+                                        </span>
 
-                            <Button
-                                className="mt-2 justify-self-start"
-                                disabled={
-                                    !evaluationReady ||
-                                    evaluationForm.processing
-                                }
-                            >
-                                {evaluationForm.processing
-                                    ? 'Memeriksa...'
-                                    : 'Kirim evaluasi'}
-                            </Button>
-                        </form>
+                                        <Input
+                                            type="url"
+                                            value={
+                                                evaluationForm.data
+                                                    .practical_evidence_url
+                                            }
+                                            onChange={(event) =>
+                                                evaluationForm.setData(
+                                                    'practical_evidence_url',
+                                                    event.target.value,
+                                                )
+                                            }
+                                            placeholder="https://drive.google.com/file/d/..."
+                                            required
+                                        />
+
+                                        <p className="mt-2 text-xs leading-5 font-semibold text-muted-foreground">
+                                            Unggah hasil latihan atau
+                                            dokumentasi ke Google Drive,
+                                            aktifkan akses yang sesuai, lalu
+                                            tempel link drive.google.com di
+                                            sini.
+                                        </p>
+
+                                        {evaluationForm.data.practical_evidence_url.trim()
+                                            .length > 0 &&
+                                            !evaluationEvidenceValid && (
+                                                <p className="mt-2 text-xs font-bold text-destructive">
+                                                    Gunakan link HTTPS dari
+                                                    drive.google.com.
+                                                </p>
+                                            )}
+
+                                        {evaluationForm.errors
+                                            .practical_evidence_url && (
+                                            <p className="mt-2 text-xs font-bold text-destructive">
+                                                {
+                                                    evaluationForm.errors
+                                                        .practical_evidence_url
+                                                }
+                                            </p>
+                                        )}
+                                    </label>
+
+                                    <Button
+                                        className="mt-2 justify-self-start"
+                                        disabled={
+                                            !evaluationReady ||
+                                            evaluationForm.processing
+                                        }
+                                    >
+                                        {evaluationForm.processing
+                                            ? 'Memeriksa...'
+                                            : 'Kirim evaluasi'}
+                                    </Button>
+                                </form>
+                            </>
+                        )}
 
                         {latestEvaluation && (
                             <div
