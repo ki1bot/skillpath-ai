@@ -12,21 +12,22 @@ import Admin from './Admin'
 import AdminDashboardController from './AdminDashboardController'
 import AdminController from './AdminController'
 import Settings from './Settings'
+
 const Controllers = {
     PublicPageController: Object.assign(PublicPageController, PublicPageController),
-SessionHeartbeatController: Object.assign(SessionHeartbeatController, SessionHeartbeatController),
-DashboardController: Object.assign(DashboardController, DashboardController),
-OnboardingController: Object.assign(OnboardingController, OnboardingController),
-AssessmentController: Object.assign(AssessmentController, AssessmentController),
-SkillGapController: Object.assign(SkillGapController, SkillGapController),
-RoadmapController: Object.assign(RoadmapController, RoadmapController),
-ProjectController: Object.assign(ProjectController, ProjectController),
-ProgressController: Object.assign(ProgressController, ProgressController),
-FeedbackController: Object.assign(FeedbackController, FeedbackController),
-Admin: Object.assign(Admin, Admin),
-AdminDashboardController: Object.assign(AdminDashboardController, AdminDashboardController),
-AdminController: Object.assign(AdminController, AdminController),
-Settings: Object.assign(Settings, Settings),
+    SessionHeartbeatController: Object.assign(SessionHeartbeatController, SessionHeartbeatController),
+    DashboardController: Object.assign(DashboardController, DashboardController),
+    OnboardingController: Object.assign(OnboardingController, OnboardingController),
+    AssessmentController: Object.assign(AssessmentController, AssessmentController),
+    SkillGapController: Object.assign(SkillGapController, SkillGapController),
+    RoadmapController: Object.assign(RoadmapController, RoadmapController),
+    ProjectController: Object.assign(ProjectController, ProjectController),
+    ProgressController: Object.assign(ProgressController, ProgressController),
+    FeedbackController: Object.assign(FeedbackController, FeedbackController),
+    Admin: Object.assign(Admin, Admin),
+    AdminDashboardController: Object.assign(AdminDashboardController, AdminDashboardController),
+    AdminController: Object.assign(AdminController, AdminController),
+    Settings: Object.assign(Settings, Settings),
 }
 
 export default Controllers
