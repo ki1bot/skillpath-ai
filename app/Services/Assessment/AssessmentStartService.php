@@ -2,6 +2,7 @@
 
 namespace App\Services\Assessment;
 
+use App\Support\AcademicAssessmentCatalog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -45,7 +46,9 @@ class AssessmentStartService
                 ->route('dashboard')
                 ->with(
                     'error',
-                    'Bank soal Assesment belum lengkap. Setiap jurusan harus memiliki tepat 30 soal sebelum Assesment dapat dimulai.',
+                    'Bank soal Assesment belum lengkap. Setiap jurusan harus memiliki tepat '
+                        .AcademicAssessmentCatalog::QUESTION_LIMIT
+                        .' soal sebelum Assesment dapat dimulai.',
                 );
         }
 
@@ -61,7 +64,9 @@ class AssessmentStartService
                 ->route('assessment.show')
                 ->with(
                     'error',
-                    'Sistem gagal menyiapkan 30 soal Assesment. Silakan coba kembali.',
+                    'Sistem gagal menyiapkan '
+                        .AcademicAssessmentCatalog::QUESTION_LIMIT
+                        .' soal Assesment. Silakan coba kembali.',
                 );
         }
 

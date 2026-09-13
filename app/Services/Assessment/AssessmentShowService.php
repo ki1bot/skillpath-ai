@@ -51,7 +51,9 @@ class AssessmentShowService
                 ->route('dashboard')
                 ->with(
                     'error',
-                    'Bank soal Assesment belum lengkap. Setiap jurusan harus memiliki tepat 30 soal sebelum Assesment dapat dimulai.',
+                    'Bank soal Assesment belum lengkap. Setiap jurusan harus memiliki tepat '
+                        .AcademicAssessmentCatalog::QUESTION_LIMIT
+                        .' soal sebelum Assesment dapat dimulai.',
                 );
         }
 
@@ -92,6 +94,7 @@ class AssessmentShowService
             [
                 'assessment' => [
                     'id' => $assessment->id,
+                    'user_id' => $user->id,
                     'study_program' => $assessment->study_program,
                     'title' => $assessment->title,
                     'description' => $assessment->description,
