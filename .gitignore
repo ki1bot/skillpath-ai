@@ -24,3 +24,5 @@ yarn-error.log
 /.zed
 /.node_modules
 /.vercel
+
+*.dump
