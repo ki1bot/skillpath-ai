@@ -15,6 +15,7 @@ RUN apt-get update \
         libpq-dev \
         libstdc++6 \
         libzip-dev \
+        procps \
         unzip \
     && docker-php-ext-install \
         bcmath \
@@ -136,3 +137,4 @@ EXPOSE 8080
 ENTRYPOINT ["/usr/local/bin/skillpath-entrypoint"]
 
 CMD ["apache2-foreground"]
+

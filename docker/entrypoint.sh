@@ -18,6 +18,8 @@ if [ "${DOCKER_MODE:-production}" = "development" ]; then
 
     mkdir -p vendor node_modules
 
+    rm -rf node_modules/.vite-temp node_modules/.vite
+
     chown "$SOURCE_UID:$SOURCE_GID" vendor node_modules 2>/dev/null || true
     chown -R "$SOURCE_UID:$SOURCE_GID" storage bootstrap/cache 2>/dev/null || true
 
