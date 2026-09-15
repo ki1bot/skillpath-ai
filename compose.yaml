@@ -11,18 +11,11 @@ services:
         ports:
             - '8080:8080'
             - '5173:5173'
+        env_file:
+            - .env
         environment:
             APP_URL: http://localhost:8080
-
-            DB_CONNECTION: pgsql
             DB_HOST: postgres
-            DB_PORT: '5432'
-            DB_DATABASE: skillpathai
-            DB_USERNAME: root
-            DB_PASSWORD: 023560R
-
-            RUN_SEEDER: 'false'
-            RUN_ASSESSMENT_SEEDER: 'false'
         volumes:
             - .:/var/www/html
             - vendor_data:/var/www/html/vendor
@@ -62,15 +55,15 @@ services:
         ports:
             - '5433:5432'
         environment:
-            POSTGRES_DB: skillpathai
-            POSTGRES_USER: root
-            POSTGRES_PASSWORD: 023560R
+            POSTGRES_DB: ${DB_DATABASE}
+            POSTGRES_USER: ${DB_USERNAME}
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
         volumes:
             - postgres_data:/var/lib/postgresql
         healthcheck:
             test:
                 - CMD-SHELL
-                - pg_isready -U root -d skillpathai
+                - pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"
             interval: 5s
             timeout: 5s
             retries: 10
