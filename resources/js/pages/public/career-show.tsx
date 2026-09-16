@@ -66,6 +66,10 @@ export default function CareerShow({ career }: { career: Career }) {
         career.skills.map((skill) => [skill.name, skill]),
     );
 
+    const programSkillCount =
+        program?.areas.reduce((total, area) => total + area.skills.length, 0) ??
+        career.skills.length;
+
     return (
         <>
             <Head title={career.name} />
@@ -148,7 +152,7 @@ export default function CareerShow({ career }: { career: Career }) {
                                         </p>
 
                                         <p className="font-bold">
-                                            {career.skills.length} kemampuan
+                                            {programSkillCount} kemampuan
                                         </p>
                                     </div>
                                 </div>
@@ -194,14 +198,16 @@ export default function CareerShow({ career }: { career: Career }) {
                         </p>
 
                         <h2 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
-                            3 bidang utama dan 9 kemampuan yang dinilai.
+                            3 bidang utama dan {programSkillCount} kemampuan
+                            akademik.
                         </h2>
 
                         <p className="mt-4 max-w-3xl leading-7 font-medium text-muted-foreground">
-                            Setiap bidang memiliki tiga kemampuan. Hasil
-                            Assesment digunakan untuk melihat posisi kemampuanmu
-                            sekarang dan menentukan bagian yang masih perlu
-                            dikembangkan.
+                            Setiap bidang memiliki lima kemampuan. Sembilan
+                            kemampuan inti digunakan pada Assesment awal,
+                            sedangkan kemampuan lainnya tetap menjadi bagian
+                            dari katalog kemampuan dan proses pengembangan
+                            belajarmu.
                         </p>
                     </div>
 
@@ -311,6 +317,7 @@ export default function CareerShow({ career }: { career: Career }) {
                                     >
                                         <div className="flex items-center justify-between text-xs font-black uppercase">
                                             <span>{project.difficulty}</span>
+
                                             <span>
                                                 {project.estimated_hours} jam
                                             </span>
@@ -358,6 +365,7 @@ export default function CareerShow({ career }: { career: Career }) {
                             {career.compatibility
                                 ? 'Ulangi Assesment'
                                 : 'Mulai Assesment'}
+
                             <ArrowRight />
                         </Link>
                     </Button>

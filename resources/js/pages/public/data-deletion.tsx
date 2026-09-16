@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import PublicBackLink from '@/components/public-back-link';
 import { Button } from '@/components/ui/button';
 
 export default function DataDeletion() {
@@ -8,16 +9,20 @@ export default function DataDeletion() {
 
             <main className="neo-page py-14 lg:py-20">
                 <div className="mx-auto max-w-4xl">
-                    <span className="neo-label">Data pengguna</span>
+                    <PublicBackLink />
 
-                    <h1 className="neo-heading mt-6 text-5xl sm:text-6xl">
-                        Penghapusan Data SkillPath AI
-                    </h1>
+                    <div className="mt-8">
+                        <span className="neo-label">Data pengguna</span>
 
-                    <p className="mt-6 text-lg leading-relaxed font-medium text-muted-foreground">
-                        Pengguna SkillPath AI dapat menghapus akun dan data yang
-                        terikat pada akun melalui pengaturan profil.
-                    </p>
+                        <h1 className="neo-heading mt-6 text-5xl sm:text-6xl">
+                            Penghapusan Data SkillPath AI
+                        </h1>
+
+                        <p className="mt-6 text-lg leading-relaxed font-medium text-muted-foreground">
+                            Pengguna SkillPath AI dapat menghapus akun dan data
+                            yang terikat pada akun melalui pengaturan profil.
+                        </p>
+                    </div>
 
                     <div className="mt-12 grid gap-5">
                         <section className="neo-card p-6 sm:p-7">

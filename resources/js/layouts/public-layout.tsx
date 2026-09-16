@@ -117,56 +117,105 @@ export default function PublicLayout({
 
             {children}
 
-            <footer className="mt-16 border-t-2 border-foreground bg-foreground text-background sm:mt-20">
-                <div className="neo-page py-8">
-                    <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-                        <div className="max-w-lg">
-                            <div className="font-bold">
-                                <p>
-                                    © {new Date().getFullYear()} SkillPath AI.
-                                </p>
+            <footer className="mt-16 border-t-2 border-foreground/20 bg-card sm:mt-20">
+                <div className="neo-page py-10 lg:py-12">
+                    <div className="grid gap-10 md:grid-cols-[1.4fr_0.8fr_1fr]">
+                        <div className="max-w-md">
+                            <Link
+                                href="/"
+                                className="inline-flex items-center gap-3"
+                            >
+                                <span className="flex size-10 items-center justify-center rounded-[9px] border-2 border-foreground bg-secondary text-[#171717] shadow-[2px_2px_0_var(--neo-shadow-color)]">
+                                    <AppLogoIcon className="size-5" />
+                                </span>
 
-                                <p className="mt-1">
-                                    Membantu kamu menentukan langkah belajar
-                                    berikutnya dengan lebih jelas.
-                                </p>
-                            </div>
+                                <div>
+                                    <p className="text-lg font-black tracking-tight">
+                                        SkillPath AI
+                                    </p>
 
-                            <p className="mt-4 text-sm leading-relaxed text-background/65">
-                                Gunakan hasil assesment dan perkembangan
-                                belajarmu sebagai panduan untuk menentukan
-                                kemampuan yang perlu dikembangkan.
+                                    <p className="text-xs font-bold text-muted-foreground">
+                                        Belajar lebih terarah.
+                                    </p>
+                                </div>
+                            </Link>
+
+                            <p className="mt-5 text-sm leading-6 font-medium text-muted-foreground">
+                                SkillPath membantu mahasiswa memahami kemampuan,
+                                melihat bagian yang masih perlu dikembangkan,
+                                dan menentukan langkah belajar berikutnya.
                             </p>
                         </div>
 
-                        <div className="flex flex-col gap-3 md:items-end">
-                            <p className="text-xs font-black tracking-[0.14em] text-background/60 uppercase">
+                        <div>
+                            <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
+                                Navigasi
+                            </p>
+
+                            <nav className="mt-4 flex flex-col items-start gap-3 text-sm font-bold">
+                                <Link
+                                    href="/"
+                                    className="underline-offset-4 transition-opacity hover:underline"
+                                >
+                                    Beranda
+                                </Link>
+
+                                <Link
+                                    href="/karier"
+                                    className="underline-offset-4 transition-opacity hover:underline"
+                                >
+                                    Jurusan
+                                </Link>
+
+                                <Link
+                                    href="/tentang"
+                                    className="underline-offset-4 transition-opacity hover:underline"
+                                >
+                                    Tentang
+                                </Link>
+                            </nav>
+                        </div>
+
+                        <div>
+                            <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
                                 Informasi
                             </p>
 
-                            <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm font-bold md:justify-end">
+                            <nav className="mt-4 flex flex-col items-start gap-3 text-sm font-bold">
                                 <Link
                                     href="/privacy-policy"
-                                    className="text-background/80 underline-offset-4 transition-colors hover:text-background hover:underline"
+                                    className="underline-offset-4 transition-opacity hover:underline"
                                 >
                                     Kebijakan Privasi
                                 </Link>
 
                                 <Link
                                     href="/terms"
-                                    className="text-background/80 underline-offset-4 transition-colors hover:text-background hover:underline"
+                                    className="underline-offset-4 transition-opacity hover:underline"
                                 >
                                     Ketentuan Layanan
                                 </Link>
 
                                 <Link
                                     href="/data-deletion"
-                                    className="text-background/80 underline-offset-4 transition-colors hover:text-background hover:underline"
+                                    className="underline-offset-4 transition-opacity hover:underline"
                                 >
                                     Penghapusan Data
                                 </Link>
-                            </div>
+                            </nav>
                         </div>
+                    </div>
+
+                    <div className="mt-10 flex flex-col gap-2 border-t-2 border-foreground/10 pt-5 text-xs font-semibold text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+                        <p>
+                            © {new Date().getFullYear()} SkillPath AI. Semua hak
+                            dilindungi.
+                        </p>
+
+                        <p>
+                            SkillPath AI merupakan alat bantu pembelajaran,
+                            bukan penilaian akademik resmi.
+                        </p>
                     </div>
                 </div>
             </footer>

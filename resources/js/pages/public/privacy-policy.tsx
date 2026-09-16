@@ -1,4 +1,5 @@
 import { Head } from '@inertiajs/react';
+import PublicBackLink from '@/components/public-back-link';
 
 const sections = [
     {
@@ -45,17 +46,22 @@ export default function PrivacyPolicy() {
 
             <main className="neo-page py-14 lg:py-20">
                 <div className="mx-auto max-w-4xl">
-                    <span className="neo-label">Privasi</span>
+                    <PublicBackLink />
 
-                    <h1 className="neo-heading mt-6 text-5xl sm:text-6xl">
-                        Kebijakan Privasi SkillPath AI
-                    </h1>
+                    <div className="mt-8">
+                        <span className="neo-label">Privasi</span>
 
-                    <p className="mt-6 text-lg leading-relaxed font-medium text-muted-foreground">
-                        Halaman ini menjelaskan bagaimana SkillPath AI memproses
-                        informasi yang diperlukan untuk menyediakan akun,
-                        assessment, jalur belajar, progres, dan fitur lainnya.
-                    </p>
+                        <h1 className="neo-heading mt-6 text-5xl sm:text-6xl">
+                            Kebijakan Privasi SkillPath AI
+                        </h1>
+
+                        <p className="mt-6 text-lg leading-relaxed font-medium text-muted-foreground">
+                            Halaman ini menjelaskan bagaimana SkillPath AI
+                            memproses informasi yang diperlukan untuk
+                            menyediakan akun, assessment, jalur belajar,
+                            progres, dan fitur lainnya.
+                        </p>
+                    </div>
 
                     <div className="mt-12 grid gap-5">
                         {sections.map((section) => (

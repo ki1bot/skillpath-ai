@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import { ArrowRight, CheckCircle2, Gauge, GraduationCap } from 'lucide-react';
+import PublicBackLink from '@/components/public-back-link';
 import { getStudyProgramDefinition } from '@/lib/academic-programs';
 
 type Skill = {
@@ -57,7 +58,9 @@ export default function Careers({ careers }: { careers: Career[] }) {
             <Head title="Pilihan Jurusan" />
 
             <main className="neo-page py-14 lg:py-20">
-                <div className="max-w-4xl">
+                <PublicBackLink />
+
+                <div className="mt-8 max-w-4xl">
                     <span className="neo-label">
                         {careers.length} jurusan · {areaCount} bidang ·{' '}
                         {skillCount} kemampuan
@@ -69,9 +72,10 @@ export default function Careers({ careers }: { careers: Career[] }) {
                     </h1>
 
                     <p className="mt-5 text-lg leading-relaxed font-medium text-muted-foreground">
-                        Setiap jurusan memiliki tiga bidang utama. Di dalam
-                        setiap bidang ada tiga kemampuan yang digunakan
-                        SkillPath sebagai dasar assesment dan penyusunan jalur
+                        Setiap jurusan memiliki tiga bidang utama dengan total
+                        lima belas kemampuan akademik. Sembilan kemampuan inti
+                        digunakan pada Assesment awal, sementara kemampuan
+                        lainnya tetap menjadi bagian dari pemetaan dan jalur
                         belajar.
                     </p>
                 </div>
@@ -79,6 +83,12 @@ export default function Careers({ careers }: { careers: Career[] }) {
                 <div className="mt-12 space-y-7">
                     {careers.map((career, index) => {
                         const program = getStudyProgramDefinition(career.name);
+
+                        const programSkillCount =
+                            program?.areas.reduce(
+                                (total, area) => total + area.skills.length,
+                                0,
+                            ) ?? career.skills.length;
 
                         return (
                             <article
@@ -129,11 +139,13 @@ export default function Careers({ careers }: { careers: Career[] }) {
                                                 </p>
 
                                                 <p className="mt-1 text-xl font-black">
-                                                    3 bidang
+                                                    {program?.areas.length ?? 3}{' '}
+                                                    bidang
                                                 </p>
 
                                                 <p className="mt-1 text-xs font-bold">
-                                                    9 kemampuan
+                                                    {programSkillCount}{' '}
+                                                    kemampuan
                                                 </p>
                                             </div>
                                         )}
@@ -193,6 +205,7 @@ export default function Careers({ careers }: { careers: Career[] }) {
                                                                             className="flex gap-2 text-xs leading-5 font-semibold"
                                                                         >
                                                                             <CheckCircle2 className="mt-0.5 size-3.5 shrink-0" />
+
                                                                             <span>
                                                                                 {
                                                                                     skill
