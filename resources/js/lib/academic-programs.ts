@@ -1,241 +1,176 @@
-export type StudyProgramName =
-    | 'Sistem Informasi'
-    | 'Manajemen'
-    | 'Teknik Informatika'
-    | 'Sistem Komputer'
-    | 'Psikologi'
-    | 'Ilmu Komunikasi';
-
-export type StudyProgramArea = {
+export type AcademicProgramArea = {
     name: string;
-    skills: readonly string[];
+    skills: string[];
 };
 
-export type StudyProgramDefinition = {
-    name: StudyProgramName;
-    description: string;
-    areas: readonly StudyProgramArea[];
+export type AcademicProgramDefinition = {
+    name: string;
+    areas: AcademicProgramArea[];
 };
 
-export const STUDY_PROGRAMS: readonly StudyProgramDefinition[] = [
+export const academicPrograms: AcademicProgramDefinition[] = [
     {
         name: 'Sistem Informasi',
-        description:
-            'Untuk kamu yang ingin memahami bagaimana data, proses bisnis, dan teknologi disatukan menjadi sistem yang berguna.',
         areas: [
             {
                 name: 'Analisis Data',
                 skills: [
-                    'SQL & data processing',
-                    'Spreadsheet analysis',
-                    'Business Intelligence',
-                    'Data visualization',
-                    'Scenario-based data analysis',
+                    'SQL dan Pengolahan Data',
+                    'Spreadsheet dan Analisis Data',
+                    'Business Intelligence dan Visualisasi Data',
                 ],
             },
             {
                 name: 'Pengembangan Sistem',
                 skills: [
-                    'Database',
-                    'Web development',
-                    'System analysis',
-                    'ERD/UML',
-                    'Problem solving',
+                    'Database Management',
+                    'Web Development',
+                    'System Analysis and Design',
                 ],
             },
             {
                 name: 'UI/UX',
                 skills: [
-                    'UI design',
-                    'Wireframing',
-                    'Prototyping',
-                    'User research',
-                    'Usability',
+                    'UI Design',
+                    'Wireframing dan Prototyping',
+                    'User Research',
                 ],
             },
         ],
     },
     {
         name: 'Manajemen',
-        description:
-            'Untuk kamu yang ingin memahami pemasaran, keputusan keuangan, dan pengelolaan orang di dalam organisasi.',
         areas: [
             {
                 name: 'Marketing',
-                skills: [
-                    'Branding',
-                    'Digital marketing',
-                    'Market research',
-                    'Marketing strategy',
-                    'Campaign analysis',
-                ],
+                skills: ['Branding', 'Digital Marketing', 'Market Research'],
             },
             {
                 name: 'Keuangan',
                 skills: [
-                    'Financial planning',
-                    'Financial analysis',
-                    'Financial ratios',
-                    'Investment basics',
-                    'Financial decision making',
+                    'Financial Planning',
+                    'Financial Analysis',
+                    'Investment Management',
                 ],
             },
             {
                 name: 'Human Resources',
                 skills: [
-                    'Recruitment',
-                    'Candidate selection',
-                    'Interview',
-                    'Performance management',
-                    'Talent management',
+                    'Recruitment and Selection',
+                    'Performance Management',
+                    'Talent Management',
                 ],
             },
         ],
     },
     {
         name: 'Teknik Informatika',
-        description:
-            'Untuk kamu yang banyak belajar pemrograman, sistem komputer, jaringan, dan kecerdasan buatan.',
         areas: [
             {
-                name: 'Pemrograman & Rekayasa Perangkat Lunak',
+                name: 'Pemrograman dan Rekayasa Perangkat Lunak',
                 skills: [
-                    'Algoritma',
-                    'Data structure',
-                    'OOP',
-                    'Software engineering',
-                    'Debugging',
+                    'Algoritma dan Struktur Data',
+                    'Object-Oriented Programming',
+                    'Software Engineering',
                 ],
             },
             {
-                name: 'Jaringan & Sistem Komputer',
+                name: 'Jaringan dan Sistem Komputer',
                 skills: [
-                    'Computer networks',
-                    'Operating systems',
-                    'Network troubleshooting',
+                    'Computer Networks',
+                    'Operating Systems',
                     'Cybersecurity',
-                    'System administration',
                 ],
             },
             {
                 name: 'Artificial Intelligence',
-                skills: [
-                    'Machine learning',
-                    'Data science',
-                    'Statistics',
-                    'Model evaluation',
-                    'Computer vision',
-                ],
+                skills: ['Machine Learning', 'Data Science', 'Computer Vision'],
             },
         ],
     },
     {
         name: 'Sistem Komputer',
-        description:
-            'Untuk kamu yang ingin memahami perangkat komputasi dari arsitektur digital, embedded system dan IoT, hingga jaringan dan keamanan.',
         areas: [
             {
-                name: 'Arsitektur & Organisasi Komputer',
+                name: 'Arsitektur dan Organisasi Komputer',
                 skills: [
-                    'Computer architecture',
-                    'Digital logic',
-                    'Processor',
-                    'Memory',
-                    'Microprocessor',
+                    'Computer Architecture',
+                    'Digital Logic',
+                    'Microprocessor and Microcontroller',
                 ],
             },
             {
-                name: 'Embedded System & IoT',
+                name: 'Embedded System dan Internet of Things',
                 skills: [
-                    'Microcontroller',
-                    'Embedded system',
-                    'IoT',
-                    'Sensor',
-                    'Actuator',
+                    'Embedded Systems',
+                    'Internet of Things',
+                    'Sensor and Actuator Integration',
                 ],
             },
             {
-                name: 'Jaringan & Keamanan Komputer',
+                name: 'Jaringan dan Keamanan Komputer',
                 skills: [
-                    'Networking',
-                    'Network administration',
-                    'Network security',
-                    'Firewall',
-                    'Threat detection',
+                    'Computer Networks',
+                    'Network Administration',
+                    'Network Security',
                 ],
             },
         ],
     },
     {
         name: 'Psikologi',
-        description:
-            'Untuk kamu yang ingin memahami perilaku manusia, proses konseling, serta cara melakukan penelitian psikologi.',
         areas: [
             {
-                name: 'Psikologi Industri & Organisasi',
+                name: 'Psikologi Industri dan Organisasi',
                 skills: [
-                    'Employee behavior',
-                    'Organizational behavior',
-                    'Work-style assessment',
-                    'Psychological assessment',
-                    'Organizational development',
+                    'Employee Behavior',
+                    'Organizational Development',
+                    'Psychological Assessment',
                 ],
             },
             {
                 name: 'Konseling',
                 skills: [
-                    'Communication',
-                    'Active listening',
-                    'Empathy',
-                    'Emotional intelligence',
-                    'Counseling scenario',
+                    'Counseling Skills',
+                    'Interpersonal Communication',
+                    'Emotional Intelligence',
                 ],
             },
             {
                 name: 'Penelitian Psikologi',
                 skills: [
-                    'Research methodology',
-                    'Interview',
-                    'Observation',
-                    'Survey',
-                    'Data analysis',
+                    'Research Methodology',
+                    'Interview dan Observation',
+                    'Survey dan Data Analysis',
                 ],
             },
         ],
     },
     {
         name: 'Ilmu Komunikasi',
-        description:
-            'Untuk kamu yang ingin mengembangkan kemampuan komunikasi publik, jurnalistik, dan produksi media digital.',
         areas: [
             {
                 name: 'Public Relations',
                 skills: [
-                    'Media relations',
-                    'Corporate communication',
-                    'Crisis communication',
-                    'Public communication',
-                    'Reputation management',
+                    'Media Relations',
+                    'Corporate Communication',
+                    'Crisis Communication',
                 ],
             },
             {
                 name: 'Jurnalistik',
                 skills: [
-                    'News writing',
-                    'Interview',
-                    'News reporting',
-                    'Fact checking',
-                    'Journalistic ethics',
+                    'News Writing',
+                    'Journalistic Interview',
+                    'News Reporting',
                 ],
             },
             {
                 name: 'Digital Media',
                 skills: [
-                    'Content creation',
-                    'Social media',
-                    'Video production',
-                    'Content strategy',
-                    'Audience analysis',
+                    'Content Creation',
+                    'Social Media Management',
+                    'Video Production',
                 ],
             },
         ],
@@ -243,7 +178,7 @@ export const STUDY_PROGRAMS: readonly StudyProgramDefinition[] = [
 ];
 
 export function getStudyProgramDefinition(
-    name?: string | null,
-): StudyProgramDefinition | undefined {
-    return STUDY_PROGRAMS.find((program) => program.name === name);
+    name: string,
+): AcademicProgramDefinition | undefined {
+    return academicPrograms.find((program) => program.name === name);
 }

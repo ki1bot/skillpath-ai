@@ -5,44 +5,57 @@ namespace Database\Seeders;
 use App\Models\AssessmentQuestion;
 use App\Models\LearningMaterial;
 use App\Models\Skill;
+use App\Support\AcademicProgramCatalog;
 use Illuminate\Database\Seeder;
+use RuntimeException;
 
 class AcademicProgramLearningMaterialSeeder extends Seeder
 {
     public function run(): void
     {
-        $skills = Skill::query()
+        $canonicalSlugs = AcademicProgramCatalog::allSkillSlugs();
+
+        $legacySkillIds = Skill::query()
             ->where(
-                'slug',
-                'like',
-                'si-%',
+                function ($query) {
+                    $query
+                        ->where('slug', 'like', 'si-%')
+                        ->orWhere('slug', 'like', 'man-%')
+                        ->orWhere('slug', 'like', 'ti-%')
+                        ->orWhere('slug', 'like', 'sk-%')
+                        ->orWhere('slug', 'like', 'psi-%')
+                        ->orWhere('slug', 'like', 'ikom-%');
+                },
             )
-            ->orWhere(
+            ->whereNotIn(
                 'slug',
-                'like',
-                'man-%',
+                $canonicalSlugs,
             )
-            ->orWhere(
+            ->pluck('id');
+
+        if ($legacySkillIds->isNotEmpty()) {
+            LearningMaterial::query()
+                ->whereIn(
+                    'skill_id',
+                    $legacySkillIds,
+                )
+                ->update([
+                    'is_active' => false,
+                ]);
+        }
+
+        $skills = Skill::query()
+            ->whereIn(
                 'slug',
-                'like',
-                'ti-%',
-            )
-            ->orWhere(
-                'slug',
-                'like',
-                'sk-%',
-            )
-            ->orWhere(
-                'slug',
-                'like',
-                'psi-%',
-            )
-            ->orWhere(
-                'slug',
-                'like',
-                'ikom-%',
+                $canonicalSlugs,
             )
             ->get();
+
+        if ($skills->count() !== count($canonicalSlugs)) {
+            throw new RuntimeException(
+                'Katalog skill akademik belum lengkap untuk membuat materi pembelajaran.',
+            );
+        }
 
         foreach ($skills as $skill) {
             $question = AssessmentQuestion::query()
@@ -124,14 +137,6 @@ class AcademicProgramLearningMaterialSeeder extends Seeder
         }
     }
 
-    /**
-     * @return array{
-     *     question: string,
-     *     options: array<string, string>,
-     *     answer: string,
-     *     explanation: string
-     * }
-     */
     private function quizData(
         Skill $skill,
         ?AssessmentQuestion $question,
@@ -165,9 +170,6 @@ class AcademicProgramLearningMaterialSeeder extends Seeder
         ];
     }
 
-    /**
-     * @return array<string, string>|null
-     */
     private function questionOptions(
         AssessmentQuestion $question,
     ): ?array {

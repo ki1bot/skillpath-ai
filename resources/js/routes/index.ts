@@ -300,7 +300,7 @@ home.form = homeForm
 
 /**
 * @see \App\Http\Controllers\PublicPageController::about
-* @see app/Http/Controllers/PublicPageController.php:142
+* @see app/Http/Controllers/PublicPageController.php:154
 * @route '/tentang'
 */
 export const about = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -315,7 +315,7 @@ about.definition = {
 
 /**
 * @see \App\Http\Controllers\PublicPageController::about
-* @see app/Http/Controllers/PublicPageController.php:142
+* @see app/Http/Controllers/PublicPageController.php:154
 * @route '/tentang'
 */
 about.url = (options?: RouteQueryOptions) => {
@@ -324,7 +324,7 @@ about.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PublicPageController::about
-* @see app/Http/Controllers/PublicPageController.php:142
+* @see app/Http/Controllers/PublicPageController.php:154
 * @route '/tentang'
 */
 about.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -334,7 +334,7 @@ about.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\PublicPageController::about
-* @see app/Http/Controllers/PublicPageController.php:142
+* @see app/Http/Controllers/PublicPageController.php:154
 * @route '/tentang'
 */
 about.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -344,7 +344,7 @@ about.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\PublicPageController::about
-* @see app/Http/Controllers/PublicPageController.php:142
+* @see app/Http/Controllers/PublicPageController.php:154
 * @route '/tentang'
 */
 const aboutForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -354,7 +354,7 @@ const aboutForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 
 /**
 * @see \App\Http\Controllers\PublicPageController::about
-* @see app/Http/Controllers/PublicPageController.php:142
+* @see app/Http/Controllers/PublicPageController.php:154
 * @route '/tentang'
 */
 aboutForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -364,7 +364,7 @@ aboutForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\PublicPageController::about
-* @see app/Http/Controllers/PublicPageController.php:142
+* @see app/Http/Controllers/PublicPageController.php:154
 * @route '/tentang'
 */
 aboutForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

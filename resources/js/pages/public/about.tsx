@@ -19,7 +19,7 @@ const principles: Principle[] = [
     {
         icon: GraduationCap,
         title: 'Berangkat dari jurusan',
-        text: 'SkillPath menggunakan enam jurusan sebagai titik awal: Sistem Informasi, Manajemen, Teknik Informatika, Sistem Komputer, Psikologi, dan Ilmu Komunikasi. Setiap jurusan memiliki tiga bidang dan lima belas kemampuan akademik. Sembilan kemampuan inti digunakan pada Assesment awal.',
+        text: 'SkillPath menggunakan enam jurusan sebagai titik awal: Sistem Informasi, Manajemen, Teknik Informatika, Sistem Komputer, Psikologi, dan Ilmu Komunikasi. Setiap jurusan memiliki tiga bidang dan sembilan kemampuan akademik. Seluruh sembilan kemampuan digunakan pada Assesment awal dan jalur belajar.',
     },
     {
         icon: Database,

@@ -203,11 +203,10 @@ export default function CareerShow({ career }: { career: Career }) {
                         </h2>
 
                         <p className="mt-4 max-w-3xl leading-7 font-medium text-muted-foreground">
-                            Setiap bidang memiliki lima kemampuan. Sembilan
-                            kemampuan inti digunakan pada Assesment awal,
-                            sedangkan kemampuan lainnya tetap menjadi bagian
-                            dari katalog kemampuan dan proses pengembangan
-                            belajarmu.
+                            Setiap bidang memiliki tiga kemampuan. Seluruh
+                            sembilan kemampuan digunakan pada Assesment awal,
+                            pemetaan gap kemampuan, jalur belajar, dan kesiapan
+                            proyek.
                         </p>
                     </div>
 

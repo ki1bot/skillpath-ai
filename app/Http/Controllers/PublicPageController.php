@@ -15,22 +15,28 @@ class PublicPageController extends Controller
     {
         $stats = (array) DB::selectOne(
             'SELECT
-                (SELECT COUNT(*) FROM careers WHERE is_active = TRUE) AS careers,
                 (
                     SELECT COUNT(*)
-                    FROM skills
-                    WHERE slug LIKE \'si-%\'
-                        OR slug LIKE \'man-%\'
-                        OR slug LIKE \'ti-%\'
-                        OR slug LIKE \'sk-%\'
-                        OR slug LIKE \'psi-%\'
-                        OR slug LIKE \'ikom-%\'
+                    FROM careers
+                    WHERE is_active = TRUE
+                ) AS careers,
+                (
+                    SELECT COUNT(DISTINCT cs.skill_id)
+                    FROM career_skill cs
+                    INNER JOIN careers c
+                        ON c.id = cs.career_id
+                    WHERE c.is_active = TRUE
                 ) AS skills,
                 (
-                    SELECT COUNT(*)
-                    FROM learning_materials
-                    WHERE material_type = \'core\'
-                        AND is_active = TRUE
+                    SELECT COUNT(DISTINCT lm.id)
+                    FROM learning_materials lm
+                    INNER JOIN career_skill cs
+                        ON cs.skill_id = lm.skill_id
+                    INNER JOIN careers c
+                        ON c.id = cs.career_id
+                    WHERE lm.material_type = \'core\'
+                        AND lm.is_active = TRUE
+                        AND c.is_active = TRUE
                 ) AS materials',
         );
 
@@ -46,7 +52,10 @@ class PublicPageController extends Controller
                         'difficulty',
                         'accent',
                     ])
-                    ->where('is_active', true)
+                    ->where(
+                        'is_active',
+                        true,
+                    )
                     ->withCount('skills')
                     ->orderBy('id')
                     ->get(),
@@ -65,7 +74,10 @@ class PublicPageController extends Controller
         CareerCompatibilityService $compatibilityService,
     ): Response {
         $careers = Career::query()
-            ->where('is_active', true)
+            ->where(
+                'is_active',
+                true,
+            )
             ->with([
                 'skills' => fn ($query) => $query
                     ->orderByPivot(

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\AcademicAssessmentCatalog;
 use Closure;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -27,6 +28,25 @@ class EnforceIdleTimeout
 
         $timeoutSeconds = $timeoutMinutes * 60;
         $now = now()->getTimestamp();
+
+        if (
+            $request->routeIs('assessment.*')
+            && $this->hasActiveAssessmentSession($request)
+        ) {
+            $request->session()->put(
+                'auth.last_activity',
+                $now,
+            );
+
+            $response = $next($request);
+
+            return $response->withCookie(
+                $this->activityCookie(
+                    $now,
+                    $timeoutMinutes,
+                ),
+            );
+        }
 
         $sessionValue = $request->session()->get(
             'auth.last_activity',
@@ -84,6 +104,57 @@ class EnforceIdleTimeout
                 $timeoutMinutes,
             ),
         );
+    }
+
+    private function hasActiveAssessmentSession(
+        Request $request,
+    ): bool {
+        $user = $request->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        $suffix = '.'.$user->getAuthIdentifier();
+
+        foreach (
+            $request
+                ->session()
+                ->all() as $key => $value
+        ) {
+            if (
+                ! is_string($key)
+                || ! str_starts_with(
+                    $key,
+                    'assessment.question_ids.',
+                )
+                || ! str_ends_with(
+                    $key,
+                    $suffix,
+                )
+                || ! is_array($value)
+                || count($value) !== AcademicAssessmentCatalog::QUESTION_LIMIT
+            ) {
+                continue;
+            }
+
+            $normalized = array_map(
+                fn ($questionId): int => (int) $questionId,
+                $value,
+            );
+
+            if (
+                count(
+                    array_unique(
+                        $normalized,
+                    ),
+                ) === AcademicAssessmentCatalog::QUESTION_LIMIT
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function logout(

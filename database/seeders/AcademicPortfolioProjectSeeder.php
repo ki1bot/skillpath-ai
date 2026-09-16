@@ -5,54 +5,328 @@ namespace Database\Seeders;
 use App\Models\Career;
 use App\Models\PortfolioProject;
 use App\Models\Skill;
+use App\Support\AcademicProgramCatalog;
 use App\Support\SkillPathScoringPolicy;
 use Illuminate\Database\Seeder;
+use RuntimeException;
 
 class AcademicPortfolioProjectSeeder extends Seeder
 {
     public function run(): void
     {
         $definitions = [
-            ['Sistem Informasi', 'Sales & Business Intelligence Dashboard', 'sales-business-intelligence-dashboard', 'Membangun dashboard Business Intelligence dari dataset penjualan perusahaan untuk menghasilkan insight dan rekomendasi bisnis.', 'Diberikan dataset perusahaan. Lakukan cleaning data, analisis, pembuatan dashboard, penarikan insight, dan penyusunan rekomendasi bisnis.', 16, ['Membersihkan dataset perusahaan', 'Melakukan analisis data penjualan', 'Membangun dashboard Business Intelligence', 'Menuliskan insight utama dari data', 'Menyusun rekomendasi bisnis berdasarkan hasil analisis'], ['si-sql-data-processing', 'si-spreadsheet-data-analysis', 'si-business-intelligence-data-visualization', 'si-data-visualization', 'si-scenario-based-data-analysis']],
-            ['Sistem Informasi', 'Build Mini Information System', 'build-mini-information-system', 'Membangun sistem informasi mini dari sebuah studi kasus dengan database, UI, backend, dan fitur utama yang dapat digunakan.', 'Diberikan studi kasus. Rancang dan bangun sistem informasi lengkap dengan database, UI, backend, dan fitur utama.', 24, ['Menganalisis kebutuhan dari studi kasus', 'Membuat ERD/UML yang diperlukan', 'Membangun database', 'Membangun UI dan backend', 'Menyelesaikan fitur utama dan menguji alur sistem'], ['si-database-management', 'si-web-development', 'si-system-analysis-design', 'si-erd-uml', 'si-problem-solving']],
-            ['Sistem Informasi', 'Redesign Digital Product', 'redesign-digital-product', 'Merancang ulang produk digital berdasarkan masalah pengguna melalui riset, persona, user flow, wireframe, prototype, dan usability testing.', 'Diberikan masalah pada sebuah produk digital. Lakukan research, buat persona dan user flow, lanjutkan ke wireframe, prototype, lalu usability testing.', 18, ['Melakukan user research', 'Membuat persona', 'Menyusun user flow', 'Membuat wireframe', 'Membuat prototype dan melakukan usability testing'], ['si-ui-design', 'si-wireframing-prototyping', 'si-prototyping', 'si-user-research', 'si-usability']],
-
-            ['Manajemen', 'Digital Marketing Campaign', 'digital-marketing-campaign', 'Merancang kampanye digital dari target market hingga evaluasi KPI.', 'Tentukan target market, susun branding dan content strategy, jalankan rancangan campaign, tentukan KPI, lalu lakukan evaluasi.', 14, ['Menentukan target market', 'Merumuskan branding', 'Menyusun content strategy', 'Merancang campaign', 'Menentukan KPI dan melakukan evaluasi'], ['man-branding', 'man-digital-marketing', 'man-market-research', 'man-marketing-strategy', 'man-campaign-analysis']],
-            ['Manajemen', 'Financial Health Analysis', 'financial-health-analysis', 'Menganalisis kondisi keuangan untuk menemukan masalah dan menyusun financial plan serta rekomendasi.', 'Diberikan kondisi atau laporan keuangan. Lakukan analisis, temukan masalah, susun financial plan, dan berikan rekomendasi.', 14, ['Membaca kondisi atau laporan keuangan', 'Melakukan financial analysis dan ratio analysis', 'Menemukan masalah utama', 'Menyusun financial plan', 'Memberikan rekomendasi keputusan keuangan'], ['man-financial-planning', 'man-financial-analysis', 'man-financial-ratios', 'man-investment-management', 'man-financial-decision-making']],
-            ['Manajemen', 'Recruitment Strategy', 'recruitment-strategy', 'Menyusun strategi rekrutmen lengkap dari kebutuhan perusahaan sampai candidate scoring.', 'Diberikan kebutuhan perusahaan. Buat job profile, recruitment strategy, selection criteria, rancangan interview, dan candidate scoring.', 12, ['Menganalisis kebutuhan perusahaan', 'Membuat job profile', 'Menyusun recruitment strategy', 'Menetapkan selection criteria dan rancangan interview', 'Membuat candidate scoring'], ['man-recruitment-selection', 'man-candidate-selection', 'man-interview', 'man-performance-management', 'man-talent-management']],
-
-            ['Teknik Informatika', 'Software Development Project', 'software-development-project', 'Menyelesaikan proyek pengembangan software dari requirement sampai dokumentasi.', 'Diberikan requirement. Lakukan analysis, design, coding, testing, dan dokumentasi.', 28, ['Menganalisis requirement', 'Membuat design solusi', 'Melakukan coding', 'Melakukan testing dan debugging', 'Menyusun dokumentasi'], ['ti-algorithms-data-structures', 'ti-data-structures', 'ti-object-oriented-programming', 'ti-software-engineering', 'ti-debugging']],
-            ['Teknik Informatika', 'Company Network & Security Simulation', 'company-network-security-simulation', 'Merancang dan mensimulasikan jaringan perusahaan lengkap dengan konfigurasi, keamanan, troubleshooting, dan incident response.', 'Rancang network perusahaan, lakukan konfigurasi dan security hardening, uji troubleshooting, lalu susun incident response.', 22, ['Merancang topologi network perusahaan', 'Melakukan konfigurasi jaringan dan layanan sistem', 'Menerapkan kontrol security', 'Melakukan troubleshooting skenario gangguan', 'Menyusun incident response'], ['ti-computer-networks', 'ti-operating-systems', 'ti-network-troubleshooting', 'ti-cybersecurity', 'ti-system-administration']],
-            ['Teknik Informatika', 'AI Predictive Project', 'ai-predictive-project', 'Membangun proyek prediksi berbasis AI dari dataset hingga insight.', 'Gunakan dataset untuk preprocessing, pemilihan model, training, evaluation, prediction, dan penarikan insight.', 22, ['Melakukan preprocessing dataset', 'Memilih model yang sesuai', 'Melakukan training', 'Melakukan model evaluation', 'Menghasilkan prediction dan insight'], ['ti-machine-learning', 'ti-data-science', 'ti-statistics', 'ti-model-evaluation', 'ti-computer-vision']],
-
-            ['Sistem Komputer', 'Mini Computer Architecture Design', 'mini-computer-architecture-design', 'Merancang sistem komputer sederhana berdasarkan kebutuhan tertentu.', 'Rancang mini computer architecture yang menjelaskan komponen pemrosesan, logika digital, memory, dan peran microprocessor berdasarkan kebutuhan yang diberikan.', 16, ['Menentukan kebutuhan sistem', 'Menentukan komponen arsitektur utama', 'Menjelaskan alur pemrosesan', 'Merancang organisasi memory', 'Mendokumentasikan rancangan akhir'], ['sk-computer-architecture', 'sk-digital-logic', 'sk-processor', 'sk-memory', 'sk-microprocessor-microcontroller']],
-            ['Sistem Komputer', 'Smart IoT System', 'smart-iot-system', 'Membangun rancangan Smart Office atau Smart Home dari sensor hingga automation.', 'Buat Smart IoT System, misalnya Smart Office atau Smart Home, dengan alur sensor, microcontroller, data, dashboard, dan automation.', 22, ['Menentukan skenario Smart Office atau Smart Home', 'Menghubungkan sensor dengan microcontroller', 'Mengirim dan mengolah data IoT', 'Menyajikan data pada dashboard', 'Menerapkan automation menggunakan actuator'], ['sk-microcontroller', 'sk-embedded-systems', 'sk-internet-of-things', 'sk-sensor-actuator-integration', 'sk-actuator']],
-            ['Sistem Komputer', 'Secure Network Design', 'secure-network-design', 'Merancang jaringan perusahaan dengan IP/VLAN, firewall, security, dan monitoring.', 'Rancang jaringan perusahaan lengkap dengan IP/VLAN, firewall, kontrol security, dan monitoring.', 20, ['Merancang topologi jaringan perusahaan', 'Menyusun skema IP dan VLAN', 'Menerapkan aturan firewall', 'Menerapkan kontrol network security', 'Menyiapkan monitoring dan threat detection'], ['sk-computer-networks', 'sk-network-administration', 'sk-network-security', 'sk-firewall', 'sk-threat-detection']],
-
-            ['Psikologi', 'Employee & Organizational Assessment', 'employee-organizational-assessment', 'Menganalisis kondisi karyawan dan organisasi untuk menemukan masalah serta memberikan rekomendasi.', 'Analisis kondisi karyawan atau organisasi, identifikasi masalah utama, lalu susun rekomendasi yang relevan.', 14, ['Mengumpulkan informasi kondisi karyawan atau organisasi', 'Menganalisis employee dan organizational behavior', 'Menggunakan work-style atau psychological assessment secara tepat', 'Menentukan masalah utama', 'Menyusun rekomendasi pengembangan organisasi'], ['psi-employee-behavior', 'psi-organizational-behavior', 'psi-work-style-assessment', 'psi-psychological-assessment', 'psi-organizational-development']],
-            ['Psikologi', 'Counseling Case Simulation', 'counseling-case-simulation', 'Menyelesaikan simulasi kasus konseling melalui respons, strategi komunikasi, dan solusi yang tepat.', 'Diberikan kasus konseling. Tentukan respons, strategi komunikasi, dan solusi berdasarkan situasi.', 10, ['Memahami konteks kasus', 'Menentukan respons awal', 'Menerapkan active listening dan empathy', 'Menentukan strategi komunikasi', 'Menyusun solusi atau langkah tindak lanjut'], ['psi-interpersonal-communication', 'psi-counseling-skills', 'psi-empathy', 'psi-emotional-intelligence', 'psi-counseling-scenario']],
-            ['Psikologi', 'Mini Psychological Research', 'mini-psychological-research', 'Melakukan mini research psikologi dari perumusan masalah sampai kesimpulan.', 'Tentukan masalah penelitian, buat instrumen, lakukan survey atau interview, analisis data, lalu tarik kesimpulan.', 18, ['Menentukan masalah dan metode penelitian', 'Membuat instrumen', 'Melakukan survey, interview, atau observation', 'Melakukan data analysis', 'Menarik kesimpulan'], ['psi-research-methodology', 'psi-interview-observation', 'psi-observation', 'psi-survey-data-analysis', 'psi-data-analysis']],
-
-            ['Ilmu Komunikasi', 'Crisis Communication Simulation', 'crisis-communication-simulation', 'Menangani simulasi krisis perusahaan melalui press statement, media response, social media response, dan crisis strategy.', 'Diberikan kasus krisis perusahaan. Buat press statement, media response, social media response, dan crisis strategy.', 12, ['Menganalisis kasus krisis', 'Membuat press statement', 'Menyiapkan media response', 'Menyiapkan social media response', 'Menyusun crisis strategy dan pengelolaan reputasi'], ['ikom-media-relations', 'ikom-corporate-communication', 'ikom-crisis-communication', 'ikom-public-communication', 'ikom-reputation-management']],
-            ['Ilmu Komunikasi', 'News Reporting Project', 'news-reporting-project', 'Membuat news report dari topik melalui research, interview, penulisan berita, dan fact checking.', 'Diberikan topik. Lakukan research dan interview, verifikasi fakta, tulis berita, lalu susun news report.', 14, ['Melakukan research topik', 'Melakukan interview', 'Melakukan fact checking', 'Menulis berita', 'Menyusun news report sesuai etika jurnalistik'], ['ikom-news-writing', 'ikom-journalistic-interview', 'ikom-news-reporting', 'ikom-fact-checking', 'ikom-journalistic-ethics']],
-            ['Ilmu Komunikasi', 'Digital Content Campaign', 'digital-content-campaign', 'Merancang kampanye konten digital dari audience sampai evaluasi performa.', 'Tentukan audience, susun content strategy dan content calendar, buat konten, lalu evaluasi performanya.', 14, ['Menentukan audience', 'Menyusun content strategy', 'Membuat content calendar', 'Membuat konten digital', 'Mengevaluasi performa konten'], ['ikom-content-creation', 'ikom-social-media-management', 'ikom-video-production', 'ikom-content-strategy', 'ikom-audience-analysis']],
+            [
+                'Sistem Informasi',
+                'Analisis Data',
+                'Sales & Business Intelligence Dashboard',
+                'sales-business-intelligence-dashboard',
+                'Membangun dashboard Business Intelligence dari dataset penjualan perusahaan untuk menghasilkan insight dan rekomendasi bisnis.',
+                'Diberikan dataset perusahaan. Lakukan cleaning data, analisis, pembuatan dashboard, penarikan insight, dan penyusunan rekomendasi bisnis.',
+                16,
+                [
+                    'Membersihkan dataset perusahaan',
+                    'Melakukan analisis data penjualan',
+                    'Membangun dashboard Business Intelligence',
+                    'Menuliskan insight utama dari data',
+                    'Menyusun rekomendasi bisnis berdasarkan hasil analisis',
+                ],
+            ],
+            [
+                'Sistem Informasi',
+                'Pengembangan Sistem',
+                'Build Mini Information System',
+                'build-mini-information-system',
+                'Membangun sistem informasi mini dari sebuah studi kasus dengan database, UI, backend, dan fitur utama yang dapat digunakan.',
+                'Diberikan studi kasus. Rancang dan bangun sistem informasi lengkap dengan database, UI, backend, dan fitur utama.',
+                24,
+                [
+                    'Menganalisis kebutuhan dari studi kasus',
+                    'Membuat rancangan data dan alur sistem',
+                    'Membangun database',
+                    'Membangun UI dan backend',
+                    'Menyelesaikan fitur utama dan menguji alur sistem',
+                ],
+            ],
+            [
+                'Sistem Informasi',
+                'UI/UX',
+                'Redesign Digital Product',
+                'redesign-digital-product',
+                'Merancang ulang produk digital berdasarkan masalah pengguna melalui riset, user flow, wireframe, prototype, dan validasi desain.',
+                'Diberikan masalah pada sebuah produk digital. Lakukan user research, susun user flow, lanjutkan ke wireframe dan prototype, lalu validasi rancangan.',
+                18,
+                [
+                    'Melakukan user research',
+                    'Menyusun user flow',
+                    'Membuat wireframe',
+                    'Membuat prototype',
+                    'Mendokumentasikan hasil validasi dan perbaikan desain',
+                ],
+            ],
+            [
+                'Manajemen',
+                'Marketing',
+                'Digital Marketing Campaign',
+                'digital-marketing-campaign',
+                'Merancang kampanye digital dari pemahaman pasar hingga evaluasi hasil kampanye.',
+                'Tentukan target market, susun branding dan strategi digital marketing, gunakan hasil market research, lalu evaluasi rancangan kampanye.',
+                14,
+                [
+                    'Menentukan target market',
+                    'Merumuskan branding',
+                    'Menyusun strategi digital marketing',
+                    'Menggunakan market research sebagai dasar keputusan',
+                    'Menyusun evaluasi hasil kampanye',
+                ],
+            ],
+            [
+                'Manajemen',
+                'Keuangan',
+                'Financial Health Analysis',
+                'financial-health-analysis',
+                'Menganalisis kondisi keuangan untuk menemukan masalah dan menyusun rencana serta rekomendasi keuangan.',
+                'Diberikan kondisi atau laporan keuangan. Lakukan financial analysis, susun financial plan, dan berikan pertimbangan investment management yang relevan.',
+                14,
+                [
+                    'Membaca kondisi atau laporan keuangan',
+                    'Melakukan financial analysis',
+                    'Menemukan masalah utama',
+                    'Menyusun financial plan',
+                    'Memberikan rekomendasi keputusan investasi atau pengelolaan keuangan',
+                ],
+            ],
+            [
+                'Manajemen',
+                'Human Resources',
+                'Recruitment Strategy',
+                'recruitment-strategy',
+                'Menyusun strategi pengelolaan sumber daya manusia dari rekrutmen sampai pengembangan talenta.',
+                'Diberikan kebutuhan perusahaan. Susun recruitment and selection, performance management, dan talent management yang saling terhubung.',
+                12,
+                [
+                    'Menganalisis kebutuhan perusahaan',
+                    'Menyusun recruitment and selection',
+                    'Menentukan kriteria penilaian kandidat',
+                    'Menyusun pendekatan performance management',
+                    'Menyusun rencana talent management',
+                ],
+            ],
+            [
+                'Teknik Informatika',
+                'Pemrograman dan Rekayasa Perangkat Lunak',
+                'Software Development Project',
+                'software-development-project',
+                'Menyelesaikan proyek pengembangan software dari requirement sampai dokumentasi.',
+                'Diberikan requirement. Gunakan algoritma dan struktur data, OOP, serta praktik software engineering untuk membangun solusi.',
+                28,
+                [
+                    'Menganalisis requirement',
+                    'Merancang algoritma dan struktur data',
+                    'Menerapkan Object-Oriented Programming',
+                    'Mengembangkan dan menguji software',
+                    'Menyusun dokumentasi',
+                ],
+            ],
+            [
+                'Teknik Informatika',
+                'Jaringan dan Sistem Komputer',
+                'Company Network & Security Simulation',
+                'company-network-security-simulation',
+                'Merancang dan mensimulasikan jaringan perusahaan dengan perhatian pada sistem operasi dan keamanan.',
+                'Rancang network perusahaan, tentukan kebutuhan operating system, terapkan kontrol cybersecurity, lalu dokumentasikan hasil pengujian.',
+                22,
+                [
+                    'Merancang topologi jaringan perusahaan',
+                    'Melakukan konfigurasi jaringan',
+                    'Menentukan kebutuhan operating system',
+                    'Menerapkan kontrol cybersecurity',
+                    'Menguji dan mendokumentasikan hasil simulasi',
+                ],
+            ],
+            [
+                'Teknik Informatika',
+                'Artificial Intelligence',
+                'AI Predictive Project',
+                'ai-predictive-project',
+                'Membangun proyek AI dari pengolahan data hingga penerapan model.',
+                'Gunakan dataset untuk data science, bangun model machine learning, lalu terapkan atau evaluasi pendekatan computer vision bila sesuai dengan kasus.',
+                22,
+                [
+                    'Menyiapkan dan memahami dataset',
+                    'Melakukan proses data science',
+                    'Memilih pendekatan machine learning',
+                    'Melakukan training dan evaluasi model',
+                    'Mendokumentasikan penerapan computer vision atau keluaran model',
+                ],
+            ],
+            [
+                'Sistem Komputer',
+                'Arsitektur dan Organisasi Komputer',
+                'Mini Computer Architecture Design',
+                'mini-computer-architecture-design',
+                'Merancang sistem komputer sederhana berdasarkan kebutuhan tertentu.',
+                'Rancang mini computer architecture yang menjelaskan digital logic dan peran microprocessor serta microcontroller berdasarkan kebutuhan yang diberikan.',
+                16,
+                [
+                    'Menentukan kebutuhan sistem',
+                    'Menentukan komponen arsitektur utama',
+                    'Menjelaskan digital logic yang digunakan',
+                    'Menjelaskan peran microprocessor dan microcontroller',
+                    'Mendokumentasikan rancangan akhir',
+                ],
+            ],
+            [
+                'Sistem Komputer',
+                'Embedded System dan Internet of Things',
+                'Smart IoT System',
+                'smart-iot-system',
+                'Membangun rancangan Smart Office atau Smart Home dari embedded system sampai integrasi sensor dan actuator.',
+                'Buat Smart IoT System dengan embedded system, Internet of Things, serta sensor and actuator integration yang sesuai.',
+                22,
+                [
+                    'Menentukan skenario Smart Office atau Smart Home',
+                    'Membangun rancangan embedded system',
+                    'Menghubungkan perangkat ke Internet of Things',
+                    'Mengintegrasikan sensor',
+                    'Mengintegrasikan actuator dan menguji alurnya',
+                ],
+            ],
+            [
+                'Sistem Komputer',
+                'Jaringan dan Keamanan Komputer',
+                'Secure Network Design',
+                'secure-network-design',
+                'Merancang jaringan perusahaan dengan administrasi dan keamanan jaringan yang terukur.',
+                'Rancang jaringan perusahaan lengkap dengan computer networks, network administration, dan network security.',
+                20,
+                [
+                    'Merancang topologi jaringan perusahaan',
+                    'Menyusun skema alamat jaringan',
+                    'Melakukan konfigurasi administrasi jaringan',
+                    'Menerapkan kontrol network security',
+                    'Menguji dan mendokumentasikan keamanan jaringan',
+                ],
+            ],
+            [
+                'Psikologi',
+                'Psikologi Industri dan Organisasi',
+                'Employee & Organizational Assessment',
+                'employee-organizational-assessment',
+                'Menganalisis kondisi karyawan dan organisasi untuk menemukan masalah serta memberikan rekomendasi.',
+                'Analisis employee behavior, organizational development, dan penggunaan psychological assessment secara tepat dalam sebuah kasus organisasi.',
+                14,
+                [
+                    'Mengumpulkan informasi kondisi karyawan atau organisasi',
+                    'Menganalisis employee behavior',
+                    'Mengidentifikasi kebutuhan organizational development',
+                    'Menentukan penggunaan psychological assessment yang tepat',
+                    'Menyusun rekomendasi',
+                ],
+            ],
+            [
+                'Psikologi',
+                'Konseling',
+                'Counseling Case Simulation',
+                'counseling-case-simulation',
+                'Menyelesaikan simulasi kasus konseling melalui keterampilan konseling, komunikasi interpersonal, dan kecerdasan emosional.',
+                'Diberikan kasus konseling. Tentukan respons menggunakan counseling skills, interpersonal communication, dan emotional intelligence.',
+                10,
+                [
+                    'Memahami konteks kasus',
+                    'Menentukan respons awal',
+                    'Menerapkan counseling skills',
+                    'Menerapkan interpersonal communication',
+                    'Menggunakan emotional intelligence dalam tindak lanjut',
+                ],
+            ],
+            [
+                'Psikologi',
+                'Penelitian Psikologi',
+                'Mini Psychological Research',
+                'mini-psychological-research',
+                'Melakukan mini research psikologi dari perumusan masalah sampai kesimpulan.',
+                'Gunakan research methodology, interview dan observation, serta survey dan data analysis untuk menyelesaikan penelitian sederhana.',
+                18,
+                [
+                    'Menentukan masalah dan metode penelitian',
+                    'Menyusun instrumen',
+                    'Melakukan interview dan observation',
+                    'Melakukan survey dan data analysis',
+                    'Menarik kesimpulan',
+                ],
+            ],
+            [
+                'Ilmu Komunikasi',
+                'Public Relations',
+                'Crisis Communication Simulation',
+                'crisis-communication-simulation',
+                'Menangani simulasi krisis perusahaan melalui hubungan media dan komunikasi korporat.',
+                'Diberikan kasus krisis perusahaan. Gunakan media relations, corporate communication, dan crisis communication untuk menyusun respons.',
+                12,
+                [
+                    'Menganalisis kasus krisis',
+                    'Menyiapkan media relations',
+                    'Menyusun corporate communication',
+                    'Menyusun crisis communication',
+                    'Mendokumentasikan strategi respons',
+                ],
+            ],
+            [
+                'Ilmu Komunikasi',
+                'Jurnalistik',
+                'News Reporting Project',
+                'news-reporting-project',
+                'Membuat news report dari topik melalui interview, penulisan berita, dan pelaporan.',
+                'Diberikan topik. Lakukan journalistic interview, tulis berita, lalu susun news reporting yang jelas dan dapat diverifikasi.',
+                14,
+                [
+                    'Melakukan riset topik',
+                    'Melakukan journalistic interview',
+                    'Menulis news writing',
+                    'Menyusun news reporting',
+                    'Memeriksa konsistensi informasi sebelum publikasi',
+                ],
+            ],
+            [
+                'Ilmu Komunikasi',
+                'Digital Media',
+                'Digital Content Campaign',
+                'digital-content-campaign',
+                'Merancang kampanye konten digital dari pembuatan konten sampai pengelolaan media sosial dan video.',
+                'Tentukan audience, buat content creation plan, kelola social media, dan hasilkan video production yang mendukung kampanye.',
+                14,
+                [
+                    'Menentukan audience',
+                    'Menyusun rencana content creation',
+                    'Membuat konten digital',
+                    'Menyusun social media management',
+                    'Membuat atau merancang video production',
+                ],
+            ],
         ];
 
         $programNames = array_values(
             array_unique(
                 array_map(
-                    fn (array $definition) => $definition[0],
+                    fn (array $definition): string => $definition[0],
                     $definitions,
                 ),
             ),
         );
 
         $careers = Career::query()
-            ->whereIn('name', $programNames)
+            ->whereIn(
+                'name',
+                $programNames,
+            )
             ->get()
             ->keyBy('name');
 
         $skills = Skill::query()
+            ->whereIn(
+                'slug',
+                AcademicProgramCatalog::allSkillSlugs(),
+            )
             ->get()
             ->keyBy('slug');
 
@@ -60,22 +334,28 @@ class AcademicPortfolioProjectSeeder extends Seeder
 
         foreach ($definitions as [
             $careerName,
+            $areaName,
             $title,
             $slug,
             $summary,
             $problemStatement,
             $estimatedHours,
             $minimumFeatures,
-            $skillSlugs,
         ]) {
-            $career = $careers->get($careerName);
+            $career = $careers->get(
+                $careerName,
+            );
 
             if (! $career) {
-                continue;
+                throw new RuntimeException(
+                    'Jurusan '.$careerName.' belum tersedia untuk proyek '.$title.'.',
+                );
             }
 
             $project = PortfolioProject::updateOrCreate(
-                ['slug' => $slug],
+                [
+                    'slug' => $slug,
+                ],
                 [
                     'career_id' => $career->id,
                     'title' => $title,
@@ -85,20 +365,35 @@ class AcademicPortfolioProjectSeeder extends Seeder
                     'minimum_features' => $minimumFeatures,
                     'stretch_features' => [],
                     'completion_criteria' => array_map(
-                        fn (string $feature) => $feature.' selesai dan dapat diverifikasi.',
+                        fn (string $feature): string => $feature.' selesai dan dapat diverifikasi.',
                         $minimumFeatures,
                     ),
                     'estimated_hours' => $estimatedHours,
                 ],
             );
 
+            $skillSlugs = AcademicProgramCatalog::areaSkillSlugs(
+                $careerName,
+                $areaName,
+            );
+
+            if (count($skillSlugs) !== 3) {
+                throw new RuntimeException(
+                    'Bidang '.$areaName.' pada jurusan '.$careerName.' harus memiliki tepat 3 skill.',
+                );
+            }
+
             $sync = [];
 
             foreach ($skillSlugs as $skillSlug) {
-                $skill = $skills->get($skillSlug);
+                $skill = $skills->get(
+                    $skillSlug,
+                );
 
                 if (! $skill) {
-                    continue;
+                    throw new RuntimeException(
+                        'Skill '.$skillSlug.' untuk proyek '.$title.' belum tersedia.',
+                    );
                 }
 
                 $sync[$skill->id] = [
@@ -107,7 +402,12 @@ class AcademicPortfolioProjectSeeder extends Seeder
                 ];
             }
 
-            $project->skills()->sync($sync);
+            $project
+                ->skills()
+                ->sync(
+                    $sync,
+                );
+
             $canonicalSlugs[] = $project->slug;
         }
 
@@ -115,22 +415,30 @@ class AcademicPortfolioProjectSeeder extends Seeder
             ->pluck('id')
             ->all();
 
-        if ($academicCareerIds !== []) {
-            $legacyProjects = PortfolioProject::query()
-                ->whereIn('career_id', $academicCareerIds)
-                ->whereNotIn('slug', $canonicalSlugs);
-
-            if (
-                (clone $legacyProjects)
-                    ->whereHas('userProjects')
-                    ->exists()
-            ) {
-                throw new \RuntimeException(
-                    'Masih ada progres pengguna pada proyek lama. Pindahkan atau hapus progres tersebut sebelum membersihkan proyek non-PDF.',
-                );
-            }
-
-            $legacyProjects->delete();
+        if ($academicCareerIds === []) {
+            return;
         }
+
+        $legacyProjects = PortfolioProject::query()
+            ->whereIn(
+                'career_id',
+                $academicCareerIds,
+            )
+            ->whereNotIn(
+                'slug',
+                $canonicalSlugs,
+            );
+
+        if (
+            (clone $legacyProjects)
+                ->whereHas('userProjects')
+                ->exists()
+        ) {
+            throw new RuntimeException(
+                'Masih ada progres pengguna pada proyek lama. Pindahkan atau hapus progres tersebut sebelum membersihkan proyek lama.',
+            );
+        }
+
+        $legacyProjects->delete();
     }
 }

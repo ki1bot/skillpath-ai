@@ -8,6 +8,7 @@ use App\Models\LearningMaterial;
 use App\Models\PortfolioProject;
 use App\Models\Skill;
 use App\Support\AcademicAssessmentCatalog;
+use App\Support\AcademicProgramCatalog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -22,34 +23,35 @@ class SkillCatalogExpansionTest extends TestCase
         $this->seed();
     }
 
-    public function test_seed_data_contains_ninety_skills(): void
+    public function test_seed_data_contains_fifty_four_skills(): void
     {
         $this->assertSame(
-            90,
+            54,
             Skill::query()->count(),
         );
     }
 
-    public function test_academic_catalog_contains_ninety_skills(): void
+    public function test_academic_catalog_contains_fifty_four_skills(): void
     {
-        $academicSkills = $this->academicSkills();
+        $this->assertCount(
+            54,
+            AcademicProgramCatalog::allSkillSlugs(),
+        );
 
         $this->assertCount(
-            90,
-            $academicSkills,
+            54,
+            $this->academicSkills(),
         );
     }
 
-    public function test_six_active_programs_each_have_fifteen_academic_skills(): void
+    public function test_six_active_programs_each_have_nine_academic_skills(): void
     {
-        $programSlugs = [
-            'sistem-informasi',
-            'manajemen',
-            'teknik-informatika',
-            'sistem-komputer',
-            'psikologi',
-            'ilmu-komunikasi',
-        ];
+        $programSlugs = collect(
+            AcademicProgramCatalog::programs(),
+        )
+            ->pluck('slug')
+            ->values()
+            ->all();
 
         $careers = Career::query()
             ->whereIn(
@@ -61,7 +63,8 @@ class SkillCatalogExpansionTest extends TestCase
                 true,
             )
             ->with('skills')
-            ->get();
+            ->get()
+            ->keyBy('name');
 
         $this->assertCount(
             6,
@@ -78,26 +81,58 @@ class SkillCatalogExpansionTest extends TestCase
                 ->count(),
         );
 
-        $this->assertSame(
-            0,
-            Career::query()
-                ->where(
-                    'difficulty',
-                    'Legacy',
-                )
-                ->count(),
-        );
+        foreach (
+            AcademicProgramCatalog::programs() as $studyProgram => $program
+        ) {
+            $career = $careers->get(
+                $studyProgram,
+            );
 
-        foreach ($careers as $career) {
+            $this->assertNotNull(
+                $career,
+                "Jurusan {$studyProgram} belum tersedia.",
+            );
+
             $this->assertCount(
-                15,
+                AcademicAssessmentCatalog::SKILLS_PER_PROGRAM,
                 $career->skills,
-                "Jurusan {$career->name} harus memiliki tepat 15 skill akademik keseluruhan.",
+                "Jurusan {$studyProgram} harus memiliki tepat 9 skill akademik.",
+            );
+
+            $this->assertEqualsCanonicalizing(
+                AcademicProgramCatalog::skillSlugs(
+                    $studyProgram,
+                ),
+                $career
+                    ->skills
+                    ->pluck('slug')
+                    ->all(),
+                "Skill jurusan {$studyProgram} tidak sesuai katalog akademik.",
+            );
+
+            $expectedNames = collect(
+                $program['areas'],
+            )
+                ->flatMap(
+                    fn (array $area) => collect(
+                        $area['skills'],
+                    )->pluck('name'),
+                )
+                ->values()
+                ->all();
+
+            $this->assertEqualsCanonicalizing(
+                $expectedNames,
+                $career
+                    ->skills
+                    ->pluck('name')
+                    ->all(),
+                "Nama skill jurusan {$studyProgram} tidak sesuai struktur jurusan.",
             );
         }
     }
 
-    public function test_each_program_has_fifty_assessment_questions_across_nine_core_skills(): void
+    public function test_each_program_has_fifty_assessment_questions_across_nine_skills(): void
     {
         $this->assertSame(
             50,
@@ -164,7 +199,7 @@ class SkillCatalogExpansionTest extends TestCase
             $this->assertEqualsCanonicalizing(
                 $expectedSkillSlugs,
                 $actualSkillSlugs,
-                "Skill Assesment {$career->name} tidak sesuai dengan 9 skill inti jurusan.",
+                "Skill Assesment {$career->name} tidak sesuai dengan 9 skill jurusan.",
             );
 
             $distribution = $assessment
@@ -195,10 +230,10 @@ class SkillCatalogExpansionTest extends TestCase
         }
     }
 
-    public function test_learning_catalog_contains_ninety_core_and_reinforcement_materials(): void
+    public function test_learning_catalog_contains_fifty_four_core_and_reinforcement_materials(): void
     {
         $this->assertSame(
-            90,
+            54,
             LearningMaterial::query()
                 ->where(
                     'material_type',
@@ -212,7 +247,7 @@ class SkillCatalogExpansionTest extends TestCase
         );
 
         $this->assertSame(
-            90,
+            54,
             LearningMaterial::query()
                 ->where(
                     'material_type',
@@ -231,7 +266,7 @@ class SkillCatalogExpansionTest extends TestCase
         $academicSkills = $this->academicSkills();
 
         $this->assertCount(
-            90,
+            54,
             $academicSkills,
         );
 
@@ -268,7 +303,7 @@ class SkillCatalogExpansionTest extends TestCase
         }
     }
 
-    public function test_academic_programs_have_three_pdf_projects_each(): void
+    public function test_academic_programs_have_three_projects_each(): void
     {
         $expectedProjects = [
             'Sistem Informasi' => [
@@ -323,7 +358,7 @@ class SkillCatalogExpansionTest extends TestCase
             $this->assertCount(
                 3,
                 $career->projects,
-                "Jurusan {$career->name} harus memiliki tepat 3 proyek Tugas Akhir.",
+                "Jurusan {$career->name} harus memiliki tepat 3 proyek.",
             );
 
             $this->assertEqualsCanonicalizing(
@@ -334,17 +369,27 @@ class SkillCatalogExpansionTest extends TestCase
                     ->projects
                     ->pluck('title')
                     ->all(),
-                "Daftar proyek {$career->name} tidak sesuai PDF.",
+                "Daftar proyek {$career->name} tidak sesuai katalog proyek.",
             );
 
-            foreach (
-                $career->projects as $project
-            ) {
+            $canonicalSkillSlugs = AcademicProgramCatalog::skillSlugs(
+                $career->name,
+            );
+
+            foreach ($career->projects as $project) {
                 $this->assertCount(
-                    5,
+                    3,
                     $project->skills,
-                    "Proyek {$project->title} harus terhubung ke tepat 5 skill bidangnya.",
+                    "Proyek {$project->title} harus terhubung ke tepat 3 skill bidangnya.",
                 );
+
+                foreach ($project->skills as $skill) {
+                    $this->assertContains(
+                        $skill->slug,
+                        $canonicalSkillSlugs,
+                        "Proyek {$project->title} menggunakan skill di luar jurusan {$career->name}.",
+                    );
+                }
             }
         }
     }
@@ -352,35 +397,9 @@ class SkillCatalogExpansionTest extends TestCase
     private function academicSkills()
     {
         return Skill::query()
-            ->where(
+            ->whereIn(
                 'slug',
-                'like',
-                'si-%',
-            )
-            ->orWhere(
-                'slug',
-                'like',
-                'man-%',
-            )
-            ->orWhere(
-                'slug',
-                'like',
-                'ti-%',
-            )
-            ->orWhere(
-                'slug',
-                'like',
-                'sk-%',
-            )
-            ->orWhere(
-                'slug',
-                'like',
-                'psi-%',
-            )
-            ->orWhere(
-                'slug',
-                'like',
-                'ikom-%',
+                AcademicProgramCatalog::allSkillSlugs(),
             )
             ->get();
     }
