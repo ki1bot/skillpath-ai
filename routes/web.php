@@ -27,6 +27,21 @@ Route::get(
     [PublicPageController::class, 'about'],
 )->name('about');
 
+Route::inertia(
+    '/privacy-policy',
+    'public/privacy-policy',
+)->name('privacy-policy');
+
+Route::inertia(
+    '/terms',
+    'public/terms',
+)->name('terms');
+
+Route::inertia(
+    '/data-deletion',
+    'public/data-deletion',
+)->name('data-deletion');
+
 Route::get(
     '/karier',
     [PublicPageController::class, 'careers'],

@@ -118,21 +118,56 @@ export default function PublicLayout({
             {children}
 
             <footer className="mt-16 border-t-2 border-foreground bg-foreground text-background sm:mt-20">
-                <div className="neo-page flex flex-col gap-3 py-8 text-sm md:flex-row md:items-center md:justify-between">
-                    <div className="font-bold">
-                        <p>© {new Date().getFullYear()} SkillPath AI.</p>
+                <div className="neo-page py-8">
+                    <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+                        <div className="max-w-lg">
+                            <div className="font-bold">
+                                <p>
+                                    © {new Date().getFullYear()} SkillPath AI.
+                                </p>
 
-                        <p>
-                            Membantu kamu menentukan langkah belajar berikutnya
-                            dengan lebih jelas.
-                        </p>
+                                <p className="mt-1">
+                                    Membantu kamu menentukan langkah belajar
+                                    berikutnya dengan lebih jelas.
+                                </p>
+                            </div>
+
+                            <p className="mt-4 text-sm leading-relaxed text-background/65">
+                                Gunakan hasil assesment dan perkembangan
+                                belajarmu sebagai panduan untuk menentukan
+                                kemampuan yang perlu dikembangkan.
+                            </p>
+                        </div>
+
+                        <div className="flex flex-col gap-3 md:items-end">
+                            <p className="text-xs font-black tracking-[0.14em] text-background/60 uppercase">
+                                Informasi
+                            </p>
+
+                            <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm font-bold md:justify-end">
+                                <Link
+                                    href="/privacy-policy"
+                                    className="text-background/80 underline-offset-4 transition-colors hover:text-background hover:underline"
+                                >
+                                    Kebijakan Privasi
+                                </Link>
+
+                                <Link
+                                    href="/terms"
+                                    className="text-background/80 underline-offset-4 transition-colors hover:text-background hover:underline"
+                                >
+                                    Ketentuan Layanan
+                                </Link>
+
+                                <Link
+                                    href="/data-deletion"
+                                    className="text-background/80 underline-offset-4 transition-colors hover:text-background hover:underline"
+                                >
+                                    Penghapusan Data
+                                </Link>
+                            </div>
+                        </div>
                     </div>
-
-                    <p className="max-w-xl text-background/65 md:text-right">
-                        Gunakan hasil assesment dan perkembangan belajarmu
-                        sebagai panduan untuk menentukan kemampuan yang perlu
-                        dikembangkan.
-                    </p>
                 </div>
             </footer>
         </div>
