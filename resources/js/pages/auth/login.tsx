@@ -1,6 +1,7 @@
 import { Form, Head } from '@inertiajs/react';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
+import SocialAuthButtons from '@/components/social-auth-buttons';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -86,6 +87,10 @@ export default function Login({ status, canResetPassword }: Props) {
                             </Button>
                         </div>
 
+                        <SocialAuthButtons mode="login" />
+
+                        <InputError message={errors.social} />
+
                         <div className="text-center text-sm font-medium text-muted-foreground">
                             Belum punya akun?{' '}
                             <TextLink href={register()} tabIndex={4}>
@@ -107,5 +112,6 @@ export default function Login({ status, canResetPassword }: Props) {
 
 Login.layout = {
     title: 'Selamat datang kembali',
-    description: 'Masuk dengan email dan kata sandi akun SkillPath Anda.',
+    description:
+        'Masuk dengan email, Google, atau Facebook ke akun SkillPath Anda.',
 };

@@ -1,3 +1,4 @@
+import Auth from './Auth'
 import PublicPageController from './PublicPageController'
 import SessionHeartbeatController from './SessionHeartbeatController'
 import DashboardController from './DashboardController'
@@ -14,6 +15,7 @@ import AdminController from './AdminController'
 import Settings from './Settings'
 
 const Controllers = {
+    Auth: Object.assign(Auth, Auth),
     PublicPageController: Object.assign(PublicPageController, PublicPageController),
     SessionHeartbeatController: Object.assign(SessionHeartbeatController, SessionHeartbeatController),
     DashboardController: Object.assign(DashboardController, DashboardController),

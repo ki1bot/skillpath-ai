@@ -1,6 +1,7 @@
 import { Form, Head } from '@inertiajs/react';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
+import SocialAuthButtons from '@/components/social-auth-buttons';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -121,6 +122,10 @@ export default function Register({ passwordRules }: Props) {
                             </Button>
                         </div>
 
+                        <SocialAuthButtons mode="register" />
+
+                        <InputError message={errors.social} />
+
                         <div className="text-center text-sm font-medium text-muted-foreground">
                             Sudah memiliki akun?{' '}
                             <TextLink href={login()} tabIndex={6}>
@@ -137,5 +142,5 @@ export default function Register({ passwordRules }: Props) {
 Register.layout = {
     title: 'Buat akun baru',
     description:
-        'Gunakan alamat email aktif karena verifikasi email wajib sebelum SkillPath AI dapat digunakan.',
+        'Daftar menggunakan email aktif, Google, atau Facebook untuk mulai menggunakan SkillPath AI.',
 };
