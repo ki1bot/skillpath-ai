@@ -38,16 +38,16 @@ function SocialConnectionItem({
     icon,
 }: SocialConnectionItemProps) {
     return (
-        <div className="flex flex-col gap-3 rounded-[10px] border-2 border-foreground p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="grid gap-4 rounded-[10px] border-2 border-foreground p-4 sm:grid-cols-[minmax(0,1fr)_190px] sm:items-center sm:gap-6">
             <div className="flex min-w-0 items-center gap-3">
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-[8px] border-2 border-foreground bg-background">
+                <div className="flex size-11 shrink-0 items-center justify-center rounded-[8px] border-2 border-foreground bg-background">
                     {icon}
                 </div>
 
                 <div className="min-w-0">
-                    <p className="text-sm font-bold">{name}</p>
+                    <p className="text-sm leading-none font-bold">{name}</p>
 
-                    <p className="mt-1 text-sm text-muted-foreground">
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                         {connected
                             ? `Akun ${name} sudah terhubung ke akun SkillPath AI ini.`
                             : `Hubungkan akun ${name} agar dapat digunakan untuk masuk ke akun SkillPath AI yang sama.`}
@@ -55,15 +55,21 @@ function SocialConnectionItem({
                 </div>
             </div>
 
-            {connected ? (
-                <span className="inline-flex w-fit shrink-0 rounded-full border-2 border-[#171717] bg-secondary px-3 py-1 text-xs font-bold text-secondary-foreground shadow-[2px_2px_0_var(--neo-shadow-color)]">
-                    Terhubung
-                </span>
-            ) : (
-                <Button asChild variant="outline" className="shrink-0">
-                    <a href={href}>Hubungkan {name}</a>
-                </Button>
-            )}
+            <div className="flex w-full sm:justify-end">
+                {connected ? (
+                    <span className="inline-flex h-10 w-full items-center justify-center rounded-[8px] border-2 border-[#171717] bg-secondary px-4 text-sm font-bold whitespace-nowrap text-secondary-foreground shadow-[2px_2px_0_var(--neo-shadow-color)]">
+                        Terhubung
+                    </span>
+                ) : (
+                    <Button
+                        asChild
+                        variant="outline"
+                        className="h-10 w-full whitespace-nowrap"
+                    >
+                        <a href={href}>Hubungkan {name}</a>
+                    </Button>
+                )}
+            </div>
         </div>
     );
 }
