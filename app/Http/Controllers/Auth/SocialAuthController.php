@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
+use Symfony\Component\HttpFoundation\RedirectResponse as SymfonyRedirectResponse;
 use Throwable;
 
 class SocialAuthController extends Controller
@@ -23,7 +24,7 @@ class SocialAuthController extends Controller
     public function redirect(
         Request $request,
         string $provider,
-    ): RedirectResponse {
+    ): SymfonyRedirectResponse {
         $provider = $this->validateProvider(
             $provider,
         );
@@ -286,6 +287,7 @@ class SocialAuthController extends Controller
         return match ($provider) {
             'google' => 'Google',
             'facebook' => 'Facebook',
+            default => ucfirst($provider),
         };
     }
 }
