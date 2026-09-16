@@ -6,11 +6,7 @@ type Props = {
 
 function GoogleIcon() {
     return (
-        <svg
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-            className="size-5"
-        >
+        <svg viewBox="0 0 24 24" aria-hidden="true" className="size-5">
             <path
                 fill="#4285F4"
                 d="M21.6 12.227c0-.709-.064-1.391-.182-2.045H12v3.868h5.382a4.6 4.6 0 0 1-1.995 3.018v2.509h3.232c1.891-1.741 2.981-4.305 2.981-7.35Z"
@@ -33,17 +29,8 @@ function GoogleIcon() {
 
 function FacebookIcon() {
     return (
-        <svg
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-            className="size-5"
-        >
-            <circle
-                cx="12"
-                cy="12"
-                r="10"
-                fill="#1877F2"
-            />
+        <svg viewBox="0 0 24 24" aria-hidden="true" className="size-5">
+            <circle cx="12" cy="12" r="10" fill="#1877F2" />
 
             <path
                 fill="#FFFFFF"
@@ -53,37 +40,36 @@ function FacebookIcon() {
     );
 }
 
-export default function SocialAuthButtons({
-    mode,
-}: Props) {
-    const action = mode === 'register'
-        ? 'Daftar'
-        : 'Masuk';
+export default function SocialAuthButtons({ mode }: Props) {
+    const action = mode === 'register' ? 'Daftar' : 'Masuk';
 
     return (
         <div className="grid gap-4">
-            <div className="relative flex items-center">
+            <div className="flex items-center">
                 <div className="h-px flex-1 bg-border" />
 
-                <span className="px-3 text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                <span className="px-3 text-xs font-bold tracking-[0.14em] text-muted-foreground uppercase">
                     atau
                 </span>
 
                 <div className="h-px flex-1 bg-border" />
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3">
                 <Button
                     asChild
                     variant="outline"
                     size="lg"
-                    className="w-full"
+                    className="relative w-full px-12 text-sm sm:text-base"
                 >
-                    <a
-                        href={`/auth/google/redirect?source=${mode}`}
-                    >
-                        <GoogleIcon />
-                        {action} dengan Google
+                    <a href={`/auth/google/redirect?source=${mode}`}>
+                        <span className="absolute left-4 flex size-5 items-center justify-center">
+                            <GoogleIcon />
+                        </span>
+
+                        <span className="text-center">
+                            {action} dengan Google
+                        </span>
                     </a>
                 </Button>
 
@@ -91,13 +77,16 @@ export default function SocialAuthButtons({
                     asChild
                     variant="outline"
                     size="lg"
-                    className="w-full"
+                    className="relative w-full px-12 text-sm sm:text-base"
                 >
-                    <a
-                        href={`/auth/facebook/redirect?source=${mode}`}
-                    >
-                        <FacebookIcon />
-                        {action} dengan Facebook
+                    <a href={`/auth/facebook/redirect?source=${mode}`}>
+                        <span className="absolute left-4 flex size-5 items-center justify-center">
+                            <FacebookIcon />
+                        </span>
+
+                        <span className="text-center">
+                            {action} dengan Facebook
+                        </span>
                     </a>
                 </Button>
             </div>
