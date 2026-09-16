@@ -137,6 +137,14 @@ class AcademicProgramLearningMaterialSeeder extends Seeder
         }
     }
 
+    /**
+     * @return array{
+     *     question: string,
+     *     options: array<string, string>,
+     *     answer: string,
+     *     explanation: string
+     * }
+     */
     private function quizData(
         Skill $skill,
         ?AssessmentQuestion $question,
@@ -170,6 +178,9 @@ class AcademicProgramLearningMaterialSeeder extends Seeder
         ];
     }
 
+    /**
+     * @return array<string, string>|null
+     */
     private function questionOptions(
         AssessmentQuestion $question,
     ): ?array {

@@ -22,6 +22,9 @@ final class AcademicAssessmentCatalog
 
     public const QUESTION_LIMIT = self::QUESTION_POOL_SIZE;
 
+    /**
+     * @var array<string, list<string>>
+     */
     private const SUPPLEMENTAL_SKILLS = [
         'Sistem Informasi' => [
             'si-sql-data-processing',
@@ -67,6 +70,9 @@ final class AcademicAssessmentCatalog
         ],
     ];
 
+    /**
+     * @return array<string, list<string>>
+     */
     public static function programs(): array
     {
         $programs = [];
@@ -84,6 +90,9 @@ final class AcademicAssessmentCatalog
         return $programs;
     }
 
+    /**
+     * @return list<string>
+     */
     public static function skillSlugs(string $studyProgram): array
     {
         return AcademicProgramCatalog::skillSlugs(
@@ -91,8 +100,12 @@ final class AcademicAssessmentCatalog
         );
     }
 
-    public static function supplementalSkillSlugs(string $studyProgram): array
-    {
+    /**
+     * @return list<string>
+     */
+    public static function supplementalSkillSlugs(
+        string $studyProgram,
+    ): array {
         return self::SUPPLEMENTAL_SKILLS[$studyProgram] ?? [];
     }
 

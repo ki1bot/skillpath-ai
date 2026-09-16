@@ -47,7 +47,7 @@ class AssessmentContextService
             $user->study_program,
         );
 
-        if (! $studyProgram) {
+        if ($studyProgram === null) {
             return redirect()
                 ->route('onboarding.show')
                 ->withErrors([

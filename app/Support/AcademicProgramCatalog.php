@@ -2,6 +2,33 @@
 
 namespace App\Support;
 
+/**
+ * @phpstan-type AcademicProgramSkillDefinition array{
+ *     slug: string,
+ *     name: string,
+ *     difficulty: string
+ * }
+ * @phpstan-type AcademicProgramAreaDefinition array{
+ *     name: string,
+ *     skills: list<AcademicProgramSkillDefinition>
+ * }
+ * @phpstan-type AcademicProgramDefinition array{
+ *     slug: string,
+ *     tagline: string,
+ *     description: string,
+ *     difficulty: string,
+ *     accent: string,
+ *     areas: list<AcademicProgramAreaDefinition>
+ * }
+ * @phpstan-type AcademicSkillDefinition array{
+ *     study_program: string,
+ *     slug: string,
+ *     name: string,
+ *     category: string,
+ *     description: string,
+ *     difficulty: string
+ * }
+ */
 final class AcademicProgramCatalog
 {
     private const PROGRAMS = [
@@ -15,25 +42,61 @@ final class AcademicProgramCatalog
                 [
                     'name' => 'Analisis Data',
                     'skills' => [
-                        ['slug' => 'si-sql-data-processing', 'name' => 'SQL dan Pengolahan Data', 'difficulty' => 'Menengah'],
-                        ['slug' => 'si-spreadsheet-data-analysis', 'name' => 'Spreadsheet dan Analisis Data', 'difficulty' => 'Dasar'],
-                        ['slug' => 'si-business-intelligence-data-visualization', 'name' => 'Business Intelligence dan Visualisasi Data', 'difficulty' => 'Menengah'],
+                        [
+                            'slug' => 'si-sql-data-processing',
+                            'name' => 'SQL dan Pengolahan Data',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'si-spreadsheet-data-analysis',
+                            'name' => 'Spreadsheet dan Analisis Data',
+                            'difficulty' => 'Dasar',
+                        ],
+                        [
+                            'slug' => 'si-business-intelligence-data-visualization',
+                            'name' => 'Business Intelligence dan Visualisasi Data',
+                            'difficulty' => 'Menengah',
+                        ],
                     ],
                 ],
                 [
                     'name' => 'Pengembangan Sistem',
                     'skills' => [
-                        ['slug' => 'si-database-management', 'name' => 'Database Management', 'difficulty' => 'Menengah'],
-                        ['slug' => 'si-web-development', 'name' => 'Web Development', 'difficulty' => 'Menengah'],
-                        ['slug' => 'si-system-analysis-design', 'name' => 'System Analysis and Design', 'difficulty' => 'Menengah'],
+                        [
+                            'slug' => 'si-database-management',
+                            'name' => 'Database Management',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'si-web-development',
+                            'name' => 'Web Development',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'si-system-analysis-design',
+                            'name' => 'System Analysis and Design',
+                            'difficulty' => 'Menengah',
+                        ],
                     ],
                 ],
                 [
                     'name' => 'UI/UX',
                     'skills' => [
-                        ['slug' => 'si-ui-design', 'name' => 'UI Design', 'difficulty' => 'Dasar'],
-                        ['slug' => 'si-wireframing-prototyping', 'name' => 'Wireframing dan Prototyping', 'difficulty' => 'Dasar'],
-                        ['slug' => 'si-user-research', 'name' => 'User Research', 'difficulty' => 'Menengah'],
+                        [
+                            'slug' => 'si-ui-design',
+                            'name' => 'UI Design',
+                            'difficulty' => 'Dasar',
+                        ],
+                        [
+                            'slug' => 'si-wireframing-prototyping',
+                            'name' => 'Wireframing dan Prototyping',
+                            'difficulty' => 'Dasar',
+                        ],
+                        [
+                            'slug' => 'si-user-research',
+                            'name' => 'User Research',
+                            'difficulty' => 'Menengah',
+                        ],
                     ],
                 ],
             ],
@@ -48,25 +111,61 @@ final class AcademicProgramCatalog
                 [
                     'name' => 'Marketing',
                     'skills' => [
-                        ['slug' => 'man-branding', 'name' => 'Branding', 'difficulty' => 'Menengah'],
-                        ['slug' => 'man-digital-marketing', 'name' => 'Digital Marketing', 'difficulty' => 'Menengah'],
-                        ['slug' => 'man-market-research', 'name' => 'Market Research', 'difficulty' => 'Menengah'],
+                        [
+                            'slug' => 'man-branding',
+                            'name' => 'Branding',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'man-digital-marketing',
+                            'name' => 'Digital Marketing',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'man-market-research',
+                            'name' => 'Market Research',
+                            'difficulty' => 'Menengah',
+                        ],
                     ],
                 ],
                 [
                     'name' => 'Keuangan',
                     'skills' => [
-                        ['slug' => 'man-financial-planning', 'name' => 'Financial Planning', 'difficulty' => 'Menengah'],
-                        ['slug' => 'man-financial-analysis', 'name' => 'Financial Analysis', 'difficulty' => 'Menengah'],
-                        ['slug' => 'man-investment-management', 'name' => 'Investment Management', 'difficulty' => 'Dasar'],
+                        [
+                            'slug' => 'man-financial-planning',
+                            'name' => 'Financial Planning',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'man-financial-analysis',
+                            'name' => 'Financial Analysis',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'man-investment-management',
+                            'name' => 'Investment Management',
+                            'difficulty' => 'Dasar',
+                        ],
                     ],
                 ],
                 [
                     'name' => 'Human Resources',
                     'skills' => [
-                        ['slug' => 'man-recruitment-selection', 'name' => 'Recruitment and Selection', 'difficulty' => 'Menengah'],
-                        ['slug' => 'man-performance-management', 'name' => 'Performance Management', 'difficulty' => 'Menengah'],
-                        ['slug' => 'man-talent-management', 'name' => 'Talent Management', 'difficulty' => 'Menengah'],
+                        [
+                            'slug' => 'man-recruitment-selection',
+                            'name' => 'Recruitment and Selection',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'man-performance-management',
+                            'name' => 'Performance Management',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'man-talent-management',
+                            'name' => 'Talent Management',
+                            'difficulty' => 'Menengah',
+                        ],
                     ],
                 ],
             ],
@@ -81,25 +180,61 @@ final class AcademicProgramCatalog
                 [
                     'name' => 'Pemrograman dan Rekayasa Perangkat Lunak',
                     'skills' => [
-                        ['slug' => 'ti-algorithms-data-structures', 'name' => 'Algoritma dan Struktur Data', 'difficulty' => 'Menengah'],
-                        ['slug' => 'ti-object-oriented-programming', 'name' => 'Object-Oriented Programming', 'difficulty' => 'Menengah'],
-                        ['slug' => 'ti-software-engineering', 'name' => 'Software Engineering', 'difficulty' => 'Menengah'],
+                        [
+                            'slug' => 'ti-algorithms-data-structures',
+                            'name' => 'Algoritma dan Struktur Data',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'ti-object-oriented-programming',
+                            'name' => 'Object-Oriented Programming',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'ti-software-engineering',
+                            'name' => 'Software Engineering',
+                            'difficulty' => 'Menengah',
+                        ],
                     ],
                 ],
                 [
                     'name' => 'Jaringan dan Sistem Komputer',
                     'skills' => [
-                        ['slug' => 'ti-computer-networks', 'name' => 'Computer Networks', 'difficulty' => 'Menengah'],
-                        ['slug' => 'ti-operating-systems', 'name' => 'Operating Systems', 'difficulty' => 'Menengah'],
-                        ['slug' => 'ti-cybersecurity', 'name' => 'Cybersecurity', 'difficulty' => 'Menengah'],
+                        [
+                            'slug' => 'ti-computer-networks',
+                            'name' => 'Computer Networks',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'ti-operating-systems',
+                            'name' => 'Operating Systems',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'ti-cybersecurity',
+                            'name' => 'Cybersecurity',
+                            'difficulty' => 'Menengah',
+                        ],
                     ],
                 ],
                 [
                     'name' => 'Artificial Intelligence',
                     'skills' => [
-                        ['slug' => 'ti-machine-learning', 'name' => 'Machine Learning', 'difficulty' => 'Menengah'],
-                        ['slug' => 'ti-data-science', 'name' => 'Data Science', 'difficulty' => 'Menengah'],
-                        ['slug' => 'ti-computer-vision', 'name' => 'Computer Vision', 'difficulty' => 'Menengah'],
+                        [
+                            'slug' => 'ti-machine-learning',
+                            'name' => 'Machine Learning',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'ti-data-science',
+                            'name' => 'Data Science',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'ti-computer-vision',
+                            'name' => 'Computer Vision',
+                            'difficulty' => 'Menengah',
+                        ],
                     ],
                 ],
             ],
@@ -114,25 +249,61 @@ final class AcademicProgramCatalog
                 [
                     'name' => 'Arsitektur dan Organisasi Komputer',
                     'skills' => [
-                        ['slug' => 'sk-computer-architecture', 'name' => 'Computer Architecture', 'difficulty' => 'Menengah'],
-                        ['slug' => 'sk-digital-logic', 'name' => 'Digital Logic', 'difficulty' => 'Dasar'],
-                        ['slug' => 'sk-microprocessor-microcontroller', 'name' => 'Microprocessor and Microcontroller', 'difficulty' => 'Menengah'],
+                        [
+                            'slug' => 'sk-computer-architecture',
+                            'name' => 'Computer Architecture',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'sk-digital-logic',
+                            'name' => 'Digital Logic',
+                            'difficulty' => 'Dasar',
+                        ],
+                        [
+                            'slug' => 'sk-microprocessor-microcontroller',
+                            'name' => 'Microprocessor and Microcontroller',
+                            'difficulty' => 'Menengah',
+                        ],
                     ],
                 ],
                 [
                     'name' => 'Embedded System dan Internet of Things',
                     'skills' => [
-                        ['slug' => 'sk-embedded-systems', 'name' => 'Embedded Systems', 'difficulty' => 'Menengah'],
-                        ['slug' => 'sk-internet-of-things', 'name' => 'Internet of Things', 'difficulty' => 'Menengah'],
-                        ['slug' => 'sk-sensor-actuator-integration', 'name' => 'Sensor and Actuator Integration', 'difficulty' => 'Menengah'],
+                        [
+                            'slug' => 'sk-embedded-systems',
+                            'name' => 'Embedded Systems',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'sk-internet-of-things',
+                            'name' => 'Internet of Things',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'sk-sensor-actuator-integration',
+                            'name' => 'Sensor and Actuator Integration',
+                            'difficulty' => 'Menengah',
+                        ],
                     ],
                 ],
                 [
                     'name' => 'Jaringan dan Keamanan Komputer',
                     'skills' => [
-                        ['slug' => 'sk-computer-networks', 'name' => 'Computer Networks', 'difficulty' => 'Menengah'],
-                        ['slug' => 'sk-network-administration', 'name' => 'Network Administration', 'difficulty' => 'Menengah'],
-                        ['slug' => 'sk-network-security', 'name' => 'Network Security', 'difficulty' => 'Menengah'],
+                        [
+                            'slug' => 'sk-computer-networks',
+                            'name' => 'Computer Networks',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'sk-network-administration',
+                            'name' => 'Network Administration',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'sk-network-security',
+                            'name' => 'Network Security',
+                            'difficulty' => 'Menengah',
+                        ],
                     ],
                 ],
             ],
@@ -147,25 +318,61 @@ final class AcademicProgramCatalog
                 [
                     'name' => 'Psikologi Industri dan Organisasi',
                     'skills' => [
-                        ['slug' => 'psi-employee-behavior', 'name' => 'Employee Behavior', 'difficulty' => 'Menengah'],
-                        ['slug' => 'psi-organizational-development', 'name' => 'Organizational Development', 'difficulty' => 'Menengah'],
-                        ['slug' => 'psi-psychological-assessment', 'name' => 'Psychological Assessment', 'difficulty' => 'Menengah'],
+                        [
+                            'slug' => 'psi-employee-behavior',
+                            'name' => 'Employee Behavior',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'psi-organizational-development',
+                            'name' => 'Organizational Development',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'psi-psychological-assessment',
+                            'name' => 'Psychological Assessment',
+                            'difficulty' => 'Menengah',
+                        ],
                     ],
                 ],
                 [
                     'name' => 'Konseling',
                     'skills' => [
-                        ['slug' => 'psi-counseling-skills', 'name' => 'Counseling Skills', 'difficulty' => 'Menengah'],
-                        ['slug' => 'psi-interpersonal-communication', 'name' => 'Interpersonal Communication', 'difficulty' => 'Dasar'],
-                        ['slug' => 'psi-emotional-intelligence', 'name' => 'Emotional Intelligence', 'difficulty' => 'Menengah'],
+                        [
+                            'slug' => 'psi-counseling-skills',
+                            'name' => 'Counseling Skills',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'psi-interpersonal-communication',
+                            'name' => 'Interpersonal Communication',
+                            'difficulty' => 'Dasar',
+                        ],
+                        [
+                            'slug' => 'psi-emotional-intelligence',
+                            'name' => 'Emotional Intelligence',
+                            'difficulty' => 'Menengah',
+                        ],
                     ],
                 ],
                 [
                     'name' => 'Penelitian Psikologi',
                     'skills' => [
-                        ['slug' => 'psi-research-methodology', 'name' => 'Research Methodology', 'difficulty' => 'Menengah'],
-                        ['slug' => 'psi-interview-observation', 'name' => 'Interview dan Observation', 'difficulty' => 'Menengah'],
-                        ['slug' => 'psi-survey-data-analysis', 'name' => 'Survey dan Data Analysis', 'difficulty' => 'Menengah'],
+                        [
+                            'slug' => 'psi-research-methodology',
+                            'name' => 'Research Methodology',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'psi-interview-observation',
+                            'name' => 'Interview dan Observation',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'psi-survey-data-analysis',
+                            'name' => 'Survey dan Data Analysis',
+                            'difficulty' => 'Menengah',
+                        ],
                     ],
                 ],
             ],
@@ -180,50 +387,102 @@ final class AcademicProgramCatalog
                 [
                     'name' => 'Public Relations',
                     'skills' => [
-                        ['slug' => 'ikom-media-relations', 'name' => 'Media Relations', 'difficulty' => 'Menengah'],
-                        ['slug' => 'ikom-corporate-communication', 'name' => 'Corporate Communication', 'difficulty' => 'Menengah'],
-                        ['slug' => 'ikom-crisis-communication', 'name' => 'Crisis Communication', 'difficulty' => 'Menengah'],
+                        [
+                            'slug' => 'ikom-media-relations',
+                            'name' => 'Media Relations',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'ikom-corporate-communication',
+                            'name' => 'Corporate Communication',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'ikom-crisis-communication',
+                            'name' => 'Crisis Communication',
+                            'difficulty' => 'Menengah',
+                        ],
                     ],
                 ],
                 [
                     'name' => 'Jurnalistik',
                     'skills' => [
-                        ['slug' => 'ikom-news-writing', 'name' => 'News Writing', 'difficulty' => 'Dasar'],
-                        ['slug' => 'ikom-journalistic-interview', 'name' => 'Journalistic Interview', 'difficulty' => 'Menengah'],
-                        ['slug' => 'ikom-news-reporting', 'name' => 'News Reporting', 'difficulty' => 'Menengah'],
+                        [
+                            'slug' => 'ikom-news-writing',
+                            'name' => 'News Writing',
+                            'difficulty' => 'Dasar',
+                        ],
+                        [
+                            'slug' => 'ikom-journalistic-interview',
+                            'name' => 'Journalistic Interview',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'ikom-news-reporting',
+                            'name' => 'News Reporting',
+                            'difficulty' => 'Menengah',
+                        ],
                     ],
                 ],
                 [
                     'name' => 'Digital Media',
                     'skills' => [
-                        ['slug' => 'ikom-content-creation', 'name' => 'Content Creation', 'difficulty' => 'Menengah'],
-                        ['slug' => 'ikom-social-media-management', 'name' => 'Social Media Management', 'difficulty' => 'Menengah'],
-                        ['slug' => 'ikom-video-production', 'name' => 'Video Production', 'difficulty' => 'Menengah'],
+                        [
+                            'slug' => 'ikom-content-creation',
+                            'name' => 'Content Creation',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'ikom-social-media-management',
+                            'name' => 'Social Media Management',
+                            'difficulty' => 'Menengah',
+                        ],
+                        [
+                            'slug' => 'ikom-video-production',
+                            'name' => 'Video Production',
+                            'difficulty' => 'Menengah',
+                        ],
                     ],
                 ],
             ],
         ],
     ];
 
+    /**
+     * @return array<string, AcademicProgramDefinition>
+     */
     public static function programs(): array
     {
         return self::PROGRAMS;
     }
 
+    /**
+     * @return AcademicProgramDefinition|null
+     */
     public static function program(string $studyProgram): ?array
     {
         return self::PROGRAMS[$studyProgram] ?? null;
     }
 
-    public static function skillDefinitions(?string $studyProgram = null): array
-    {
-        $programs = $studyProgram === null
-            ? self::PROGRAMS
-            : array_filter(
-                self::PROGRAMS,
-                fn (string $name): bool => $name === $studyProgram,
-                ARRAY_FILTER_USE_KEY,
+    /**
+     * @return list<AcademicSkillDefinition>
+     */
+    public static function skillDefinitions(
+        ?string $studyProgram = null,
+    ): array {
+        if ($studyProgram === null) {
+            $programs = self::PROGRAMS;
+        } else {
+            $program = self::program(
+                $studyProgram,
             );
+
+            $programs = $program === null
+                ? []
+                : [
+                    $studyProgram => $program,
+                ];
+        }
 
         $definitions = [];
 
@@ -249,9 +508,14 @@ final class AcademicProgramCatalog
         return $definitions;
     }
 
+    /**
+     * @return list<string>
+     */
     public static function skillSlugs(string $studyProgram): array
     {
-        $program = self::program($studyProgram);
+        $program = self::program(
+            $studyProgram,
+        );
 
         if ($program === null) {
             return [];
@@ -268,25 +532,40 @@ final class AcademicProgramCatalog
         return $slugs;
     }
 
+    /**
+     * @return list<string>
+     */
     public static function allSkillSlugs(): array
     {
         $slugs = [];
 
-        foreach (array_keys(self::PROGRAMS) as $studyProgram) {
-            $slugs = [
-                ...$slugs,
-                ...self::skillSlugs($studyProgram),
-            ];
+        foreach (
+            array_keys(
+                self::PROGRAMS,
+            ) as $studyProgram
+        ) {
+            foreach (
+                self::skillSlugs(
+                    $studyProgram,
+                ) as $skillSlug
+            ) {
+                $slugs[] = $skillSlug;
+            }
         }
 
         return $slugs;
     }
 
+    /**
+     * @return list<string>
+     */
     public static function areaSkillSlugs(
         string $studyProgram,
         string $areaName,
     ): array {
-        $program = self::program($studyProgram);
+        $program = self::program(
+            $studyProgram,
+        );
 
         if ($program === null) {
             return [];
@@ -297,10 +576,13 @@ final class AcademicProgramCatalog
                 continue;
             }
 
-            return array_map(
-                fn (array $skill): string => $skill['slug'],
-                $area['skills'],
-            );
+            $slugs = [];
+
+            foreach ($area['skills'] as $skill) {
+                $slugs[] = $skill['slug'];
+            }
+
+            return $slugs;
         }
 
         return [];
