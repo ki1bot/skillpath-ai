@@ -10,10 +10,7 @@ class SocialAuthServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        Route::middleware([
-            'web',
-            'guest',
-        ])
+        Route::middleware('web')
             ->prefix('auth')
             ->group(function () {
                 Route::get(
@@ -23,6 +20,7 @@ class SocialAuthServiceProvider extends ServiceProvider
                         'redirect',
                     ],
                 )
+                    ->middleware('guest')
                     ->whereIn(
                         'provider',
                         [

@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Settings;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileDeleteRequest;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
+use App\Models\SocialAccount;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
@@ -16,9 +19,42 @@ class ProfileController extends Controller
     /**
      * Show the user's profile settings page.
      */
-    public function edit(): Response
+    public function edit(Request $request): Response
     {
-        return Inertia::render('settings/profile');
+        $user = $request->user();
+
+        abort_unless(
+            $user instanceof User,
+            403,
+        );
+
+        $connectedProviders = SocialAccount::query()
+            ->where(
+                'user_id',
+                $user->id,
+            )
+            ->pluck(
+                'provider',
+            )
+            ->all();
+
+        return Inertia::render(
+            'settings/profile',
+            [
+                'socialConnections' => [
+                    'google' => in_array(
+                        'google',
+                        $connectedProviders,
+                        true,
+                    ),
+                    'facebook' => in_array(
+                        'facebook',
+                        $connectedProviders,
+                        true,
+                    ),
+                ],
+            ],
+        );
     }
 
     /**

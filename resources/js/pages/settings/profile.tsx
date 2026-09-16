@@ -1,20 +1,76 @@
 import { Form, Head, usePage } from '@inertiajs/react';
+import type { ReactNode } from 'react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import DeleteUser from '@/components/delete-user';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
+import { FacebookIcon, GoogleIcon } from '@/components/social-auth-buttons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { edit } from '@/routes/profile';
 import type { Auth } from '@/types';
 
-type PageProps = {
-    auth: Auth;
+type SocialConnections = {
+    google: boolean;
+    facebook: boolean;
 };
 
+type PageProps = {
+    auth: Auth;
+    socialConnections: SocialConnections;
+    errors: {
+        social?: string;
+    };
+};
+
+type SocialConnectionItemProps = {
+    name: string;
+    connected: boolean;
+    href: string;
+    icon: ReactNode;
+};
+
+function SocialConnectionItem({
+    name,
+    connected,
+    href,
+    icon,
+}: SocialConnectionItemProps) {
+    return (
+        <div className="flex flex-col gap-3 rounded-[10px] border-2 border-foreground p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-3">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-[8px] border-2 border-foreground bg-background">
+                    {icon}
+                </div>
+
+                <div className="min-w-0">
+                    <p className="text-sm font-bold">{name}</p>
+
+                    <p className="mt-1 text-sm text-muted-foreground">
+                        {connected
+                            ? `Akun ${name} sudah terhubung ke akun SkillPath AI ini.`
+                            : `Hubungkan akun ${name} agar dapat digunakan untuk masuk ke akun SkillPath AI yang sama.`}
+                    </p>
+                </div>
+            </div>
+
+            {connected ? (
+                <span className="inline-flex w-fit shrink-0 rounded-full border-2 border-[#171717] bg-secondary px-3 py-1 text-xs font-bold text-secondary-foreground shadow-[2px_2px_0_var(--neo-shadow-color)]">
+                    Terhubung
+                </span>
+            ) : (
+                <Button asChild variant="outline" className="shrink-0">
+                    <a href={href}>Hubungkan {name}</a>
+                </Button>
+            )}
+        </div>
+    );
+}
+
 export default function Profile() {
-    const { auth } = usePage<PageProps>().props;
+    const { auth, socialConnections, errors } = usePage<PageProps>().props;
+
     const user = auth.user;
 
     if (!user) {
@@ -41,7 +97,7 @@ export default function Profile() {
                     }}
                     className="space-y-6"
                 >
-                    {({ processing, errors }) => (
+                    {({ processing, errors: formErrors }) => (
                         <>
                             <div className="grid gap-2">
                                 <Label htmlFor="name">Nama</Label>
@@ -58,7 +114,7 @@ export default function Profile() {
 
                                 <InputError
                                     className="mt-2"
-                                    message={errors.name}
+                                    message={formErrors.name}
                                 />
                             </div>
 
@@ -78,7 +134,7 @@ export default function Profile() {
 
                                 <InputError
                                     className="mt-2"
-                                    message={errors.email}
+                                    message={formErrors.email}
                                 />
                             </div>
 
@@ -131,6 +187,35 @@ export default function Profile() {
                                 )}
                             </Form>
                         )}
+                    </div>
+                </div>
+
+                <div className="space-y-4">
+                    <div>
+                        <p className="text-sm font-bold">Akun terhubung</p>
+
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            Hubungkan Google atau Facebook agar beberapa metode
+                            masuk tetap mengarah ke akun SkillPath AI yang sama.
+                        </p>
+                    </div>
+
+                    <InputError message={errors.social} />
+
+                    <div className="grid gap-3">
+                        <SocialConnectionItem
+                            name="Google"
+                            connected={socialConnections.google}
+                            href="/settings/connections/google/redirect"
+                            icon={<GoogleIcon />}
+                        />
+
+                        <SocialConnectionItem
+                            name="Facebook"
+                            connected={socialConnections.facebook}
+                            href="/settings/connections/facebook/redirect"
+                            icon={<FacebookIcon />}
+                        />
                     </div>
                 </div>
             </div>

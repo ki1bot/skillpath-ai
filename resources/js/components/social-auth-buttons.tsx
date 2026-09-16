@@ -4,7 +4,7 @@ type Props = {
     mode: 'login' | 'register';
 };
 
-function GoogleIcon() {
+export function GoogleIcon() {
     return (
         <svg viewBox="0 0 24 24" aria-hidden="true" className="size-5">
             <path
@@ -27,7 +27,7 @@ function GoogleIcon() {
     );
 }
 
-function FacebookIcon() {
+export function FacebookIcon() {
     return (
         <svg viewBox="0 0 24 24" aria-hidden="true" className="size-5">
             <circle cx="12" cy="12" r="10" fill="#1877F2" />

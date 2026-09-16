@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Settings\EmailVerificationController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SecurityController;
@@ -37,6 +38,22 @@ Route::middleware(['auth', 'idle'])->group(function () {
     )
         ->middleware('throttle:10,1')
         ->name('email-verification.verify');
+
+    Route::get(
+        'settings/connections/{provider}/redirect',
+        [
+            SocialAuthController::class,
+            'linkRedirect',
+        ],
+    )
+        ->whereIn(
+            'provider',
+            [
+                'google',
+                'facebook',
+            ],
+        )
+        ->name('social.link.redirect');
 
     Route::delete(
         'settings/profile',
