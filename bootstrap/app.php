@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Middleware\ClearAbandonedAssessmentSession;
 use App\Http\Middleware\EnforceIdleTimeout;
 use App\Http\Middleware\EnsureAdmin;
 use App\Http\Middleware\EnsureEmailVerified;
@@ -40,7 +39,6 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->web(append: [
             HandleAppearance::class,
-            ClearAbandonedAssessmentSession::class,
             EnsureEmailVerified::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
