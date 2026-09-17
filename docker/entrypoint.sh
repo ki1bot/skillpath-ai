@@ -76,7 +76,7 @@ if [ "${DOCKER_MODE:-production}" = "development" ]; then
     )"
 
     case "$APP_KEY_VALUE" in
-        ""|"null"|"NULL"|"Null"|"(null)"|"''")
+        ""|"null"|"NULL"|"Null"|"''")
             gosu "$RUN_AS" php artisan key:generate --force
             ;;
     esac
@@ -89,6 +89,18 @@ if [ "${DOCKER_MODE:-production}" = "development" ]; then
         gosu "$RUN_AS" php artisan db:seed --force
     elif [ "${RUN_ASSESSMENT_SEEDER:-false}" = "true" ]; then
         gosu "$RUN_AS" php artisan db:seed \
+            --class='Database\Seeders\CareerSeeder' \
+            --force
+
+        gosu "$RUN_AS" php artisan db:seed \
+            --class='Database\Seeders\AcademicAssessmentSkillSeeder' \
+            --force
+
+        gosu "$RUN_AS" php artisan db:seed \
+            --class='Database\Seeders\CareerSkillSeeder' \
+            --force
+
+        gosu "$RUN_AS" php artisan db:seed \
             --class='Database\Seeders\AcademicAssessmentSeeder' \
             --force
 
@@ -98,6 +110,10 @@ if [ "${DOCKER_MODE:-production}" = "development" ]; then
 
         gosu "$RUN_AS" php artisan db:seed \
             --class='Database\Seeders\AcademicAssessmentCleanupSeeder' \
+            --force
+
+        gosu "$RUN_AS" php artisan db:seed \
+            --class='Database\Seeders\AcademicProgramLearningMaterialSeeder' \
             --force
     fi
 
@@ -142,7 +158,19 @@ if [ "${RUN_SEEDER:-false}" = "true" ]; then
 
     php artisan db:seed --force
 elif [ "${RUN_ASSESSMENT_SEEDER:-false}" = "true" ]; then
-    echo "Synchronizing assessment data..."
+    echo "Synchronizing academic assessment and learning data..."
+
+    php artisan db:seed \
+        --class='Database\Seeders\CareerSeeder' \
+        --force
+
+    php artisan db:seed \
+        --class='Database\Seeders\AcademicAssessmentSkillSeeder' \
+        --force
+
+    php artisan db:seed \
+        --class='Database\Seeders\CareerSkillSeeder' \
+        --force
 
     php artisan db:seed \
         --class='Database\Seeders\AcademicAssessmentSeeder' \
@@ -156,7 +184,11 @@ elif [ "${RUN_ASSESSMENT_SEEDER:-false}" = "true" ]; then
         --class='Database\Seeders\AcademicAssessmentCleanupSeeder' \
         --force
 
-    echo "Assessment data synchronized."
+    php artisan db:seed \
+        --class='Database\Seeders\AcademicProgramLearningMaterialSeeder' \
+        --force
+
+    echo "Academic assessment and learning data synchronized."
 fi
 
 if [ ! -L public/storage ]; then

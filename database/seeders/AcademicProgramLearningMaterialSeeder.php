@@ -57,7 +57,36 @@ class AcademicProgramLearningMaterialSeeder extends Seeder
             );
         }
 
+        $canonicalMaterialSlugs = collect(
+            $canonicalSlugs,
+        )
+            ->flatMap(
+                fn (string $skillSlug) => [
+                    'belajar-'.$skillSlug,
+                    'penguatan-'.$skillSlug,
+                ],
+            )
+            ->values()
+            ->all();
+
+        LearningMaterial::query()
+            ->whereIn(
+                'skill_id',
+                $skills->pluck('id'),
+            )
+            ->whereNotIn(
+                'slug',
+                $canonicalMaterialSlugs,
+            )
+            ->update([
+                'is_active' => false,
+            ]);
+
         foreach ($skills as $skill) {
+            $studyProgram = $this->studyProgramForSkill(
+                $skill->slug,
+            );
+
             $question = AssessmentQuestion::query()
                 ->where(
                     'skill_id',
@@ -65,11 +94,17 @@ class AcademicProgramLearningMaterialSeeder extends Seeder
                 )
                 ->whereHas(
                     'assessment',
-                    fn ($query) => $query->where(
-                        'is_active',
-                        true,
-                    ),
+                    fn ($query) => $query
+                        ->where(
+                            'is_active',
+                            true,
+                        )
+                        ->where(
+                            'study_program',
+                            $studyProgram,
+                        ),
                 )
+                ->orderBy('id')
                 ->first();
 
             $quiz = $this->quizData(
@@ -137,14 +172,32 @@ class AcademicProgramLearningMaterialSeeder extends Seeder
         }
     }
 
-    /**
-     * @return array{
-     *     question: string,
-     *     options: array<string, string>,
-     *     answer: string,
-     *     explanation: string
-     * }
-     */
+    private function studyProgramForSkill(
+        string $skillSlug,
+    ): string {
+        foreach (
+            array_keys(
+                AcademicProgramCatalog::programs(),
+            ) as $studyProgram
+        ) {
+            if (
+                in_array(
+                    $skillSlug,
+                    AcademicProgramCatalog::skillSlugs(
+                        $studyProgram,
+                    ),
+                    true,
+                )
+            ) {
+                return $studyProgram;
+            }
+        }
+
+        throw new RuntimeException(
+            'Skill '.$skillSlug.' tidak terhubung dengan jurusan akademik.',
+        );
+    }
+
     private function quizData(
         Skill $skill,
         ?AssessmentQuestion $question,
@@ -178,9 +231,6 @@ class AcademicProgramLearningMaterialSeeder extends Seeder
         ];
     }
 
-    /**
-     * @return array<string, string>|null
-     */
     private function questionOptions(
         AssessmentQuestion $question,
     ): ?array {

@@ -13,10 +13,13 @@ type IdlePageProps = {
 };
 
 export function IdleSessionGuard() {
-    const { auth, idleTimeoutMinutes = 10 } = usePage().props as IdlePageProps;
+    const { auth, idleTimeoutMinutes = 0 } = usePage().props as IdlePageProps;
 
     const isAuthenticated = Boolean(auth?.user);
-    const timeoutMs = Math.max(1, idleTimeoutMinutes) * 60 * 1000;
+    const idleTimeoutEnabled = idleTimeoutMinutes > 0;
+    const timeoutMs = idleTimeoutEnabled
+        ? idleTimeoutMinutes * 60 * 1000
+        : null;
 
     const lastHeartbeatAt = useRef(0);
     const loggingOut = useRef(false);
@@ -46,13 +49,21 @@ export function IdleSessionGuard() {
         );
     }, []);
 
-    const isIdle = useCallback(
-        () => Date.now() - getLastActivity() >= timeoutMs,
-        [getLastActivity, timeoutMs],
-    );
+    const isIdle = useCallback(() => {
+        if (timeoutMs === null) {
+            return false;
+        }
+
+        return Date.now() - getLastActivity() >= timeoutMs;
+    }, [getLastActivity, timeoutMs]);
 
     const heartbeat = useCallback(async () => {
-        if (!isAuthenticated || loggingOut.current || isIdle()) {
+        if (
+            !isAuthenticated ||
+            !idleTimeoutEnabled ||
+            loggingOut.current ||
+            isIdle()
+        ) {
             return;
         }
 
@@ -84,10 +95,10 @@ export function IdleSessionGuard() {
         } catch {
             return;
         }
-    }, [isAuthenticated, isIdle]);
+    }, [idleTimeoutEnabled, isAuthenticated, isIdle]);
 
     const recordActivity = useCallback(() => {
-        if (!isAuthenticated || loggingOut.current) {
+        if (!isAuthenticated || !idleTimeoutEnabled || loggingOut.current) {
             return;
         }
 
@@ -104,10 +115,10 @@ export function IdleSessionGuard() {
         if (now - lastHeartbeatAt.current >= HEARTBEAT_INTERVAL_MS) {
             void heartbeat();
         }
-    }, [heartbeat, isAuthenticated, isIdle, logout]);
+    }, [heartbeat, idleTimeoutEnabled, isAuthenticated, isIdle, logout]);
 
     useEffect(() => {
-        if (!isAuthenticated) {
+        if (!isAuthenticated || !idleTimeoutEnabled) {
             window.localStorage.removeItem(LAST_ACTIVITY_KEY);
 
             loggingOut.current = false;
@@ -135,11 +146,8 @@ export function IdleSessionGuard() {
         };
 
         const handlePointerActivity = () => recordActivity();
-
         const handleKeyboardActivity = () => recordActivity();
-
         const handleTouchActivity = () => recordActivity();
-
         const handleScrollActivity = () => recordActivity();
 
         window.addEventListener('pointerdown', handlePointerActivity, {
@@ -176,7 +184,7 @@ export function IdleSessionGuard() {
 
             window.clearInterval(interval);
         };
-    }, [isAuthenticated, isIdle, logout, recordActivity]);
+    }, [idleTimeoutEnabled, isAuthenticated, isIdle, logout, recordActivity]);
 
     return null;
 }

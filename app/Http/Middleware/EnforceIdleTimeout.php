@@ -20,17 +20,35 @@ class EnforceIdleTimeout
             return $next($request);
         }
 
-        $timeoutMinutes = max(
-            1,
-            (int) config('security.idle_timeout_minutes', 10),
+        $timeoutMinutes = (int) config(
+            'security.idle_timeout_minutes',
+            0,
         );
+
+        if ($timeoutMinutes <= 0) {
+            $request
+                ->session()
+                ->forget('auth.last_activity');
+
+            $response = $next($request);
+
+            if ($request->hasCookie(self::ACTIVITY_COOKIE)) {
+                return $response->withCookie(
+                    Cookie::forget(
+                        self::ACTIVITY_COOKIE,
+                    ),
+                );
+            }
+
+            return $response;
+        }
 
         $timeoutSeconds = $timeoutMinutes * 60;
         $now = now()->getTimestamp();
 
-        $sessionValue = $request->session()->get(
-            'auth.last_activity',
-        );
+        $sessionValue = $request
+            ->session()
+            ->get('auth.last_activity');
 
         $sessionActivity = is_numeric($sessionValue)
             ? (int) $sessionValue
@@ -71,10 +89,12 @@ class EnforceIdleTimeout
             );
         }
 
-        $request->session()->put(
-            'auth.last_activity',
-            $now,
-        );
+        $request
+            ->session()
+            ->put(
+                'auth.last_activity',
+                $now,
+            );
 
         $response = $next($request);
 
