@@ -86,7 +86,7 @@ export function AssessmentForm({ assessment, careers }: Props) {
                             <Plus className="size-4" />
                         )}
 
-                        {assessment ? 'Simpan Assesment' : 'Tambah Assesment'}
+                        {assessment ? 'Simpan Assessment' : 'Tambah Assessment'}
                     </Button>
                 </>
             )}
