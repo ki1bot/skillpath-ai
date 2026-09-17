@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
+use App\Actions\Fortify\DisableRememberMe;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Http\Responses\RegisterResponse;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -12,6 +13,11 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
+use Laravel\Fortify\Actions\AttemptToAuthenticate;
+use Laravel\Fortify\Actions\CanonicalizeUsername;
+use Laravel\Fortify\Actions\EnsureLoginIsNotThrottled;
+use Laravel\Fortify\Actions\PrepareAuthenticatedSession;
+use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
 use Laravel\Fortify\Contracts\RegisterResponse as RegisterResponseContract;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
@@ -35,6 +41,7 @@ class FortifyServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureActions();
+        $this->configureAuthenticationPipeline();
         $this->configureViews();
         $this->configureRateLimiting();
     }
@@ -54,6 +61,35 @@ class FortifyServiceProvider extends ServiceProvider
     }
 
     /**
+     * Configure the login authentication pipeline.
+     */
+    private function configureAuthenticationPipeline(): void
+    {
+        Fortify::authenticateThrough(
+            fn (Request $request) => array_filter([
+                config('fortify.limiters.login')
+                    ? null
+                    : EnsureLoginIsNotThrottled::class,
+
+                config('fortify.lowercase_usernames')
+                    ? CanonicalizeUsername::class
+                    : null,
+
+                DisableRememberMe::class,
+
+                Features::enabled(
+                    Features::twoFactorAuthentication(),
+                )
+                    ? RedirectIfTwoFactorAuthenticatable::class
+                    : null,
+
+                AttemptToAuthenticate::class,
+                PrepareAuthenticatedSession::class,
+            ]),
+        );
+    }
+
+    /**
      * Configure Fortify views.
      */
     private function configureViews(): void
@@ -65,7 +101,9 @@ class FortifyServiceProvider extends ServiceProvider
                     'canResetPassword' => Features::enabled(
                         Features::resetPasswords(),
                     ),
-                    'status' => $request->session()->get('status'),
+                    'status' => $request
+                        ->session()
+                        ->get('status'),
                 ],
             ),
         );
@@ -86,7 +124,9 @@ class FortifyServiceProvider extends ServiceProvider
             fn (Request $request) => Inertia::render(
                 'auth/forgot-password',
                 [
-                    'status' => $request->session()->get('status'),
+                    'status' => $request
+                        ->session()
+                        ->get('status'),
                 ],
             ),
         );
@@ -118,7 +158,9 @@ class FortifyServiceProvider extends ServiceProvider
             function (Request $request) {
                 $throttleKey = Str::transliterate(
                     Str::lower(
-                        $request->input(Fortify::username()),
+                        $request->input(
+                            Fortify::username(),
+                        ),
                     ).'|'.$request->ip(),
                 );
 

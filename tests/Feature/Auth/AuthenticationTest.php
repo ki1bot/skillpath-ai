@@ -42,9 +42,11 @@ class AuthenticationTest extends TestCase
         );
     }
 
-    public function test_users_can_choose_to_be_remembered()
+    public function test_remember_me_request_is_ignored()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'remember_token' => null,
+        ]);
 
         $response = $this->post(
             route('login.store'),
@@ -62,9 +64,11 @@ class AuthenticationTest extends TestCase
             ),
         );
 
-        $this->assertAuthenticated();
+        $this->assertAuthenticatedAs(
+            $user,
+        );
 
-        $this->assertNotEmpty(
+        $this->assertNull(
             $user
                 ->fresh()
                 ->getRememberToken(),
