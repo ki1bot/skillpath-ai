@@ -11,10 +11,7 @@ services:
         ports:
             - '8080:8080'
             - '5173:5173'
-        env_file:
-            - .env
         environment:
-            APP_URL: http://localhost:8080
             DB_HOST: postgres
         volumes:
             - .:/var/www/html
