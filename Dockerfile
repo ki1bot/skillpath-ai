@@ -43,6 +43,17 @@ ENV DOCKER_MODE=development
 
 WORKDIR /var/www/html
 
+RUN printf '%s\n' \
+    'opcache.enable=1' \
+    'opcache.enable_cli=1' \
+    'opcache.validate_timestamps=1' \
+    'opcache.revalidate_freq=0' \
+    'opcache.file_update_protection=0' \
+    'opcache.memory_consumption=256' \
+    'opcache.interned_strings_buffer=16' \
+    'opcache.max_accelerated_files=20000' \
+    > /usr/local/etc/php/conf.d/99-development-opcache.ini
+
 COPY docker/entrypoint.sh /usr/local/bin/skillpath-entrypoint
 
 RUN chmod +x /usr/local/bin/skillpath-entrypoint
@@ -137,4 +148,3 @@ EXPOSE 8080
 ENTRYPOINT ["/usr/local/bin/skillpath-entrypoint"]
 
 CMD ["apache2-foreground"]
-
