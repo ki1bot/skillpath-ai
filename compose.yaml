@@ -13,6 +13,7 @@ services:
             - '5173:5173'
         environment:
             DB_HOST: postgres
+            PHP_CLI_SERVER_WORKERS: '8'
         volumes:
             - .:/var/www/html
             - vendor_data:/var/www/html/vendor
@@ -20,31 +21,6 @@ services:
         depends_on:
             postgres:
                 condition: service_healthy
-        healthcheck:
-            test:
-                - CMD-SHELL
-                - >-
-                    php -r '$$ch=curl_init("http://127.0.0.1:8080");
-                    curl_setopt($$ch,CURLOPT_NOBODY,true);
-                    curl_setopt($$ch,CURLOPT_RETURNTRANSFER,true);
-                    curl_setopt($$ch,CURLOPT_TIMEOUT,3);
-                    curl_exec($$ch);
-                    $$code=curl_getinfo($$ch,CURLINFO_HTTP_CODE);
-                    curl_close($$ch);
-                    exit($$code >= 200 && $$code < 500 ? 0 : 1);'
-                    &&
-                    php -r '$$ch=curl_init("http://127.0.0.1:5173/@vite/client");
-                    curl_setopt($$ch,CURLOPT_NOBODY,true);
-                    curl_setopt($$ch,CURLOPT_RETURNTRANSFER,true);
-                    curl_setopt($$ch,CURLOPT_TIMEOUT,3);
-                    curl_exec($$ch);
-                    $$code=curl_getinfo($$ch,CURLINFO_HTTP_CODE);
-                    curl_close($$ch);
-                    exit($$code >= 200 && $$code < 400 ? 0 : 1);'
-            interval: 3s
-            timeout: 10s
-            retries: 40
-            start_period: 20s
 
     postgres:
         image: postgres:18
