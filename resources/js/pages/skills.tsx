@@ -258,7 +258,9 @@ export default function Skills({ career, skills, averageMastery }: Props) {
 
                     <section className="neo-card p-6">
                         <div className="flex items-start gap-4">
-                            <div className="flex size-10 shrink-0 items-center justify-center rounded-[10px] border-2 border-[#171717] bg-[var(--neo-blue)]"></div>
+                            <div className="flex size-10 shrink-0 items-center justify-center rounded-[10px] border-2 border-[#171717] bg-[var(--neo-blue)]">
+                                <ChartNoAxesCombined className="size-6 text-[#171717]" />
+                            </div>
 
                             <div className="min-w-0 flex-1">
                                 <div className="flex flex-wrap items-center gap-2">

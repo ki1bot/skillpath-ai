@@ -8,8 +8,6 @@ import {
     Play,
     RotateCcw,
     ShieldAlert,
-    Wifi,
-    WifiOff,
     X,
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -519,18 +517,6 @@ export default function AssessmentPage({
                                 Jurusan: {assessment.study_program}
                             </span>
 
-                            <span className="rounded-full border-2 border-foreground bg-card px-3 py-1 text-xs font-black">
-                                {assessment.question_limit} soal
-                            </span>
-
-                            <span className="rounded-full border-2 border-foreground bg-card px-3 py-1 text-xs font-black">
-                                5 bagian
-                            </span>
-
-                            <span className="rounded-full border-2 border-foreground bg-card px-3 py-1 text-xs font-black">
-                                {assessment.skill_count} kemampuan inti
-                            </span>
-
                             {latestAttempt && (
                                 <span className="flex items-center gap-1.5 rounded-full border-2 border-[#171717] bg-[var(--neo-yellow)] px-3 py-1 text-xs font-black text-[#171717]">
                                     <History className="size-3.5" />
@@ -681,7 +667,7 @@ export default function AssessmentPage({
                                                 }`}
                                             >
                                                 <p className="text-xs font-black">
-                                                    B{sectionIndex + 1}
+                                                    Bagian{sectionIndex + 1}
                                                 </p>
 
                                                 <p className="mt-1 font-mono text-[10px] font-black">
@@ -833,45 +819,6 @@ export default function AssessmentPage({
                                             width: `${progress}%`,
                                         }}
                                     />
-                                </div>
-                            </section>
-
-                            <section className="neo-surface p-5">
-                                <p className="text-sm leading-6 font-semibold">
-                                    Setiap jawaban dan bagian terakhir disimpan
-                                    di browser. Jika halaman di-refresh atau
-                                    internet terputus, progres tetap dapat
-                                    dipulihkan selama sesi tidak dibatalkan.
-                                </p>
-                            </section>
-
-                            <section
-                                className={`rounded-[14px] border-2 border-[#171717] p-5 text-[#171717] ${
-                                    isOnline
-                                        ? 'bg-[var(--neo-lime)]'
-                                        : 'bg-[var(--neo-yellow)]'
-                                }`}
-                            >
-                                <div className="flex items-start gap-3">
-                                    {isOnline ? (
-                                        <Wifi className="mt-0.5 size-5 shrink-0" />
-                                    ) : (
-                                        <WifiOff className="mt-0.5 size-5 shrink-0" />
-                                    )}
-
-                                    <div>
-                                        <p className="text-sm font-black">
-                                            {isOnline
-                                                ? 'Progres terlindungi'
-                                                : 'Koneksi terputus'}
-                                        </p>
-
-                                        <p className="mt-2 text-xs leading-5 font-semibold">
-                                            {isOnline
-                                                ? 'Reload tidak akan menghapus jawaban yang sudah dipilih.'
-                                                : 'Tetap kerjakan soal. Jawaban tersimpan secara lokal dan dapat dikirim setelah internet kembali.'}
-                                        </p>
-                                    </div>
                                 </div>
                             </section>
 
