@@ -367,11 +367,6 @@ export default function Onboarding({
                             </label>
                         </div>
 
-                        <div className="mt-7 rounded-[12px] border-2 border-[#171717] bg-[var(--neo-yellow)] p-4 text-sm leading-6 font-bold text-[#171717]">
-                            Setelah profil disimpan, kamu akan mengerjakan 9
-                            pertanyaan sesuai jurusan yang dipilih.
-                        </div>
-
                         <Button
                             type="submit"
                             size="lg"

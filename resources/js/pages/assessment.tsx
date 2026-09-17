@@ -7,7 +7,6 @@ import {
     History,
     Play,
     RotateCcw,
-    ShieldAlert,
     X,
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -667,7 +666,7 @@ export default function AssessmentPage({
                                                 }`}
                                             >
                                                 <p className="text-xs font-black">
-                                                    Bagian{sectionIndex + 1}
+                                                    Bagian {sectionIndex + 1}
                                                 </p>
 
                                                 <p className="mt-1 font-mono text-[10px] font-black">
@@ -893,21 +892,9 @@ export default function AssessmentPage({
                             Jika Anda memilih keluar, seluruh jawaban sementara
                             dan sesi Assesment aktif akan dihapus. Saat memulai
                             kembali, Assesment dimulai dari Bagian 1 dan soal
-                            nomor 1. Reload biasa tidak menghapus progres.
+                            nomor 1.
                         </DialogDescription>
                     </DialogHeader>
-
-                    <div className="rounded-[12px] border-2 border-[#171717] bg-[var(--neo-yellow)] p-4 text-sm font-semibold text-[#171717]">
-                        <div className="flex items-start gap-3">
-                            <ShieldAlert className="mt-0.5 size-5 shrink-0" />
-
-                            <p>
-                                Pembatalan berbeda dengan refresh. Gunakan
-                                pembatalan hanya jika memang ingin meninggalkan
-                                Assesment dan menghapus progres.
-                            </p>
-                        </div>
-                    </div>
 
                     <DialogFooter>
                         <Button
