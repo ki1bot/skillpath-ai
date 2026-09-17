@@ -6,9 +6,6 @@ import {
     Clock3,
     FolderKanban,
     Gauge,
-    ListChecks,
-    Upload,
-    Workflow,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -90,149 +87,62 @@ export default function Projects({ projects }: { projects: Project[] }) {
         <>
             <Head title="Proyek / Tugas Akhir" />
 
-            <div className="neo-page flex flex-1 flex-col gap-6 py-6 sm:py-8 lg:gap-8 lg:py-10">
-                <section className="overflow-hidden rounded-[18px] border-2 border-[#171717] bg-[var(--neo-blue)] text-[#171717] shadow-[6px_6px_0_var(--neo-shadow-color)]">
-                    <div className="grid gap-7 p-5 sm:p-7 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-end lg:p-8">
+            <div className="neo-page py-7 md:py-9">
+                <header className="border-b-2 border-foreground pb-6">
+                    <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                         <div className="max-w-3xl">
-                            <span className="inline-flex items-center rounded-full border-2 border-[#171717] bg-[#fffdf7] px-3 py-1.5 text-[10px] font-black tracking-[0.12em] uppercase">
+                            <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
                                 Proyek / Tugas Akhir
-                            </span>
+                            </p>
 
-                            <h1 className="mt-5 max-w-3xl text-4xl leading-[0.95] font-black tracking-[-0.045em] sm:text-5xl">
-                                Pilih proyek yang paling sesuai dengan bidang
-                                yang ingin kamu kuasai.
+                            <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
+                                Pilih satu proyek untuk dikerjakan dengan serius
                             </h1>
 
-                            <p className="mt-4 max-w-2xl text-sm leading-7 font-semibold text-[#171717]/75 sm:text-base">
-                                Setiap proyek mewakili satu bidang utama di
-                                jurusanmu. Baca tujuan proyek, pahami kemampuan
-                                yang dilatih, kerjakan bagian wajib, lalu
-                                kumpulkan hasil akhirnya melalui Google Drive.
+                            <p className="mt-3 max-w-2xl text-sm leading-7 font-medium text-muted-foreground">
+                                Setiap proyek mewakili bidang berbeda di
+                                jurusanmu. Buka detailnya untuk melihat tugas
+                                wajib, kriteria selesai, dan cara pengumpulan.
                             </p>
+                        </div>
 
+                        <div className="flex flex-wrap gap-2 text-xs font-black">
                             {programName && (
-                                <div className="mt-5 inline-flex items-center gap-2 rounded-[10px] border-2 border-[#171717] bg-[#fffdf7] px-3 py-2 text-sm font-black">
-                                    <FolderKanban className="size-4" />
-                                    Jurusan: {programName}
-                                </div>
+                                <span className="rounded-full border-2 border-foreground bg-card px-3 py-2">
+                                    {programName}
+                                </span>
                             )}
-                        </div>
 
-                        <div className="rounded-[14px] border-2 border-[#171717] bg-[#fffdf7] p-5 text-[#171717] shadow-[4px_4px_0_#171717]">
-                            <p className="text-[10px] font-black tracking-[0.14em] uppercase">
-                                Ringkasan progres
-                            </p>
-
-                            <div className="mt-4 grid grid-cols-3 gap-3">
-                                <div>
-                                    <p className="text-2xl font-black">
-                                        {projects.length}
-                                    </p>
-
-                                    <p className="mt-1 text-[10px] font-black tracking-wide uppercase">
-                                        Pilihan
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <p className="text-2xl font-black">
-                                        {activeProjects}
-                                    </p>
-
-                                    <p className="mt-1 text-[10px] font-black tracking-wide uppercase">
-                                        Dikerjakan
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <p className="text-2xl font-black">
-                                        {completedProjects}
-                                    </p>
-
-                                    <p className="mt-1 text-[10px] font-black tracking-wide uppercase">
-                                        Selesai
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section className="grid gap-4 md:grid-cols-3">
-                    <div className="neo-card p-5">
-                        <div className="flex items-start gap-3">
-                            <span className="flex size-10 shrink-0 items-center justify-center rounded-[10px] border-2 border-[#171717] bg-[var(--neo-yellow)] text-[#171717]">
-                                <span className="font-black">1</span>
+                            <span className="rounded-full border-2 border-foreground bg-card px-3 py-2">
+                                {projects.length} pilihan
                             </span>
 
-                            <div>
-                                <div className="flex items-center gap-2">
-                                    <FolderKanban className="size-4" />
-
-                                    <h2 className="font-black">
-                                        Pilih bidang proyek
-                                    </h2>
-                                </div>
-
-                                <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
-                                    Pilih berdasarkan minat dan kemampuan yang
-                                    ingin kamu kembangkan.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="neo-card p-5">
-                        <div className="flex items-start gap-3">
-                            <span className="flex size-10 shrink-0 items-center justify-center rounded-[10px] border-2 border-[#171717] bg-[var(--neo-lime)] text-[#171717]">
-                                <span className="font-black">2</span>
+                            <span className="rounded-full border-2 border-foreground bg-card px-3 py-2">
+                                {activeProjects} dikerjakan
                             </span>
 
-                            <div>
-                                <div className="flex items-center gap-2">
-                                    <ListChecks className="size-4" />
-
-                                    <h2 className="font-black">
-                                        Kerjakan checklist
-                                    </h2>
-                                </div>
-
-                                <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
-                                    Halaman detail menjelaskan tugas wajib,
-                                    kriteria selesai, dan kemampuan yang
-                                    digunakan.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="neo-card p-5">
-                        <div className="flex items-start gap-3">
-                            <span className="flex size-10 shrink-0 items-center justify-center rounded-[10px] border-2 border-[#171717] bg-[var(--neo-orange)] text-[#171717]">
-                                <span className="font-black">3</span>
+                            <span className="rounded-full border-2 border-foreground bg-card px-3 py-2">
+                                {completedProjects} selesai
                             </span>
-
-                            <div>
-                                <div className="flex items-center gap-2">
-                                    <Upload className="size-4" />
-
-                                    <h2 className="font-black">
-                                        Kumpulkan lewat Drive
-                                    </h2>
-                                </div>
-
-                                <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
-                                    Upload hasil atau dokumentasi ke Google
-                                    Drive, lalu tempel tautannya di halaman
-                                    proyek.
-                                </p>
-                            </div>
                         </div>
                     </div>
+                </header>
+
+                <section className="mt-6 rounded-[12px] border-2 border-foreground bg-muted/30 p-5">
+                    <p className="text-sm font-black">
+                        Cara menggunakan halaman ini
+                    </p>
+
+                    <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
+                        Lihat ringkasan proyek, perhatikan nilai kesiapan, lalu
+                        buka detail tugas. Nilai kesiapan hanya membantu membaca
+                        kondisi awal; kamu tetap boleh memilih proyek yang
+                        menantang.
+                    </p>
                 </section>
 
                 {projects.length === 0 ? (
-                    <section className="neo-empty">
+                    <section className="neo-empty mt-6">
                         <FolderKanban className="size-9" />
 
                         <h2 className="mt-4 text-xl font-black">
@@ -245,239 +155,190 @@ export default function Projects({ projects }: { projects: Project[] }) {
                         </p>
                     </section>
                 ) : (
-                    <section>
-                        <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                            <div>
-                                <div className="flex items-center gap-2">
-                                    <Workflow className="size-5" />
+                    <section className="mt-6 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
+                        {projects.map((project, index) => {
+                            const catalog = getCatalog(project);
+                            const started = Boolean(project.user_project);
 
-                                    <h2 className="text-2xl font-black tracking-tight">
-                                        Pilihan bidang proyek
-                                    </h2>
-                                </div>
+                            const completed =
+                                project.user_project?.status === 'completed';
 
-                                <p className="mt-2 max-w-3xl text-sm leading-6 font-medium text-muted-foreground">
-                                    Kamu tidak harus mengerjakan semuanya
-                                    sekaligus. Buka satu proyek, baca tugasnya
-                                    sampai jelas, lalu tentukan apakah proyek
-                                    tersebut ingin kamu mulai.
-                                </p>
-                            </div>
+                            const recommendation =
+                                project.readiness.recommendation;
 
-                            <span className="text-xs font-black tracking-wide text-muted-foreground uppercase">
-                                {projects.length} pilihan
-                            </span>
-                        </div>
+                            const progress =
+                                project.user_project?.progress_percentage ?? 0;
 
-                        <div className="grid items-stretch gap-5 xl:grid-cols-3">
-                            {projects.map((project, index) => {
-                                const catalog = getCatalog(project);
+                            return (
+                                <Card
+                                    key={project.id}
+                                    className="flex h-full flex-col overflow-hidden"
+                                >
+                                    <CardHeader className="border-b-2 border-foreground p-5">
+                                        <div className="flex items-start justify-between gap-4">
+                                            <div>
+                                                <p className="text-[10px] font-black tracking-[0.14em] text-muted-foreground uppercase">
+                                                    Pilihan {index + 1}
+                                                </p>
 
-                                const started = Boolean(project.user_project);
+                                                <p className="mt-1 text-sm font-black">
+                                                    {catalog.focus}
+                                                </p>
+                                            </div>
 
-                                const completed =
-                                    project.user_project?.status ===
-                                    'completed';
-
-                                const recommendation =
-                                    project.readiness.recommendation;
-
-                                const progress =
-                                    project.user_project?.progress_percentage ??
-                                    0;
-
-                                return (
-                                    <Card
-                                        key={project.id}
-                                        className="group flex h-full flex-col overflow-hidden"
-                                    >
-                                        <CardHeader className="border-b-2 border-[#171717] bg-[#fffdf7] p-5 text-[#171717]">
-                                            <div className="flex items-start justify-between gap-4">
-                                                <div className="min-w-0">
-                                                    <span className="text-[10px] font-black tracking-[0.16em] uppercase">
-                                                        Pilihan{' '}
-                                                        {String(
-                                                            index + 1,
-                                                        ).padStart(2, '0')}
-                                                    </span>
-
-                                                    <p className="mt-2 text-sm font-black text-[#171717]/70">
-                                                        {catalog.focus}
-                                                    </p>
-                                                </div>
-
-                                                <span
-                                                    className={`shrink-0 rounded-full border-2 border-[#171717] px-2.5 py-1 text-[9px] font-black tracking-wide uppercase ${
-                                                        completed
-                                                            ? 'bg-[var(--neo-lime)]'
-                                                            : started
-                                                              ? 'bg-[var(--neo-yellow)]'
-                                                              : 'bg-[#fffdf7]'
-                                                    }`}
-                                                >
-                                                    {completed
-                                                        ? 'Selesai'
+                                            <span
+                                                className={`rounded-full border-2 border-[#171717] px-2.5 py-1 text-[10px] font-black text-[#171717] ${
+                                                    completed
+                                                        ? 'bg-[var(--neo-lime)]'
                                                         : started
-                                                          ? (statusLabels[
-                                                                project
-                                                                    .user_project
-                                                                    ?.status ??
-                                                                    ''
-                                                            ] ??
-                                                            'Sedang dikerjakan')
-                                                          : 'Belum dimulai'}
-                                                </span>
-                                            </div>
+                                                          ? 'bg-[var(--neo-yellow)]'
+                                                          : 'bg-[#fffdf7]'
+                                                }`}
+                                            >
+                                                {completed
+                                                    ? 'Selesai'
+                                                    : started
+                                                      ? (statusLabels[
+                                                            project.user_project
+                                                                ?.status ?? ''
+                                                        ] ??
+                                                        'Sedang dikerjakan')
+                                                      : 'Belum dimulai'}
+                                            </span>
+                                        </div>
 
-                                            <CardTitle className="mt-4 text-2xl leading-tight font-black tracking-[-0.035em] text-[#171717]">
-                                                {project.title}
-                                            </CardTitle>
-                                        </CardHeader>
+                                        <CardTitle className="mt-4 text-2xl leading-tight font-black tracking-tight">
+                                            {project.title}
+                                        </CardTitle>
+                                    </CardHeader>
 
-                                        <CardContent className="flex flex-1 flex-col gap-5 pt-5">
-                                            <div>
-                                                <p className="text-[10px] font-black tracking-[0.12em] uppercase">
-                                                    Apa yang akan kamu buat
-                                                </p>
+                                    <CardContent className="flex flex-1 flex-col gap-5 pt-5">
+                                        <div>
+                                            <p className="text-xs font-black tracking-wide text-muted-foreground uppercase">
+                                                Yang akan dibuat
+                                            </p>
 
-                                                <p className="mt-2 text-sm leading-7 font-medium text-card-foreground/85">
-                                                    {project.summary}
-                                                </p>
-                                            </div>
+                                            <p className="mt-2 text-sm leading-7 font-medium">
+                                                {project.summary}
+                                            </p>
+                                        </div>
 
-                                            <div>
-                                                <p className="text-[10px] font-black tracking-[0.12em] uppercase">
-                                                    Kemampuan utama
-                                                </p>
+                                        <div>
+                                            <p className="text-xs font-black tracking-wide text-muted-foreground uppercase">
+                                                Kemampuan yang dilatih
+                                            </p>
 
-                                                <div className="mt-3 flex flex-wrap gap-2">
-                                                    {catalog.skills.map(
-                                                        (skill) => (
-                                                            <span
-                                                                key={skill}
-                                                                className="rounded-full border-2 border-foreground/15 bg-muted/40 px-3 py-1.5 text-[11px] font-bold"
-                                                            >
-                                                                {skill}
-                                                            </span>
-                                                        ),
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            <div className="grid grid-cols-2 gap-3">
-                                                <div className="rounded-[10px] border-2 border-foreground/15 bg-muted/30 p-3">
-                                                    <div className="flex items-center gap-2 text-[10px] font-black tracking-wide uppercase">
-                                                        <Clock3 className="size-3.5" />
-                                                        Estimasi
-                                                    </div>
-
-                                                    <p className="mt-2 text-sm font-black">
-                                                        ±{' '}
-                                                        {
-                                                            project.estimated_hours
-                                                        }{' '}
-                                                        jam
-                                                    </p>
-                                                </div>
-
-                                                <div
-                                                    className={`rounded-[10px] border-2 border-foreground p-3 text-[#171717] ${
-                                                        recommendationClasses[
-                                                            recommendation.level
-                                                        ]
-                                                    }`}
-                                                >
-                                                    <div className="flex items-center gap-2 text-[10px] font-black tracking-wide uppercase">
-                                                        <Gauge className="size-3.5" />
-                                                        Kesiapan
-                                                    </div>
-
-                                                    <p className="mt-2 text-sm font-black">
-                                                        {Math.round(
-                                                            project.readiness
-                                                                .score,
-                                                        )}
-                                                        %
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            <div className="rounded-[10px] border-2 border-foreground/15 bg-muted/30 p-4">
-                                                <div className="flex items-start gap-2">
-                                                    {recommendation.level ===
-                                                    'recommended' ? (
-                                                        <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
-                                                    ) : (
-                                                        <CircleAlert className="mt-0.5 size-4 shrink-0" />
-                                                    )}
-
-                                                    <div>
-                                                        <p className="text-xs font-black">
-                                                            Saran saat ini:{' '}
-                                                            {
-                                                                recommendation.label
-                                                            }
-                                                        </p>
-
-                                                        <p className="mt-1 text-xs leading-5 font-medium text-muted-foreground">
-                                                            {
-                                                                recommendation.message
-                                                            }
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {started && (
-                                                <div>
-                                                    <div className="mb-2 flex items-center justify-between gap-3 text-xs font-black tracking-wide uppercase">
-                                                        <span>
-                                                            Progres proyek
-                                                        </span>
-
-                                                        <span>{progress}%</span>
-                                                    </div>
-
-                                                    <div className="neo-progress">
-                                                        <span
-                                                            style={{
-                                                                width: `${progress}%`,
-                                                            }}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            <div className="mt-auto pt-1">
-                                                <Button
-                                                    asChild
-                                                    variant={
-                                                        completed
-                                                            ? 'outline'
-                                                            : 'secondary'
-                                                    }
-                                                    className="w-full"
-                                                >
-                                                    <Link
-                                                        href={`/projects/${project.slug}`}
+                                            <div className="mt-2 flex flex-wrap gap-2">
+                                                {catalog.skills.map((skill) => (
+                                                    <span
+                                                        key={skill}
+                                                        className="rounded-full border-2 border-foreground/15 bg-muted/30 px-3 py-1 text-xs font-bold"
                                                     >
-                                                        <FolderKanban className="size-4" />
-
-                                                        {completed
-                                                            ? 'Lihat tugas dan hasil'
-                                                            : started
-                                                              ? 'Lanjutkan tugas'
-                                                              : 'Buka tugas'}
-
-                                                        <ArrowRight className="size-4" />
-                                                    </Link>
-                                                </Button>
+                                                        {skill}
+                                                    </span>
+                                                ))}
                                             </div>
-                                        </CardContent>
-                                    </Card>
-                                );
-                            })}
-                        </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div className="rounded-[10px] border-2 border-foreground/15 bg-muted/30 p-3">
+                                                <div className="flex items-center gap-2 text-xs font-black">
+                                                    <Clock3 className="size-4" />
+                                                    Estimasi
+                                                </div>
+
+                                                <p className="mt-2 text-lg font-black">
+                                                    ± {project.estimated_hours}{' '}
+                                                    jam
+                                                </p>
+                                            </div>
+
+                                            <div
+                                                className={`rounded-[10px] border-2 border-[#171717] p-3 text-[#171717] ${
+                                                    recommendationClasses[
+                                                        recommendation.level
+                                                    ]
+                                                }`}
+                                            >
+                                                <div className="flex items-center gap-2 text-xs font-black">
+                                                    <Gauge className="size-4" />
+                                                    Kesiapan
+                                                </div>
+
+                                                <p className="mt-2 text-lg font-black">
+                                                    {Math.round(
+                                                        project.readiness.score,
+                                                    )}
+                                                    %
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="rounded-[10px] border-2 border-foreground/15 bg-muted/20 p-4">
+                                            <div className="flex items-start gap-2">
+                                                {recommendation.level ===
+                                                'recommended' ? (
+                                                    <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
+                                                ) : (
+                                                    <CircleAlert className="mt-0.5 size-4 shrink-0" />
+                                                )}
+
+                                                <div>
+                                                    <p className="text-sm font-black">
+                                                        {recommendation.label}
+                                                    </p>
+
+                                                    <p className="mt-1 text-xs leading-5 font-medium text-muted-foreground">
+                                                        {recommendation.message}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {started && (
+                                            <div>
+                                                <div className="mb-2 flex items-center justify-between text-xs font-black">
+                                                    <span>Progres</span>
+                                                    <span>{progress}%</span>
+                                                </div>
+
+                                                <div className="neo-progress">
+                                                    <span
+                                                        style={{
+                                                            width: `${progress}%`,
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        <Button
+                                            asChild
+                                            variant={
+                                                completed
+                                                    ? 'outline'
+                                                    : 'secondary'
+                                            }
+                                            className="mt-auto w-full"
+                                        >
+                                            <Link
+                                                href={`/projects/${project.slug}`}
+                                            >
+                                                <FolderKanban className="size-4" />
+
+                                                {completed
+                                                    ? 'Lihat detail dan hasil'
+                                                    : started
+                                                      ? 'Lanjutkan proyek'
+                                                      : 'Lihat tugas proyek'}
+
+                                                <ArrowRight className="size-4" />
+                                            </Link>
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+                            );
+                        })}
                     </section>
                 )}
             </div>

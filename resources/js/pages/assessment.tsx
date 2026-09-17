@@ -181,9 +181,7 @@ export default function AssessmentPage({
     const [submitProcessing, setSubmitProcessing] = useState(false);
     const [abandonProcessing, setAbandonProcessing] = useState(false);
     const [answerError, setAnswerError] = useState<string | null>(null);
-
-    const [startDialogOpen, setStartDialogOpen] = useState(!assessment.started);
-
+    const [startDialogOpen, setStartDialogOpen] = useState(false);
     const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
 
     const allowNavigationRef = useRef(false);
@@ -191,9 +189,7 @@ export default function AssessmentPage({
 
     const answers = draftState.answers;
     const currentSection = draftState.currentSection;
-
     const isRepeat = Boolean(latestAttempt);
-
     const currentQuestions = sections[currentSection] ?? [];
 
     const completedCount = assessment.questions.filter((question) =>
@@ -225,13 +221,8 @@ export default function AssessmentPage({
     };
 
     useEffect(() => {
-        const handleOnline = () => {
-            setIsOnline(true);
-        };
-
-        const handleOffline = () => {
-            setIsOnline(false);
-        };
+        const handleOnline = () => setIsOnline(true);
+        const handleOffline = () => setIsOnline(false);
 
         window.addEventListener('online', handleOnline);
         window.addEventListener('offline', handleOffline);
@@ -302,7 +293,6 @@ export default function AssessmentPage({
             }
 
             const destination = new URL(anchor.href, window.location.href);
-
             const current = new URL(window.location.href);
 
             if (destination.href === current.href) {
@@ -339,9 +329,7 @@ export default function AssessmentPage({
             {},
             {
                 preserveScroll: true,
-                onFinish: () => {
-                    setStartProcessing(false);
-                },
+                onFinish: () => setStartProcessing(false),
             },
         );
     };
@@ -356,6 +344,21 @@ export default function AssessmentPage({
                 [questionId]: value,
             },
         }));
+    };
+
+    const clearAnswer = (questionId: number) => {
+        setAnswerError(null);
+
+        setDraftState((current) => {
+            const nextAnswers = { ...current.answers };
+
+            delete nextAnswers[questionId];
+
+            return {
+                ...current,
+                answers: nextAnswers,
+            };
+        });
     };
 
     const goNextSection = () => {
@@ -412,7 +415,7 @@ export default function AssessmentPage({
 
         if (!isOnline) {
             setAnswerError(
-                'Hubungkan kembali internet sebelum membatalkan Assesment agar sesi di server dapat dihapus dengan benar.',
+                'Hubungkan kembali internet sebelum membatalkan assessment agar sesi di server dapat dihapus dengan benar.',
             );
 
             setLeaveDialogOpen(false);
@@ -441,9 +444,7 @@ export default function AssessmentPage({
                 onError: () => {
                     allowNavigationRef.current = false;
                 },
-                onFinish: () => {
-                    setAbandonProcessing(false);
-                },
+                onFinish: () => setAbandonProcessing(false),
             },
         );
     };
@@ -475,151 +476,142 @@ export default function AssessmentPage({
                     setAnswerError(
                         typeof error === 'string'
                             ? error
-                            : 'Jawaban Assesment belum dapat disimpan. Periksa kembali seluruh jawaban.',
+                            : 'Jawaban assessment belum dapat disimpan. Periksa kembali seluruh jawaban.',
                     );
                 },
                 onCancel: () => {
                     allowNavigationRef.current = false;
                 },
-                onFinish: () => {
-                    setSubmitProcessing(false);
-                },
+                onFinish: () => setSubmitProcessing(false),
             },
         );
     };
 
     return (
         <>
-            <Head title="Assesment Awal" />
+            <Head title="Assessment Awal" />
 
-            <div className="neo-page py-8 md:py-10">
-                <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
-                    <div className="max-w-3xl">
-                        <span className="neo-label">Tahap 02</span>
+            <div className="neo-page py-7 md:py-9">
+                <header className="border-b-2 border-foreground pb-6">
+                    <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+                        <div className="max-w-3xl">
+                            <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
+                                Assessment awal · {assessment.study_program}
+                            </p>
 
-                        <h1 className="neo-heading mt-5 text-4xl sm:text-5xl">
-                            Kenali kemampuan awalmu.
-                        </h1>
+                            <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
+                                Jawab sesuai kemampuanmu saat ini
+                            </h1>
 
-                        <p className="mt-4 text-sm leading-relaxed font-medium text-muted-foreground">
-                            Assesment jurusan{' '}
-                            <strong>{assessment.study_program}</strong> terdiri
-                            dari{' '}
-                            <strong>
-                                {assessment.question_limit} pertanyaan
-                            </strong>{' '}
-                            yang dibagi menjadi 5 bagian.
-                        </p>
+                            <p className="mt-3 max-w-2xl text-sm leading-6 font-medium text-muted-foreground">
+                                Ada {assessment.question_limit} soal yang dibagi
+                                menjadi {sections.length} bagian. Selesaikan
+                                satu bagian sebelum lanjut ke bagian berikutnya.
+                            </p>
+                        </div>
 
-                        <div className="mt-4 flex flex-wrap gap-2">
-                            <span className="rounded-full border-2 border-foreground bg-card px-3 py-1 text-xs font-black">
-                                Jurusan: {assessment.study_program}
+                        <div className="flex flex-wrap gap-2 text-xs font-black">
+                            <span className="inline-flex items-center gap-2 rounded-full border-2 border-foreground bg-card px-3 py-2">
+                                <Clock3 className="size-4" />±{' '}
+                                {assessment.duration_minutes} menit
+                            </span>
+
+                            <span className="rounded-full border-2 border-foreground bg-card px-3 py-2">
+                                {assessment.skill_count} kemampuan
                             </span>
 
                             {latestAttempt && (
-                                <span className="flex items-center gap-1.5 rounded-full border-2 border-[#171717] bg-[var(--neo-yellow)] px-3 py-1 text-xs font-black text-[#171717]">
-                                    <History className="size-3.5" />
+                                <span className="inline-flex items-center gap-2 rounded-full border-2 border-[#171717] bg-[var(--neo-yellow)] px-3 py-2 text-[#171717]">
+                                    <History className="size-4" />
 
                                     {assessment.started
-                                        ? 'Mengulang Assesment'
-                                        : 'Pernah mengikuti Assesment'}
+                                        ? 'Sesi pengulangan'
+                                        : 'Pernah dikerjakan'}
                                 </span>
                             )}
                         </div>
                     </div>
-
-                    <div className="space-y-3">
-                        <div className="neo-surface flex items-center gap-3 px-4 py-3 text-sm font-black">
-                            <Clock3 className="size-5" />±{' '}
-                            {assessment.duration_minutes} menit
-                        </div>
-                    </div>
-                </div>
+                </header>
 
                 {!assessment.started ? (
-                    <section className="neo-card mt-8 p-6 sm:p-8">
-                        <div className="flex size-12 items-center justify-center rounded-[12px] border-2 border-[#171717] bg-[var(--neo-blue)] text-[#171717]">
-                            {isRepeat ? (
-                                <RotateCcw className="size-6" />
-                            ) : (
-                                <Play className="size-6" />
-                            )}
+                    <section className="neo-card mt-6 p-6 sm:p-8">
+                        <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start">
+                            <div>
+                                <div className="flex size-11 items-center justify-center rounded-[10px] border-2 border-[#171717] bg-[var(--neo-blue)] text-[#171717]">
+                                    {isRepeat ? (
+                                        <RotateCcw className="size-5" />
+                                    ) : (
+                                        <Play className="size-5" />
+                                    )}
+                                </div>
+
+                                <h2 className="mt-4 text-2xl font-black">
+                                    {isRepeat
+                                        ? 'Mulai assessment baru'
+                                        : 'Sebelum mulai'}
+                                </h2>
+
+                                <p className="mt-3 max-w-2xl text-sm leading-6 font-medium text-muted-foreground">
+                                    Pilih satu jawaban untuk setiap soal.
+                                    Jawaban disimpan di browser selama sesi
+                                    aktif, jadi refresh tidak menghapus progres
+                                    yang sudah dikerjakan.
+                                </p>
+
+                                <Button
+                                    type="button"
+                                    className="mt-6"
+                                    disabled={startProcessing}
+                                    onClick={() => setStartDialogOpen(true)}
+                                >
+                                    {isRepeat ? <RotateCcw /> : <Play />}
+
+                                    {startProcessing
+                                        ? 'Menyiapkan...'
+                                        : isRepeat
+                                          ? 'Mulai ulang assessment'
+                                          : 'Mulai assessment'}
+                                </Button>
+                            </div>
+
+                            <div className="rounded-[12px] border-2 border-foreground bg-muted/30 p-5">
+                                <p className="text-xs font-black tracking-wide uppercase">
+                                    Yang perlu diketahui
+                                </p>
+
+                                <div className="mt-4 grid gap-3 text-sm leading-6 font-medium">
+                                    <p>
+                                        <strong>
+                                            {assessment.question_limit}
+                                        </strong>{' '}
+                                        soal, {sections.length} bagian.
+                                    </p>
+
+                                    <p>
+                                        Setiap bagian berisi maksimal{' '}
+                                        <strong>{SECTION_SIZE}</strong> soal.
+                                    </p>
+
+                                    <p>
+                                        Kamu bisa membersihkan jawaban jika
+                                        salah memilih sebelum mengirim hasil.
+                                    </p>
+                                </div>
+                            </div>
                         </div>
-
-                        <h2 className="mt-5 text-2xl font-black">
-                            {isRepeat
-                                ? 'Siap mengulangi Assesment?'
-                                : 'Siap memulai Assesment?'}
-                        </h2>
-
-                        <p className="mt-3 max-w-3xl text-sm leading-6 font-semibold text-muted-foreground">
-                            Sistem akan menggunakan seluruh{' '}
-                            {assessment.question_limit} soal dari kompetensi
-                            inti jurusan. Soal dibagi menjadi lima bagian,
-                            masing-masing berisi 10 soal. Jawaban dan bagian
-                            terakhir disimpan pada browser selama sesi masih
-                            aktif.
-                        </p>
-
-                        <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                            <div className="neo-card-flat p-4">
-                                <p className="font-mono text-2xl font-black">
-                                    {assessment.question_limit}
-                                </p>
-
-                                <p className="mt-1 text-xs font-bold">
-                                    Total soal
-                                </p>
-                            </div>
-
-                            <div className="neo-card-flat p-4">
-                                <p className="font-mono text-2xl font-black">
-                                    5 × 10
-                                </p>
-
-                                <p className="mt-1 text-xs font-bold">
-                                    Pembagian bagian
-                                </p>
-                            </div>
-
-                            <div className="neo-card-flat p-4">
-                                <p className="font-mono text-2xl font-black">
-                                    {assessment.skill_count}
-                                </p>
-
-                                <p className="mt-1 text-xs font-bold">
-                                    Kompetensi inti
-                                </p>
-                            </div>
-                        </div>
-
-                        <Button
-                            type="button"
-                            className="mt-6"
-                            disabled={startProcessing}
-                            onClick={() => setStartDialogOpen(true)}
-                        >
-                            {isRepeat ? <RotateCcw /> : <Play />}
-
-                            {startProcessing
-                                ? 'Menyiapkan...'
-                                : isRepeat
-                                  ? 'Ulangi Assesment'
-                                  : 'Mulai Assesment'}
-                        </Button>
                     </section>
                 ) : (
-                    <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_300px]">
-                        <section className="space-y-5">
-                            <div className="neo-card p-5 sm:p-6">
-                                <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_260px]">
+                        <main className="min-w-0 space-y-5">
+                            <section className="neo-card p-5 sm:p-6">
+                                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                                     <div>
-                                        <p className="text-xs font-black tracking-[0.15em] text-muted-foreground uppercase">
+                                        <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
                                             Bagian {currentSection + 1} dari{' '}
                                             {sections.length}
                                         </p>
 
-                                        <h2 className="mt-2 text-2xl font-black">
+                                        <h2 className="mt-1 text-2xl font-black">
                                             Soal{' '}
                                             {currentSection * SECTION_SIZE + 1}–
                                             {Math.min(
@@ -630,7 +622,7 @@ export default function AssessmentPage({
                                         </h2>
                                     </div>
 
-                                    <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-yellow)] px-3 py-1 text-xs font-black text-[#171717]">
+                                    <p className="text-sm font-black">
                                         {
                                             currentQuestions.filter(
                                                 (question) =>
@@ -640,10 +632,10 @@ export default function AssessmentPage({
                                             ).length
                                         }
                                         /{currentQuestions.length} dijawab
-                                    </span>
+                                    </p>
                                 </div>
 
-                                <div className="mt-5 grid grid-cols-5 gap-2">
+                                <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-5">
                                     {sections.map((section, sectionIndex) => {
                                         const answered = section.filter(
                                             (question) =>
@@ -656,7 +648,7 @@ export default function AssessmentPage({
                                         return (
                                             <div
                                                 key={sectionIndex}
-                                                className={`rounded-[10px] border-2 border-foreground px-2 py-3 text-center ${
+                                                className={`rounded-[10px] border-2 border-foreground px-3 py-3 ${
                                                     sectionIndex ===
                                                     currentSection
                                                         ? 'bg-secondary text-[#171717]'
@@ -669,14 +661,27 @@ export default function AssessmentPage({
                                                     Bagian {sectionIndex + 1}
                                                 </p>
 
-                                                <p className="mt-1 font-mono text-[10px] font-black">
+                                                <p className="mt-1 text-[11px] font-semibold opacity-70">
+                                                    {sectionIndex *
+                                                        SECTION_SIZE +
+                                                        1}
+                                                    –
+                                                    {Math.min(
+                                                        (sectionIndex + 1) *
+                                                            SECTION_SIZE,
+                                                        assessment.questions
+                                                            .length,
+                                                    )}
+                                                </p>
+
+                                                <p className="mt-2 font-mono text-xs font-black">
                                                     {answered}/{section.length}
                                                 </p>
                                             </div>
                                         );
                                     })}
                                 </div>
-                            </div>
+                            </section>
 
                             {currentQuestions.map((question, questionIndex) => {
                                 const questionNumber =
@@ -690,23 +695,39 @@ export default function AssessmentPage({
                                 return (
                                     <article
                                         key={question.id}
-                                        className="neo-card p-6 sm:p-8"
+                                        className="neo-card p-5 sm:p-6"
                                     >
-                                        <div className="flex flex-wrap items-center justify-between gap-4">
-                                            <p className="font-mono text-sm font-black">
-                                                Soal {questionNumber}
-                                            </p>
+                                        <div className="flex flex-wrap items-center justify-between gap-3">
+                                            <div className="flex items-center gap-3">
+                                                <span className="flex size-8 items-center justify-center rounded-[8px] border-2 border-foreground bg-muted font-mono text-xs font-black">
+                                                    {questionNumber}
+                                                </span>
 
-                                            <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-yellow)] px-3 py-1 text-xs font-black text-[#171717]">
-                                                {question.difficulty}
-                                            </span>
+                                                <span className="text-xs font-bold text-muted-foreground">
+                                                    {question.difficulty}
+                                                </span>
+                                            </div>
+
+                                            {currentAnswer && (
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() =>
+                                                        clearAnswer(question.id)
+                                                    }
+                                                >
+                                                    <RotateCcw className="size-3.5" />
+                                                    Bersihkan jawaban
+                                                </Button>
+                                            )}
                                         </div>
 
-                                        <h3 className="mt-5 text-xl leading-snug font-black tracking-tight sm:text-2xl">
+                                        <h3 className="mt-5 max-w-4xl text-lg leading-7 font-black sm:text-xl">
                                             {question.prompt}
                                         </h3>
 
-                                        <div className="mt-6 grid gap-3">
+                                        <div className="mt-5 grid gap-2.5">
                                             {Object.entries(
                                                 question.options,
                                             ).map(([key, value]) => {
@@ -717,23 +738,30 @@ export default function AssessmentPage({
                                                     <button
                                                         key={key}
                                                         type="button"
+                                                        aria-pressed={selected}
                                                         onClick={() =>
                                                             selectAnswer(
                                                                 question.id,
                                                                 key,
                                                             )
                                                         }
-                                                        className={`flex items-start gap-4 rounded-[12px] border-2 border-foreground p-4 text-left text-sm font-semibold transition-[transform,box-shadow,background-color] ${
+                                                        className={`flex w-full items-start gap-3 rounded-[10px] border-2 border-foreground px-4 py-3.5 text-left text-sm transition-[background-color,transform,box-shadow] ${
                                                             selected
-                                                                ? 'translate-x-[2px] translate-y-[2px] bg-secondary text-[#171717] shadow-none'
-                                                                : 'bg-card shadow-[3px_3px_0_var(--neo-shadow-color)] hover:-translate-y-[1px]'
+                                                                ? 'translate-x-[1px] translate-y-[1px] bg-secondary text-[#171717] shadow-none'
+                                                                : 'bg-card shadow-[2px_2px_0_var(--neo-shadow-color)] hover:-translate-y-[1px]'
                                                         }`}
                                                     >
-                                                        <span className="flex size-7 shrink-0 items-center justify-center rounded-[8px] border-2 border-foreground bg-background font-mono text-xs font-black text-foreground">
+                                                        <span
+                                                            className={`flex size-7 shrink-0 items-center justify-center rounded-full border-2 border-foreground font-mono text-xs font-black ${
+                                                                selected
+                                                                    ? 'bg-[#171717] text-[#fffdf7]'
+                                                                    : 'bg-background'
+                                                            }`}
+                                                        >
                                                             {key}
                                                         </span>
 
-                                                        <span className="pt-1 leading-relaxed">
+                                                        <span className="pt-0.5 leading-6 font-semibold">
                                                             {value}
                                                         </span>
                                                     </button>
@@ -750,7 +778,7 @@ export default function AssessmentPage({
                                 </div>
                             )}
 
-                            <div className="neo-card flex flex-col-reverse gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+                            <section className="neo-card flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
                                 <Button
                                     type="button"
                                     variant="outline"
@@ -777,7 +805,7 @@ export default function AssessmentPage({
                                             ? 'Menyimpan hasil...'
                                             : !isOnline
                                               ? 'Menunggu koneksi'
-                                              : 'Selesaikan Assesment'}
+                                              : 'Kirim hasil assessment'}
                                     </Button>
                                 ) : (
                                     <Button
@@ -785,30 +813,30 @@ export default function AssessmentPage({
                                         onClick={goNextSection}
                                         disabled={!currentSectionComplete}
                                     >
-                                        Lanjut ke Bagian {currentSection + 2}
+                                        Lanjut ke bagian {currentSection + 2}
                                         <ArrowRight />
                                     </Button>
                                 )}
-                            </div>
-                        </section>
+                            </section>
+                        </main>
 
-                        <aside className="space-y-5">
+                        <aside className="space-y-4 xl:sticky xl:top-6 xl:self-start">
                             <section className="neo-card p-5">
-                                <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-end justify-between gap-3">
                                     <div>
-                                        <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
+                                        <p className="text-xs font-black tracking-wide text-muted-foreground uppercase">
                                             Progres
                                         </p>
 
-                                        <p className="mt-1 text-2xl font-black">
+                                        <p className="mt-1 text-3xl font-black">
                                             {progress}%
                                         </p>
                                     </div>
 
-                                    <span className="font-mono text-sm font-black">
+                                    <p className="font-mono text-sm font-black">
                                         {completedCount}/
                                         {assessment.questions.length}
-                                    </span>
+                                    </p>
                                 </div>
 
                                 <div className="mt-4 h-3 overflow-hidden rounded-full border-2 border-foreground bg-background">
@@ -819,6 +847,11 @@ export default function AssessmentPage({
                                         }}
                                     />
                                 </div>
+
+                                <p className="mt-4 text-xs leading-5 font-medium text-muted-foreground">
+                                    Jawaban disimpan otomatis selama sesi ini
+                                    masih aktif.
+                                </p>
                             </section>
 
                             <Button
@@ -828,7 +861,7 @@ export default function AssessmentPage({
                                 onClick={() => requestLeaveAssessment()}
                             >
                                 <X />
-                                Batalkan Assesment
+                                Batalkan assessment
                             </Button>
                         </aside>
                     </div>
@@ -840,15 +873,15 @@ export default function AssessmentPage({
                     <DialogHeader>
                         <DialogTitle>
                             {isRepeat
-                                ? 'Mulai Assesment baru?'
-                                : 'Mulai Assesment?'}
+                                ? 'Mulai assessment baru?'
+                                : 'Mulai assessment?'}
                         </DialogTitle>
 
                         <DialogDescription>
-                            Sistem akan mengacak {assessment.question_limit}{' '}
-                            soal dan membaginya menjadi 5 bagian berisi 10 soal.
-                            Setelah dimulai, refresh tidak akan menghapus
-                            jawaban yang telah dipilih.
+                            Sistem akan menyiapkan {assessment.question_limit}{' '}
+                            soal dalam {sections.length} bagian. Setelah
+                            dimulai, jawaban yang dipilih akan disimpan selama
+                            sesi masih aktif.
                         </DialogDescription>
                     </DialogHeader>
 
@@ -886,13 +919,12 @@ export default function AssessmentPage({
             >
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Batalkan sesi Assesment?</DialogTitle>
+                        <DialogTitle>Batalkan sesi assessment?</DialogTitle>
 
                         <DialogDescription>
-                            Jika Anda memilih keluar, seluruh jawaban sementara
-                            dan sesi Assesment aktif akan dihapus. Saat memulai
-                            kembali, Assesment dimulai dari Bagian 1 dan soal
-                            nomor 1.
+                            Jika keluar, jawaban sementara dan sesi assessment
+                            aktif akan dihapus. Saat memulai kembali, kamu akan
+                            kembali ke bagian pertama.
                         </DialogDescription>
                     </DialogHeader>
 
@@ -926,7 +958,7 @@ export default function AssessmentPage({
 AssessmentPage.layout = {
     breadcrumbs: [
         {
-            title: 'Assesment',
+            title: 'Assessment',
             href: '/assessment',
         },
     ],

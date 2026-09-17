@@ -89,88 +89,67 @@ export default function FeedbackPage({ feedbacks }: { feedbacks: Feedback[] }) {
         <>
             <Head title="Masukan Pengguna" />
 
-            <div className="neo-page py-8 md:py-10">
-                <section className="neo-hero neo-accent-blue border-[#171717]">
-                    <span className="neo-label bg-[#fffdf7]">
-                        <MessageSquareText className="size-4" />
-                        Masukan pengguna
-                    </span>
-
-                    <h1 className="mt-5 max-w-4xl text-4xl font-black tracking-[-0.045em] sm:text-5xl">
-                        Bantu SkillPath AI menjadi lebih baik.
-                    </h1>
-
-                    <p className="mt-4 max-w-3xl text-sm leading-7 font-semibold sm:text-base">
-                        Laporkan bug, masalah materi, rekomendasi yang kurang
-                        tepat, atau bagian antarmuka yang membingungkan.
-                        Administrator dapat meninjau laporan dan memberikan
-                        tanggapan langsung dari halaman ini.
-                    </p>
-                </section>
-
-                <section className="mt-6 grid gap-4 sm:grid-cols-3">
-                    <div className="neo-card-flat p-5">
-                        <div className="flex items-center justify-between gap-3">
-                            <p className="text-xs font-black tracking-wide uppercase">
-                                Menunggu
+            <div className="neo-page py-7 md:py-9">
+                <header className="border-b-2 border-foreground pb-6">
+                    <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+                        <div className="max-w-3xl">
+                            <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
+                                Masukan pengguna
                             </p>
-                            <Clock3 className="size-5" />
+
+                            <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
+                                Laporkan masalah atau kirim saran
+                            </h1>
+
+                            <p className="mt-3 max-w-2xl text-sm leading-7 font-medium text-muted-foreground">
+                                Tulis apa yang terjadi, di halaman mana, dan apa
+                                yang kamu harapkan. Riwayat penanganannya bisa
+                                dipantau dari halaman ini.
+                            </p>
                         </div>
 
-                        <p className="mt-3 font-mono text-3xl font-black">
-                            {pendingCount}
-                        </p>
-                    </div>
+                        <div className="flex flex-wrap gap-2 text-xs font-black">
+                            <span className="rounded-full border-2 border-foreground bg-card px-3 py-2">
+                                {pendingCount} menunggu
+                            </span>
 
-                    <div className="neo-card-flat p-5">
-                        <div className="flex items-center justify-between gap-3">
-                            <p className="text-xs font-black tracking-wide uppercase">
-                                Ditinjau
-                            </p>
-                            <MessageSquareText className="size-5" />
+                            <span className="rounded-full border-2 border-foreground bg-card px-3 py-2">
+                                {reviewingCount} ditinjau
+                            </span>
+
+                            <span className="rounded-full border-2 border-foreground bg-card px-3 py-2">
+                                {resolvedCount} selesai
+                            </span>
                         </div>
-
-                        <p className="mt-3 font-mono text-3xl font-black">
-                            {reviewingCount}
-                        </p>
                     </div>
+                </header>
 
-                    <div className="neo-card-flat p-5">
-                        <div className="flex items-center justify-between gap-3">
-                            <p className="text-xs font-black tracking-wide uppercase">
-                                Selesai
-                            </p>
-                            <CheckCircle2 className="size-5" />
-                        </div>
-
-                        <p className="mt-3 font-mono text-3xl font-black">
-                            {resolvedCount}
-                        </p>
-                    </div>
-                </section>
-
-                <div className="mt-7 grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+                <div className="mt-6 grid gap-6 xl:grid-cols-[380px_minmax(0,1fr)]">
                     <form
                         onSubmit={submit}
-                        className="neo-card h-fit p-6 lg:sticky lg:top-24"
+                        className="neo-card h-fit p-5 sm:p-6 xl:sticky xl:top-6"
                     >
-                        <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                            Formulir masukan
-                        </p>
+                        <div className="flex items-start gap-3">
+                            <span className="flex size-9 shrink-0 items-center justify-center rounded-[9px] border-2 border-foreground bg-[var(--neo-blue)] text-[#171717]">
+                                <MessageSquareText className="size-5" />
+                            </span>
 
-                        <h2 className="mt-1 text-2xl font-black">
-                            Kirim masukan
-                        </h2>
+                            <div>
+                                <h2 className="text-xl font-black">
+                                    Tulis masukan baru
+                                </h2>
 
-                        <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
-                            Jelaskan masalah secara spesifik agar administrator
-                            lebih mudah memahami dan menindaklanjutinya.
-                        </p>
+                                <p className="mt-1 text-sm leading-6 font-medium text-muted-foreground">
+                                    Semakin spesifik laporannya, semakin mudah
+                                    ditindaklanjuti.
+                                </p>
+                            </div>
+                        </div>
 
                         <div className="mt-6 grid gap-5">
                             <label>
                                 <span className="mb-2 block text-sm font-black">
-                                    Kategori
+                                    Jenis masukan
                                 </span>
 
                                 <select
@@ -184,11 +163,15 @@ export default function FeedbackPage({ feedbacks }: { feedbacks: Feedback[] }) {
                                     className="h-11 w-full rounded-[9px] border-2 border-foreground bg-background px-3 text-sm font-bold"
                                 >
                                     <option value="general">Umum</option>
+
                                     <option value="content">Materi</option>
+
                                     <option value="recommendation">
                                         Rekomendasi
                                     </option>
+
                                     <option value="usability">UI/UX</option>
+
                                     <option value="bug">Bug</option>
                                 </select>
 
@@ -201,7 +184,7 @@ export default function FeedbackPage({ feedbacks }: { feedbacks: Feedback[] }) {
 
                             <label>
                                 <span className="mb-2 block text-sm font-black">
-                                    Judul
+                                    Judul singkat
                                 </span>
 
                                 <Input
@@ -217,13 +200,14 @@ export default function FeedbackPage({ feedbacks }: { feedbacks: Feedback[] }) {
                                     required
                                 />
 
-                                <div className="mt-2 flex justify-between gap-3 text-xs font-semibold text-muted-foreground">
+                                <div className="mt-2 flex items-center justify-between gap-3 text-xs font-medium text-muted-foreground">
                                     <span>
                                         Ringkas masalah dalam satu kalimat.
                                     </span>
 
                                     <span className="font-mono font-black">
-                                        {form.data.subject.length}/180
+                                        {form.data.subject.length}
+                                        /180
                                     </span>
                                 </div>
 
@@ -236,7 +220,7 @@ export default function FeedbackPage({ feedbacks }: { feedbacks: Feedback[] }) {
 
                             <label>
                                 <span className="mb-2 block text-sm font-black">
-                                    Detail masukan
+                                    Apa yang terjadi?
                                 </span>
 
                                 <Textarea
@@ -247,18 +231,19 @@ export default function FeedbackPage({ feedbacks }: { feedbacks: Feedback[] }) {
                                             event.target.value,
                                         )
                                     }
-                                    rows={7}
+                                    rows={8}
                                     minLength={10}
                                     maxLength={5000}
-                                    placeholder="Jelaskan apa yang terjadi, halaman yang digunakan, dan hasil yang Anda harapkan."
+                                    placeholder="Sebutkan halaman, langkah yang dilakukan, masalah yang muncul, dan hasil yang kamu harapkan."
                                     required
                                 />
 
-                                <div className="mt-2 flex justify-between gap-3 text-xs font-semibold text-muted-foreground">
+                                <div className="mt-2 flex items-center justify-between gap-3 text-xs font-medium text-muted-foreground">
                                     <span>Minimal 10 karakter.</span>
 
                                     <span className="font-mono font-black">
-                                        {form.data.message.length}/5000
+                                        {form.data.message.length}
+                                        /5000
                                     </span>
                                 </div>
 
@@ -285,21 +270,28 @@ export default function FeedbackPage({ feedbacks }: { feedbacks: Feedback[] }) {
                                     }
                                     className="h-11 w-full rounded-[9px] border-2 border-foreground bg-background px-3 text-sm font-bold"
                                 >
-                                    <option value="">Tanpa penilaian</option>
+                                    <option value="">
+                                        Tidak perlu memberi nilai
+                                    </option>
+
                                     <option value="1">1 / 5 — Buruk</option>
+
                                     <option value="2">
                                         2 / 5 — Kurang baik
                                     </option>
+
                                     <option value="3">3 / 5 — Cukup</option>
+
                                     <option value="4">4 / 5 — Baik</option>
+
                                     <option value="5">
                                         5 / 5 — Sangat baik
                                     </option>
                                 </select>
 
-                                <p className="mt-2 text-xs font-semibold text-muted-foreground">
-                                    Opsional. Gunakan untuk menilai pengalaman
-                                    Anda secara keseluruhan.
+                                <p className="mt-2 text-xs font-medium text-muted-foreground">
+                                    Opsional dan tidak memengaruhi prioritas
+                                    penanganan laporan.
                                 </p>
 
                                 {form.errors.rating && (
@@ -320,35 +312,35 @@ export default function FeedbackPage({ feedbacks }: { feedbacks: Feedback[] }) {
                         </Button>
                     </form>
 
-                    <section className="neo-card p-6">
-                        <div className="flex flex-wrap items-end justify-between gap-3">
+                    <section className="neo-card p-5 sm:p-6">
+                        <div className="flex flex-wrap items-end justify-between gap-3 border-b-2 border-foreground/15 pb-5">
                             <div>
-                                <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                    Riwayat
+                                <p className="text-xs font-black tracking-wide text-muted-foreground uppercase">
+                                    Riwayat laporan
                                 </p>
 
                                 <h2 className="mt-1 text-2xl font-black">
-                                    Masukan Anda
+                                    Masukan yang sudah dikirim
                                 </h2>
                             </div>
 
-                            <span className="neo-label bg-muted">
+                            <span className="rounded-full border-2 border-foreground bg-card px-3 py-1 text-xs font-black">
                                 {feedbacks.length} total
                             </span>
                         </div>
 
-                        <div className="mt-6 space-y-4">
+                        <div className="mt-5 space-y-4">
                             {feedbacks.length === 0 && (
-                                <div className="rounded-[12px] border-2 border-dashed border-foreground/40 p-8 text-center">
+                                <div className="rounded-[12px] border-2 border-dashed border-foreground/30 p-8 text-center">
                                     <MessageSquareText className="mx-auto size-8 text-muted-foreground" />
 
                                     <p className="mt-3 font-black">
                                         Belum ada masukan
                                     </p>
 
-                                    <p className="mt-1 text-sm font-medium text-muted-foreground">
-                                        Masukan yang Anda kirim akan muncul di
-                                        sini beserta status peninjauannya.
+                                    <p className="mt-1 text-sm leading-6 font-medium text-muted-foreground">
+                                        Setelah mengirim laporan, statusnya akan
+                                        muncul di sini.
                                     </p>
                                 </div>
                             )}
@@ -356,19 +348,19 @@ export default function FeedbackPage({ feedbacks }: { feedbacks: Feedback[] }) {
                             {feedbacks.map((feedback) => (
                                 <article
                                     key={feedback.id}
-                                    className="neo-card-flat p-5"
+                                    className="rounded-[12px] border-2 border-foreground bg-card p-5"
                                 >
-                                    <div className="flex flex-wrap items-start justify-between gap-4">
-                                        <div>
+                                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                                        <div className="min-w-0">
                                             <div className="flex flex-wrap gap-2">
-                                                <span className="neo-label bg-muted">
+                                                <span className="rounded-full border-2 border-foreground/20 bg-muted/30 px-2.5 py-1 text-[10px] font-black">
                                                     {categoryLabels[
                                                         feedback.category
                                                     ] ?? feedback.category}
                                                 </span>
 
                                                 <span
-                                                    className={`neo-label ${
+                                                    className={`rounded-full border-2 border-[#171717] px-2.5 py-1 text-[10px] font-black text-[#171717] ${
                                                         statusClasses[
                                                             feedback.status
                                                         ] ?? 'bg-muted'
@@ -380,11 +372,12 @@ export default function FeedbackPage({ feedbacks }: { feedbacks: Feedback[] }) {
                                                 </span>
                                             </div>
 
-                                            <h3 className="mt-4 text-xl font-black">
+                                            <h3 className="mt-3 text-lg font-black break-words">
                                                 {feedback.subject}
                                             </h3>
 
-                                            <p className="mt-1 text-xs font-bold text-muted-foreground">
+                                            <p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                                                <Clock3 className="size-3.5" />
                                                 {formatDate(
                                                     feedback.created_at,
                                                 )}
@@ -392,9 +385,10 @@ export default function FeedbackPage({ feedbacks }: { feedbacks: Feedback[] }) {
                                         </div>
 
                                         {feedback.rating && (
-                                            <span className="flex items-center gap-1 font-mono text-xl font-black">
-                                                <Star className="size-4 fill-current" />
-                                                {feedback.rating}/5
+                                            <span className="flex shrink-0 items-center gap-1 rounded-full border-2 border-foreground px-2.5 py-1 text-sm font-black">
+                                                <Star className="size-3.5 fill-current" />
+                                                {feedback.rating}
+                                                /5
                                             </span>
                                         )}
                                     </div>
@@ -403,16 +397,25 @@ export default function FeedbackPage({ feedbacks }: { feedbacks: Feedback[] }) {
                                         {feedback.message}
                                     </p>
 
-                                    {feedback.admin_response && (
-                                        <div className="mt-5 rounded-[12px] border-2 border-[#171717] bg-secondary p-4 text-[#171717]">
-                                            <p className="text-xs font-black tracking-wide uppercase">
-                                                Tanggapan administrator
-                                            </p>
+                                    {feedback.admin_response ? (
+                                        <div className="mt-5 rounded-[10px] border-2 border-[#171717] bg-secondary p-4 text-[#171717]">
+                                            <div className="flex items-center gap-2">
+                                                <CheckCircle2 className="size-4" />
+
+                                                <p className="text-xs font-black tracking-wide uppercase">
+                                                    Tanggapan administrator
+                                                </p>
+                                            </div>
 
                                             <p className="mt-2 text-sm leading-6 font-semibold whitespace-pre-wrap">
                                                 {feedback.admin_response}
                                             </p>
                                         </div>
+                                    ) : (
+                                        <p className="mt-4 text-xs font-medium text-muted-foreground">
+                                            Belum ada tanggapan dari
+                                            administrator.
+                                        </p>
                                     )}
                                 </article>
                             ))}
