@@ -860,7 +860,7 @@ export default function ProjectShow({
 ProjectShow.layout = {
     breadcrumbs: [
         {
-            title: 'Proyek / Tugas Akhir',
+            title: 'Proyek',
             href: '/projects',
         },
         {

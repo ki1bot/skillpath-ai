@@ -58,7 +58,7 @@ class AssessmentSubmitService
                 ->route('dashboard')
                 ->with(
                     'error',
-                    'Bank soal Assesment sudah berubah dan sesi tidak dapat dilanjutkan.',
+                    'Bank soal AssesAssessmentment sudah berubah dan sesi tidak dapat dilanjutkan.',
                 );
         }
 
@@ -80,7 +80,7 @@ class AssessmentSubmitService
                 ->route('assessment.show')
                 ->with(
                     'error',
-                    'Sesi Assesment belum dimulai atau sudah tidak berlaku. Silakan mulai Assesment kembali.',
+                    'Sesi Assessment belum dimulai atau sudah tidak berlaku. Silakan mulai Assessment kembali.',
                 );
         }
 
@@ -103,7 +103,7 @@ class AssessmentSubmitService
                 ->route('assessment.show')
                 ->with(
                     'error',
-                    'Sebagian soal Assesment sudah berubah. Silakan mulai Assesment kembali.',
+                    'Sebagian soal Assessment sudah berubah. Silakan mulai Assessment kembali.',
                 );
         }
 
@@ -133,7 +133,7 @@ class AssessmentSubmitService
 
         $this->roadmapService->regenerate(
             $freshUser,
-            'Hasil Assesment '.$studyProgram.' '
+            'Hasil Assessment '.$studyProgram.' '
                 .now()->format('d M Y'),
         );
 
@@ -146,7 +146,7 @@ class AssessmentSubmitService
             ->route('skills.index')
             ->with(
                 'success',
-                'Assesment '.$studyProgram.' selesai. Hasil kemampuanmu sudah disimpan dan roadmap diperbarui.',
+                'Assessment '.$studyProgram.' selesai. Hasil kemampuanmu sudah disimpan dan roadmap diperbarui.',
             );
     }
 }

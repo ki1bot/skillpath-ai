@@ -169,6 +169,8 @@ export default function AssessmentPage({
         return result;
     }, [assessment.questions]);
 
+    const totalSections = Math.ceil(assessment.question_limit / SECTION_SIZE);
+
     const [draftState, setDraftState] = useState<DraftState>(() =>
         restoreDraftState(assessment, questionIds, sections, storageKey),
     );
@@ -504,9 +506,11 @@ export default function AssessmentPage({
                             </h1>
 
                             <p className="mt-3 max-w-2xl text-sm leading-6 font-medium text-muted-foreground">
-                                Ada {assessment.question_limit} soal yang dibagi
-                                menjadi {sections.length} bagian. Selesaikan
-                                satu bagian sebelum lanjut ke bagian berikutnya.
+                                Assessment ini berisi{' '}
+                                {assessment.question_limit} soal yang dibagi
+                                menjadi {totalSections} bagian. Kerjakan setiap
+                                bagian secara berurutan sebelum lanjut ke bagian
+                                berikutnya.
                             </p>
                         </div>
 
@@ -552,10 +556,11 @@ export default function AssessmentPage({
                                 </h2>
 
                                 <p className="mt-3 max-w-2xl text-sm leading-6 font-medium text-muted-foreground">
-                                    Pilih satu jawaban untuk setiap soal.
-                                    Jawaban disimpan di browser selama sesi
-                                    aktif, jadi refresh tidak menghapus progres
-                                    yang sudah dikerjakan.
+                                    Pilih satu jawaban yang paling sesuai untuk
+                                    setiap soal. Selama sesi masih aktif,
+                                    jawabanmu tersimpan di browser. Jadi, kalau
+                                    halaman direfresh, progres yang sudah
+                                    dikerjakan tetap ada.
                                 </p>
 
                                 <Button
@@ -584,17 +589,19 @@ export default function AssessmentPage({
                                         <strong>
                                             {assessment.question_limit}
                                         </strong>{' '}
-                                        soal, {sections.length} bagian.
+                                        soal dibagi menjadi{' '}
+                                        <strong>{totalSections}</strong> bagian.
                                     </p>
 
                                     <p>
-                                        Setiap bagian berisi maksimal{' '}
+                                        Setiap bagian berisi paling banyak{' '}
                                         <strong>{SECTION_SIZE}</strong> soal.
                                     </p>
 
                                     <p>
-                                        Kamu bisa membersihkan jawaban jika
-                                        salah memilih sebelum mengirim hasil.
+                                        Kalau salah pilih, kamu masih bisa
+                                        menghapus jawaban dan memilih ulang
+                                        sebelum hasil dikirim.
                                     </p>
                                 </div>
                             </div>
@@ -718,7 +725,7 @@ export default function AssessmentPage({
                                                     }
                                                 >
                                                     <RotateCcw className="size-3.5" />
-                                                    Bersihkan jawaban
+                                                    Hapus jawaban
                                                 </Button>
                                             )}
                                         </div>
@@ -878,10 +885,9 @@ export default function AssessmentPage({
                         </DialogTitle>
 
                         <DialogDescription>
-                            Sistem akan menyiapkan {assessment.question_limit}{' '}
-                            soal dalam {sections.length} bagian. Setelah
-                            dimulai, jawaban yang dipilih akan disimpan selama
-                            sesi masih aktif.
+                            Kamu akan mengerjakan {assessment.question_limit}{' '}
+                            soal dalam {totalSections} bagian. Setelah dimulai,
+                            jawabanmu akan disimpan selama sesi masih aktif.
                         </DialogDescription>
                     </DialogHeader>
 

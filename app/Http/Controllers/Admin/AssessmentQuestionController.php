@@ -20,7 +20,7 @@ class AssessmentQuestionController extends Controller
 
         return back()->with(
             'success',
-            'Soal Assesment berhasil ditambahkan.',
+            'Soal Assessment berhasil ditambahkan.',
         );
     }
 
@@ -36,7 +36,7 @@ class AssessmentQuestionController extends Controller
 
         return back()->with(
             'success',
-            'Soal Assesment berhasil diperbarui.',
+            'Soal Assessment berhasil diperbarui.',
         );
     }
 
@@ -47,7 +47,7 @@ class AssessmentQuestionController extends Controller
 
         return back()->with(
             'success',
-            'Soal Assesment dihapus.',
+            'Soal Assessment dihapus.',
         );
     }
 

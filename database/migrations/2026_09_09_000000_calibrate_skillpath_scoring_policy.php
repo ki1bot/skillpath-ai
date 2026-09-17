@@ -51,7 +51,7 @@ return new class extends Migration
                 ->update([
                     'description' => 'Jawab 27 pertanyaan yang mewakili 9 kemampuan inti jurusan '
                         .$assessment->study_program
-                        .', masing-masing 3 pertanyaan untuk setiap kemampuan. Hasil Assesment digunakan untuk memperbarui profil kemampuan awal Anda.',
+                        .', masing-masing 3 pertanyaan untuk setiap kemampuan. Hasil Assessment digunakan untuk memperbarui profil kemampuan awal Anda.',
                     'updated_at' => now(),
                 ]);
         }

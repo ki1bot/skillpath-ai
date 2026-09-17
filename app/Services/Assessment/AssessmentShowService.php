@@ -51,9 +51,9 @@ class AssessmentShowService
                 ->route('dashboard')
                 ->with(
                     'error',
-                    'Bank soal Assesment belum lengkap. Setiap jurusan harus memiliki tepat '
+                    'Bank soal Assessment belum lengkap. Setiap jurusan harus memiliki tepat '
                         .AcademicAssessmentCatalog::QUESTION_LIMIT
-                        .' soal sebelum Assesment dapat dimulai.',
+                        .' soal sebelum Assessment dapat dimulai.',
                 );
         }
 
@@ -78,7 +78,7 @@ class AssessmentShowService
                 ->route('assessment.show')
                 ->with(
                     'error',
-                    'Sesi Assesment sebelumnya sudah tidak berlaku. Silakan mulai Assesment kembali.',
+                    'Sesi Assessment sebelumnya sudah tidak berlaku. Silakan mulai Assessment kembali.',
                 );
         }
 

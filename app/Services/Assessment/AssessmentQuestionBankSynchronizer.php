@@ -32,7 +32,7 @@ class AssessmentQuestionBankSynchronizer
             !== $expectedSkillSlugs
         ) {
             throw new RuntimeException(
-                'Definisi bank soal '.$studyProgram.' tidak sesuai dengan katalog Assesment.',
+                'Definisi bank soal '.$studyProgram.' tidak sesuai dengan katalog Assessment.',
             );
         }
 
@@ -225,7 +225,7 @@ class AssessmentQuestionBankSynchronizer
 
         if ($hasHistoricalResults) {
             throw new RuntimeException(
-                'Bank soal '.$studyProgram.' memiliki soal lama yang masih digunakan oleh histori Assesment. Soal tersebut tidak dihapus agar histori pengguna tidak rusak.',
+                'Bank soal '.$studyProgram.' memiliki soal lama yang masih digunakan oleh histori Assessment. Soal tersebut tidak dihapus agar histori pengguna tidak rusak.',
             );
         }
 

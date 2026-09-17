@@ -43,7 +43,7 @@ class AssessmentResultService
 
         if (! is_array($rawAnswers)) {
             throw ValidationException::withMessages([
-                'answers' => 'Jawaban Assesment tidak valid.',
+                'answers' => 'Jawaban Assessment tidak valid.',
             ]);
         }
 
@@ -71,7 +71,7 @@ class AssessmentResultService
             throw ValidationException::withMessages([
                 'answers' => 'Jawab tepat '
                     .AcademicAssessmentCatalog::QUESTION_LIMIT
-                    .' pertanyaan yang diberikan pada sesi Assesment ini.',
+                    .' pertanyaan yang diberikan pada sesi Assessment ini.',
             ]);
         }
 
@@ -83,7 +83,7 @@ class AssessmentResultService
                 )
             ) {
                 throw ValidationException::withMessages([
-                    'answers' => 'Jawab semua pertanyaan sebelum menyelesaikan Assesment.',
+                    'answers' => 'Jawab semua pertanyaan sebelum menyelesaikan Assessment.',
                 ]);
             }
         }
@@ -119,7 +119,7 @@ class AssessmentResultService
 
                     if (! array_key_exists($questionId, $answers)) {
                         throw new \RuntimeException(
-                            'Jawaban Assesment tidak lengkap saat hasil akan disimpan.',
+                            'Jawaban Assessment tidak lengkap saat hasil akan disimpan.',
                         );
                     }
 

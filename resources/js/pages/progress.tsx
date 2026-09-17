@@ -115,8 +115,8 @@ interface RoadmapHistory {
 }
 
 const triggerLabels: Record<string, string> = {
-    assessment_completed: 'Assesment selesai',
-    assessment_updated: 'Assesment diperbarui',
+    assessment_completed: 'Assessment selesai',
+    assessment_updated: 'Assessment diperbarui',
     roadmap_created: 'Jalur belajar dibuat',
     roadmap_regenerated: 'Jalur belajar diperbarui',
     material_completed: 'Materi selesai',
@@ -244,7 +244,7 @@ export default function Progress({
                             </h1>
 
                             <p className="mt-3 max-w-2xl text-sm leading-6 font-semibold">
-                                Assesment, evaluasi, jalur belajar, waktu
+                                Assessment, evaluasi, jalur belajar, waktu
                                 belajar, dan proyek disimpan agar kamu dapat
                                 melihat perkembangan berdasarkan aktivitas yang
                                 benar- benar tercatat.
@@ -470,14 +470,14 @@ export default function Progress({
                 <Card>
                     <CardHeader className="border-b-2 border-foreground">
                         <CardTitle className="text-xl font-black">
-                            Riwayat Assesment
+                            Riwayat Assessment
                         </CardTitle>
                     </CardHeader>
 
                     <CardContent className="grid gap-3 pt-6 md:grid-cols-2">
                         {assessmentHistory.length === 0 && (
                             <p className="text-sm font-bold">
-                                Belum ada riwayat Assesment.
+                                Belum ada riwayat Assessment.
                             </p>
                         )}
 
@@ -488,7 +488,7 @@ export default function Progress({
                             >
                                 <div className="flex items-center justify-between gap-3">
                                     <p className="text-sm font-black">
-                                        Assesment #
+                                        Assessment #
                                         {assessmentHistory.length - index}
                                     </p>
 

@@ -111,7 +111,7 @@ export default function CareerShow({ career }: { career: Career }) {
                                         <div>
                                             <p className="text-xs font-black uppercase">
                                                 Kesiapan belajar berdasarkan
-                                                hasil Assesment
+                                                hasil Assessment
                                             </p>
 
                                             <p className="mt-1 font-mono text-3xl font-black">
@@ -204,7 +204,7 @@ export default function CareerShow({ career }: { career: Career }) {
 
                         <p className="mt-4 max-w-3xl leading-7 font-medium text-muted-foreground">
                             Setiap bidang memiliki tiga kemampuan. Seluruh
-                            sembilan kemampuan digunakan pada Assesment awal,
+                            sembilan kemampuan digunakan pada Assessment awal,
                             pemetaan gap kemampuan, jalur belajar, dan kesiapan
                             proyek.
                         </p>
@@ -302,7 +302,7 @@ export default function CareerShow({ career }: { career: Career }) {
 
                         <p className="mt-3 max-w-3xl text-sm leading-6 font-semibold">
                             Proyek digunakan untuk menerapkan kemampuan yang
-                            sudah dipelajari. Proyek bukan pengganti Assesment,
+                            sudah dipelajari. Proyek bukan pengganti Assessment,
                             tetapi menjadi tempat untuk mempraktikkan kemampuan
                             dalam bentuk yang lebih nyata.
                         </p>
@@ -349,8 +349,8 @@ export default function CareerShow({ career }: { career: Career }) {
 
                     <h2 className="mt-3 text-4xl font-black tracking-[-0.045em]">
                         {career.compatibility
-                            ? 'Ulangi Assesment setelah belajar untuk melihat perkembangan kemampuanmu.'
-                            : 'Kerjakan Assesment untuk melihat kemampuan yang sudah kuat dan yang masih perlu dipelajari.'}
+                            ? 'Ulangi Assessment setelah belajar untuk melihat perkembangan kemampuanmu.'
+                            : 'Kerjakan Assessment untuk melihat kemampuan yang sudah kuat dan yang masih perlu dipelajari.'}
                     </h2>
 
                     <Button asChild size="lg" className="mt-7">
@@ -362,8 +362,8 @@ export default function CareerShow({ career }: { career: Career }) {
                             }
                         >
                             {career.compatibility
-                                ? 'Ulangi Assesment'
-                                : 'Mulai Assesment'}
+                                ? 'Ulangi Assessment'
+                                : 'Mulai Assessment'}
 
                             <ArrowRight />
                         </Link>

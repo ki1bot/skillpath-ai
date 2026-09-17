@@ -75,10 +75,10 @@ class AcademicAssessmentCleanupSeeder extends Seeder
                 ->delete();
 
             $assessment->update([
-                'title' => 'Assesment Awal '.$definition['name'],
+                'title' => 'Assessment Awal '.$definition['name'],
                 'description' => 'Kerjakan '
                     .AcademicAssessmentCatalog::QUESTION_LIMIT
-                    .' pertanyaan dalam 5 bagian untuk Assesment jurusan '
+                    .' pertanyaan dalam 5 bagian untuk Assessment jurusan '
                     .$definition['name']
                     .'. Seluruh pertanyaan berasal dari kompetensi inti jurusan dan urutannya diacak pada setiap sesi baru.',
                 'duration_minutes' => 50,

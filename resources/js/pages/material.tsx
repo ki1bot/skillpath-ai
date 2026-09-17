@@ -604,11 +604,12 @@ export default function MaterialPage({
 
                                     <div>
                                         <p className="font-black">
-                                            Pahami tujuan
+                                            Pahami materi
                                         </p>
 
                                         <p className="mt-1 leading-5 font-medium text-muted-foreground">
-                                            Baca ringkasan dan target belajar.
+                                            Baca ringkasan dan lihat apa saja
+                                            yang perlu kamu kuasai.
                                         </p>
                                     </div>
                                 </div>
@@ -620,12 +621,13 @@ export default function MaterialPage({
 
                                     <div>
                                         <p className="font-black">
-                                            Kerjakan praktik
+                                            Kerjakan latihan
                                         </p>
 
                                         <p className="mt-1 leading-5 font-medium text-muted-foreground">
-                                            Simpan hasil yang nanti akan kamu
-                                            kumpulkan.
+                                            Selesaikan tugas praktik, lalu
+                                            simpan hasilnya sebagai bukti
+                                            pekerjaan.
                                         </p>
                                     </div>
                                 </div>
@@ -637,12 +639,13 @@ export default function MaterialPage({
 
                                     <div>
                                         <p className="font-black">
-                                            Kirim evaluasi
+                                            Selesaikan evaluasi
                                         </p>
 
                                         <p className="mt-1 leading-5 font-medium text-muted-foreground">
-                                            Jawab soal dan tempel link Google
-                                            Drive.
+                                            Jawab soal evaluasi dan sertakan
+                                            link Google Drive berisi hasil
+                                            praktikmu.
                                         </p>
                                     </div>
                                 </div>

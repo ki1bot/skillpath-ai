@@ -1,9 +1,9 @@
 export function humanizeRoadmapReason(value: string): string {
     return value
-        .replace(/\bAssesment\b/g, 'Assesment')
-        .replace(/\bassesment\b/g, 'assesment')
-        .replace(/\bAssessment\b/g, 'Assesment')
-        .replace(/\bassessment\b/g, 'assesment')
+        .replace(/\bAssessment\b/g, 'Assessment')
+        .replace(/\bassessment\b/g, 'assessment')
+        .replace(/\bAssessment\b/g, 'Assessment')
+        .replace(/\bassessment\b/g, 'assessment')
         .replace(/\bRoadmap\b/g, 'Jalur belajar')
         .replace(/\broadmap\b/g, 'jalur belajar')
         .replace(/\bSkill\b/g, 'Kemampuan')

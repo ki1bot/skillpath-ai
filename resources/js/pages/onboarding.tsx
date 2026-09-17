@@ -79,7 +79,7 @@ export default function Onboarding({
                     <p className="mt-4 max-w-3xl text-sm leading-7 font-semibold sm:text-base">
                         Setiap jurusan memiliki tiga bidang utama dan sembilan
                         kemampuan yang akan dinilai. Pilih jurusanmu, isi profil
-                        belajar, lalu kerjakan Assesment awal agar SkillPath
+                        belajar, lalu kerjakan Assessment awal agar SkillPath
                         dapat melihat kemampuanmu sekarang.
                     </p>
                 </section>
@@ -107,7 +107,7 @@ export default function Onboarding({
                                 <p className="mt-4 text-sm leading-6 font-medium text-muted-foreground">
                                     Klik salah satu jurusan untuk melihat bidang
                                     dan kemampuan yang akan dinilai dalam
-                                    Assesment.
+                                    Assessment.
                                 </p>
                             </div>
 
@@ -258,9 +258,9 @@ export default function Onboarding({
                         </div>
 
                         <p className="mt-3 max-w-3xl text-sm leading-6 font-medium text-muted-foreground">
-                            Tidak perlu membuat jawaban yang terdengar hebat.
-                            Isi berdasarkan kondisi yang sebenarnya agar
-                            rekomendasi belajar lebih masuk akal.
+                            Isi saja sesuai kondisimu sekarang. Tidak perlu
+                            dilebih-lebihkan, karena jawaban ini dipakai untuk
+                            menyesuaikan rekomendasi belajarmu.
                         </p>
 
                         <div className="mt-6 grid gap-5 lg:grid-cols-2">
@@ -377,7 +377,7 @@ export default function Onboarding({
                         >
                             {editing
                                 ? 'Simpan perubahan'
-                                : 'Lanjut ke Assesment'}
+                                : 'Lanjut ke Assessment'}
                             <ArrowRight />
                         </Button>
                     </section>

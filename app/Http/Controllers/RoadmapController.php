@@ -42,7 +42,7 @@ class RoadmapController extends Controller
                 ->route('assessment.show')
                 ->with(
                     'error',
-                    'Selesaikan Assesment untuk membuat roadmap personal.',
+                    'Selesaikan Assessment untuk membuat roadmap personal.',
                 );
         }
 

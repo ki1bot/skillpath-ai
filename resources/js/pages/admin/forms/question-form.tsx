@@ -40,7 +40,7 @@ export function QuestionForm({
                 <>
                     <div className="grid gap-4 md:grid-cols-4">
                         <SelectField
-                            label="Assesment"
+                            label="Assessment"
                             name="assessment_id"
                             defaultValue={
                                 question?.assessment_id ??
@@ -49,7 +49,7 @@ export function QuestionForm({
                             }
                             required
                         >
-                            <option value="">Pilih Assesment</option>
+                            <option value="">Pilih Assessment</option>
 
                             {assessments.map((assessment) => (
                                 <option

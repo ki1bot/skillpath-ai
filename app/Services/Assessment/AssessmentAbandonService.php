@@ -32,7 +32,7 @@ class AssessmentAbandonService
             ->route('assessment.show')
             ->with(
                 'success',
-                'Sesi Assesment dibatalkan. Progres Assesment sebelumnya sudah dihapus.',
+                'Sesi Assessment dibatalkan. Progres Assessment sebelumnya sudah dihapus.',
             );
     }
 }

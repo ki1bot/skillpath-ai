@@ -51,7 +51,7 @@ class AssessmentContextService
             return redirect()
                 ->route('onboarding.show')
                 ->withErrors([
-                    'study_program' => 'Pilih salah satu jurusan yang tersedia sebelum melanjutkan ke Assesment.',
+                    'study_program' => 'Pilih salah satu jurusan yang tersedia sebelum melanjutkan ke Assessment.',
                 ]);
         }
 
@@ -75,7 +75,7 @@ class AssessmentContextService
                 ->route('onboarding.show')
                 ->with(
                     'error',
-                    'Assesment untuk jurusan ini belum tersedia. Periksa kembali data Assesment di server.',
+                    'Assessment untuk jurusan ini belum tersedia. Periksa kembali data Assessment di server.',
                 );
         }
 
@@ -91,7 +91,7 @@ class AssessmentContextService
                 ->route('dashboard')
                 ->with(
                     'error',
-                    'Konfigurasi skill Assesment jurusan belum lengkap.',
+                    'Konfigurasi skill Assessment jurusan belum lengkap.',
                 );
         }
 

@@ -46,9 +46,9 @@ class AssessmentStartService
                 ->route('dashboard')
                 ->with(
                     'error',
-                    'Bank soal Assesment belum lengkap. Setiap jurusan harus memiliki tepat '
+                    'Bank soal Assessment belum lengkap. Setiap jurusan harus memiliki tepat '
                         .AcademicAssessmentCatalog::QUESTION_LIMIT
-                        .' soal sebelum Assesment dapat dimulai.',
+                        .' soal sebelum Assessment dapat dimulai.',
                 );
         }
 
@@ -66,7 +66,7 @@ class AssessmentStartService
                     'error',
                     'Sistem gagal menyiapkan '
                         .AcademicAssessmentCatalog::QUESTION_LIMIT
-                        .' soal Assesment. Silakan coba kembali.',
+                        .' soal Assessment. Silakan coba kembali.',
                 );
         }
 

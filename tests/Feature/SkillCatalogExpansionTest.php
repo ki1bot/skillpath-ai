@@ -170,7 +170,7 @@ class SkillCatalogExpansionTest extends TestCase
 
             $this->assertNotNull(
                 $assessment,
-                "Jurusan {$career->name} belum memiliki Assesment.",
+                "Jurusan {$career->name} belum memiliki Assessment.",
             );
 
             $expectedSkillSlugs = AcademicAssessmentCatalog::skillSlugs(
@@ -185,7 +185,7 @@ class SkillCatalogExpansionTest extends TestCase
             $this->assertCount(
                 AcademicAssessmentCatalog::QUESTION_POOL_SIZE,
                 $assessment->questions,
-                "Bank soal Assesment {$career->name} harus memiliki tepat 50 soal.",
+                "Bank soal Assessment {$career->name} harus memiliki tepat 50 soal.",
             );
 
             $actualSkillSlugs = $assessment
@@ -199,7 +199,7 @@ class SkillCatalogExpansionTest extends TestCase
             $this->assertEqualsCanonicalizing(
                 $expectedSkillSlugs,
                 $actualSkillSlugs,
-                "Skill Assesment {$career->name} tidak sesuai dengan 9 skill jurusan.",
+                "Skill Assessment {$career->name} tidak sesuai dengan 9 skill jurusan.",
             );
 
             $distribution = $assessment

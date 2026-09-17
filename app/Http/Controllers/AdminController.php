@@ -272,7 +272,7 @@ class AdminController extends Controller
 
         Assessment::create($data);
 
-        return back()->with('success', 'Assesment berhasil ditambahkan.');
+        return back()->with('success', 'Assessment berhasil ditambahkan.');
     }
 
     public function updateAssessment(
@@ -289,7 +289,7 @@ class AdminController extends Controller
 
         $assessment->update($data);
 
-        return back()->with('success', 'Assesment berhasil diperbarui.');
+        return back()->with('success', 'Assessment berhasil diperbarui.');
     }
 
     public function destroyAssessment(
@@ -297,7 +297,7 @@ class AdminController extends Controller
     ): RedirectResponse {
         $assessment->delete();
 
-        return back()->with('success', 'Assesment dihapus.');
+        return back()->with('success', 'Assessment dihapus.');
     }
 
     public function storeQuestion(Request $request): RedirectResponse
@@ -306,7 +306,7 @@ class AdminController extends Controller
             $this->questionData($request),
         );
 
-        return back()->with('success', 'Soal Assesment berhasil ditambahkan.');
+        return back()->with('success', 'Soal Assessment berhasil ditambahkan.');
     }
 
     public function updateQuestion(
@@ -317,7 +317,7 @@ class AdminController extends Controller
             $this->questionData($request),
         );
 
-        return back()->with('success', 'Soal Assesment berhasil diperbarui.');
+        return back()->with('success', 'Soal Assessment berhasil diperbarui.');
     }
 
     public function destroyQuestion(
@@ -325,7 +325,7 @@ class AdminController extends Controller
     ): RedirectResponse {
         $question->delete();
 
-        return back()->with('success', 'Soal Assesment dihapus.');
+        return back()->with('success', 'Soal Assessment dihapus.');
     }
 
     public function storeMaterial(Request $request): RedirectResponse

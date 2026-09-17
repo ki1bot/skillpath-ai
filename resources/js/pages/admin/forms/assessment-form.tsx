@@ -43,7 +43,7 @@ export function AssessmentForm({ assessment, careers }: Props) {
                         </SelectField>
 
                         <InputField
-                            label="Durasi Assesment"
+                            label="Durasi Assessment"
                             type="number"
                             name="duration_minutes"
                             min={5}

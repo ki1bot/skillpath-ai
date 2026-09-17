@@ -18,7 +18,7 @@ class RoadmapService
 
     public function regenerate(
         User $user,
-        string $reason = 'Assesment awal',
+        string $reason = 'Assessment awal',
     ): Roadmap {
         $user->loadMissing(
             'targetCareer',

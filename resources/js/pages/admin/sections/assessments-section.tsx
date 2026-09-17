@@ -14,11 +14,11 @@ type Props = {
 export function AssessmentsSection({ assessments, careers, skills }: Props) {
     return (
         <AdminPanel
-            title="Assesment & soal"
-            description="Kelola Assesment yang digunakan untuk melihat kemampuan awal mahasiswa berdasarkan jurusan yang dipilih."
+            title="Assessment & soal"
+            description="Kelola Assessment yang digunakan untuk melihat kemampuan awal mahasiswa berdasarkan jurusan yang dipilih."
             accentClass="bg-[var(--neo-orange)] text-[#171717]"
         >
-            <AdminDetails title="Tambah Assesment baru">
+            <AdminDetails title="Tambah Assessment baru">
                 <AssessmentForm careers={careers} />
             </AdminDetails>
 

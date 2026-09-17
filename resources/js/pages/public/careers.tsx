@@ -75,7 +75,7 @@ export default function Careers({ careers }: { careers: Career[] }) {
                         Setiap jurusan memiliki tiga bidang utama. Setiap bidang
                         memiliki tiga kemampuan, sehingga ada sembilan kemampuan
                         akademik per jurusan. Seluruh kemampuan tersebut
-                        digunakan pada Assesment awal dan menjadi dasar jalur
+                        digunakan pada Assessment awal dan menjadi dasar jalur
                         belajar.
                     </p>
                 </div>

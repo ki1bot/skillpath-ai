@@ -85,14 +85,14 @@ export default function Projects({ projects }: { projects: Project[] }) {
 
     return (
         <>
-            <Head title="Proyek / Tugas Akhir" />
+            <Head title="Proyek" />
 
             <div className="neo-page py-7 md:py-9">
                 <header className="border-b-2 border-foreground pb-6">
                     <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                         <div className="max-w-3xl">
                             <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                Proyek / Tugas Akhir
+                                Proyek
                             </p>
 
                             <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
@@ -349,7 +349,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
 Projects.layout = {
     breadcrumbs: [
         {
-            title: 'Proyek / Tugas Akhir',
+            title: 'Proyek',
             href: '/projects',
         },
     ],

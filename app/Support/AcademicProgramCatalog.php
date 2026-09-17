@@ -35,7 +35,7 @@ final class AcademicProgramCatalog
         'Sistem Informasi' => [
             'slug' => 'sistem-informasi',
             'tagline' => 'Belajar menghubungkan data, proses bisnis, sistem, dan kebutuhan pengguna.',
-            'description' => 'Di Sistem Informasi, kemampuanmu dipetakan melalui Analisis Data, Pengembangan Sistem, dan UI/UX. Setiap bidang memiliki tiga kemampuan, sehingga ada sembilan kemampuan akademik yang digunakan pada Assesment dan jalur belajar.',
+            'description' => 'Di Sistem Informasi, kemampuanmu dipetakan melalui Analisis Data, Pengembangan Sistem, dan UI/UX. Setiap bidang memiliki tiga kemampuan, sehingga ada sembilan kemampuan akademik yang digunakan pada Assessment dan jalur belajar.',
             'difficulty' => 'Menengah',
             'accent' => '#79D7FF',
             'areas' => [
@@ -104,7 +104,7 @@ final class AcademicProgramCatalog
         'Manajemen' => [
             'slug' => 'manajemen',
             'tagline' => 'Belajar memahami pasar, mengelola keuangan, dan mengembangkan orang di dalam organisasi.',
-            'description' => 'Di Manajemen, kemampuanmu dipetakan melalui Marketing, Keuangan, dan Human Resources. Setiap bidang memiliki tiga kemampuan, sehingga ada sembilan kemampuan akademik yang digunakan pada Assesment dan jalur belajar.',
+            'description' => 'Di Manajemen, kemampuanmu dipetakan melalui Marketing, Keuangan, dan Human Resources. Setiap bidang memiliki tiga kemampuan, sehingga ada sembilan kemampuan akademik yang digunakan pada Assessment dan jalur belajar.',
             'difficulty' => 'Menengah',
             'accent' => '#FFD95A',
             'areas' => [
@@ -173,7 +173,7 @@ final class AcademicProgramCatalog
         'Teknik Informatika' => [
             'slug' => 'teknik-informatika',
             'tagline' => 'Bangun dasar pemrograman, pahami sistem komputer, lalu kenali penerapan kecerdasan buatan.',
-            'description' => 'Di Teknik Informatika, kemampuanmu dipetakan melalui Pemrograman dan Rekayasa Perangkat Lunak, Jaringan dan Sistem Komputer, serta Artificial Intelligence. Setiap bidang memiliki tiga kemampuan, sehingga ada sembilan kemampuan akademik yang digunakan pada Assesment dan jalur belajar.',
+            'description' => 'Di Teknik Informatika, kemampuanmu dipetakan melalui Pemrograman dan Rekayasa Perangkat Lunak, Jaringan dan Sistem Komputer, serta Artificial Intelligence. Setiap bidang memiliki tiga kemampuan, sehingga ada sembilan kemampuan akademik yang digunakan pada Assessment dan jalur belajar.',
             'difficulty' => 'Menengah',
             'accent' => '#C7FF5E',
             'areas' => [
@@ -242,7 +242,7 @@ final class AcademicProgramCatalog
         'Sistem Komputer' => [
             'slug' => 'sistem-komputer',
             'tagline' => 'Pahami arsitektur komputer, embedded system, IoT, jaringan, dan keamanan komputer.',
-            'description' => 'Di Sistem Komputer, kemampuanmu dipetakan melalui Arsitektur dan Organisasi Komputer, Embedded System dan Internet of Things, serta Jaringan dan Keamanan Komputer. Setiap bidang memiliki tiga kemampuan, sehingga ada sembilan kemampuan akademik yang digunakan pada Assesment dan jalur belajar.',
+            'description' => 'Di Sistem Komputer, kemampuanmu dipetakan melalui Arsitektur dan Organisasi Komputer, Embedded System dan Internet of Things, serta Jaringan dan Keamanan Komputer. Setiap bidang memiliki tiga kemampuan, sehingga ada sembilan kemampuan akademik yang digunakan pada Assessment dan jalur belajar.',
             'difficulty' => 'Menengah',
             'accent' => '#FF9F68',
             'areas' => [
@@ -311,7 +311,7 @@ final class AcademicProgramCatalog
         'Psikologi' => [
             'slug' => 'psikologi',
             'tagline' => 'Pahami perilaku manusia di organisasi, dalam konseling, dan melalui penelitian.',
-            'description' => 'Di Psikologi, kemampuanmu dipetakan melalui Psikologi Industri dan Organisasi, Konseling, dan Penelitian Psikologi. Setiap bidang memiliki tiga kemampuan, sehingga ada sembilan kemampuan akademik yang digunakan pada Assesment dan jalur belajar.',
+            'description' => 'Di Psikologi, kemampuanmu dipetakan melalui Psikologi Industri dan Organisasi, Konseling, dan Penelitian Psikologi. Setiap bidang memiliki tiga kemampuan, sehingga ada sembilan kemampuan akademik yang digunakan pada Assessment dan jalur belajar.',
             'difficulty' => 'Menengah',
             'accent' => '#FF8FAB',
             'areas' => [
@@ -380,7 +380,7 @@ final class AcademicProgramCatalog
         'Ilmu Komunikasi' => [
             'slug' => 'ilmu-komunikasi',
             'tagline' => 'Pelajari cara membangun hubungan, menyampaikan berita, dan membuat konten digital.',
-            'description' => 'Di Ilmu Komunikasi, kemampuanmu dipetakan melalui Public Relations, Jurnalistik, dan Digital Media. Setiap bidang memiliki tiga kemampuan, sehingga ada sembilan kemampuan akademik yang digunakan pada Assesment dan jalur belajar.',
+            'description' => 'Di Ilmu Komunikasi, kemampuanmu dipetakan melalui Public Relations, Jurnalistik, dan Digital Media. Setiap bidang memiliki tiga kemampuan, sehingga ada sembilan kemampuan akademik yang digunakan pada Assessment dan jalur belajar.',
             'difficulty' => 'Menengah',
             'accent' => '#C4B5FD',
             'areas' => [
