@@ -1,83 +1,236 @@
-# SkillPath AI (Galaxy Space)
+# SkillPath AI
 
-SkillPath AI adalah aplikasi web yang membantu mahasiswa memahami kemampuan yang sudah mereka miliki, menemukan bagian yang masih perlu diperkuat, lalu menyusun jalur belajar yang lebih terarah berdasarkan jurusan dan hasil assessment.
+SkillPath AI adalah aplikasi web untuk membantu mahasiswa memahami kemampuan mereka, menemukan skill yang masih perlu diperkuat, dan menyusun jalur belajar yang lebih terarah berdasarkan jurusan, hasil assessment, progres belajar, dan evaluasi.
 
-Aplikasi ini tidak hanya memberikan daftar materi. SkillPath AI menyimpan perkembangan pengguna, menghitung kesenjangan kemampuan, menentukan prioritas belajar, menyediakan evaluasi, merekomendasikan proyek, dan menggunakan AI untuk membantu menjelaskan hasil yang sudah dihitung oleh sistem.
+Aplikasi ini tidak menyerahkan keputusan utama kepada AI. Assessment, perhitungan skill gap, roadmap, progres, evaluasi, dan kesiapan proyek tetap dihitung oleh sistem. AI digunakan sebagai pendamping untuk menjelaskan hasil dan memberikan insight berdasarkan data yang sudah tersedia.
 
-**Website:**
-https://skillpath-ai.my.id
+**Live Website:** https://skillpath-ai.my.id  
+**Repository:** https://github.com/ki1bot/skillpath-ai
 
-**Repository:**
-https://github.com/ki1bot/skillpath-ai
+---
 
-## Tentang SkillPath AI
+## Tentang Project
 
-Tidak semua mahasiswa kesulitan belajar karena kekurangan materi. Sering kali masalahnya justru lebih sederhana: tidak tahu kemampuan mana yang sudah cukup baik, kemampuan mana yang masih kurang, dan apa yang sebaiknya dipelajari lebih dahulu.
+Banyak mahasiswa memiliki akses ke materi belajar, tetapi masih kesulitan menentukan apa yang harus dipelajari terlebih dahulu.
 
-SkillPath AI dibuat untuk membantu menjawab masalah tersebut.
+SkillPath AI mencoba menyelesaikan masalah tersebut dengan alur yang sederhana:
 
-Alur dasarnya dimulai ketika pengguna memilih jurusan dan mengisi profil belajar. Setelah itu, pengguna mengikuti assessment awal yang sesuai dengan jurusannya.
+1. Pengguna memilih jurusan dan mengisi profil belajar.
+2. Pengguna mengerjakan assessment awal.
+3. Sistem menghitung kemampuan berdasarkan hasil assessment.
+4. Nilai kemampuan dibandingkan dengan target skill.
+5. Sistem menentukan skill gap dan prioritas belajar.
+6. Roadmap belajar dibuat berdasarkan kondisi pengguna.
+7. Pengguna mempelajari materi dan mencatat progres.
+8. Evaluasi digunakan untuk mengukur perkembangan.
+9. Materi penguatan diberikan jika masih diperlukan.
+10. Pengguna dapat mengerjakan proyek sesuai tingkat kesiapan.
+11. Perkembangan dapat dipantau melalui dashboard dan halaman progres.
 
-Hasil assessment digunakan untuk membentuk nilai kemampuan pengguna. Sistem kemudian membandingkan nilai tersebut dengan target kemampuan yang tersedia dan menghitung bagian mana yang masih memiliki kesenjangan.
+Tujuannya bukan menggantikan proses belajar, tetapi memberikan arah belajar yang lebih jelas dan terukur.
 
-Dari hasil tersebut, SkillPath AI dapat menyusun prioritas belajar, memberikan materi, mencatat perkembangan, melakukan evaluasi, memberikan materi penguatan jika diperlukan, dan membantu pengguna memilih proyek yang sesuai dengan kesiapan mereka.
+---
 
-AI digunakan sebagai pendamping untuk menjelaskan data dan memberikan masukan tambahan. Keputusan utama seperti nilai assessment, kelulusan evaluasi, kesiapan proyek, dan perubahan progres tetap ditentukan oleh logika aplikasi.
+## Fitur
 
-## Alur Penggunaan
+### Assessment
 
-Secara umum, alur penggunaan SkillPath AI adalah:
-
-1. Membuat akun dan masuk ke aplikasi.
-2. Mengisi profil belajar dan memilih jurusan.
-3. Mengerjakan assessment awal.
-4. Sistem menghitung kemampuan pengguna.
-5. Sistem mencari kesenjangan antara kemampuan saat ini dan target.
-6. Pengguna melihat prioritas kemampuan yang perlu diperkuat.
-7. Sistem menyusun jalur belajar.
-8. Pengguna mempelajari materi yang tersedia.
-9. Pengguna mencatat aktivitas dan progres belajar.
-10. Pengguna mengerjakan evaluasi materi.
-11. Jika belum memenuhi hasil yang dibutuhkan, sistem dapat memberikan materi penguatan.
-12. Pengguna dapat mengerjakan proyek untuk menerapkan kemampuan yang sudah dipelajari.
-13. Perkembangan dapat dipantau kembali melalui dashboard dan halaman progres.
-
-## Jurusan yang Tersedia
-
-SkillPath AI saat ini menyediakan enam jurusan:
-
-1. Sistem Informasi
-2. Manajemen
-3. Teknik Informatika
-4. Sistem Komputer
-5. Psikologi
-6. Ilmu Komunikasi
+Assessment digunakan untuk mendapatkan gambaran awal kemampuan pengguna.
 
 Setiap jurusan memiliki:
 
-- 3 bidang utama;
-- 9 kemampuan;
-- target kemampuan yang digunakan dalam pemetaan dan assessment.
+- 50 soal assessment;
+- 5 bagian;
+- 10 soal per bagian;
+- 9 skill utama yang dinilai.
 
-Secara keseluruhan terdapat **54 kemampuan** yang digunakan oleh sistem.
+Sesi assessment dirancang agar tetap dapat dipulihkan ketika halaman di-refresh atau koneksi internet terputus. Jika pengguna meninggalkan atau membatalkan assessment melalui alur yang tersedia, sesi dapat dimulai kembali dari awal.
 
-## Struktur Kemampuan
+### Skill Mapping
+
+Hasil assessment digunakan untuk membentuk nilai kemampuan pengguna.
+
+Nilai tersebut digunakan untuk melihat:
+
+- kemampuan yang sudah mendekati target;
+- kemampuan yang masih membutuhkan penguatan;
+- skill dengan gap terbesar;
+- skill yang sebaiknya diprioritaskan.
+
+Nilai kemampuan di SkillPath AI adalah indikator internal dan bukan nilai akademik resmi.
+
+### Skill Gap Analysis
+
+Sistem membandingkan kemampuan saat ini dengan target kemampuan.
+
+Secara sederhana:
+
+```text
+skill gap = target kemampuan - kemampuan saat ini
+```
+
+Hasil perhitungan tersebut kemudian digunakan untuk menentukan prioritas pengembangan skill.
+
+Perhitungan utama dilakukan oleh backend, bukan oleh model AI.
+
+### Roadmap Belajar
+
+Roadmap membantu pengguna menentukan materi yang perlu dipelajari berdasarkan kondisi skill mereka.
+
+Roadmap dapat berubah ketika pengguna:
+
+- menyelesaikan assessment;
+- memperoleh perubahan nilai skill;
+- menyelesaikan materi;
+- mengerjakan evaluasi;
+- membutuhkan materi penguatan.
+
+### Materi Belajar
+
+Materi dapat memiliki:
+
+- judul;
+- ringkasan;
+- learning objective;
+- tingkat kesulitan;
+- estimasi waktu belajar;
+- referensi;
+- latihan praktik;
+- evaluasi;
+- penjelasan jawaban.
+
+Setiap materi terhubung dengan skill tertentu.
+
+### Materi Penguatan
+
+Ketika pengguna belum memenuhi hasil evaluasi yang dibutuhkan, sistem dapat menambahkan materi penguatan sebelum pengguna melanjutkan proses belajar.
+
+### Evaluasi Berbasis Bukti
+
+Evaluasi tidak hanya mengandalkan tombol selesai.
+
+Beberapa bentuk bukti yang dapat digunakan antara lain:
+
+- jawaban evaluasi;
+- tautan hasil praktik;
+- Google Drive evidence;
+- refleksi belajar.
+
+Hasil evaluasi dapat memengaruhi progres dan kebutuhan reinforcement selanjutnya.
+
+### Progress Tracking
+
+Pengguna dapat mencatat aktivitas belajar seperti:
+
+- persentase progres;
+- durasi belajar;
+- catatan;
+- kendala;
+- evidence.
+
+Riwayat tersebut digunakan untuk membantu pengguna melihat perkembangan dari waktu ke waktu.
+
+### Project Recommendation
+
+SkillPath AI menyediakan proyek sebagai sarana menerapkan kemampuan yang sudah dipelajari.
+
+Setiap proyek dapat memiliki:
+
+- judul;
+- deskripsi;
+- problem statement;
+- tingkat kesulitan;
+- estimasi waktu;
+- minimum features;
+- completion criteria;
+- skill yang dibutuhkan.
+
+Sistem membandingkan skill pengguna dengan kebutuhan proyek untuk menentukan tingkat kesiapan.
+
+### AI Learning Assistant
+
+AI digunakan sebagai lapisan pendamping, bukan sebagai sumber keputusan utama.
+
+AI saat ini digunakan untuk:
+
+- menjelaskan hasil skill gap;
+- membuat ringkasan perkembangan belajar;
+- memberikan saran pembagian waktu belajar;
+- membantu membaca pola kendala pengguna;
+- membuat variasi latihan;
+- memberikan feedback proyek.
+
+AI tidak digunakan untuk langsung:
+
+- menentukan nilai assessment;
+- membuat nilai skill;
+- menentukan kelulusan evaluasi;
+- mengubah progres;
+- menentukan kesiapan proyek secara sepihak;
+- membuat data yang tidak tersedia di aplikasi.
+
+### Authentication
+
+Aplikasi menyediakan:
+
+- registrasi;
+- login;
+- logout;
+- email verification;
+- reset password;
+- remember me;
+- idle session timeout;
+- login Google;
+- login Facebook.
+
+### Feedback
+
+Pengguna dapat mengirim feedback mengenai:
+
+- pengalaman menggunakan aplikasi;
+- materi;
+- fitur;
+- rekomendasi;
+- masalah teknis.
+
+Administrator dapat meninjau feedback melalui halaman admin.
+
+### Admin Dashboard
+
+Administrator dapat mengelola data utama seperti:
+
+- jurusan;
+- skill;
+- assessment;
+- pertanyaan assessment;
+- materi;
+- prerequisite;
+- proyek;
+- kebutuhan skill proyek;
+- feedback;
+- pengguna dan role.
+
+---
+
+## Jurusan
+
+SkillPath AI saat ini menyediakan enam jurusan dengan total 54 skill.
 
 ### Sistem Informasi
 
-#### Analisis Data
+**Analisis Data**
 
 - SQL dan Pengolahan Data
 - Spreadsheet dan Analisis Data
 - Business Intelligence dan Visualisasi Data
 
-#### Pengembangan Sistem
+**Pengembangan Sistem**
 
 - Database Management
 - Web Development
 - System Analysis and Design
 
-#### UI/UX
+**UI/UX**
 
 - UI Design
 - Wireframing dan Prototyping
@@ -85,19 +238,19 @@ Secara keseluruhan terdapat **54 kemampuan** yang digunakan oleh sistem.
 
 ### Manajemen
 
-#### Marketing
+**Marketing**
 
 - Branding
 - Digital Marketing
 - Market Research
 
-#### Keuangan
+**Keuangan**
 
 - Financial Planning
 - Financial Analysis
 - Investment Management
 
-#### Human Resources
+**Human Resources**
 
 - Recruitment and Selection
 - Performance Management
@@ -105,19 +258,19 @@ Secara keseluruhan terdapat **54 kemampuan** yang digunakan oleh sistem.
 
 ### Teknik Informatika
 
-#### Pemrograman dan Rekayasa Perangkat Lunak
+**Pemrograman dan Rekayasa Perangkat Lunak**
 
 - Algoritma dan Struktur Data
 - Object-Oriented Programming
 - Software Engineering
 
-#### Jaringan dan Sistem Komputer
+**Jaringan dan Sistem Komputer**
 
 - Computer Networks
 - Operating Systems
 - Cybersecurity
 
-#### Artificial Intelligence
+**Artificial Intelligence**
 
 - Machine Learning
 - Data Science
@@ -125,19 +278,19 @@ Secara keseluruhan terdapat **54 kemampuan** yang digunakan oleh sistem.
 
 ### Sistem Komputer
 
-#### Arsitektur dan Organisasi Komputer
+**Arsitektur dan Organisasi Komputer**
 
 - Computer Architecture
 - Digital Logic
 - Microprocessor and Microcontroller
 
-#### Embedded System dan Internet of Things
+**Embedded System dan Internet of Things**
 
 - Embedded Systems
 - Internet of Things
 - Sensor and Actuator Integration
 
-#### Jaringan dan Keamanan Komputer
+**Jaringan dan Keamanan Komputer**
 
 - Computer Networks
 - Network Administration
@@ -145,19 +298,19 @@ Secara keseluruhan terdapat **54 kemampuan** yang digunakan oleh sistem.
 
 ### Psikologi
 
-#### Psikologi Industri dan Organisasi
+**Psikologi Industri dan Organisasi**
 
 - Employee Behavior
 - Organizational Development
 - Psychological Assessment
 
-#### Konseling
+**Konseling**
 
 - Counseling Skills
 - Interpersonal Communication
 - Emotional Intelligence
 
-#### Penelitian Psikologi
+**Penelitian Psikologi**
 
 - Research Methodology
 - Interview dan Observation
@@ -165,395 +318,200 @@ Secara keseluruhan terdapat **54 kemampuan** yang digunakan oleh sistem.
 
 ### Ilmu Komunikasi
 
-#### Public Relations
+**Public Relations**
 
 - Media Relations
 - Corporate Communication
 - Crisis Communication
 
-#### Jurnalistik
+**Jurnalistik**
 
 - News Writing
 - Journalistic Interview
 - News Reporting
 
-#### Digital Media
+**Digital Media**
 
 - Content Creation
 - Social Media Management
 - Video Production
 
-## Fitur Utama
+---
 
-### Autentikasi
-
-SkillPath AI menggunakan Laravel Fortify untuk menangani autentikasi.
-
-Pengguna dapat:
-
-- membuat akun;
-- masuk ke aplikasi;
-- keluar dari aplikasi;
-- meminta reset kata sandi;
-- membuat kata sandi baru melalui proses reset.
-
-Setelah berhasil masuk, pengguna diarahkan ke dashboard.
-
-### Profil Belajar
-
-Pengguna dapat mengisi informasi yang membantu sistem memahami konteks belajar mereka.
-
-Informasi tersebut dapat meliputi:
-
-- jurusan;
-- semester;
-- bidang yang ingin dikembangkan;
-- pengalaman belajar atau proyek;
-- waktu belajar yang tersedia setiap minggu.
-
-Profil dapat diperbarui ketika kondisi atau tujuan belajar pengguna berubah.
-
-### Assessment Awal
-
-Assessment digunakan untuk mendapatkan gambaran awal mengenai kemampuan pengguna.
-
-Setiap jurusan memiliki sembilan kemampuan utama yang dinilai melalui pertanyaan assessment.
-
-Jawaban pengguna kemudian digunakan oleh sistem untuk memperbarui nilai kemampuan yang tersimpan.
-
-Hasil assessment menjadi salah satu dasar untuk:
-
-- pemetaan kemampuan;
-- analisis kesenjangan;
-- penentuan prioritas belajar;
-- penyusunan roadmap;
-- perhitungan kesiapan.
-
-### Peta Kemampuan
-
-SkillPath AI menyimpan nilai kemampuan masing-masing pengguna.
-
-Nilai tersebut digunakan untuk melihat kemampuan yang:
-
-- sudah mendekati atau mencapai target;
-- masih berada di bawah target;
-- memiliki kesenjangan terbesar;
-- sebaiknya menjadi prioritas untuk dipelajari.
-
-Nilai kemampuan pada SkillPath AI digunakan sebagai indikator perkembangan dan bukan nilai akademik resmi.
-
-### Analisis Kesenjangan Kemampuan
-
-Setiap kemampuan dapat memiliki target penguasaan dan bobot kepentingan.
-
-Sistem membandingkan kemampuan pengguna saat ini dengan target tersebut.
-
-Secara sederhana:
-
-```text
-kesenjangan = target kemampuan - kemampuan saat ini
-```
-
-Kemampuan dengan kesenjangan dan tingkat kepentingan yang lebih besar dapat memperoleh prioritas lebih tinggi.
-
-Perhitungan ini dilakukan oleh logika aplikasi dan tidak diserahkan kepada AI.
-
-### Kesiapan Belajar pada Jurusan
-
-Halaman pilihan jurusan dapat menampilkan persentase kesiapan belajar untuk pengguna yang sudah memiliki data kemampuan.
-
-Sistem membandingkan nilai kemampuan pengguna dengan target kemampuan setiap jurusan.
-
-Hasilnya dapat memiliki status seperti:
-
-- Sangat siap;
-- Siap;
-- Cukup siap;
-- Perlu penguatan;
-- Belum dinilai.
-
-Sistem juga dapat menunjukkan kemampuan dengan kesenjangan terbesar sehingga pengguna dapat mengetahui bagian yang masih perlu diperkuat.
-
-### Jalur Belajar Adaptif
-
-SkillPath AI memiliki roadmap belajar yang tidak hanya bergantung pada urutan materi tetap.
-
-Roadmap dapat mempertimbangkan kondisi kemampuan pengguna sehingga materi yang lebih relevan dapat ditempatkan sebagai prioritas.
-
-Roadmap dapat berubah ketika kondisi belajar pengguna berubah, misalnya setelah:
-
-- menyelesaikan assessment;
-- mendapatkan perubahan nilai kemampuan;
-- menyelesaikan evaluasi;
-- membutuhkan materi penguatan.
-
-### Materi Belajar
-
-Materi belajar dapat menyimpan informasi seperti:
-
-- judul;
-- ringkasan;
-- tujuan pembelajaran;
-- tingkat kesulitan;
-- estimasi waktu;
-- referensi;
-- latihan praktik;
-- pertanyaan evaluasi;
-- pilihan jawaban;
-- penjelasan evaluasi.
-
-Materi dihubungkan dengan kemampuan yang ingin dikembangkan.
-
-### Materi Penguatan
-
-Jika pengguna belum berhasil menyelesaikan suatu evaluasi, sistem dapat memberikan materi penguatan.
-
-Materi ini digunakan untuk membantu pengguna memahami bagian yang masih kurang sebelum melanjutkan kembali ke tahap berikutnya.
-
-### Evaluasi Berbasis Bukti
-
-Penyelesaian materi tidak hanya bergantung pada tombol selesai.
-
-Sistem dapat menggunakan beberapa bentuk bukti belajar seperti:
-
-- jawaban konsep;
-- hasil evaluasi;
-- tautan pekerjaan atau praktik;
-- refleksi hasil belajar.
-
-Hasil evaluasi digunakan untuk menentukan perkembangan pengguna dan kebutuhan penguatan selanjutnya.
-
-### Catatan Aktivitas Belajar
-
-Pengguna dapat mencatat aktivitas selama menjalani roadmap.
-
-Catatan tersebut dapat berisi:
-
-- persentase progres;
-- waktu yang digunakan untuk belajar;
-- catatan belajar;
-- kendala;
-- tautan bukti.
-
-Riwayat ini kemudian dapat digunakan untuk melihat pola perkembangan pengguna.
-
-### Proyek
-
-SkillPath AI menyediakan sistem proyek sebagai sarana untuk menerapkan kemampuan yang sudah dipelajari.
-
-Data proyek dapat berisi:
-
-- judul;
-- jurusan;
-- deskripsi;
-- permasalahan yang ingin diselesaikan;
-- tingkat kesulitan;
-- estimasi waktu pengerjaan;
-- fitur minimum;
-- fitur pengembangan;
-- kriteria penyelesaian;
-- kemampuan yang dibutuhkan.
-
-### Kesiapan Proyek
-
-Sebelum memulai proyek, sistem dapat membandingkan kemampuan pengguna dengan kemampuan minimum yang dibutuhkan proyek tersebut.
-
-Perhitungan ini digunakan untuk memberikan gambaran apakah pengguna:
-
-- sudah cukup siap;
-- masih membutuhkan penguatan;
-- atau dapat mengambil proyek tersebut sebagai tantangan.
-
-Nilai kesiapan bukan jaminan bahwa proyek akan mudah diselesaikan. Nilai tersebut hanya menggambarkan seberapa dekat kemampuan pengguna dengan kebutuhan proyek.
-
-### Progres Proyek
-
-Setelah proyek dimulai, pengguna dapat memperbarui perkembangannya.
-
-Ketika proyek akan diselesaikan, sistem dapat meminta bukti seperti:
-
-- tautan repository;
-- tautan hasil proyek;
-- catatan penyelesaian.
-
-### Riwayat Perkembangan
-
-Halaman progres digunakan untuk melihat aktivitas belajar yang sudah dilakukan.
-
-Data yang dapat muncul antara lain:
-
-- hasil assessment;
-- perubahan kemampuan;
-- aktivitas belajar;
-- evaluasi;
-- perkembangan roadmap;
-- progres proyek;
-- riwayat kesiapan pengguna.
-
-### Pendamping Belajar AI
-
-SkillPath AI memiliki layanan AI untuk membantu menjelaskan informasi yang sudah dimiliki sistem.
-
-AI dapat digunakan untuk:
-
-- menjelaskan kondisi kemampuan;
-- membuat ringkasan perkembangan;
-- memberikan saran pembagian waktu belajar;
-- menganalisis kendala yang pernah dicatat;
-- membantu membuat variasi latihan;
-- memberikan umpan balik terhadap proyek.
-
-AI hanya menjadi lapisan pendamping.
-
-AI tidak digunakan untuk secara langsung:
-
-- menentukan nilai assessment;
-- membuat nilai kemampuan;
-- menentukan kelulusan evaluasi;
-- mengubah progres pengguna;
-- membuat fakta yang tidak tersedia di dalam data aplikasi.
-
-Dengan pendekatan ini, fitur utama aplikasi tetap dapat dipertanggungjawabkan melalui logika program dan data yang tersimpan.
-
-### Feedback
-
-Pengguna dapat memberikan masukan mengenai aplikasi.
-
-Feedback dapat berkaitan dengan:
-
-- pengalaman menggunakan aplikasi;
-- materi;
-- rekomendasi;
-- fitur;
-- masalah teknis.
-
-Administrator dapat melihat dan memberikan tanggapan terhadap feedback tersebut.
-
-### Dashboard Administrator
-
-Administrator memiliki halaman khusus untuk mengelola data utama SkillPath AI.
-
-Data yang dapat dikelola mencakup:
-
-- jurusan;
-- kemampuan;
-- hubungan kemampuan;
-- prasyarat;
-- assessment;
-- pertanyaan assessment;
-- materi belajar;
-- proyek;
-- kebutuhan kemampuan proyek;
-- feedback.
-
-### Pengelolaan Pengguna
-
-Sistem memiliki akses khusus untuk pengelolaan pengguna.
-
-Pengguna yang memiliki izin yang sesuai dapat:
-
-- melihat daftar akun;
-- melihat peran pengguna;
-- mengubah peran akun.
-
-### Keamanan Sesi
-
-SkillPath AI memiliki mekanisme idle timeout.
-
-Secara bawaan, sesi dianggap tidak aktif setelah:
-
-```text
-10 menit
-```
-
-Nilai tersebut dapat diubah melalui environment:
-
-```env
-AUTH_IDLE_TIMEOUT=10
-```
-
-## Teknologi
+## Tech Stack
 
 ### Backend
 
-- PHP
-- Laravel
-- Inertia.js
+- PHP 8.4+
+- Laravel 13
+- Inertia.js 3
 - Laravel Fortify
+- Laravel Socialite
 - Laravel Wayfinder
 - PostgreSQL
 - Resend
 
 ### Frontend
 
-- React
+- React 19
 - TypeScript
-- Tailwind CSS
-- Vite
-- Recharts
-- Lucide React
+- Tailwind CSS 4
+- Vite 8
 - Radix UI
+- Lucide React
+- Recharts
 
-### AI
+### AI Providers
 
 - Google Gemini
 - OpenRouter
+- xKiro
 
-Aplikasi mendukung model utama dan model cadangan melalui konfigurasi environment.
+### Development & Quality
 
-### Pengujian dan Kualitas Kode
-
-Project menggunakan:
-
-- PHPUnit 12
-- Larastan
+- Docker
+- PHPUnit
 - PHPStan
+- Larastan
 - Laravel Pint
 - ESLint
 - Prettier
 - TypeScript type checking
 - GitHub Actions
 
-## Persyaratan
+### Deployment
 
-Sebelum menjalankan project secara lokal, siapkan:
+- Railway
+- PostgreSQL
+- Custom domain
+- HTTPS
 
-- PHP 8.4.1 atau lebih baru;
-- Composer;
-- Node.js;
-- npm;
-- PostgreSQL.
+---
 
-Untuk lingkungan yang mendekati GitHub Actions project ini, Node.js 22 dapat digunakan.
+## Arsitektur AI
 
-Pastikan ekstensi PHP yang dibutuhkan Laravel dan PostgreSQL juga sudah aktif.
+SkillPath AI memiliki beberapa provider AI agar aplikasi tidak bergantung pada satu model saja.
 
-## Instalasi
+Konfigurasi saat ini:
 
-Clone repository:
+```text
+Gemini
+├── gemini-3.5-flash-lite
+└── gemini-3.1-flash-lite
+
+OpenRouter
+├── nex-agi/nex-n2.5-pro:free
+└── nvidia/nemotron-3-ultra-550b-a55b:free
+
+xKiro
+├── qwen/qwen3.8-max:free
+└── mistralai/mistral-large-2512
+```
+
+Urutan attempt aplikasi adalah:
+
+```text
+Gemini primary
+        ↓
+OpenRouter primary
+        ↓
+xKiro primary
+        ↓
+Gemini fallback
+        ↓
+OpenRouter fallback
+        ↓
+xKiro fallback
+```
+
+Jika salah satu provider gagal, timeout, atau tidak menghasilkan respons yang valid, aplikasi dapat mencoba provider atau model berikutnya.
+
+Untuk OpenRouter, rate limit dari shared upstream model dibedakan dari rate limit akun/provider sehingga fallback OpenRouter masih dapat digunakan ketika hanya model tertentu yang sedang penuh.
+
+Model gratis dari provider eksternal dapat berubah sewaktu-waktu. Karena itu nama model disimpan melalui environment variable agar dapat diganti tanpa mengubah logika utama aplikasi.
+
+---
+
+## Menjalankan Project dengan Docker
+
+Docker merupakan cara yang direkomendasikan untuk menjalankan environment development yang konsisten.
+
+### 1. Clone repository
 
 ```bash
 git clone https://github.com/ki1bot/skillpath-ai.git
 cd skillpath-ai
 ```
 
-Install dependency PHP:
+### 2. Buat file environment
+
+Git Bash:
 
 ```bash
-composer install
+cp .env.example .env
 ```
 
-Install dependency frontend:
+Kemudian isi konfigurasi yang diperlukan pada `.env`.
+
+Jangan commit `.env` karena file tersebut berisi credential dan secret.
+
+### 3. Buat persistent volume PostgreSQL
+
+Project menggunakan external Docker volume untuk database:
 
 ```bash
-npm install
+docker volume create skillpath-ai-postgres-persistent
 ```
 
-## Konfigurasi Database
+Perintah ini hanya perlu dilakukan satu kali.
 
-SkillPath AI menggunakan PostgreSQL.
+### 4. Jalankan container
 
-Contoh konfigurasi development:
+```bash
+docker compose up -d --build
+```
+
+### 5. Generate application key
+
+```bash
+docker compose exec app php artisan key:generate
+```
+
+### 6. Jalankan migration
+
+```bash
+docker compose exec app php artisan migrate
+```
+
+Jika membutuhkan data awal:
+
+```bash
+docker compose exec app php artisan db:seed
+```
+
+### 7. Bersihkan cache aplikasi
+
+```bash
+docker compose exec app php artisan optimize:clear
+```
+
+Aplikasi development dapat dibuka di:
+
+```text
+http://localhost:8080
+```
+
+Vite development server menggunakan port:
+
+```text
+http://localhost:5173
+```
+
+---
+
+## Tentang Database pada Docker
+
+Pada `.env` local, database dapat menggunakan:
 
 ```env
 DB_CONNECTION=pgsql
@@ -564,245 +522,426 @@ DB_USERNAME=root
 DB_PASSWORD=
 ```
 
-## Menjalankan Aplikasi
+Ketika aplikasi berjalan melalui Docker Compose, `DB_HOST` secara otomatis dioverride menjadi:
 
-Untuk menjalankan Laravel, queue listener, dan Vite secara bersamaan:
+```text
+postgres
+```
+
+karena Laravel harus mengakses PostgreSQL melalui nama service Docker.
+
+Secret database tetap berada di `.env` dan tidak perlu ditulis langsung di `compose.yaml`.
+
+---
+
+## Menjalankan Tanpa Docker
+
+Pastikan sudah tersedia:
+
+- PHP 8.4.1 atau lebih baru
+- Composer
+- Node.js
+- npm
+- PostgreSQL
+
+Install dependency:
+
+```bash
+composer install
+npm install
+```
+
+Buat environment:
+
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+Jalankan migration:
+
+```bash
+php artisan migrate
+```
+
+Jalankan development server:
 
 ```bash
 composer run dev
 ```
 
-Script tersebut menjalankan:
+Script tersebut menjalankan Laravel, queue listener, dan Vite secara bersamaan.
+
+Secara default `php artisan serve` berjalan pada:
 
 ```text
-php artisan serve --no-reload
-php artisan queue:listen --tries=1
-npm run dev
+http://127.0.0.1:8000
 ```
 
-Aplikasi development secara bawaan dapat dibuka melalui:
+Jika menjalankan project tanpa Docker, sesuaikan `APP_URL` pada `.env` dengan URL development yang digunakan.
 
-```text
-http://localhost:8000
-```
+---
 
-## Setup Otomatis
+## Konfigurasi AI
 
-Repository juga memiliki Composer script:
+API key tidak boleh disimpan di source code atau README.
 
-```bash
-composer setup
-```
-
-Script tersebut melakukan beberapa proses setup seperti:
-
-- install dependency Composer;
-- membuat `.env` jika belum tersedia;
-- membuat application key;
-- menjalankan migration;
-- install dependency npm;
-- menjalankan frontend build.
-
-Database tetap harus sudah dibuat dan konfigurasi `.env` harus benar sebelum migration dapat berhasil.
-
-Jika membutuhkan data awal SkillPath AI setelah proses tersebut, jalankan:
-
-```bash
-php artisan db:seed
-```
-
-## Konfigurasi Email
-
-SkillPath AI menggunakan Resend untuk pengiriman email.
-
-Isi konfigurasi berikut:
+### Google Gemini
 
 ```env
-MAIL_MAILER=resend
-MAIL_FROM_ADDRESS="noreply@example.com"
-MAIL_FROM_NAME="${APP_NAME}"
-RESEND_API_KEY=
-```
-
-## Konfigurasi Google Gemini
-
-Tambahkan API key Gemini:
-
-```env
-GEMINI_API_KEY=""
+GEMINI_API_KEY=
 GEMINI_MODEL=gemini-3.5-flash-lite
 GEMINI_FALLBACK_MODELS=gemini-3.1-flash-lite
 GEMINI_BASE_URL=https://generativelanguage.googleapis.com/v1beta
 ```
 
-## Konfigurasi OpenRouter
-
-OpenRouter dapat dikonfigurasi dengan:
+### OpenRouter
 
 ```env
-OPENROUTER_API_KEY=""
+OPENROUTER_API_KEY=
 OPENROUTER_MODEL=nex-agi/nex-n2.5-pro:free
 OPENROUTER_FALLBACK_MODELS=nvidia/nemotron-3-ultra-550b-a55b:free
 OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 ```
 
-## Timeout AI
-
-Beberapa batas waktu request AI dapat diatur melalui:
+### xKiro
 
 ```env
-AI_REQUEST_TIMEOUT=12
-AI_ATTEMPT_TIMEOUT=6
-AI_CONNECT_TIMEOUT=3
-AI_FAILURE_CACHE_SECONDS=5
+XKIRO_API_KEY=
+XKIRO_MODEL=qwen/qwen3.8-max:free
+XKIRO_FALLBACK_MODELS=mistralai/mistral-large-2512
+XKIRO_BASE_URL=https://api.xkiro.com/v1
 ```
 
-### Frontend
+### Timeout
 
-Lint:
+```env
+AI_REQUEST_TIMEOUT=30
+AI_ATTEMPT_TIMEOUT=10
+AI_CONNECT_TIMEOUT=5
+AI_FAILURE_CACHE_SECONDS=10
+```
+
+---
+
+## Konfigurasi Email
+
+Email dikirim menggunakan Resend.
+
+```env
+MAIL_MAILER=resend
+MAIL_FROM_ADDRESS="noreply@example.com"
+MAIL_FROM_NAME="${APP_NAME}"
+
+RESEND_API_KEY=
+```
+
+Gunakan domain pengirim yang sudah terverifikasi pada akun Resend.
+
+---
+
+## Login Google dan Facebook
+
+### Google
+
+```env
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI=http://localhost:8080/auth/google/callback
+```
+
+### Facebook
+
+```env
+FACEBOOK_CLIENT_ID=
+FACEBOOK_CLIENT_SECRET=
+FACEBOOK_REDIRECT_URI=http://localhost:8080/auth/facebook/callback
+```
+
+Untuk production, redirect URI harus menggunakan domain production.
+
+Contoh:
+
+```text
+https://example.com/auth/google/callback
+https://example.com/auth/facebook/callback
+```
+
+---
+
+## Session dan Idle Timeout
+
+Durasi idle session dapat diatur melalui:
+
+```env
+AUTH_IDLE_TIMEOUT=10
+```
+
+Nilai tersebut menggunakan satuan menit.
+
+Untuk production gunakan cookie yang aman:
+
+```env
+SESSION_ENCRYPT=true
+SESSION_SECURE_COOKIE=true
+SESSION_SAME_SITE=lax
+```
+
+---
+
+## Quality Check
+
+Sebelum melakukan commit atau deployment, jalankan:
+
+```bash
+docker compose exec app composer ci:check
+```
+
+Command tersebut menjalankan pemeriksaan seperti:
+
+```text
+ESLint
+Prettier
+TypeScript
+Laravel Pint
+PHPStan / Larastan
+PHPUnit
+```
+
+Kemudian pastikan frontend dapat dibuild:
+
+```bash
+docker compose exec app npm run build
+```
+
+Jika tidak menggunakan Docker:
+
+```bash
+composer ci:check
+npm run build
+```
+
+---
+
+## Command Development
+
+### Frontend lint
 
 ```bash
 npm run lint:check
 ```
 
-Format:
+### Frontend formatting
 
 ```bash
 npm run format:check
 ```
 
-TypeScript:
+### TypeScript
 
 ```bash
 npm run types:check
 ```
 
-Build:
+### Frontend build
 
 ```bash
 npm run build
 ```
 
-### Backend
-
-Laravel Pint:
+### Laravel Pint
 
 ```bash
-composer run lint:check
+composer lint:check
 ```
 
-PHPStan:
+### PHPStan / Larastan
 
 ```bash
-composer run types:check
+composer types:check
 ```
 
-Test backend:
+### Test
 
 ```bash
-composer run test
+composer test
 ```
 
-Atau:
+atau:
 
 ```bash
 php artisan test
 ```
 
-Sebelum melakukan deployment, sebaiknya pastikan setidaknya:
-
-```bash
-composer run ci:check
-npm run build
-```
-
-## GitHub Actions
-
-Repository memiliki workflow GitHub Actions yang berjalan pada:
-
-- push ke branch `main`;
-- pull request.
-
-CI menggunakan:
-
-- Ubuntu;
-- PHP;
-- Node.js;
-- PostgreSQL.
-
-Workflow melakukan setup aplikasi kemudian menjalankan:
+### Semua pemeriksaan CI
 
 ```bash
 composer ci:check
 ```
 
-## Environment Production
+---
 
-Untuk production, beberapa konfigurasi penting yang perlu diperhatikan antara lain:
+## Deployment
+
+Production SkillPath AI berjalan di Railway.
+
+Environment production minimal sebaiknya menggunakan:
 
 ```env
 APP_ENV=production
 APP_DEBUG=false
-APP_URL=https://domain-aplikasi
+APP_URL=https://example.com
+
+DB_CONNECTION=pgsql
+DB_URL=
+
+SESSION_ENCRYPT=true
+SESSION_SECURE_COOKIE=true
 ```
 
-Pastikan juga:
+Selain itu tambahkan credential yang diperlukan untuk:
 
-- database production sudah dikonfigurasi;
-- API key tidak dimasukkan ke repository;
-- `.env` tidak di-commit;
-- HTTPS aktif;
-- queue worker tersedia jika fitur queue digunakan;
-- konfigurasi Resend sudah valid;
-- API key Gemini atau OpenRouter dikonfigurasi jika fitur AI ingin digunakan.
+- Resend;
+- Gemini;
+- OpenRouter;
+- xKiro;
+- Google OAuth;
+- Facebook OAuth.
 
-## Catatan Mengenai AI
+Secret production disimpan melalui Railway Variables dan tidak disimpan di repository.
 
-SkillPath AI tidak dirancang sebagai aplikasi yang menyerahkan seluruh keputusan kepada model AI.
+Setelah perubahan environment atau deployment baru, cache Laravel dapat dibersihkan dengan:
 
-Perhitungan inti tetap dikerjakan oleh backend menggunakan data yang tersimpan.
+```bash
+php artisan optimize:clear
+```
 
-AI menerima konteks yang sudah tersedia untuk membantu menjelaskan informasi tersebut dengan bahasa yang lebih mudah dipahami.
+---
 
-Pendekatan ini digunakan agar fitur utama aplikasi tetap dapat berjalan berdasarkan aturan yang jelas dan tidak bergantung sepenuhnya pada hasil generatif.
+## Verifikasi Production
 
-## Catatan Mengenai Nilai Kemampuan
+Beberapa pemeriksaan sederhana dapat dilakukan melalui Railway Console.
 
-Nilai kemampuan pada SkillPath AI bukan nilai akademik resmi dan bukan alat untuk menentukan kemampuan seseorang secara mutlak.
+### Database
 
-Nilai tersebut digunakan sebagai indikator internal untuk membantu:
+```bash
+php artisan tinker --execute='
+try {
+    Illuminate\Support\Facades\DB::select("SELECT 1");
+    echo "DATABASE: OK".PHP_EOL;
+} catch (Throwable $e) {
+    echo "DATABASE: ERROR".PHP_EOL;
+    echo $e->getMessage().PHP_EOL;
+}
+'
+```
 
-- membandingkan kemampuan saat ini dengan target;
-- menentukan kemampuan yang perlu diperkuat;
-- menyusun prioritas belajar;
-- memperkirakan kesiapan terhadap materi atau proyek;
-- melihat perubahan perkembangan dari waktu ke waktu.
+### Konfigurasi model AI
 
-Hasil SkillPath AI sebaiknya digunakan sebagai alat bantu belajar, bukan sebagai pengganti penilaian akademik atau profesional.
+```bash
+php artisan tinker --execute='
+foreach (["gemini", "openrouter", "xkiro"] as $provider) {
+    $config = config("services.$provider");
+
+    echo strtoupper($provider).PHP_EOL;
+    echo "Primary  : ".$config["model"].PHP_EOL;
+    echo "Fallback : ".implode(", ", $config["fallback_models"]).PHP_EOL;
+    echo PHP_EOL;
+}
+'
+```
+
+Jangan menampilkan nilai API key ketika melakukan debugging di console atau screenshot.
+
+---
+
+## GitHub Actions
+
+Repository memiliki workflow CI untuk memeriksa kualitas source code.
+
+Pemeriksaan utama dapat direplikasi secara lokal dengan:
+
+```bash
+composer ci:check
+```
+
+Tujuannya adalah memastikan perubahan tidak menimbulkan masalah pada:
+
+- lint;
+- formatting;
+- TypeScript;
+- static analysis;
+- unit test;
+- feature test.
+
+---
+
+## Catatan Keamanan
+
+Beberapa hal yang perlu diperhatikan:
+
+- jangan commit `.env`;
+- jangan menulis API key langsung di source code;
+- jangan menaruh credential di `compose.yaml`;
+- gunakan `APP_DEBUG=false` di production;
+- gunakan HTTPS di production;
+- gunakan cookie secure untuk production;
+- rotasi credential jika pernah terekspos;
+- simpan production secret melalui Railway Variables atau secret manager lain.
+
+File `.env.example` hanya berisi nama variable dan contoh konfigurasi yang aman untuk dipublikasikan.
+
+---
+
+## Catatan Tentang Hasil SkillPath AI
+
+SkillPath AI adalah alat bantu pembelajaran.
+
+Nilai skill, readiness, rekomendasi roadmap, dan rekomendasi proyek digunakan sebagai indikator internal untuk membantu pengguna menentukan arah belajar.
+
+Hasil tersebut bukan:
+
+- nilai akademik resmi;
+- sertifikasi kemampuan;
+- jaminan kesiapan kerja;
+- pengganti penilaian dosen atau profesional.
+
+---
 
 ## Status Project
 
-Saat ini SkillPath AI sudah memiliki fondasi utama untuk:
+Fitur utama yang saat ini sudah tersedia antara lain:
 
-- autentikasi pengguna;
-- onboarding dan profil belajar;
-- enam pilihan jurusan;
-- 54 kemampuan;
-- assessment kemampuan;
-- pemetaan kemampuan;
-- analisis kesenjangan kemampuan;
-- perhitungan kesiapan belajar;
-- roadmap adaptif;
-- materi belajar;
-- materi penguatan;
-- evaluasi berbasis bukti;
-- pencatatan aktivitas belajar;
-- proyek;
-- perhitungan kesiapan proyek;
-- progres proyek;
-- riwayat perkembangan;
-- integrasi Gemini dan OpenRouter;
-- feedback pengguna;
-- dashboard administrator;
-- pengelolaan pengguna;
-- CI melalui GitHub Actions.
+- authentication dan email verification;
+- login Google dan Facebook;
+- onboarding;
+- enam jurusan;
+- 54 skill;
+- assessment 50 soal per jurusan;
+- skill mapping;
+- skill gap analysis;
+- adaptive learning roadmap;
+- learning material;
+- reinforcement material;
+- evidence-based evaluation;
+- progress tracking;
+- project recommendation;
+- project readiness;
+- AI learning assistant;
+- feedback;
+- admin dashboard;
+- user management;
+- automated testing;
+- GitHub Actions;
+- Docker development environment;
+- Railway deployment.
+
+Project masih dapat terus dikembangkan seiring penambahan data, materi, project, dan peningkatan pengalaman pengguna.
+
+---
+
+## Author
+
+Developed and maintained by [ki1bot](https://github.com/ki1bot).
+
+Live application: [skillpath-ai.my.id](https://skillpath-ai.my.id)
