@@ -71,5 +71,9 @@ services:
 
 volumes:
     postgres_data:
+        external: true
+        name: skillpath-ai-postgres-persistent
+
     vendor_data:
+
     node_modules_data:
