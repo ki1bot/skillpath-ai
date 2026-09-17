@@ -85,7 +85,7 @@ if [ "${DOCKER_MODE:-production}" = "development" ]; then
 
     gosu "$RUN_AS" php artisan migrate --force
 
-    if [ "${RUN_SEEDER:-true}" = "true" ]; then
+    if [ "${RUN_SEEDER:-false}" = "true" ]; then
         gosu "$RUN_AS" php artisan db:seed --force
     elif [ "${RUN_ASSESSMENT_SEEDER:-false}" = "true" ]; then
         gosu "$RUN_AS" php artisan db:seed \
