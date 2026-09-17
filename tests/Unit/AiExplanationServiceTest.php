@@ -56,9 +56,9 @@ class AiExplanationServiceTest extends TestCase
         config([
             'services.gemini.key' => null,
             'services.openrouter.key' => 'test-openrouter-key',
-            'services.openrouter.model' => 'minimax/minimax-m3:free',
+            'services.openrouter.model' => 'nex-agi/nex-n2.5-pro:free',
             'services.openrouter.fallback_models' => [
-                'openrouter/free',
+                'nvidia/nemotron-3-ultra-550b-a55b:free',
             ],
             'services.openrouter.base_url' => 'https://openrouter.ai/api/v1',
         ]);
@@ -67,7 +67,7 @@ class AiExplanationServiceTest extends TestCase
             'https://openrouter.ai/api/v1/chat/completions' => Http::response(
                 [
                     'id' => 'generation-test',
-                    'model' => 'minimax/minimax-m3:free',
+                    'model' => 'nex-agi/nex-n2.5-pro:free',
                     'choices' => [
                         [
                             'index' => 0,
@@ -94,7 +94,7 @@ class AiExplanationServiceTest extends TestCase
         );
 
         $this->assertSame(
-            'minimax/minimax-m3:free',
+            'nex-agi/nex-n2.5-pro:free',
             $result->model,
         );
 
@@ -107,7 +107,7 @@ class AiExplanationServiceTest extends TestCase
             fn ($request) => $request->url()
                 === 'https://openrouter.ai/api/v1/chat/completions'
                 && $request['model']
-                === 'minimax/minimax-m3:free'
+                === 'nex-agi/nex-n2.5-pro:free'
                 && isset($request['provider']['allow_fallbacks']),
         );
     }
@@ -175,7 +175,7 @@ class AiExplanationServiceTest extends TestCase
             'services.openrouter.key' => null,
             'services.tokenrouter.key' => null,
             'services.xkiro.key' => 'test-xkiro-key',
-            'services.xkiro.model' => 'deepseek/deepseek-v4-pro',
+            'services.xkiro.model' => 'qwen/qwen3.8-max:free',
             'services.xkiro.fallback_models' => [
                 'mistralai/mistral-large-2512',
             ],
@@ -186,7 +186,7 @@ class AiExplanationServiceTest extends TestCase
             'https://api.xkiro.com/v1/chat/completions' => Http::response(
                 [
                     'id' => 'xkiro-test',
-                    'model' => 'deepseek/deepseek-v4-pro',
+                    'model' => 'qwen/qwen3.8-max:free',
                     'choices' => [
                         [
                             'index' => 0,
@@ -213,7 +213,7 @@ class AiExplanationServiceTest extends TestCase
         );
 
         $this->assertSame(
-            'deepseek/deepseek-v4-pro',
+            'qwen/qwen3.8-max:free',
             $result->model,
         );
 
@@ -221,7 +221,7 @@ class AiExplanationServiceTest extends TestCase
             fn ($request) => $request->url()
                 === 'https://api.xkiro.com/v1/chat/completions'
                 && $request['model']
-                === 'deepseek/deepseek-v4-pro'
+                === 'qwen/qwen3.8-max:free'
                 && ! isset($request['provider']),
         );
     }
@@ -287,7 +287,7 @@ class AiExplanationServiceTest extends TestCase
         config([
             'services.gemini.key' => null,
             'services.openrouter.key' => 'test-openrouter-key',
-            'services.openrouter.model' => 'minimax/minimax-m3:free',
+            'services.openrouter.model' => 'nex-agi/nex-n2.5-pro:free',
             'services.openrouter.fallback_models' => [],
             'services.openrouter.base_url' => 'https://openrouter.ai/api/v1',
         ]);
@@ -296,7 +296,7 @@ class AiExplanationServiceTest extends TestCase
             'https://openrouter.ai/api/v1/chat/completions' => Http::response(
                 [
                     'id' => 'generation-test',
-                    'model' => 'minimax/minimax-m3:free',
+                    'model' => 'nex-agi/nex-n2.5-pro:free',
                     'choices' => [
                         [
                             'index' => 0,

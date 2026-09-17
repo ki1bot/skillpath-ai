@@ -641,8 +641,8 @@ OpenRouter dapat dikonfigurasi dengan:
 
 ```env
 OPENROUTER_API_KEY=""
-OPENROUTER_MODEL=openai/gpt-oss-20b:free
-OPENROUTER_FALLBACK_MODELS=openrouter/free
+OPENROUTER_MODEL=nex-agi/nex-n2.5-pro:free
+OPENROUTER_FALLBACK_MODELS=nvidia/nemotron-3-ultra-550b-a55b:free
 OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 ```
 
