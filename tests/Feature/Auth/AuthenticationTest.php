@@ -69,9 +69,9 @@ class AuthenticationTest extends TestCase
         );
 
         $this->assertNull(
-            $user
-                ->fresh()
-                ->getRememberToken(),
+            User::query()
+                ->findOrFail($user->id)
+                ->getRawOriginal('remember_token'),
         );
     }
 
