@@ -72,22 +72,22 @@ return [
     'ai' => [
         'request_timeout' => max(
             3,
-            (int) env('AI_REQUEST_TIMEOUT', 20),
+            (int) env('AI_REQUEST_TIMEOUT', 30),
         ),
 
         'attempt_timeout' => max(
             2,
-            (int) env('AI_ATTEMPT_TIMEOUT', 4),
+            (int) env('AI_ATTEMPT_TIMEOUT', 10),
         ),
 
         'connect_timeout' => max(
             1,
-            (int) env('AI_CONNECT_TIMEOUT', 3),
+            (int) env('AI_CONNECT_TIMEOUT', 5),
         ),
 
         'failure_cache_seconds' => max(
             1,
-            (int) env('AI_FAILURE_CACHE_SECONDS', 5),
+            (int) env('AI_FAILURE_CACHE_SECONDS', 10),
         ),
     ],
 
@@ -96,7 +96,7 @@ return [
 
         'model' => env(
             'OPENROUTER_MODEL',
-            'minimax/minimax-m3:free',
+            'nex-agi/nex-n2.5-pro:free',
         ),
 
         'fallback_models' => array_values(
@@ -107,7 +107,7 @@ return [
                         ',',
                         (string) env(
                             'OPENROUTER_FALLBACK_MODELS',
-                            'openrouter/free',
+                            'nvidia/nemotron-3-ultra-550b-a55b:free',
                         ),
                     ),
                 ),
@@ -125,7 +125,7 @@ return [
 
         'model' => env(
             'TOKENROUTER_MODEL',
-            'z-ai/glm-5.3-free',
+            '',
         ),
 
         'fallback_models' => array_values(
@@ -154,7 +154,7 @@ return [
 
         'model' => env(
             'XKIRO_MODEL',
-            'deepseek/deepseek-v4-pro',
+            'qwen/qwen3.8-max:free',
         ),
 
         'fallback_models' => array_values(

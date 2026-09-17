@@ -137,7 +137,7 @@ class AiExplanationService
         $startedAt = microtime(true);
         $deadline = $startedAt + (float) config(
             'services.ai.request_timeout',
-            20,
+            30,
         );
 
         $blockedProviders = [];
@@ -214,7 +214,7 @@ class AiExplanationService
             now()->addSeconds(
                 (int) config(
                     'services.ai.failure_cache_seconds',
-                    5,
+                    10,
                 ),
             ),
         );
@@ -273,7 +273,7 @@ class AiExplanationService
                 'key' => config('services.openrouter.key'),
                 'model' => config(
                     'services.openrouter.model',
-                    'minimax/minimax-m3:free',
+                    'nex-agi/nex-n2.5-pro:free',
                 ),
                 'fallback_models' => config(
                     'services.openrouter.fallback_models',
@@ -289,7 +289,7 @@ class AiExplanationService
                 'key' => config('services.tokenrouter.key'),
                 'model' => config(
                     'services.tokenrouter.model',
-                    'z-ai/glm-5.3-free',
+                    '',
                 ),
                 'fallback_models' => config(
                     'services.tokenrouter.fallback_models',
@@ -305,7 +305,7 @@ class AiExplanationService
                 'key' => config('services.xkiro.key'),
                 'model' => config(
                     'services.xkiro.model',
-                    'deepseek/deepseek-v4-pro',
+                    'qwen/qwen3.8-max:free',
                 ),
                 'fallback_models' => config(
                     'services.xkiro.fallback_models',
@@ -469,7 +469,7 @@ class AiExplanationService
                         $timeoutSeconds,
                         (int) config(
                             'services.ai.connect_timeout',
-                            3,
+                            5,
                         ),
                     ),
                 )
@@ -671,7 +671,7 @@ class AiExplanationService
                         $timeoutSeconds,
                         (int) config(
                             'services.ai.connect_timeout',
-                            3,
+                            5,
                         ),
                     ),
                 )
@@ -685,13 +685,20 @@ class AiExplanationService
                 );
 
             if (! $response->successful()) {
+                $responsePayload = $response->json();
                 $rateLimited = $response->status() === 429;
 
-                if ($rateLimited) {
+                $blockProvider = $rateLimited
+                    && $this->shouldBlockProviderAfterRateLimit(
+                        $provider,
+                        $responsePayload,
+                    );
+
+                if ($blockProvider) {
                     $this->rememberRateLimit(
                         $provider,
                         $key,
-                        $response->json(),
+                        $responsePayload,
                         $response->header('Retry-After'),
                     );
                 }
@@ -711,7 +718,7 @@ class AiExplanationService
                     ],
                 );
 
-                return $rateLimited
+                return $blockProvider
                     ? false
                     : null;
             }
@@ -1042,9 +1049,26 @@ class AiExplanationService
             $remainingSeconds,
             (int) config(
                 'services.ai.attempt_timeout',
-                4,
+                10,
             ),
         );
+    }
+
+    private function shouldBlockProviderAfterRateLimit(
+        string $provider,
+        mixed $response,
+    ): bool {
+        if (
+            $provider !== 'openrouter'
+            || ! is_array($response)
+        ) {
+            return true;
+        }
+
+        return data_get(
+            $response,
+            'error.metadata.limit_source',
+        ) !== 'upstream_provider_shared_pool';
     }
 
     private function rememberRateLimit(

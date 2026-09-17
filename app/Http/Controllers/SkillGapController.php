@@ -76,7 +76,7 @@ class SkillGapController extends Controller
                     'Retry-After',
                     (string) config(
                         'services.ai.failure_cache_seconds',
-                        5,
+                        10,
                     ),
                 );
             }

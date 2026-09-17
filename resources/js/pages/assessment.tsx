@@ -548,26 +548,6 @@ export default function AssessmentPage({
                             <Clock3 className="size-5" />±{' '}
                             {assessment.duration_minutes} menit
                         </div>
-
-                        {assessment.started && (
-                            <div
-                                className={`flex items-center gap-2 rounded-[12px] border-2 border-foreground px-4 py-3 text-xs font-black ${
-                                    isOnline
-                                        ? 'bg-secondary text-[#171717]'
-                                        : 'bg-[var(--neo-yellow)] text-[#171717]'
-                                }`}
-                            >
-                                {isOnline ? (
-                                    <Wifi className="size-4" />
-                                ) : (
-                                    <WifiOff className="size-4" />
-                                )}
-
-                                {isOnline
-                                    ? 'Terhubung'
-                                    : 'Offline · jawaban tetap tersimpan'}
-                            </div>
-                        )}
                     </div>
                 </div>
 
