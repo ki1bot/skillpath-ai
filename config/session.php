@@ -34,7 +34,7 @@ return [
 
     'lifetime' => (int) env('SESSION_LIFETIME', 120),
 
-    'expire_on_close' => env('SESSION_EXPIRE_ON_CLOSE', false),
+    'expire_on_close' => env('SESSION_EXPIRE_ON_CLOSE', true),
 
     /*
     |--------------------------------------------------------------------------
@@ -55,8 +55,8 @@ return [
     |--------------------------------------------------------------------------
     |
     | When utilizing the "file" session driver, the session files are placed
-    | on disk. The default storage location is defined here; however, you
-    | are free to provide another location where they should be stored.
+    | on disk. The default storage location is defined here; however, you're
+    | welcome to change this path.
     |
     */
 
@@ -93,9 +93,9 @@ return [
     | Session Cache Store
     |--------------------------------------------------------------------------
     |
-    | When using one of the framework's cache driven session backends, you may
-    | define the cache store which should be used to store the session data
-    | between requests. This must match one of your defined cache stores.
+    | When using one of the framework's cache driven session backends, you
+    | may define the cache store which should be used to manage session data.
+    | This must match one of your configured cache stores.
     |
     | Affects: "dynamodb", "memcached", "redis"
     |
@@ -208,7 +208,7 @@ return [
     |
     | Setting this value to true will tie the cookie to the top-level site for
     | a cross-site context. Partitioned cookies are accepted by the browser
-    | when flagged "secure" and the Same-Site attribute is set to "none".
+    | when flagged "secure" and Same-Site is set to "none".
     |
     */
 
@@ -220,9 +220,8 @@ return [
     |--------------------------------------------------------------------------
     |
     | This value controls the serialization strategy for session data, which
-    | is JSON by default. Setting this to "php" allows the storage of PHP
-    | objects in the session but can make an application vulnerable to
-    | "gadget chain" serialization attacks if the APP_KEY is leaked.
+    | is JSON by default. Setting this to "php" allows storage of PHP objects
+    | in the session.
     |
     | Supported: "json", "php"
     |
