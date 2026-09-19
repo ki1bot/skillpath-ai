@@ -250,7 +250,7 @@ export function IdleSessionGuard() {
             {
                 preserveScroll: true,
                 onFinish: () => {
-                    window.location.assign('/login');
+                    window.location.assign('/');
                 },
             },
         );
@@ -299,7 +299,7 @@ export function IdleSessionGuard() {
             ) {
                 clearClientSessionState();
 
-                window.location.assign('/login');
+                window.location.assign('/');
 
                 return;
             }
@@ -533,7 +533,9 @@ export function IdleSessionGuard() {
         });
 
         window.addEventListener('focus', handleFocus);
+
         window.addEventListener('pageshow', handlePageShow);
+
         window.addEventListener('pagehide', handlePageHide);
 
         document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -582,7 +584,9 @@ export function IdleSessionGuard() {
             window.removeEventListener('scroll', handleScrollActivity);
 
             window.removeEventListener('focus', handleFocus);
+
             window.removeEventListener('pageshow', handlePageShow);
+
             window.removeEventListener('pagehide', handlePageHide);
 
             document.removeEventListener(

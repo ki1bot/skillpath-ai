@@ -116,10 +116,10 @@ class EnforceIdleTimeout
         $request->session()->regenerateToken();
 
         return redirect()
-            ->route('login')
+            ->route('home')
             ->with(
                 'status',
-                "Sesimu berakhir karena tidak ada aktivitas selama {$timeoutMinutes} menit. Silakan masuk kembali.",
+                "Sesimu berakhir karena tidak ada aktivitas selama {$timeoutMinutes} menit.",
             )
             ->withCookie(
                 Cookie::forget(

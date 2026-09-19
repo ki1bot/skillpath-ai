@@ -88,7 +88,7 @@ class IdleTimeoutTest extends TestCase
             );
 
         $response->assertRedirect(
-            route('login'),
+            route('home'),
         );
 
         $response->assertSessionHas(
