@@ -312,8 +312,6 @@ SkillPath AI menggunakan tiga provider AI:
 - xKiro;
 - Google Gemini.
 
-TokenRouter sudah tidak digunakan di project.
-
 Konfigurasi model saat ini:
 
 ```text
