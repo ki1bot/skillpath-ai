@@ -14,6 +14,9 @@ use Throwable;
 
 class AiExplanationService
 {
+    /**
+     * @param  array<int, array<string, mixed>>  $analysis
+     */
     public function skillGapSummary(
         User $user,
         array $analysis,
@@ -35,10 +38,13 @@ class AiExplanationService
                     'gap' => $item['gap'],
                     'priority' => $item['priority'],
                     'status' => $item['status'],
+
                     'prerequisites' => collect(
                         $item['prerequisites'],
                     )
-                        ->pluck('name')
+                        ->pluck(
+                            'name',
+                        )
                         ->all(),
                 ],
             )
@@ -54,14 +60,22 @@ class AiExplanationService
             ?->name;
 
         if (
-            ! is_string($careerName)
-            || trim($careerName) === ''
+            ! is_string(
+                $careerName,
+            )
+            || trim(
+                $careerName,
+            ) === ''
         ) {
             return $unavailable;
         }
 
-        $careerName = trim($careerName);
-        $providers = $this->configuredProviders();
+        $careerName = trim(
+            $careerName,
+        );
+
+        $providers = $this
+            ->configuredProviders();
 
         if ($providers === []) {
             return $unavailable;
@@ -89,7 +103,10 @@ class AiExplanationService
                 .'|'
                 .$provider['base_url']
                 .'|'
-                .implode(',', $provider['models'])
+                .implode(
+                    ',',
+                    $provider['models'],
+                )
                 .';';
         }
 
@@ -108,49 +125,93 @@ class AiExplanationService
 
         if (
             is_array($cached)
-            && ($cached['generated_by_ai'] ?? false) === true
+            && (
+                $cached[
+                    'generated_by_ai'
+                ] ?? false
+            ) === true
             && is_string(
-                $cached['summary'] ?? null,
+                $cached[
+                    'summary'
+                ] ?? null,
             )
-            && trim($cached['summary']) !== ''
+            && trim(
+                $cached['summary'],
+            ) !== ''
             && $this->looksIndonesian(
                 $cached['summary'],
             )
         ) {
-            $cachedModel = $cached['model'] ?? null;
+            $cachedModel = $cached[
+                'model'
+            ] ?? null;
 
             return new AiExplanationResult(
-                trim($cached['summary']),
+                trim(
+                    $cached['summary'],
+                ),
                 true,
-                is_string($cachedModel)
-                    && trim($cachedModel) !== ''
-                        ? trim($cachedModel)
-                        : null,
+
+                is_string(
+                    $cachedModel,
+                )
+                && trim(
+                    $cachedModel,
+                ) !== ''
+                    ? trim(
+                        $cachedModel,
+                    )
+                    : null,
             );
         }
 
-        $failureCacheKey = $cacheKey.':failure';
+        $failureCacheKey = $cacheKey
+            .':failure';
 
-        if (Cache::has($failureCacheKey)) {
+        if (
+            Cache::has(
+                $failureCacheKey,
+            )
+        ) {
             return $unavailable;
         }
 
-        $startedAt = microtime(true);
-        $deadline = $startedAt + (float) config(
-            'services.ai.request_timeout',
-            30,
+        $startedAt = microtime(
+            true,
         );
 
-        $blockedProviders = [];
-        $providerHealth = app(AiProviderHealth::class);
+        $deadline = $startedAt
+            + (
+                float
+            ) config(
+                'services.ai.request_timeout',
+                30,
+            );
 
-        foreach ($this->orderedAttempts($providers) as $attempt) {
-            $provider = $attempt['provider'];
-            $model = $attempt['model'];
+        $blockedProviders = [];
+
+        $providerHealth = app(
+            AiProviderHealth::class,
+        );
+
+        foreach (
+            $this->orderedAttempts(
+                $providers,
+            ) as $attempt
+        ) {
+            $provider = $attempt[
+                'provider'
+            ];
+
+            $model = $attempt[
+                'model'
+            ];
 
             if (
                 isset(
-                    $blockedProviders[$provider['name']],
+                    $blockedProviders[
+                        $provider['name']
+                    ],
                 )
             ) {
                 continue;
@@ -164,20 +225,25 @@ class AiExplanationService
                     ),
                 )
             ) {
-                $blockedProviders[$provider['name']] = true;
+                $blockedProviders[
+                    $provider['name']
+                ] = true;
 
                 continue;
             }
 
-            $attemptTimeout = $this->nextAttemptTimeout(
-                $deadline,
-            );
+            $attemptTimeout = $this
+                ->nextAttemptTimeout(
+                    $deadline,
+                );
 
             if ($attemptTimeout === null) {
                 break;
             }
 
-            $attemptStartedAt = microtime(true);
+            $attemptStartedAt = microtime(
+                true,
+            );
 
             $result = $this->requestSummary(
                 $provider['name'],
@@ -189,41 +255,49 @@ class AiExplanationService
             );
 
             if ($result === false) {
-                $providerHealth->recordFailure(
-                    $provider['name'],
-                    $model,
-                    $provider['key'],
-                    true,
-                );
+                $providerHealth
+                    ->recordFailure(
+                        $provider['name'],
+                        $model,
+                        $provider['key'],
+                        true,
+                    );
 
-                $blockedProviders[$provider['name']] = true;
+                $blockedProviders[
+                    $provider['name']
+                ] = true;
 
                 continue;
             }
 
             if ($result === null) {
-                $providerHealth->recordFailure(
-                    $provider['name'],
-                    $model,
-                    $provider['key'],
-                );
+                $providerHealth
+                    ->recordFailure(
+                        $provider['name'],
+                        $model,
+                        $provider['key'],
+                    );
 
                 continue;
             }
 
-            $providerHealth->recordSuccess(
-                $provider['name'],
-                $model,
-                $provider['key'],
-                (int) round(
-                    (
-                        microtime(true)
-                        - $attemptStartedAt
-                    ) * 1000,
-                ),
-            );
+            $providerHealth
+                ->recordSuccess(
+                    $provider['name'],
+                    $model,
+                    $provider['key'],
 
-            Cache::forget($failureCacheKey);
+                    (int) round(
+                        (
+                            microtime(true)
+                            - $attemptStartedAt
+                        ) * 1000,
+                    ),
+                );
+
+            Cache::forget(
+                $failureCacheKey,
+            );
 
             Cache::put(
                 $cacheKey,
@@ -232,7 +306,9 @@ class AiExplanationService
                     'model' => $result->model,
                     'generated_by_ai' => true,
                 ],
-                now()->addDays(7),
+                now()->addDays(
+                    7,
+                ),
             );
 
             return $result;
@@ -241,6 +317,7 @@ class AiExplanationService
         Cache::put(
             $failureCacheKey,
             true,
+
             now()->addSeconds(
                 (int) config(
                     'services.ai.failure_cache_seconds',
@@ -253,10 +330,17 @@ class AiExplanationService
             'AI skill gap providers were exhausted.',
             [
                 'user_id' => $user->id,
+
                 'elapsed_ms' => (int) round(
-                    (microtime(true) - $startedAt) * 1000,
+                    (
+                        microtime(true)
+                        - $startedAt
+                    ) * 1000,
                 ),
-                'providers' => collect($providers)
+
+                'providers' => collect(
+                    $providers,
+                )
                     ->map(
                         fn (array $provider) => [
                             'name' => $provider['name'],
@@ -283,48 +367,91 @@ class AiExplanationService
     {
         $definitions = [
             [
+                'name' => 'juanrouter',
+
+                'key' => config(
+                    'services.juanrouter.key',
+                ),
+
+                'model' => config(
+                    'services.juanrouter.model',
+                    'gpt-5.6-luna',
+                ),
+
+                'fallback_models' => config(
+                    'services.juanrouter.fallback_models',
+                    [],
+                ),
+
+                'base_url' => config(
+                    'services.juanrouter.base_url',
+                    'https://router.juan.web.id/v1',
+                ),
+            ],
+
+            [
                 'name' => 'gemini',
-                'key' => config('services.gemini.key'),
+
+                'key' => config(
+                    'services.gemini.key',
+                ),
+
                 'model' => config(
                     'services.gemini.model',
                     'gemini-3.6-flash',
                 ),
+
                 'fallback_models' => config(
                     'services.gemini.fallback_models',
                     [],
                 ),
+
                 'base_url' => config(
                     'services.gemini.base_url',
                     'https://generativelanguage.googleapis.com/v1beta',
                 ),
             ],
+
             [
                 'name' => 'openrouter',
-                'key' => config('services.openrouter.key'),
+
+                'key' => config(
+                    'services.openrouter.key',
+                ),
+
                 'model' => config(
                     'services.openrouter.model',
                     'nex-agi/nex-n2.5-pro:free',
                 ),
+
                 'fallback_models' => config(
                     'services.openrouter.fallback_models',
                     [],
                 ),
+
                 'base_url' => config(
                     'services.openrouter.base_url',
                     'https://openrouter.ai/api/v1',
                 ),
             ],
+
             [
                 'name' => 'xkiro',
-                'key' => config('services.xkiro.key'),
+
+                'key' => config(
+                    'services.xkiro.key',
+                ),
+
                 'model' => config(
                     'services.xkiro.model',
                     'qwen/qwen3.8-max:free',
                 ),
+
                 'fallback_models' => config(
                     'services.xkiro.fallback_models',
                     [],
                 ),
+
                 'base_url' => config(
                     'services.xkiro.base_url',
                     'https://api.xkiro.com/v1',
@@ -336,41 +463,78 @@ class AiExplanationService
 
         foreach ($definitions as $definition) {
             if (
-                ! is_string($definition['key'])
-                || trim($definition['key']) === ''
-                || ! is_string($definition['model'])
-                || trim($definition['model']) === ''
-                || ! is_string($definition['base_url'])
-                || trim($definition['base_url']) === ''
+                ! is_string(
+                    $definition['key'],
+                )
+                || trim(
+                    $definition['key'],
+                ) === ''
+                || ! is_string(
+                    $definition['model'],
+                )
+                || trim(
+                    $definition['model'],
+                ) === ''
+                || ! is_string(
+                    $definition['base_url'],
+                )
+                || trim(
+                    $definition['base_url'],
+                ) === ''
             ) {
                 continue;
             }
 
             $models = [
-                trim($definition['model']),
+                trim(
+                    $definition['model'],
+                ),
             ];
 
-            if (is_array($definition['fallback_models'])) {
+            if (
+                is_array(
+                    $definition[
+                        'fallback_models'
+                    ],
+                )
+            ) {
                 foreach (
-                    $definition['fallback_models'] as $fallbackModel
+                    $definition[
+                        'fallback_models'
+                    ] as $fallbackModel
                 ) {
                     if (
-                        ! is_string($fallbackModel)
-                        || trim($fallbackModel) === ''
+                        ! is_string(
+                            $fallbackModel,
+                        )
+                        || trim(
+                            $fallbackModel,
+                        ) === ''
                     ) {
                         continue;
                     }
 
-                    $models[] = trim($fallbackModel);
+                    $models[] = trim(
+                        $fallbackModel,
+                    );
                 }
             }
 
             $providers[] = [
                 'name' => $definition['name'],
-                'key' => trim($definition['key']),
-                'base_url' => trim($definition['base_url']),
+
+                'key' => trim(
+                    $definition['key'],
+                ),
+
+                'base_url' => trim(
+                    $definition['base_url'],
+                ),
+
                 'models' => array_values(
-                    array_unique($models),
+                    array_unique(
+                        $models,
+                    ),
                 ),
             ];
         }
@@ -398,8 +562,11 @@ class AiExplanationService
     private function orderedAttempts(
         array $providers,
     ): array {
-        return app(AiProviderHealth::class)
-            ->orderedAttempts($providers);
+        return app(
+            AiProviderHealth::class,
+        )->orderedAttempts(
+            $providers,
+        );
     }
 
     private function requestSummary(
@@ -411,23 +578,25 @@ class AiExplanationService
         int $timeoutSeconds,
     ): AiExplanationResult|false|null {
         if ($provider === 'gemini') {
-            return $this->requestGeminiSummary(
+            return $this
+                ->requestGeminiSummary(
+                    $key,
+                    $baseUrl,
+                    $model,
+                    $contextJson,
+                    $timeoutSeconds,
+                );
+        }
+
+        return $this
+            ->requestOpenAiCompatibleSummary(
+                $provider,
                 $key,
                 $baseUrl,
                 $model,
                 $contextJson,
                 $timeoutSeconds,
             );
-        }
-
-        return $this->requestOpenAiCompatibleSummary(
-            $provider,
-            $key,
-            $baseUrl,
-            $model,
-            $contextJson,
-            $timeoutSeconds,
-        );
     }
 
     private function requestGeminiSummary(
@@ -438,10 +607,11 @@ class AiExplanationService
         int $timeoutSeconds,
     ): AiExplanationResult|false|null {
         try {
-            $generationConfig = $this->geminiGenerationConfig(
-                $model,
-                1024,
-            );
+            $generationConfig = $this
+                ->geminiGenerationConfig(
+                    $model,
+                    1024,
+                );
 
             $response = Http::withHeaders([
                 'x-goog-api-key' => $key,
@@ -451,32 +621,41 @@ class AiExplanationService
                 ->connectTimeout(
                     min(
                         $timeoutSeconds,
+
                         (int) config(
                             'services.ai.connect_timeout',
                             5,
                         ),
                     ),
                 )
-                ->timeout($timeoutSeconds)
+                ->timeout(
+                    $timeoutSeconds,
+                )
                 ->post(
                     rtrim(
                         $baseUrl,
                         '/',
                     )
                         .'/models/'
-                        .rawurlencode($model)
+                        .rawurlencode(
+                            $model,
+                        )
                         .':generateContent',
+
                     [
                         'systemInstruction' => [
                             'parts' => [
                                 [
-                                    'text' => $this->summarySystemPrompt(),
+                                    'text' => $this
+                                        ->summarySystemPrompt(),
                                 ],
                             ],
                         ],
+
                         'contents' => [
                             [
                                 'role' => 'user',
+
                                 'parts' => [
                                     [
                                         'text' => $contextJson,
@@ -484,27 +663,36 @@ class AiExplanationService
                                 ],
                             ],
                         ],
+
                         'generationConfig' => $generationConfig,
                     ],
                 );
 
             if (! $response->successful()) {
-                $rateLimited = $response->status() === 429;
+                $rateLimited = (
+                    $response->status()
+                    === 429
+                );
 
                 if ($rateLimited) {
                     $this->rememberRateLimit(
                         'gemini',
                         $key,
                         $response->json(),
-                        $response->header('Retry-After'),
+                        $response->header(
+                            'Retry-After',
+                        ),
                     );
                 }
 
                 Log::warning(
                     'Gemini skill gap request failed.',
                     [
-                        'status' => $response->status(),
+                        'status' => $response
+                            ->status(),
+
                         'model' => $model,
+
                         'response' => Str::limit(
                             $response->body(),
                             500,
@@ -518,25 +706,30 @@ class AiExplanationService
                     : null;
             }
 
-            $summary = $this->normalizeSummary(
-                $this->extractGeminiText(
-                    $response->json(
-                        'candidates.0.content.parts',
+            $summary = $this
+                ->normalizeSummary(
+                    $this->extractGeminiText(
+                        $response->json(
+                            'candidates.0.content.parts',
+                        ),
                     ),
-                ),
-            );
+                );
 
             if ($summary === null) {
                 Log::warning(
                     'Gemini skill gap response was rejected.',
                     [
                         'requested_model' => $model,
-                        'model_version' => $response->json(
-                            'modelVersion',
-                        ),
-                        'finish_reason' => $response->json(
-                            'candidates.0.finishReason',
-                        ),
+
+                        'model_version' => $response
+                            ->json(
+                                'modelVersion',
+                            ),
+
+                        'finish_reason' => $response
+                            ->json(
+                                'candidates.0.finishReason',
+                            ),
                     ],
                 );
 
@@ -550,26 +743,40 @@ class AiExplanationService
                 ),
             );
 
-            $modelVersion = $response->json(
-                'modelVersion',
-            );
+            $modelVersion = $response
+                ->json(
+                    'modelVersion',
+                );
 
-            $resolvedModel = is_string($modelVersion)
-                && trim($modelVersion) !== ''
-                    ? trim($modelVersion)
-                    : $model;
+            $resolvedModel = (
+                is_string(
+                    $modelVersion,
+                )
+                && trim(
+                    $modelVersion,
+                ) !== ''
+            )
+                ? trim(
+                    $modelVersion,
+                )
+                : $model;
 
             return new AiExplanationResult(
                 $summary,
                 true,
                 $resolvedModel,
             );
-        } catch (ConnectionException $exception) {
+        } catch (
+            ConnectionException $exception
+        ) {
             Log::warning(
                 'Gemini skill gap request timed out or could not connect.',
                 [
                     'exception' => $exception::class,
-                    'message' => $exception->getMessage(),
+
+                    'message' => $exception
+                        ->getMessage(),
+
                     'model' => $model,
                 ],
             );
@@ -580,7 +787,10 @@ class AiExplanationService
                 'Gemini skill gap request threw an exception.',
                 [
                     'exception' => $exception::class,
-                    'message' => $exception->getMessage(),
+
+                    'message' => $exception
+                        ->getMessage(),
+
                     'model' => $model,
                 ],
             );
@@ -600,20 +810,57 @@ class AiExplanationService
         try {
             $payload = [
                 'model' => $model,
+
                 'messages' => [
                     [
                         'role' => 'system',
-                        'content' => $this->summarySystemPrompt(),
+
+                        'content' => $this
+                            ->summarySystemPrompt(),
                     ],
+
                     [
                         'role' => 'user',
                         'content' => $contextJson,
                     ],
                 ],
+
                 'temperature' => 0.2,
                 'max_tokens' => 500,
                 'stream' => false,
             ];
+
+            if (
+                $provider === 'juanrouter'
+                && Str::contains(
+                    Str::lower(
+                        $model,
+                    ),
+                    'gpt-5.6',
+                )
+            ) {
+                unset(
+                    $payload['temperature'],
+                    $payload['max_tokens'],
+                );
+
+                $payload[
+                    'max_completion_tokens'
+                ] = 1024;
+
+                $reasoningEffort = trim(
+                    (string) config(
+                        'services.juanrouter.reasoning_effort',
+                        'low',
+                    ),
+                );
+
+                if ($reasoningEffort !== '') {
+                    $payload[
+                        'reasoning_effort'
+                    ] = $reasoningEffort;
+                }
+            }
 
             if ($provider === 'openrouter') {
                 $payload['provider'] = [
@@ -621,9 +868,10 @@ class AiExplanationService
                 ];
 
                 if (
-                    $this->shouldLimitOpenRouterReasoning(
-                        $model,
-                    )
+                    $this
+                        ->shouldLimitOpenRouterReasoning(
+                            $model,
+                        )
                 ) {
                     $payload['reasoning'] = [
                         'effort' => 'minimal',
@@ -638,10 +886,15 @@ class AiExplanationService
 
             if ($provider === 'openrouter') {
                 $request->withHeaders([
-                    'HTTP-Referer' => (string) config(
+                    'HTTP-Referer' => (
+                        string
+                    ) config(
                         'app.url',
                     ),
-                    'X-Title' => (string) config(
+
+                    'X-Title' => (
+                        string
+                    ) config(
                         'app.name',
                     ),
                 ]);
@@ -653,47 +906,68 @@ class AiExplanationService
                 ->connectTimeout(
                     min(
                         $timeoutSeconds,
+
                         (int) config(
                             'services.ai.connect_timeout',
                             5,
                         ),
                     ),
                 )
-                ->timeout($timeoutSeconds)
+                ->timeout(
+                    $timeoutSeconds,
+                )
                 ->post(
                     rtrim(
                         $baseUrl,
                         '/',
                     ).'/chat/completions',
+
                     $payload,
                 );
 
             if (! $response->successful()) {
-                $responsePayload = $response->json();
-                $rateLimited = $response->status() === 429;
+                $responsePayload = $response
+                    ->json();
 
-                $blockProvider = $rateLimited
-                    && $this->shouldBlockProviderAfterRateLimit(
-                        $provider,
-                        $responsePayload,
-                    );
+                $rateLimited = (
+                    $response->status()
+                    === 429
+                );
+
+                $blockProvider = (
+                    $rateLimited
+                    && $this
+                        ->shouldBlockProviderAfterRateLimit(
+                            $provider,
+                            $responsePayload,
+                        )
+                );
 
                 if ($blockProvider) {
                     $this->rememberRateLimit(
                         $provider,
                         $key,
                         $responsePayload,
-                        $response->header('Retry-After'),
+                        $response->header(
+                            'Retry-After',
+                        ),
                     );
                 }
 
                 Log::warning(
-                    $this->providerLabel($provider)
+                    $this->providerLabel(
+                        $provider,
+                    )
                         .' skill gap request failed.',
+
                     [
                         'provider' => $provider,
-                        'status' => $response->status(),
+
+                        'status' => $response
+                            ->status(),
+
                         'model' => $model,
+
                         'response' => Str::limit(
                             $response->body(),
                             500,
@@ -707,25 +981,35 @@ class AiExplanationService
                     : null;
             }
 
-            $summary = $this->normalizeSummary(
-                $response->json(
-                    'choices.0.message.content',
-                ),
-            );
+            $summary = $this
+                ->normalizeSummary(
+                    $response->json(
+                        'choices.0.message.content',
+                    ),
+                );
 
             if ($summary === null) {
                 Log::warning(
-                    $this->providerLabel($provider)
+                    $this->providerLabel(
+                        $provider,
+                    )
                         .' skill gap response was rejected.',
+
                     [
                         'provider' => $provider,
+
                         'requested_model' => $model,
-                        'resolved_model' => $response->json(
-                            'model',
-                        ),
-                        'finish_reason' => $response->json(
-                            'choices.0.finish_reason',
-                        ),
+
+                        'resolved_model' => $response
+                            ->json(
+                                'model',
+                            ),
+
+                        'finish_reason' => $response
+                            ->json(
+                                'choices.0.finish_reason',
+                            ),
+
                         'content' => Str::limit(
                             (string) $response->json(
                                 'choices.0.message.content',
@@ -747,28 +1031,46 @@ class AiExplanationService
                 ),
             );
 
-            $responseModel = $response->json(
-                'model',
-            );
+            $responseModel = $response
+                ->json(
+                    'model',
+                );
 
-            $resolvedModel = is_string($responseModel)
-                && trim($responseModel) !== ''
-                    ? trim($responseModel)
-                    : $model;
+            $resolvedModel = (
+                is_string(
+                    $responseModel,
+                )
+                && trim(
+                    $responseModel,
+                ) !== ''
+            )
+                ? trim(
+                    $responseModel,
+                )
+                : $model;
 
             return new AiExplanationResult(
                 $summary,
                 true,
                 $resolvedModel,
             );
-        } catch (ConnectionException $exception) {
+        } catch (
+            ConnectionException $exception
+        ) {
             Log::warning(
-                $this->providerLabel($provider)
+                $this->providerLabel(
+                    $provider,
+                )
                     .' skill gap request timed out or could not connect.',
+
                 [
                     'provider' => $provider,
+
                     'exception' => $exception::class,
-                    'message' => $exception->getMessage(),
+
+                    'message' => $exception
+                        ->getMessage(),
+
                     'model' => $model,
                 ],
             );
@@ -776,12 +1078,19 @@ class AiExplanationService
             return null;
         } catch (Throwable $exception) {
             Log::warning(
-                $this->providerLabel($provider)
+                $this->providerLabel(
+                    $provider,
+                )
                     .' skill gap request threw an exception.',
+
                 [
                     'provider' => $provider,
+
                     'exception' => $exception::class,
-                    'message' => $exception->getMessage(),
+
+                    'message' => $exception
+                        ->getMessage(),
+
                     'model' => $model,
                 ],
             );
@@ -794,15 +1103,26 @@ class AiExplanationService
         string $provider,
     ): string {
         return match ($provider) {
+            'juanrouter' => 'Juan Router',
             'openrouter' => 'OpenRouter',
             'xkiro' => 'xKiro',
-            default => Str::headline($provider),
+
+            default => Str::headline(
+                $provider,
+            ),
         };
     }
 
     private function summarySystemPrompt(): string
     {
-        return 'Anda adalah fitur penjelasan SkillPath AI. Keputusan utama sudah dihitung oleh sistem berbasis data dan aturan. Tugas Anda hanya menjelaskan hasil tersebut dengan Bahasa Indonesia yang alami dan mudah dipahami. Gunakan hanya target karier, skor kemampuan, target, gap, priority score, status, dan prasyarat yang diberikan. Jangan membuat skill, nilai, kemampuan, fakta, roadmap, materi, proyek, atau hubungan prasyarat baru. Jangan mengubah urutan prioritas. Jangan memberi jaminan kesiapan kerja. Tulis tepat satu paragraf tanpa Markdown, tanpa JSON, tanpa judul, maksimal 120 kata. Utamakan kemampuan dengan gap dan priority score tertinggi serta jelaskan alasannya.';
+        return 'Anda adalah fitur penjelasan SkillPath AI. '
+            .'Keputusan utama sudah dihitung oleh sistem berbasis data dan aturan. '
+            .'Tugas Anda hanya menjelaskan hasil tersebut dengan Bahasa Indonesia yang alami dan mudah dipahami. '
+            .'Gunakan hanya target karier, skor kemampuan, target, gap, priority score, status, dan prasyarat yang diberikan. '
+            .'Jangan membuat skill, nilai, kemampuan, fakta, roadmap, materi, proyek, atau hubungan prasyarat baru. '
+            .'Jangan mengubah urutan prioritas. Jangan memberi jaminan kesiapan kerja. '
+            .'Tulis tepat satu paragraf tanpa Markdown, tanpa JSON, tanpa judul, maksimal 120 kata. '
+            .'Utamakan kemampuan dengan gap dan priority score tertinggi serta jelaskan alasannya.';
     }
 
     private function extractGeminiText(
@@ -820,12 +1140,16 @@ class AiExplanationService
                 || ! is_string(
                     $part['text'] ?? null,
                 )
-                || trim($part['text']) === ''
+                || trim(
+                    $part['text'],
+                ) === ''
             ) {
                 continue;
             }
 
-            $texts[] = trim($part['text']);
+            $texts[] = trim(
+                $part['text'],
+            );
         }
 
         if ($texts === []) {
@@ -871,10 +1195,13 @@ class AiExplanationService
         if (
             is_array($decoded)
             && is_string(
-                $decoded['summary'] ?? null,
+                $decoded['summary']
+                    ?? null,
             )
         ) {
-            $content = $decoded['summary'];
+            $content = $decoded[
+                'summary'
+            ];
         }
 
         $content = str_replace(
@@ -931,7 +1258,9 @@ class AiExplanationService
         string $model,
     ): bool {
         return str_contains(
-            Str::lower($model),
+            Str::lower(
+                $model,
+            ),
             'gpt-oss',
         );
     }
@@ -939,7 +1268,9 @@ class AiExplanationService
     private function canDisableGeminiThinking(
         string $model,
     ): bool {
-        $model = Str::lower($model);
+        $model = Str::lower(
+            $model,
+        );
 
         return str_contains(
             $model,
@@ -962,20 +1293,34 @@ class AiExplanationService
             'maxOutputTokens' => $maxOutputTokens,
         ];
 
-        $thinkingLevel = $this->geminiThinkingLevel($model);
+        $thinkingLevel = $this
+            ->geminiThinkingLevel(
+                $model,
+            );
 
         if ($thinkingLevel !== null) {
-            $config['thinkingConfig'] = [
+            $config[
+                'thinkingConfig'
+            ] = [
                 'thinkingLevel' => $thinkingLevel,
             ];
 
             return $config;
         }
 
-        $config['temperature'] = 0.2;
+        $config[
+            'temperature'
+        ] = 0.2;
 
-        if ($this->canDisableGeminiThinking($model)) {
-            $config['thinkingConfig'] = [
+        if (
+            $this
+                ->canDisableGeminiThinking(
+                    $model,
+                )
+        ) {
+            $config[
+                'thinkingConfig'
+            ] = [
                 'thinkingBudget' => 0,
             ];
         }
@@ -987,7 +1332,9 @@ class AiExplanationService
         string $model,
     ): ?string {
         $model = Str::lower(
-            trim($model),
+            trim(
+                $model,
+            ),
         );
 
         if (
@@ -1020,8 +1367,11 @@ class AiExplanationService
     private function nextAttemptTimeout(
         float $deadline,
     ): ?int {
-        $remainingSeconds = (int) floor(
-            $deadline - microtime(true),
+        $remainingSeconds = (
+            int
+        ) floor(
+            $deadline
+                - microtime(true),
         );
 
         if ($remainingSeconds < 1) {
@@ -1030,6 +1380,7 @@ class AiExplanationService
 
         return min(
             $remainingSeconds,
+
             (int) config(
                 'services.ai.attempt_timeout',
                 10,
@@ -1064,14 +1415,26 @@ class AiExplanationService
 
         if (
             is_string($retryAfter)
-            && is_numeric(trim($retryAfter))
+            && is_numeric(
+                trim(
+                    $retryAfter,
+                ),
+            )
         ) {
             $ttlSeconds = max(
                 10,
+
                 min(
-                    (int) ceil(
-                        (float) trim($retryAfter),
+                    (
+                        int
+                    ) ceil(
+                        (
+                            float
+                        ) trim(
+                            $retryAfter,
+                        ),
                     ),
+
                     3600,
                 ),
             );
@@ -1091,16 +1454,26 @@ class AiExplanationService
             );
 
             if (is_numeric($reset)) {
-                $resetTimestamp = (int) floor(
-                    ((float) $reset) / 1000,
+                $resetTimestamp = (
+                    int
+                ) floor(
+                    (
+                        (
+                            float
+                        ) $reset
+                    ) / 1000,
                 );
 
-                $currentTimestamp = now()->getTimestamp();
+                $currentTimestamp = now()
+                    ->getTimestamp();
 
                 $ttlSeconds = max(
                     60,
+
                     min(
-                        $resetTimestamp - $currentTimestamp,
+                        $resetTimestamp
+                            - $currentTimestamp,
+
                         86400,
                     ),
                 );
@@ -1112,8 +1485,12 @@ class AiExplanationService
                 $provider,
                 $key,
             ),
+
             true,
-            now()->addSeconds($ttlSeconds),
+
+            now()->addSeconds(
+                $ttlSeconds,
+            ),
         );
     }
 
@@ -1124,14 +1501,18 @@ class AiExplanationService
         return 'ai-rate-limit:'
             .$provider
             .':'
-            .sha1($key);
+            .sha1(
+                $key,
+            );
     }
 
     private function looksIndonesian(
         string $text,
     ): bool {
         $text = Str::lower(
-            strip_tags($text),
+            strip_tags(
+                $text,
+            ),
         );
 
         $indonesianMatches = [];
@@ -1150,13 +1531,18 @@ class AiExplanationService
         );
 
         if (
-            ! is_int($indonesianCount)
-            || ! is_int($englishCount)
+            ! is_int(
+                $indonesianCount,
+            )
+            || ! is_int(
+                $englishCount,
+            )
         ) {
             return false;
         }
 
         return $indonesianCount >= 2
-            && $indonesianCount > $englishCount;
+            && $indonesianCount
+                > $englishCount;
     }
 }

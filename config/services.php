@@ -103,7 +103,7 @@ return [
                         ',',
                         (string) env(
                             'AI_PROVIDER_ORDER',
-                            'openrouter,xkiro,gemini',
+                            'juanrouter,openrouter,xkiro,gemini',
                         ),
                     ),
                 ),
@@ -132,6 +132,40 @@ return [
                 'AI_HEALTH_STATE_SECONDS',
                 600,
             ),
+        ),
+    ],
+
+    'juanrouter' => [
+        'key' => env('JUANROUTER_API_KEY'),
+
+        'model' => env(
+            'JUANROUTER_MODEL',
+            'gpt-5.6-luna',
+        ),
+
+        'fallback_models' => array_values(
+            array_filter(
+                array_map(
+                    'trim',
+                    explode(
+                        ',',
+                        (string) env(
+                            'JUANROUTER_FALLBACK_MODELS',
+                            '',
+                        ),
+                    ),
+                ),
+            ),
+        ),
+
+        'base_url' => env(
+            'JUANROUTER_BASE_URL',
+            'https://router.juan.web.id/v1',
+        ),
+
+        'reasoning_effort' => env(
+            'JUANROUTER_REASONING_EFFORT',
+            'low',
         ),
     ],
 

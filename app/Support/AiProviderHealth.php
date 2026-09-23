@@ -100,7 +100,7 @@ class AiProviderHealth
          * Jika seluruh model sedang cooldown, jangan menembus
          * circuit breaker.
          *
-         * Request AI berikutnya akan mencoba lagi setelah minimal
+         * Request berikutnya akan mencoba kembali setelah minimal
          * satu cooldown selesai.
          */
         if ($ready === []) {
@@ -262,13 +262,10 @@ class AiProviderHealth
         );
 
         /*
-         * Exponential moving average sederhana:
+         * Exponential moving average:
          *
          * 70% latency sebelumnya
          * 30% latency request terbaru
-         *
-         * Tujuannya agar provider tidak berpindah urutan secara
-         * berlebihan hanya karena satu request sangat cepat/lambat.
          */
         $smoothedLatency = $previousLatency > 0
             ? (int) round(
@@ -329,19 +326,13 @@ class AiProviderHealth
         bool $isProbe,
     ): int {
         /*
-         * Semua primary model diprioritaskan sebelum fallback.
-         *
-         * modelIndex:
-         *
-         * 0 = primary
-         * 1 = fallback pertama
-         * 2 = fallback berikutnya
+         * Primary model tetap berada pada tier sebelum fallback.
          */
         $tierBase = $modelIndex * 1_000_000;
 
         /*
-         * Model yang sebelumnya gagal dan cooldown-nya telah habis
-         * mendapat kesempatan half-open probe.
+         * Model yang sebelumnya gagal mendapat kesempatan
+         * half-open probe setelah cooldown selesai.
          */
         if ($isProbe) {
             return $tierBase
@@ -358,8 +349,8 @@ class AiProviderHealth
         );
 
         /*
-         * Provider yang belum memiliki data latency menggunakan
-         * neutral score 8 detik.
+         * Provider baru yang belum memiliki data diberi nilai
+         * netral sebesar 8 detik.
          */
         $effectiveLatency = $latencyMs > 0
             ? min(
@@ -368,12 +359,6 @@ class AiProviderHealth
             )
             : 8_000;
 
-        /*
-         * AI_PROVIDER_ORDER hanya menjadi tie-breaker.
-         *
-         * Setelah aplikasi memiliki data latency, provider yang
-         * lebih sehat dan lebih cepat akan otomatis naik prioritas.
-         */
         return $tierBase
             + $effectiveLatency
             + ($providerTieBreak * 10);
@@ -456,6 +441,7 @@ class AiProviderHealth
         $order = config(
             'services.ai.provider_order',
             [
+                'juanrouter',
                 'openrouter',
                 'xkiro',
                 'gemini',

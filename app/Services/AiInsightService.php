@@ -369,21 +369,30 @@ class AiInsightService
         }
 
         $startedAt = microtime(true);
+
         $deadline = $startedAt + max(
             3,
             $timeoutSeconds,
         );
 
         $blockedProviders = [];
-        $providerHealth = app(AiProviderHealth::class);
 
-        foreach ($this->orderedAttempts($providers) as $attempt) {
+        $providerHealth = app(
+            AiProviderHealth::class,
+        );
+
+        foreach (
+            $this->orderedAttempts($providers)
+            as $attempt
+        ) {
             $provider = $attempt['provider'];
             $model = $attempt['model'];
 
             if (
                 isset(
-                    $blockedProviders[$provider['name']],
+                    $blockedProviders[
+                        $provider['name']
+                    ],
                 )
             ) {
                 continue;
@@ -397,14 +406,17 @@ class AiInsightService
                     ),
                 )
             ) {
-                $blockedProviders[$provider['name']] = true;
+                $blockedProviders[
+                    $provider['name']
+                ] = true;
 
                 continue;
             }
 
-            $attemptTimeout = $this->nextAttemptTimeout(
-                $deadline,
-            );
+            $attemptTimeout = $this
+                ->nextAttemptTimeout(
+                    $deadline,
+                );
 
             if ($attemptTimeout === null) {
                 break;
@@ -432,7 +444,9 @@ class AiInsightService
                     true,
                 );
 
-                $blockedProviders[$provider['name']] = true;
+                $blockedProviders[
+                    $provider['name']
+                ] = true;
 
                 continue;
             }
@@ -459,7 +473,9 @@ class AiInsightService
                 ),
             );
 
-            Cache::forget($failureCacheKey);
+            Cache::forget(
+                $failureCacheKey,
+            );
 
             Cache::put(
                 $cacheKey,
@@ -493,10 +509,17 @@ class AiInsightService
             [
                 'scope' => $scope,
                 'user_id' => $user->id,
+
                 'elapsed_ms' => (int) round(
-                    (microtime(true) - $startedAt) * 1000,
+                    (
+                        microtime(true)
+                        - $startedAt
+                    ) * 1000,
                 ),
-                'providers' => collect($providers)
+
+                'providers' => collect(
+                    $providers,
+                )
                     ->map(
                         fn (array $provider) => [
                             'name' => $provider['name'],
@@ -523,48 +546,91 @@ class AiInsightService
     {
         $definitions = [
             [
+                'name' => 'juanrouter',
+
+                'key' => config(
+                    'services.juanrouter.key',
+                ),
+
+                'model' => config(
+                    'services.juanrouter.model',
+                    'gpt-5.6-luna',
+                ),
+
+                'fallback_models' => config(
+                    'services.juanrouter.fallback_models',
+                    [],
+                ),
+
+                'base_url' => config(
+                    'services.juanrouter.base_url',
+                    'https://router.juan.web.id/v1',
+                ),
+            ],
+
+            [
                 'name' => 'gemini',
-                'key' => config('services.gemini.key'),
+
+                'key' => config(
+                    'services.gemini.key',
+                ),
+
                 'model' => config(
                     'services.gemini.model',
                     'gemini-3.6-flash',
                 ),
+
                 'fallback_models' => config(
                     'services.gemini.fallback_models',
                     [],
                 ),
+
                 'base_url' => config(
                     'services.gemini.base_url',
                     'https://generativelanguage.googleapis.com/v1beta',
                 ),
             ],
+
             [
                 'name' => 'openrouter',
-                'key' => config('services.openrouter.key'),
+
+                'key' => config(
+                    'services.openrouter.key',
+                ),
+
                 'model' => config(
                     'services.openrouter.model',
                     'nex-agi/nex-n2.5-pro:free',
                 ),
+
                 'fallback_models' => config(
                     'services.openrouter.fallback_models',
                     [],
                 ),
+
                 'base_url' => config(
                     'services.openrouter.base_url',
                     'https://openrouter.ai/api/v1',
                 ),
             ],
+
             [
                 'name' => 'xkiro',
-                'key' => config('services.xkiro.key'),
+
+                'key' => config(
+                    'services.xkiro.key',
+                ),
+
                 'model' => config(
                     'services.xkiro.model',
                     'qwen/qwen3.8-max:free',
                 ),
+
                 'fallback_models' => config(
                     'services.xkiro.fallback_models',
                     [],
                 ),
+
                 'base_url' => config(
                     'services.xkiro.base_url',
                     'https://api.xkiro.com/v1',
@@ -576,41 +642,78 @@ class AiInsightService
 
         foreach ($definitions as $definition) {
             if (
-                ! is_string($definition['key'])
-                || trim($definition['key']) === ''
-                || ! is_string($definition['model'])
-                || trim($definition['model']) === ''
-                || ! is_string($definition['base_url'])
-                || trim($definition['base_url']) === ''
+                ! is_string(
+                    $definition['key'],
+                )
+                || trim(
+                    $definition['key'],
+                ) === ''
+                || ! is_string(
+                    $definition['model'],
+                )
+                || trim(
+                    $definition['model'],
+                ) === ''
+                || ! is_string(
+                    $definition['base_url'],
+                )
+                || trim(
+                    $definition['base_url'],
+                ) === ''
             ) {
                 continue;
             }
 
             $models = [
-                trim($definition['model']),
+                trim(
+                    $definition['model'],
+                ),
             ];
 
-            if (is_array($definition['fallback_models'])) {
+            if (
+                is_array(
+                    $definition[
+                        'fallback_models'
+                    ],
+                )
+            ) {
                 foreach (
-                    $definition['fallback_models'] as $fallbackModel
+                    $definition[
+                        'fallback_models'
+                    ] as $fallbackModel
                 ) {
                     if (
-                        ! is_string($fallbackModel)
-                        || trim($fallbackModel) === ''
+                        ! is_string(
+                            $fallbackModel,
+                        )
+                        || trim(
+                            $fallbackModel,
+                        ) === ''
                     ) {
                         continue;
                     }
 
-                    $models[] = trim($fallbackModel);
+                    $models[] = trim(
+                        $fallbackModel,
+                    );
                 }
             }
 
             $providers[] = [
                 'name' => $definition['name'],
-                'key' => trim($definition['key']),
-                'base_url' => trim($definition['base_url']),
+
+                'key' => trim(
+                    $definition['key'],
+                ),
+
+                'base_url' => trim(
+                    $definition['base_url'],
+                ),
+
                 'models' => array_values(
-                    array_unique($models),
+                    array_unique(
+                        $models,
+                    ),
                 ),
             ];
         }
@@ -638,8 +741,11 @@ class AiInsightService
     private function orderedAttempts(
         array $providers,
     ): array {
-        return app(AiProviderHealth::class)
-            ->orderedAttempts($providers);
+        return app(
+            AiProviderHealth::class,
+        )->orderedAttempts(
+            $providers,
+        );
     }
 
     private function requestInsight(
@@ -654,7 +760,22 @@ class AiInsightService
         string ...$requiredTags,
     ): AiCompletionResult|false|null {
         if ($provider === 'gemini') {
-            return $this->requestGeminiInsight(
+            return $this
+                ->requestGeminiInsight(
+                    $key,
+                    $baseUrl,
+                    $model,
+                    $task,
+                    $json,
+                    $maxTokens,
+                    $timeoutSeconds,
+                    ...$requiredTags,
+                );
+        }
+
+        return $this
+            ->requestOpenAiCompatibleInsight(
+                $provider,
                 $key,
                 $baseUrl,
                 $model,
@@ -664,19 +785,6 @@ class AiInsightService
                 $timeoutSeconds,
                 ...$requiredTags,
             );
-        }
-
-        return $this->requestOpenAiCompatibleInsight(
-            $provider,
-            $key,
-            $baseUrl,
-            $model,
-            $task,
-            $json,
-            $maxTokens,
-            $timeoutSeconds,
-            ...$requiredTags,
-        );
     }
 
     private function requestGeminiInsight(
@@ -694,46 +802,60 @@ class AiInsightService
                 $requiredTags,
             );
 
-            $generationConfig = $this->geminiGenerationConfig(
-                $model,
-                max(
-                    $maxTokens,
-                    1024,
-                ),
-            );
+            $generationConfig = $this
+                ->geminiGenerationConfig(
+                    $model,
+                    max(
+                        $maxTokens,
+                        1024,
+                    ),
+                );
 
-            $generationConfig['responseMimeType'] = 'application/json';
-            $generationConfig['responseJsonSchema'] = $requiredTags !== []
+            $generationConfig[
+                'responseMimeType'
+            ] = 'application/json';
+
+            $generationConfig[
+                'responseJsonSchema'
+            ] = $requiredTags !== []
                 ? [
                     'type' => 'object',
+
                     'properties' => [
                         'progress' => [
                             'type' => 'string',
                         ],
+
                         'schedule' => [
                             'type' => 'string',
                         ],
+
                         'obstacles' => [
                             'type' => 'string',
                         ],
                     ],
+
                     'required' => [
                         'progress',
                         'schedule',
                         'obstacles',
                     ],
+
                     'additionalProperties' => false,
                 ]
                 : [
                     'type' => 'object',
+
                     'properties' => [
                         'content' => [
                             'type' => 'string',
                         ],
                     ],
+
                     'required' => [
                         'content',
                     ],
+
                     'additionalProperties' => false,
                 ];
 
@@ -745,35 +867,44 @@ class AiInsightService
                 ->connectTimeout(
                     min(
                         $timeoutSeconds,
+
                         (int) config(
                             'services.ai.connect_timeout',
                             5,
                         ),
                     ),
                 )
-                ->timeout($timeoutSeconds)
+                ->timeout(
+                    $timeoutSeconds,
+                )
                 ->post(
                     rtrim(
                         $baseUrl,
                         '/',
                     )
                         .'/models/'
-                        .rawurlencode($model)
+                        .rawurlencode(
+                            $model,
+                        )
                         .':generateContent',
+
                     [
                         'systemInstruction' => [
                             'parts' => [
                                 [
-                                    'text' => $this->insightSystemPrompt(
-                                        $task,
-                                        ...$requiredTags,
-                                    ),
+                                    'text' => $this
+                                        ->insightSystemPrompt(
+                                            $task,
+                                            ...$requiredTags,
+                                        ),
                                 ],
                             ],
                         ],
+
                         'contents' => [
                             [
                                 'role' => 'user',
+
                                 'parts' => [
                                     [
                                         'text' => $json,
@@ -781,27 +912,36 @@ class AiInsightService
                                 ],
                             ],
                         ],
+
                         'generationConfig' => $generationConfig,
                     ],
                 );
 
             if (! $response->successful()) {
-                $rateLimited = $response->status() === 429;
+                $rateLimited = (
+                    $response->status()
+                    === 429
+                );
 
                 if ($rateLimited) {
                     $this->rememberRateLimit(
                         'gemini',
                         $key,
                         $response->json(),
-                        $response->header('Retry-After'),
+                        $response->header(
+                            'Retry-After',
+                        ),
                     );
                 }
 
                 Log::warning(
                     'Gemini AI insight request failed.',
                     [
-                        'status' => $response->status(),
+                        'status' => $response
+                            ->status(),
+
                         'model' => $model,
+
                         'response' => Str::limit(
                             $response->body(),
                             500,
@@ -815,30 +955,34 @@ class AiInsightService
                     : null;
             }
 
-            $content = $this->extractGeminiText(
-                $response->json(
-                    'candidates.0.content.parts',
-                ),
-            );
+            $content = $this
+                ->extractGeminiText(
+                    $response->json(
+                        'candidates.0.content.parts',
+                    ),
+                );
 
             if (! is_string($content)) {
                 Log::warning(
                     'Gemini AI insight response did not contain text.',
                     [
                         'model' => $model,
-                        'finish_reason' => $response->json(
-                            'candidates.0.finishReason',
-                        ),
+
+                        'finish_reason' => $response
+                            ->json(
+                                'candidates.0.finishReason',
+                            ),
                     ],
                 );
 
                 return null;
             }
 
-            $content = $this->prepareContent(
-                $content,
-                ...$requiredTags,
-            );
+            $content = $this
+                ->prepareContent(
+                    $content,
+                    ...$requiredTags,
+                );
 
             if (
                 $content === null
@@ -854,12 +998,17 @@ class AiInsightService
                     'Gemini AI insight response was rejected.',
                     [
                         'requested_model' => $model,
-                        'model_version' => $response->json(
-                            'modelVersion',
-                        ),
-                        'finish_reason' => $response->json(
-                            'candidates.0.finishReason',
-                        ),
+
+                        'model_version' => $response
+                            ->json(
+                                'modelVersion',
+                            ),
+
+                        'finish_reason' => $response
+                            ->json(
+                                'candidates.0.finishReason',
+                            ),
+
                         'content' => Str::limit(
                             $content ?? '',
                             500,
@@ -878,25 +1027,37 @@ class AiInsightService
                 ),
             );
 
-            $modelVersion = $response->json(
-                'modelVersion',
-            );
+            $modelVersion = $response
+                ->json(
+                    'modelVersion',
+                );
 
-            $resolvedModel = is_string($modelVersion)
-                && trim($modelVersion) !== ''
-                    ? trim($modelVersion)
-                    : $model;
+            $resolvedModel = (
+                is_string(
+                    $modelVersion,
+                )
+                && trim(
+                    $modelVersion,
+                ) !== ''
+            )
+                ? trim(
+                    $modelVersion,
+                )
+                : $model;
 
             return new AiCompletionResult(
                 $content,
                 $resolvedModel,
             );
-        } catch (ConnectionException $exception) {
+        } catch (
+            ConnectionException $exception
+        ) {
             Log::warning(
                 'Gemini AI insight request timed out or could not connect.',
                 [
                     'exception' => $exception::class,
-                    'message' => $exception->getMessage(),
+                    'message' => $exception
+                        ->getMessage(),
                     'model' => $model,
                 ],
             );
@@ -907,7 +1068,8 @@ class AiInsightService
                 'Gemini AI insight request threw an exception.',
                 [
                     'exception' => $exception::class,
-                    'message' => $exception->getMessage(),
+                    'message' => $exception
+                        ->getMessage(),
                     'model' => $model,
                 ],
             );
@@ -934,23 +1096,71 @@ class AiInsightService
 
             $payload = [
                 'model' => $model,
+
                 'messages' => [
                     [
                         'role' => 'system',
-                        'content' => $this->insightSystemPrompt(
-                            $task,
-                            ...$requiredTags,
-                        ),
+
+                        'content' => $this
+                            ->insightSystemPrompt(
+                                $task,
+                                ...$requiredTags,
+                            ),
                     ],
+
                     [
                         'role' => 'user',
                         'content' => $json,
                     ],
                 ],
+
                 'temperature' => 0.2,
                 'max_tokens' => $maxTokens,
                 'stream' => false,
             ];
+
+            /*
+             * GPT-5.6 Luna menggunakan parameter modern
+             * Chat Completions.
+             *
+             * Ketika reasoning diaktifkan, temperature tidak
+             * dikirim karena GPT-5.6 tidak menerima temperature
+             * bersama reasoning effort selain "none".
+             */
+            if (
+                $provider === 'juanrouter'
+                && Str::contains(
+                    Str::lower(
+                        $model,
+                    ),
+                    'gpt-5.6',
+                )
+            ) {
+                unset(
+                    $payload['temperature'],
+                    $payload['max_tokens'],
+                );
+
+                $payload[
+                    'max_completion_tokens'
+                ] = max(
+                    1024,
+                    $maxTokens,
+                );
+
+                $reasoningEffort = trim(
+                    (string) config(
+                        'services.juanrouter.reasoning_effort',
+                        'low',
+                    ),
+                );
+
+                if ($reasoningEffort !== '') {
+                    $payload[
+                        'reasoning_effort'
+                    ] = $reasoningEffort;
+                }
+            }
 
             if ($provider === 'openrouter') {
                 $payload['provider'] = [
@@ -958,9 +1168,10 @@ class AiInsightService
                 ];
 
                 if (
-                    $this->shouldLimitOpenRouterReasoning(
-                        $model,
-                    )
+                    $this
+                        ->shouldLimitOpenRouterReasoning(
+                            $model,
+                        )
                 ) {
                     $payload['reasoning'] = [
                         'effort' => 'minimal',
@@ -975,10 +1186,15 @@ class AiInsightService
 
             if ($provider === 'openrouter') {
                 $request->withHeaders([
-                    'HTTP-Referer' => (string) config(
+                    'HTTP-Referer' => (
+                        string
+                    ) config(
                         'app.url',
                     ),
-                    'X-Title' => (string) config(
+
+                    'X-Title' => (
+                        string
+                    ) config(
                         'app.name',
                     ),
                 ]);
@@ -990,47 +1206,66 @@ class AiInsightService
                 ->connectTimeout(
                     min(
                         $timeoutSeconds,
+
                         (int) config(
                             'services.ai.connect_timeout',
                             5,
                         ),
                     ),
                 )
-                ->timeout($timeoutSeconds)
+                ->timeout(
+                    $timeoutSeconds,
+                )
                 ->post(
                     rtrim(
                         $baseUrl,
                         '/',
                     ).'/chat/completions',
+
                     $payload,
                 );
 
             if (! $response->successful()) {
-                $responsePayload = $response->json();
-                $rateLimited = $response->status() === 429;
+                $responsePayload = $response
+                    ->json();
 
-                $blockProvider = $rateLimited
-                    && $this->shouldBlockProviderAfterRateLimit(
-                        $provider,
-                        $responsePayload,
-                    );
+                $rateLimited = (
+                    $response->status()
+                    === 429
+                );
+
+                $blockProvider = (
+                    $rateLimited
+                    && $this
+                        ->shouldBlockProviderAfterRateLimit(
+                            $provider,
+                            $responsePayload,
+                        )
+                );
 
                 if ($blockProvider) {
                     $this->rememberRateLimit(
                         $provider,
                         $key,
                         $responsePayload,
-                        $response->header('Retry-After'),
+                        $response->header(
+                            'Retry-After',
+                        ),
                     );
                 }
 
                 Log::warning(
-                    $this->providerLabel($provider)
+                    $this->providerLabel(
+                        $provider,
+                    )
                         .' AI insight request failed.',
+
                     [
                         'provider' => $provider,
-                        'status' => $response->status(),
+                        'status' => $response
+                            ->status(),
                         'model' => $model,
+
                         'response' => Str::limit(
                             $response->body(),
                             500,
@@ -1050,24 +1285,30 @@ class AiInsightService
 
             if (! is_string($content)) {
                 Log::warning(
-                    $this->providerLabel($provider)
+                    $this->providerLabel(
+                        $provider,
+                    )
                         .' AI insight response did not contain text.',
+
                     [
                         'provider' => $provider,
                         'model' => $model,
-                        'finish_reason' => $response->json(
-                            'choices.0.finish_reason',
-                        ),
+
+                        'finish_reason' => $response
+                            ->json(
+                                'choices.0.finish_reason',
+                            ),
                     ],
                 );
 
                 return null;
             }
 
-            $content = $this->prepareContent(
-                $content,
-                ...$requiredTags,
-            );
+            $content = $this
+                ->prepareContent(
+                    $content,
+                    ...$requiredTags,
+                );
 
             if (
                 $content === null
@@ -1080,17 +1321,25 @@ class AiInsightService
                 )
             ) {
                 Log::warning(
-                    $this->providerLabel($provider)
+                    $this->providerLabel(
+                        $provider,
+                    )
                         .' AI insight response was rejected.',
+
                     [
                         'provider' => $provider,
                         'requested_model' => $model,
-                        'resolved_model' => $response->json(
-                            'model',
-                        ),
-                        'finish_reason' => $response->json(
-                            'choices.0.finish_reason',
-                        ),
+
+                        'resolved_model' => $response
+                            ->json(
+                                'model',
+                            ),
+
+                        'finish_reason' => $response
+                            ->json(
+                                'choices.0.finish_reason',
+                            ),
+
                         'content' => Str::limit(
                             (string) $response->json(
                                 'choices.0.message.content',
@@ -1112,27 +1361,42 @@ class AiInsightService
                 ),
             );
 
-            $responseModel = $response->json(
-                'model',
-            );
+            $responseModel = $response
+                ->json(
+                    'model',
+                );
 
-            $resolvedModel = is_string($responseModel)
-                && trim($responseModel) !== ''
-                    ? trim($responseModel)
-                    : $model;
+            $resolvedModel = (
+                is_string(
+                    $responseModel,
+                )
+                && trim(
+                    $responseModel,
+                ) !== ''
+            )
+                ? trim(
+                    $responseModel,
+                )
+                : $model;
 
             return new AiCompletionResult(
                 $content,
                 $resolvedModel,
             );
-        } catch (ConnectionException $exception) {
+        } catch (
+            ConnectionException $exception
+        ) {
             Log::warning(
-                $this->providerLabel($provider)
+                $this->providerLabel(
+                    $provider,
+                )
                     .' AI insight request timed out or could not connect.',
+
                 [
                     'provider' => $provider,
                     'exception' => $exception::class,
-                    'message' => $exception->getMessage(),
+                    'message' => $exception
+                        ->getMessage(),
                     'model' => $model,
                 ],
             );
@@ -1140,12 +1404,16 @@ class AiInsightService
             return null;
         } catch (Throwable $exception) {
             Log::warning(
-                $this->providerLabel($provider)
+                $this->providerLabel(
+                    $provider,
+                )
                     .' AI insight request threw an exception.',
+
                 [
                     'provider' => $provider,
                     'exception' => $exception::class,
-                    'message' => $exception->getMessage(),
+                    'message' => $exception
+                        ->getMessage(),
                     'model' => $model,
                 ],
             );
@@ -1158,9 +1426,13 @@ class AiInsightService
         string $provider,
     ): string {
         return match ($provider) {
+            'juanrouter' => 'Juan Router',
             'openrouter' => 'OpenRouter',
             'xkiro' => 'xKiro',
-            default => Str::headline($provider),
+
+            default => Str::headline(
+                $provider,
+            ),
         };
     }
 
@@ -1168,7 +1440,19 @@ class AiInsightService
         string $task,
         string ...$requiredTags,
     ): string {
-        return 'Anda adalah fitur AI SkillPath AI. Locale aplikasi saat ini adalah '.app()->getLocale().'. Seluruh teks yang ditampilkan kepada pengguna wajib menggunakan Bahasa Indonesia. Jangan menulis kalimat dalam Bahasa Inggris. Nama teknologi, framework, API, database, bahasa pemrograman, library, atau istilah teknis yang umum boleh tetap menggunakan nama aslinya. Gunakan hanya data yang diberikan. Jangan mengubah skor, hasil Assessment, status progres, keputusan roadmap, kemampuan, proyek, materi, atau fakta lain. Jangan membuat data yang tidak diberikan. Gunakan Bahasa Indonesia yang alami, jelas, dan ringkas. '.$task.' '.$this->outputInstruction(...$requiredTags);
+        return 'Anda adalah fitur AI SkillPath AI. Locale aplikasi saat ini adalah '
+            .app()->getLocale()
+            .'. Seluruh teks yang ditampilkan kepada pengguna wajib menggunakan Bahasa Indonesia. '
+            .'Jangan menulis kalimat dalam Bahasa Inggris. Nama teknologi, framework, API, database, '
+            .'bahasa pemrograman, library, atau istilah teknis yang umum boleh tetap menggunakan nama '
+            .'aslinya. Gunakan hanya data yang diberikan. Jangan mengubah skor, hasil Assessment, status '
+            .'progres, keputusan roadmap, kemampuan, proyek, materi, atau fakta lain. Jangan membuat data '
+            .'yang tidak diberikan. Gunakan Bahasa Indonesia yang alami, jelas, dan ringkas. '
+            .$task
+            .' '
+            .$this->outputInstruction(
+                ...$requiredTags,
+            );
     }
 
     private function extractGeminiText(
@@ -1186,12 +1470,16 @@ class AiInsightService
                 || ! is_string(
                     $part['text'] ?? null,
                 )
-                || trim($part['text']) === ''
+                || trim(
+                    $part['text'],
+                ) === ''
             ) {
                 continue;
             }
 
-            $texts[] = trim($part['text']);
+            $texts[] = trim(
+                $part['text'],
+            );
         }
 
         if ($texts === []) {
@@ -1250,20 +1538,34 @@ class AiInsightService
                 return $content;
             }
 
-            return $this->parseProgressText($content);
+            return $this->parseProgressText(
+                $content,
+            );
         }
 
         if ($requiredTags === []) {
-            $value = $decoded['content'] ?? null;
+            $value = $decoded[
+                'content'
+            ] ?? null;
 
             return is_string($value)
-                ? $this->normalizeContent($value)
+                ? $this->normalizeContent(
+                    $value,
+                )
                 : null;
         }
 
-        $progress = $decoded['progress'] ?? null;
-        $schedule = $decoded['schedule'] ?? null;
-        $obstacles = $decoded['obstacles'] ?? null;
+        $progress = $decoded[
+            'progress'
+        ] ?? null;
+
+        $schedule = $decoded[
+            'schedule'
+        ] ?? null;
+
+        $obstacles = $decoded[
+            'obstacles'
+        ] ?? null;
 
         if (
             ! is_string($progress)
@@ -1273,9 +1575,20 @@ class AiInsightService
             return null;
         }
 
-        $progress = $this->normalizeContent($progress);
-        $schedule = $this->normalizeContent($schedule);
-        $obstacles = $this->normalizeContent($obstacles);
+        $progress = $this
+            ->normalizeContent(
+                $progress,
+            );
+
+        $schedule = $this
+            ->normalizeContent(
+                $schedule,
+            );
+
+        $obstacles = $this
+            ->normalizeContent(
+                $obstacles,
+            );
 
         if (
             $progress === null
@@ -1301,13 +1614,17 @@ class AiInsightService
     ): ?string {
         $patterns = [
             'progress' => '/(?:^|\n)\s*(?:progress|ringkasan perkembangan|perkembangan)\s*:?\s*(.*?)(?=\n\s*(?:schedule|saran jadwal belajar|jadwal)\s*:?|\z)/isu',
+
             'schedule' => '/(?:^|\n)\s*(?:schedule|saran jadwal belajar|jadwal)\s*:?\s*(.*?)(?=\n\s*(?:obstacles|pola kendala belajar|kendala)\s*:?|\z)/isu',
+
             'obstacles' => '/(?:^|\n)\s*(?:obstacles|pola kendala belajar|kendala)\s*:?\s*(.*?)\s*\z/isu',
         ];
 
         $result = [];
 
-        foreach ($patterns as $key => $pattern) {
+        foreach (
+            $patterns as $key => $pattern
+        ) {
             if (
                 preg_match(
                     $pattern,
@@ -1318,9 +1635,10 @@ class AiInsightService
                 return null;
             }
 
-            $value = $this->normalizeContent(
-                (string) $matches[1],
-            );
+            $value = $this
+                ->normalizeContent(
+                    (string) $matches[1],
+                );
 
             if ($value === null) {
                 return null;
@@ -1404,7 +1722,9 @@ class AiInsightService
         string $model,
     ): bool {
         return str_contains(
-            Str::lower($model),
+            Str::lower(
+                $model,
+            ),
             'gpt-oss',
         );
     }
@@ -1412,7 +1732,9 @@ class AiInsightService
     private function canDisableGeminiThinking(
         string $model,
     ): bool {
-        $model = Str::lower($model);
+        $model = Str::lower(
+            $model,
+        );
 
         return str_contains(
             $model,
@@ -1435,20 +1757,33 @@ class AiInsightService
             'maxOutputTokens' => $maxOutputTokens,
         ];
 
-        $thinkingLevel = $this->geminiThinkingLevel($model);
+        $thinkingLevel = $this
+            ->geminiThinkingLevel(
+                $model,
+            );
 
         if ($thinkingLevel !== null) {
-            $config['thinkingConfig'] = [
+            $config[
+                'thinkingConfig'
+            ] = [
                 'thinkingLevel' => $thinkingLevel,
             ];
 
             return $config;
         }
 
-        $config['temperature'] = 0.2;
+        $config[
+            'temperature'
+        ] = 0.2;
 
-        if ($this->canDisableGeminiThinking($model)) {
-            $config['thinkingConfig'] = [
+        if (
+            $this->canDisableGeminiThinking(
+                $model,
+            )
+        ) {
+            $config[
+                'thinkingConfig'
+            ] = [
                 'thinkingBudget' => 0,
             ];
         }
@@ -1460,7 +1795,9 @@ class AiInsightService
         string $model,
     ): ?string {
         $model = Str::lower(
-            trim($model),
+            trim(
+                $model,
+            ),
         );
 
         if (
@@ -1493,8 +1830,11 @@ class AiInsightService
     private function nextAttemptTimeout(
         float $deadline,
     ): ?int {
-        $remainingSeconds = (int) floor(
-            $deadline - microtime(true),
+        $remainingSeconds = (
+            int
+        ) floor(
+            $deadline
+                - microtime(true),
         );
 
         if ($remainingSeconds < 1) {
@@ -1503,6 +1843,7 @@ class AiInsightService
 
         return min(
             $remainingSeconds,
+
             (int) config(
                 'services.ai.attempt_timeout',
                 10,
@@ -1537,13 +1878,23 @@ class AiInsightService
 
         if (
             is_string($retryAfter)
-            && is_numeric(trim($retryAfter))
+            && is_numeric(
+                trim(
+                    $retryAfter,
+                ),
+            )
         ) {
             $ttlSeconds = max(
                 10,
                 min(
-                    (int) ceil(
-                        (float) trim($retryAfter),
+                    (
+                        int
+                    ) ceil(
+                        (
+                            float
+                        ) trim(
+                            $retryAfter,
+                        ),
                     ),
                     3600,
                 ),
@@ -1564,16 +1915,24 @@ class AiInsightService
             );
 
             if (is_numeric($reset)) {
-                $resetTimestamp = (int) floor(
-                    ((float) $reset) / 1000,
+                $resetTimestamp = (
+                    int
+                ) floor(
+                    (
+                        (
+                            float
+                        ) $reset
+                    ) / 1000,
                 );
 
-                $currentTimestamp = now()->getTimestamp();
+                $currentTimestamp = now()
+                    ->getTimestamp();
 
                 $ttlSeconds = max(
                     60,
                     min(
-                        $resetTimestamp - $currentTimestamp,
+                        $resetTimestamp
+                            - $currentTimestamp,
                         86400,
                     ),
                 );
@@ -1586,7 +1945,9 @@ class AiInsightService
                 $key,
             ),
             true,
-            now()->addSeconds($ttlSeconds),
+            now()->addSeconds(
+                $ttlSeconds,
+            ),
         );
     }
 
@@ -1597,14 +1958,18 @@ class AiInsightService
         return 'ai-rate-limit:'
             .$provider
             .':'
-            .sha1($key);
+            .sha1(
+                $key,
+            );
     }
 
     private function looksIndonesian(
         string $text,
     ): bool {
         $text = Str::lower(
-            strip_tags($text),
+            strip_tags(
+                $text,
+            ),
         );
 
         $indonesianMatches = [];
@@ -1623,14 +1988,19 @@ class AiInsightService
         );
 
         if (
-            ! is_int($indonesianCount)
-            || ! is_int($englishCount)
+            ! is_int(
+                $indonesianCount,
+            )
+            || ! is_int(
+                $englishCount,
+            )
         ) {
             return false;
         }
 
         return $indonesianCount >= 2
-            && $indonesianCount > $englishCount;
+            && $indonesianCount
+                > $englishCount;
     }
 
     /**
@@ -1699,13 +2069,23 @@ class AiInsightService
                 return null;
             }
 
-            $result[$key] = $value;
+            $result[
+                $key
+            ] = $value;
         }
 
         return [
-            'progress' => $result['progress'],
-            'schedule' => $result['schedule'],
-            'obstacles' => $result['obstacles'],
+            'progress' => $result[
+                'progress'
+            ],
+
+            'schedule' => $result[
+                'schedule'
+            ],
+
+            'obstacles' => $result[
+                'obstacles'
+            ],
         ];
     }
 

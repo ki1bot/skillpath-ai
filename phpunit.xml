@@ -8,6 +8,7 @@
         <testsuite name="Unit">
             <directory>tests/Unit</directory>
         </testsuite>
+
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
         </testsuite>
@@ -38,6 +39,7 @@
         <env name="QUEUE_CONNECTION" value="sync" force="true"/>
         <env name="SESSION_DRIVER" value="array" force="true"/>
 
+        <env name="JUANROUTER_API_KEY" value="" force="true"/>
         <env name="GEMINI_API_KEY" value="" force="true"/>
         <env name="OPENROUTER_API_KEY" value="" force="true"/>
         <env name="XKIRO_API_KEY" value="" force="true"/>
