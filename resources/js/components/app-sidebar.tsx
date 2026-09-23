@@ -2,6 +2,7 @@ import { Link, router, usePage } from '@inertiajs/react';
 import {
     Activity,
     ClipboardCheck,
+    ClipboardList,
     FolderKanban,
     LayoutDashboard,
     Map,
@@ -91,6 +92,11 @@ export function AppSidebar() {
             title: 'Dashboard Administrator',
             href: '/admin/dashboard',
             icon: LayoutDashboard,
+        },
+        {
+            title: 'Pengumpulan Tugas',
+            href: '/admin/submissions',
+            icon: ClipboardList,
         },
         {
             title: 'Kelola Sistem',

@@ -1,5 +1,6 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 import users from './users'
+import submissions from './submissions'
 import feedback from './feedback'
 import careers from './careers'
 import skills from './skills'
@@ -174,6 +175,7 @@ const admin = {
     users: Object.assign(users, users),
     dashboard: Object.assign(dashboard, dashboard),
     index: Object.assign(index, index),
+    submissions: Object.assign(submissions, submissions),
     feedback: Object.assign(feedback, feedback),
     careers: Object.assign(careers, careers),
     skills: Object.assign(skills, skills),

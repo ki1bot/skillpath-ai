@@ -22,6 +22,10 @@ class Evaluation extends Model
         'evidence_url',
         'reflection',
         'feedback',
+        'review_status',
+        'reviewed_by',
+        'reviewed_at',
+        'admin_notes',
     ];
 
     protected function casts(): array
@@ -32,6 +36,7 @@ class Evaluation extends Model
             'evidence_score' => 'float',
             'reflection_score' => 'float',
             'passed' => 'boolean',
+            'reviewed_at' => 'datetime',
         ];
     }
 

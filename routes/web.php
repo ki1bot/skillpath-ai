@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AssessmentQuestionController as AdminAssessmentQuestionController;
+use App\Http\Controllers\Admin\EvaluationSubmissionController as AdminEvaluationSubmissionController;
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\AdminController;
@@ -252,6 +253,22 @@ Route::middleware([
                     'index',
                 ],
             )->name('index');
+
+            Route::get(
+                '/submissions',
+                [
+                    AdminEvaluationSubmissionController::class,
+                    'index',
+                ],
+            )->name('submissions.index');
+
+            Route::patch(
+                '/submissions/{evaluation}',
+                [
+                    AdminEvaluationSubmissionController::class,
+                    'update',
+                ],
+            )->name('submissions.update');
 
             Route::get(
                 '/feedback',

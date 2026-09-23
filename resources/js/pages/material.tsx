@@ -5,7 +5,6 @@ import {
     CheckCircle2,
     CircleAlert,
     ExternalLink,
-    FileCheck2,
     RotateCcw,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -42,6 +41,9 @@ type Evaluation = {
     evidence_score: number;
     passed: boolean;
     feedback: string;
+    review_status: 'pending' | 'reviewed';
+    evidence_url?: string | null;
+    reviewed_at?: string | null;
     created_at: string;
 };
 
@@ -100,6 +102,10 @@ export default function MaterialPage({
 
     const latestEvaluation = item.evaluations?.[0];
     const itemCompleted = item.status === 'completed';
+    const submissionPending = latestEvaluation?.review_status === 'pending';
+    const reinforcementRequired = item.status === 'reinforcement_required';
+    const canSubmitEvaluation =
+        !itemCompleted && !submissionPending && !reinforcementRequired;
 
     const hasAiExercise =
         aiExercise?.generatedByAi === true && Boolean(aiExercise.content);
@@ -109,7 +115,20 @@ export default function MaterialPage({
     );
 
     const evaluationReady =
-        Boolean(evaluationForm.data.answer) && evaluationEvidenceValid;
+        canSubmitEvaluation &&
+        Boolean(evaluationForm.data.answer) &&
+        evaluationEvidenceValid;
+
+    const materialStatus = itemCompleted
+        ? 'Selesai'
+        : submissionPending
+          ? 'Sedang diperiksa oleh admin'
+          : reinforcementRequired
+            ? 'Harus mengulang'
+            : latestEvaluation?.review_status === 'reviewed' &&
+                !latestEvaluation.passed
+              ? 'Belum lulus'
+              : 'Belum selesai';
 
     const retryAiExercise = () => {
         setIsRetryingAi(true);
@@ -123,7 +142,7 @@ export default function MaterialPage({
     const evaluate = (event: React.FormEvent) => {
         event.preventDefault();
 
-        if (itemCompleted) {
+        if (!canSubmitEvaluation) {
             return;
         }
 
@@ -393,15 +412,16 @@ export default function MaterialPage({
                                             </p>
 
                                             <p className="mt-2 text-sm leading-6 font-semibold">
-                                                Evaluasi sudah lulus dan status
-                                                penyelesaian telah disimpan.
+                                                Admin sudah memeriksa
+                                                pengumpulan dan nilai kelulusan
+                                                telah disimpan.
                                             </p>
 
                                             {item.evaluation_score !== null &&
                                                 item.evaluation_score !==
                                                     undefined && (
                                                     <p className="mt-3 font-mono text-sm font-black">
-                                                        Skor evaluasi:{' '}
+                                                        Nilai:{' '}
                                                         {item.evaluation_score}
                                                         /100
                                                     </p>
@@ -409,28 +429,76 @@ export default function MaterialPage({
                                         </div>
                                     </div>
                                 </div>
+                            ) : submissionPending ? (
+                                <div className="mt-5 rounded-[12px] border-2 border-[#171717] bg-[var(--neo-yellow)] p-5 text-[#171717]">
+                                    <p className="font-black">
+                                        Sedang diperiksa oleh admin
+                                    </p>
+
+                                    <p className="mt-2 text-sm leading-6 font-semibold">
+                                        Jawaban dan link Google Drive sudah
+                                        diterima. Kamu belum dapat mengirim
+                                        ulang sampai admin selesai memberikan
+                                        nilai.
+                                    </p>
+
+                                    {latestEvaluation?.evidence_url && (
+                                        <Button
+                                            asChild
+                                            variant="outline"
+                                            size="sm"
+                                            className="mt-4 bg-[#fffdf7]"
+                                        >
+                                            <a
+                                                href={
+                                                    latestEvaluation.evidence_url
+                                                }
+                                                target="_blank"
+                                                rel="noreferrer"
+                                            >
+                                                Lihat link yang dikumpulkan
+                                            </a>
+                                        </Button>
+                                    )}
+                                </div>
+                            ) : reinforcementRequired ? (
+                                <div className="mt-5 rounded-[12px] border-2 border-[#171717] bg-[var(--neo-pink)] p-5 text-[#171717]">
+                                    <p className="font-black">
+                                        Belum bisa mengumpulkan ulang
+                                    </p>
+
+                                    <p className="mt-2 text-sm leading-6 font-semibold">
+                                        Nilai sebelumnya belum mencapai 70.
+                                        Selesaikan materi penguatan yang muncul
+                                        di jalur belajar, lalu kembali ke materi
+                                        ini untuk mencoba lagi.
+                                    </p>
+
+                                    <Button
+                                        asChild
+                                        variant="outline"
+                                        size="sm"
+                                        className="mt-4 bg-[#fffdf7]"
+                                    >
+                                        <Link href="/roadmap">
+                                            Kembali ke jalur belajar
+                                        </Link>
+                                    </Button>
+                                </div>
                             ) : (
                                 <>
-                                    <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                                        <div className="rounded-[10px] border-2 border-foreground/15 bg-muted/30 p-4">
-                                            <p className="font-black">
-                                                Jawaban konsep
-                                            </p>
+                                    <div className="mt-5 rounded-[12px] border-2 border-foreground/15 bg-muted/30 p-4">
+                                        <p className="font-black">
+                                            Penilaian dilakukan oleh admin
+                                        </p>
 
-                                            <p className="mt-1 text-sm font-medium text-muted-foreground">
-                                                Bernilai maksimal 80 poin.
-                                            </p>
-                                        </div>
-
-                                        <div className="rounded-[10px] border-2 border-foreground/15 bg-muted/30 p-4">
-                                            <p className="font-black">
-                                                Bukti Google Drive
-                                            </p>
-
-                                            <p className="mt-1 text-sm font-medium text-muted-foreground">
-                                                Bernilai maksimal 20 poin.
-                                            </p>
-                                        </div>
+                                        <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
+                                            Jawaban dan link Google Drive akan
+                                            diperiksa terlebih dahulu. Nilai 70
+                                            sampai 100 dinyatakan lulus. Nilai 0
+                                            sampai 69 belum lulus dan harus
+                                            mengulang.
+                                        </p>
                                     </div>
 
                                     <form
@@ -521,7 +589,8 @@ export default function MaterialPage({
                                             <p className="mt-2 text-xs leading-5 font-medium text-muted-foreground">
                                                 Upload hasil praktik atau
                                                 dokumentasinya ke Google Drive,
-                                                atur aksesnya, lalu tempel link
+                                                atur aksesnya agar admin dapat
+                                                membukanya, lalu tempel link
                                                 drive.google.com di sini.
                                             </p>
 
@@ -552,41 +621,37 @@ export default function MaterialPage({
                                                 evaluationForm.processing
                                             }
                                         >
-                                            <FileCheck2 className="size-4" />
-
                                             {evaluationForm.processing
-                                                ? 'Memeriksa...'
-                                                : 'Kirim evaluasi'}
+                                                ? 'Mengirim...'
+                                                : 'Kirim untuk diperiksa'}
                                         </Button>
                                     </form>
                                 </>
                             )}
 
-                            {latestEvaluation && (
-                                <div
-                                    className={`mt-5 rounded-[12px] border-2 border-[#171717] p-4 text-sm leading-6 font-semibold text-[#171717] ${
-                                        latestEvaluation.passed
-                                            ? 'bg-[var(--neo-lime)]'
-                                            : 'bg-[var(--neo-pink)]'
-                                    }`}
-                                >
-                                    <p className="font-black">
-                                        Hasil terakhir: {latestEvaluation.score}
-                                        /100
-                                    </p>
+                            {latestEvaluation &&
+                                latestEvaluation.review_status ===
+                                    'reviewed' && (
+                                    <div
+                                        className={`mt-5 rounded-[12px] border-2 border-[#171717] p-4 text-sm leading-6 font-semibold text-[#171717] ${
+                                            latestEvaluation.passed
+                                                ? 'bg-[var(--neo-lime)]'
+                                                : 'bg-[var(--neo-pink)]'
+                                        }`}
+                                    >
+                                        <p className="font-black">
+                                            Hasil terakhir:{' '}
+                                            {latestEvaluation.score}/100 ·{' '}
+                                            {latestEvaluation.passed
+                                                ? 'Lulus'
+                                                : 'Belum lulus'}
+                                        </p>
 
-                                    <p className="mt-1">
-                                        Konsep:{' '}
-                                        {latestEvaluation.knowledge_score}/80 ·
-                                        Bukti: {latestEvaluation.evidence_score}
-                                        /20
-                                    </p>
-
-                                    <p className="mt-2">
-                                        {latestEvaluation.feedback}
-                                    </p>
-                                </div>
-                            )}
+                                        <p className="mt-2">
+                                            {latestEvaluation.feedback}
+                                        </p>
+                                    </div>
+                                )}
                         </section>
                     </main>
 
@@ -639,13 +704,13 @@ export default function MaterialPage({
 
                                     <div>
                                         <p className="font-black">
-                                            Selesaikan evaluasi
+                                            Kirim untuk diperiksa
                                         </p>
 
                                         <p className="mt-1 leading-5 font-medium text-muted-foreground">
                                             Jawab soal evaluasi dan sertakan
-                                            link Google Drive berisi hasil
-                                            praktikmu.
+                                            link Google Drive. Admin akan
+                                            memeriksa sebelum nilai ditetapkan.
                                         </p>
                                     </div>
                                 </div>
@@ -658,11 +723,11 @@ export default function MaterialPage({
                             </p>
 
                             <p className="mt-2 text-xl font-black">
-                                {itemCompleted ? 'Selesai' : 'Belum selesai'}
+                                {materialStatus}
                             </p>
 
                             <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
-                                Percobaan evaluasi: {item.evaluation_attempts}
+                                Pengumpulan evaluasi: {item.evaluation_attempts}
                                 {item.reinforcement_count > 0 && (
                                     <>
                                         {' '}

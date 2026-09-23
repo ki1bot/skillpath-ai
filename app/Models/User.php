@@ -101,7 +101,12 @@ class User extends Authenticatable
      */
     public function evaluations(): HasMany
     {
-        return $this->hasMany(Evaluation::class);
+        return $this
+            ->hasMany(Evaluation::class)
+            ->where(
+                'review_status',
+                'reviewed',
+            );
     }
 
     /**
