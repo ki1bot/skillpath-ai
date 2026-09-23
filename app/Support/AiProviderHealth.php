@@ -96,42 +96,27 @@ class AiProviderHealth
             ),
         );
 
+        /*
+         * Jika seluruh model sedang cooldown, jangan menembus
+         * circuit breaker.
+         *
+         * Request AI berikutnya akan mencoba lagi setelah minimal
+         * satu cooldown selesai.
+         */
         if ($ready === []) {
-            usort(
-                $attempts,
-                function (
-                    array $left,
-                    array $right,
-                ): int {
-                    $cooldownComparison = (
-                        $left['cooldown_until']
-                        <=> $right['cooldown_until']
-                    );
-
-                    if ($cooldownComparison !== 0) {
-                        return $cooldownComparison;
-                    }
-
-                    return $left['score']
-                        <=> $right['score'];
-                },
-            );
-
-            $ready = [
-                $attempts[0],
-            ];
-        } else {
-            usort(
-                $ready,
-                fn (
-                    array $left,
-                    array $right,
-                ): int => (
-                    $left['score']
-                    <=> $right['score']
-                ),
-            );
+            return [];
         }
+
+        usort(
+            $ready,
+            fn (
+                array $left,
+                array $right,
+            ): int => (
+                $left['score']
+                <=> $right['score']
+            ),
+        );
 
         return array_map(
             fn (array $attempt): array => [
@@ -276,6 +261,15 @@ class AiProviderHealth
             ),
         );
 
+        /*
+         * Exponential moving average sederhana:
+         *
+         * 70% latency sebelumnya
+         * 30% latency request terbaru
+         *
+         * Tujuannya agar provider tidak berpindah urutan secara
+         * berlebihan hanya karena satu request sangat cepat/lambat.
+         */
         $smoothedLatency = $previousLatency > 0
             ? (int) round(
                 ($previousLatency * 0.7)
@@ -335,9 +329,10 @@ class AiProviderHealth
         bool $isProbe,
     ): int {
         /*
-         * Primary model tetap didahulukan daripada fallback.
+         * Semua primary model diprioritaskan sebelum fallback.
          *
-         * Model index:
+         * modelIndex:
+         *
          * 0 = primary
          * 1 = fallback pertama
          * 2 = fallback berikutnya
@@ -345,10 +340,8 @@ class AiProviderHealth
         $tierBase = $modelIndex * 1_000_000;
 
         /*
-         * Setelah cooldown selesai, provider yang pernah gagal
-         * diberikan kesempatan satu kali untuk diuji ulang.
-         *
-         * Ini adalah mekanisme half-open circuit breaker.
+         * Model yang sebelumnya gagal dan cooldown-nya telah habis
+         * mendapat kesempatan half-open probe.
          */
         if ($isProbe) {
             return $tierBase
@@ -365,11 +358,8 @@ class AiProviderHealth
         );
 
         /*
-         * Provider yang belum pernah diukur diberi nilai netral
-         * 8 detik.
-         *
-         * Begitu latency nyata tersedia, latency tersebut menjadi
-         * faktor utama pemilihan provider.
+         * Provider yang belum memiliki data latency menggunakan
+         * neutral score 8 detik.
          */
         $effectiveLatency = $latencyMs > 0
             ? min(
@@ -379,10 +369,10 @@ class AiProviderHealth
             : 8_000;
 
         /*
-         * providerTieBreak hanya digunakan untuk kondisi
-         * latency sama / cold start.
+         * AI_PROVIDER_ORDER hanya menjadi tie-breaker.
          *
-         * Jadi AI_PROVIDER_ORDER tidak lagi memaksa urutan provider.
+         * Setelah aplikasi memiliki data latency, provider yang
+         * lebih sehat dan lebih cepat akan otomatis naik prioritas.
          */
         return $tierBase
             + $effectiveLatency
@@ -459,9 +449,6 @@ class AiProviderHealth
     }
 
     /**
-     * Dipakai hanya sebagai tie-breaker ketika belum ada
-     * data latency provider.
-     *
      * @return array<string, int>
      */
     private function providerTieBreakMap(): array
@@ -512,10 +499,6 @@ class AiProviderHealth
         string $model,
         string $key,
     ): string {
-        /*
-         * v2 sengaja dipakai agar cache dari algoritma lama
-         * tidak ikut digunakan.
-         */
         return 'skillpath-ai-provider-health:v2:'
             .sha1(
                 strtolower(

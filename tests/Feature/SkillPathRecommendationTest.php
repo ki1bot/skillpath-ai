@@ -858,7 +858,7 @@ class SkillPathRecommendationTest extends TestCase
                 [
                     'answer' => $material
                         ->quiz_answer,
-                    'practical_evidence_url' => 'https://drive.google.com/file/d/skillpath-evidence/view',
+                    'practical_evidence_url' => 'https://drive.google.com/drive/folders/skillpath-evidence',
                 ],
             )
             ->assertSessionHasNoErrors();

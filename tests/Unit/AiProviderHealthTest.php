@@ -57,15 +57,9 @@ class AiProviderHealthTest extends TestCase
         )
             ->map(
                 fn (array $attempt): string => (
-                    $attempt[
-                        'provider'
-                    ][
-                        'name'
-                    ]
+                    $attempt['provider']['name']
                     .':'
-                    .$attempt[
-                        'model'
-                    ]
+                    .$attempt['model']
                 ),
             )
             ->values()
@@ -120,29 +114,17 @@ class AiProviderHealthTest extends TestCase
 
         $this->assertSame(
             'xkiro',
-            $attempts[0][
-                'provider'
-            ][
-                'name'
-            ],
+            $attempts[0]['provider']['name'],
         );
 
         $this->assertSame(
             'gemini',
-            $attempts[1][
-                'provider'
-            ][
-                'name'
-            ],
+            $attempts[1]['provider']['name'],
         );
 
         $this->assertSame(
             'openrouter',
-            $attempts[2][
-                'provider'
-            ][
-                'name'
-            ],
+            $attempts[2]['provider']['name'],
         );
     }
 
@@ -168,15 +150,9 @@ class AiProviderHealthTest extends TestCase
         )
             ->map(
                 fn (array $attempt): string => (
-                    $attempt[
-                        'provider'
-                    ][
-                        'name'
-                    ]
+                    $attempt['provider']['name']
                     .':'
-                    .$attempt[
-                        'model'
-                    ]
+                    .$attempt['model']
                 ),
             )
             ->values();
@@ -213,18 +189,12 @@ class AiProviderHealthTest extends TestCase
 
         $this->assertSame(
             'openrouter',
-            $attempts[0][
-                'provider'
-            ][
-                'name'
-            ],
+            $attempts[0]['provider']['name'],
         );
 
         $this->assertSame(
             'openrouter-primary',
-            $attempts[0][
-                'model'
-            ],
+            $attempts[0]['model'],
         );
     }
 
@@ -267,11 +237,56 @@ class AiProviderHealthTest extends TestCase
 
         $this->assertSame(
             'xkiro',
-            $attempts[0][
-                'provider'
-            ][
-                'name'
-            ],
+            $attempts[0]['provider']['name'],
+        );
+    }
+
+    public function test_all_models_in_cooldown_are_not_called_early(): void
+    {
+        $health = app(
+            AiProviderHealth::class,
+        );
+
+        $providers = $this->providers();
+
+        foreach ($providers as $provider) {
+            foreach ($provider['models'] as $model) {
+                $health->recordFailure(
+                    $provider['name'],
+                    $model,
+                    $provider['key'],
+                );
+            }
+        }
+
+        /*
+         * Semua circuit sedang open.
+         *
+         * Tidak boleh ada provider yang dipanggil sebelum
+         * cooldown selesai.
+         */
+        $this->assertSame(
+            [],
+            $health->orderedAttempts(
+                $providers,
+            ),
+        );
+
+        /*
+         * Setelah cooldown pertama selesai, provider boleh
+         * masuk half-open probe secara otomatis.
+         */
+        Carbon::setTestNow(
+            now()->addSeconds(
+                46,
+            ),
+        );
+
+        $this->assertNotSame(
+            [],
+            $health->orderedAttempts(
+                $providers,
+            ),
         );
     }
 
