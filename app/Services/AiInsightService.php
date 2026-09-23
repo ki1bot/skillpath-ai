@@ -9,6 +9,7 @@ use App\Models\RoadmapItem;
 use App\Models\User;
 use App\Models\UserProject;
 use App\Support\AiCompletionResult;
+use App\Support\AiProviderHealth;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -374,9 +375,11 @@ class AiInsightService
         );
 
         $blockedProviders = [];
+        $providerHealth = app(AiProviderHealth::class);
 
         foreach ($this->orderedAttempts($providers) as $attempt) {
             $provider = $attempt['provider'];
+            $model = $attempt['model'];
 
             if (
                 isset(
@@ -407,11 +410,13 @@ class AiInsightService
                 break;
             }
 
+            $attemptStartedAt = microtime(true);
+
             $result = $this->requestInsight(
                 $provider['name'],
                 $provider['key'],
                 $provider['base_url'],
-                $attempt['model'],
+                $model,
                 $task,
                 $json,
                 $maxTokens,
@@ -420,14 +425,39 @@ class AiInsightService
             );
 
             if ($result === false) {
+                $providerHealth->recordFailure(
+                    $provider['name'],
+                    $model,
+                    $provider['key'],
+                    true,
+                );
+
                 $blockedProviders[$provider['name']] = true;
 
                 continue;
             }
 
             if ($result === null) {
+                $providerHealth->recordFailure(
+                    $provider['name'],
+                    $model,
+                    $provider['key'],
+                );
+
                 continue;
             }
+
+            $providerHealth->recordSuccess(
+                $provider['name'],
+                $model,
+                $provider['key'],
+                (int) round(
+                    (
+                        microtime(true)
+                        - $attemptStartedAt
+                    ) * 1000,
+                ),
+            );
 
             Cache::forget($failureCacheKey);
 
@@ -497,7 +527,7 @@ class AiInsightService
                 'key' => config('services.gemini.key'),
                 'model' => config(
                     'services.gemini.model',
-                    'gemini-3.5-flash-lite',
+                    'gemini-3.6-flash',
                 ),
                 'fallback_models' => config(
                     'services.gemini.fallback_models',
@@ -624,38 +654,8 @@ class AiInsightService
     private function orderedAttempts(
         array $providers,
     ): array {
-        $attempts = [];
-        $maximumModels = 0;
-
-        foreach ($providers as $provider) {
-            $maximumModels = max(
-                $maximumModels,
-                count($provider['models']),
-            );
-        }
-
-        for (
-            $modelIndex = 0;
-            $modelIndex < $maximumModels;
-            $modelIndex++
-        ) {
-            foreach ($providers as $provider) {
-                if (
-                    ! isset(
-                        $provider['models'][$modelIndex],
-                    )
-                ) {
-                    continue;
-                }
-
-                $attempts[] = [
-                    'provider' => $provider,
-                    'model' => $provider['models'][$modelIndex],
-                ];
-            }
-        }
-
-        return $attempts;
+        return app(AiProviderHealth::class)
+            ->orderedAttempts($providers);
     }
 
     private function requestInsight(

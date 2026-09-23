@@ -50,7 +50,7 @@ return [
 
         'model' => env(
             'GEMINI_MODEL',
-            'gemini-3.5-flash-lite',
+            'gemini-3.6-flash',
         ),
 
         'fallback_models' => array_values(
@@ -61,7 +61,7 @@ return [
                         ',',
                         (string) env(
                             'GEMINI_FALLBACK_MODELS',
-                            'gemini-3.1-flash-lite',
+                            'gemini-3.5-flash-lite,gemini-3.1-flash-lite',
                         ),
                     ),
                 ),
@@ -94,6 +94,45 @@ return [
             1,
             (int) env('AI_FAILURE_CACHE_SECONDS', 10),
         ),
+
+        'provider_order' => array_values(
+            array_filter(
+                array_map(
+                    'trim',
+                    explode(
+                        ',',
+                        (string) env(
+                            'AI_PROVIDER_ORDER',
+                            'openrouter,xkiro,gemini,tokenrouter',
+                        ),
+                    ),
+                ),
+            ),
+        ),
+
+        'health_cooldown_seconds' => max(
+            10,
+            (int) env(
+                'AI_HEALTH_COOLDOWN_SECONDS',
+                45,
+            ),
+        ),
+
+        'health_max_cooldown_seconds' => max(
+            30,
+            (int) env(
+                'AI_HEALTH_MAX_COOLDOWN_SECONDS',
+                300,
+            ),
+        ),
+
+        'health_state_seconds' => max(
+            60,
+            (int) env(
+                'AI_HEALTH_STATE_SECONDS',
+                600,
+            ),
+        ),
     ],
 
     'openrouter' => [
@@ -112,7 +151,7 @@ return [
                         ',',
                         (string) env(
                             'OPENROUTER_FALLBACK_MODELS',
-                            'nvidia/nemotron-3-ultra-550b-a55b:free',
+                            'openrouter/free',
                         ),
                     ),
                 ),
