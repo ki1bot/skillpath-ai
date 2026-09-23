@@ -7,6 +7,7 @@ use App\Models\LearningMaterial;
 use App\Models\ProgressLog;
 use App\Models\Roadmap;
 use App\Models\RoadmapItem;
+use App\Rules\GoogleDriveSubmissionFolder;
 use App\Rules\GoogleDriveUrl;
 use App\Services\AiInsightService;
 use Illuminate\Http\RedirectResponse;
@@ -467,7 +468,7 @@ class RoadmapController extends Controller
             'practical_evidence_url' => [
                 'required',
                 'string',
-                new GoogleDriveUrl,
+                new GoogleDriveSubmissionFolder,
                 'max:1000',
             ],
         ]);

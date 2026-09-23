@@ -29,6 +29,11 @@ return [
             'GOOGLE_REDIRECT_URI',
             '/auth/google/callback',
         ),
+        'drive_api_key' => env('GOOGLE_DRIVE_API_KEY'),
+        'verify_submission_folder' => env(
+            'GOOGLE_DRIVE_VERIFY_SUBMISSION_FOLDER',
+            true,
+        ),
     ],
 
     'facebook' => [

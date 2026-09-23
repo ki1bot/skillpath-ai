@@ -64,7 +64,7 @@ type AiExercise = {
     message: string | null;
 };
 
-const isGoogleDriveUrl = (value: string): boolean => {
+const isGoogleDriveFolderUrl = (value: string): boolean => {
     const normalized = value.trim();
 
     if (!normalized) {
@@ -77,7 +77,7 @@ const isGoogleDriveUrl = (value: string): boolean => {
         return (
             url.protocol === 'https:' &&
             url.hostname.toLowerCase() === 'drive.google.com' &&
-            url.pathname !== '/'
+            /\/folders\/[A-Za-z0-9_-]+(?:\/|$)/.test(url.pathname)
         );
     } catch {
         return false;
@@ -104,13 +104,14 @@ export default function MaterialPage({
     const itemCompleted = item.status === 'completed';
     const submissionPending = latestEvaluation?.review_status === 'pending';
     const reinforcementRequired = item.status === 'reinforcement_required';
+
     const canSubmitEvaluation =
         !itemCompleted && !submissionPending && !reinforcementRequired;
 
     const hasAiExercise =
         aiExercise?.generatedByAi === true && Boolean(aiExercise.content);
 
-    const evaluationEvidenceValid = isGoogleDriveUrl(
+    const evaluationEvidenceValid = isGoogleDriveFolderUrl(
         evaluationForm.data.practical_evidence_url,
     );
 
@@ -436,7 +437,7 @@ export default function MaterialPage({
                                     </p>
 
                                     <p className="mt-2 text-sm leading-6 font-semibold">
-                                        Jawaban dan link Google Drive sudah
+                                        Jawaban dan folder Google Drive sudah
                                         diterima. Kamu belum dapat mengirim
                                         ulang sampai admin selesai memberikan
                                         nilai.
@@ -456,7 +457,7 @@ export default function MaterialPage({
                                                 target="_blank"
                                                 rel="noreferrer"
                                             >
-                                                Lihat link yang dikumpulkan
+                                                Lihat folder yang dikumpulkan
                                             </a>
                                         </Button>
                                     )}
@@ -493,7 +494,7 @@ export default function MaterialPage({
                                         </p>
 
                                         <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
-                                            Jawaban dan link Google Drive akan
+                                            Jawaban dan folder Google Drive akan
                                             diperiksa terlebih dahulu. Nilai 70
                                             sampai 100 dinyatakan lulus. Nilai 0
                                             sampai 69 belum lulus dan harus
@@ -566,7 +567,7 @@ export default function MaterialPage({
 
                                         <label>
                                             <span className="mb-2 block text-sm font-black">
-                                                Link bukti praktik di Google
+                                                Folder hasil tugas di Google
                                                 Drive
                                             </span>
 
@@ -582,24 +583,27 @@ export default function MaterialPage({
                                                         event.target.value,
                                                     )
                                                 }
-                                                placeholder="https://drive.google.com/file/d/..."
+                                                placeholder="https://drive.google.com/drive/folders/..."
                                                 required
                                             />
 
                                             <p className="mt-2 text-xs leading-5 font-medium text-muted-foreground">
-                                                Upload hasil praktik atau
-                                                dokumentasinya ke Google Drive,
-                                                atur aksesnya agar admin dapat
-                                                membukanya, lalu tempel link
-                                                drive.google.com di sini.
+                                                Buat satu folder Google Drive
+                                                untuk tugas ini dan masukkan
+                                                hasil pekerjaan ke dalamnya.
+                                                Folder tidak boleh kosong. Atur
+                                                akses menjadi &quot;Siapa saja
+                                                yang memiliki link&quot;, lalu
+                                                tempel link foldernya di sini.
                                             </p>
 
                                             {evaluationForm.data.practical_evidence_url.trim()
                                                 .length > 0 &&
                                                 !evaluationEvidenceValid && (
                                                     <p className="mt-2 text-xs font-bold text-destructive">
-                                                        Gunakan link HTTPS dari
-                                                        drive.google.com.
+                                                        Gunakan link folder
+                                                        Google Drive, bukan link
+                                                        file.
                                                     </p>
                                                 )}
 
@@ -622,7 +626,7 @@ export default function MaterialPage({
                                             }
                                         >
                                             {evaluationForm.processing
-                                                ? 'Mengirim...'
+                                                ? 'Memeriksa folder...'
                                                 : 'Kirim untuk diperiksa'}
                                         </Button>
                                     </form>
@@ -691,8 +695,8 @@ export default function MaterialPage({
 
                                         <p className="mt-1 leading-5 font-medium text-muted-foreground">
                                             Selesaikan tugas praktik, lalu
-                                            simpan hasilnya sebagai bukti
-                                            pekerjaan.
+                                            simpan hasilnya di dalam satu folder
+                                            Google Drive.
                                         </p>
                                     </div>
                                 </div>
@@ -708,9 +712,10 @@ export default function MaterialPage({
                                         </p>
 
                                         <p className="mt-1 leading-5 font-medium text-muted-foreground">
-                                            Jawab soal evaluasi dan sertakan
-                                            link Google Drive. Admin akan
-                                            memeriksa sebelum nilai ditetapkan.
+                                            Jawab soal evaluasi dan kirim link
+                                            folder Google Drive yang berisi
+                                            hasil tugas. Admin akan memeriksa
+                                            sebelum nilai ditetapkan.
                                         </p>
                                     </div>
                                 </div>
