@@ -133,18 +133,16 @@ class AiProviderHealth
             );
         }
 
-        return array_values(
-            array_map(
-                fn (array $attempt): array => [
-                    'provider' => $attempt[
-                        'provider'
-                    ],
-                    'model' => $attempt[
-                        'model'
-                    ],
+        return array_map(
+            fn (array $attempt): array => [
+                'provider' => $attempt[
+                    'provider'
                 ],
-                $ready,
-            ),
+                'model' => $attempt[
+                    'model'
+                ],
+            ],
+            $ready,
         );
     }
 
