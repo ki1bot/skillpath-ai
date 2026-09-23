@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Support\AiProviderHealth;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
@@ -21,25 +22,50 @@ class AiProviderHealthTest extends TestCase
                 'gemini',
                 'tokenrouter',
             ],
+
             'services.ai.health_cooldown_seconds' => 45,
+
             'services.ai.health_max_cooldown_seconds' => 300,
+
             'services.ai.health_state_seconds' => 600,
         ]);
+
+        Carbon::setTestNow(
+            Carbon::parse(
+                '2026-09-24 12:00:00',
+            ),
+        );
     }
 
-    public function test_healthy_providers_are_ordered_automatically(): void
+    protected function tearDown(): void
     {
-        $attempts = app(AiProviderHealth::class)
-            ->orderedAttempts(
-                $this->providers(),
-            );
+        Carbon::setTestNow();
 
-        $actual = collect($attempts)
+        parent::tearDown();
+    }
+
+    public function test_cold_start_uses_configured_order_only_as_tie_breaker(): void
+    {
+        $attempts = app(
+            AiProviderHealth::class,
+        )->orderedAttempts(
+            $this->providers(),
+        );
+
+        $actual = collect(
+            $attempts,
+        )
             ->map(
                 fn (array $attempt): string => (
-                    $attempt['provider']['name']
+                    $attempt[
+                        'provider'
+                    ][
+                        'name'
+                    ]
                     .':'
-                    .$attempt['model']
+                    .$attempt[
+                        'model'
+                    ]
                 ),
             )
             ->values()
@@ -51,11 +77,72 @@ class AiProviderHealthTest extends TestCase
                 'xkiro:xkiro-primary',
                 'gemini:gemini-primary',
                 'tokenrouter:tokenrouter-primary',
+
                 'openrouter:openrouter-fallback',
                 'xkiro:xkiro-fallback',
                 'gemini:gemini-fallback',
             ],
             $actual,
+        );
+    }
+
+    public function test_success_latency_reorders_healthy_providers_automatically(): void
+    {
+        $health = app(
+            AiProviderHealth::class,
+        );
+
+        $health->recordSuccess(
+            'openrouter',
+            'openrouter-primary',
+            'openrouter-key',
+            7000,
+        );
+
+        $health->recordSuccess(
+            'xkiro',
+            'xkiro-primary',
+            'xkiro-key',
+            600,
+        );
+
+        $health->recordSuccess(
+            'gemini',
+            'gemini-primary',
+            'gemini-key',
+            2500,
+        );
+
+        $attempts = $health
+            ->orderedAttempts(
+                $this->providers(),
+            );
+
+        $this->assertSame(
+            'xkiro',
+            $attempts[0][
+                'provider'
+            ][
+                'name'
+            ],
+        );
+
+        $this->assertSame(
+            'gemini',
+            $attempts[1][
+                'provider'
+            ][
+                'name'
+            ],
+        );
+
+        $this->assertSame(
+            'openrouter',
+            $attempts[2][
+                'provider'
+            ][
+                'name'
+            ],
         );
     }
 
@@ -76,20 +163,23 @@ class AiProviderHealthTest extends TestCase
                 $this->providers(),
             );
 
-        $actual = collect($attempts)
+        $actual = collect(
+            $attempts,
+        )
             ->map(
                 fn (array $attempt): string => (
-                    $attempt['provider']['name']
+                    $attempt[
+                        'provider'
+                    ][
+                        'name'
+                    ]
                     .':'
-                    .$attempt['model']
+                    .$attempt[
+                        'model'
+                    ]
                 ),
             )
             ->values();
-
-        $this->assertSame(
-            'xkiro:xkiro-primary',
-            $actual->first(),
-        );
 
         $this->assertFalse(
             $actual->contains(
@@ -98,7 +188,7 @@ class AiProviderHealthTest extends TestCase
         );
     }
 
-    public function test_success_restores_model_immediately(): void
+    public function test_failed_model_is_probed_again_automatically_after_cooldown(): void
     {
         $health = app(
             AiProviderHealth::class,
@@ -110,11 +200,10 @@ class AiProviderHealthTest extends TestCase
             'openrouter-key',
         );
 
-        $health->recordSuccess(
-            'openrouter',
-            'openrouter-primary',
-            'openrouter-key',
-            250,
+        Carbon::setTestNow(
+            now()->addSeconds(
+                46,
+            ),
         );
 
         $attempts = $health
@@ -124,12 +213,65 @@ class AiProviderHealthTest extends TestCase
 
         $this->assertSame(
             'openrouter',
-            $attempts[0]['provider']['name'],
+            $attempts[0][
+                'provider'
+            ][
+                'name'
+            ],
         );
 
         $this->assertSame(
             'openrouter-primary',
-            $attempts[0]['model'],
+            $attempts[0][
+                'model'
+            ],
+        );
+    }
+
+    public function test_success_restores_model_and_uses_measured_latency(): void
+    {
+        $health = app(
+            AiProviderHealth::class,
+        );
+
+        $health->recordFailure(
+            'openrouter',
+            'openrouter-primary',
+            'openrouter-key',
+        );
+
+        Carbon::setTestNow(
+            now()->addSeconds(
+                46,
+            ),
+        );
+
+        $health->recordSuccess(
+            'openrouter',
+            'openrouter-primary',
+            'openrouter-key',
+            5000,
+        );
+
+        $health->recordSuccess(
+            'xkiro',
+            'xkiro-primary',
+            'xkiro-key',
+            500,
+        );
+
+        $attempts = $health
+            ->orderedAttempts(
+                $this->providers(),
+            );
+
+        $this->assertSame(
+            'xkiro',
+            $attempts[0][
+                'provider'
+            ][
+                'name'
+            ],
         );
     }
 
@@ -146,34 +288,49 @@ class AiProviderHealthTest extends TestCase
         return [
             [
                 'name' => 'gemini',
+
                 'key' => 'gemini-key',
+
                 'base_url' => 'https://gemini.test',
+
                 'models' => [
                     'gemini-primary',
                     'gemini-fallback',
                 ],
             ],
+
             [
                 'name' => 'openrouter',
+
                 'key' => 'openrouter-key',
+
                 'base_url' => 'https://openrouter.test',
+
                 'models' => [
                     'openrouter-primary',
                     'openrouter-fallback',
                 ],
             ],
+
             [
                 'name' => 'tokenrouter',
+
                 'key' => 'tokenrouter-key',
+
                 'base_url' => 'https://tokenrouter.test',
+
                 'models' => [
                     'tokenrouter-primary',
                 ],
             ],
+
             [
                 'name' => 'xkiro',
+
                 'key' => 'xkiro-key',
+
                 'base_url' => 'https://xkiro.test',
+
                 'models' => [
                     'xkiro-primary',
                     'xkiro-fallback',

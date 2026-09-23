@@ -26,17 +26,17 @@ class AiProviderHealth
     public function orderedAttempts(
         array $providers,
     ): array {
-        $priorityMap = $this->providerPriorityMap();
-        $now = time();
+        $tieBreakMap = $this->providerTieBreakMap();
+        $now = now()->getTimestamp();
         $attempts = [];
 
         foreach (
             $providers as $providerIndex => $provider
         ) {
-            $providerPriority = $priorityMap[
+            $providerTieBreak = $tieBreakMap[
                 $provider['name']
             ] ?? (
-                count($priorityMap)
+                count($tieBreakMap)
                 + $providerIndex
             );
 
@@ -49,35 +49,35 @@ class AiProviderHealth
                     $provider['key'],
                 );
 
-                $latencyMs = max(
+                $cooldownUntil = max(
                     0,
                     (int) (
-                        $state['latency_ms']
+                        $state['cooldown_until']
                         ?? 0
                     ),
                 );
 
+                $failures = max(
+                    0,
+                    (int) (
+                        $state['failures']
+                        ?? 0
+                    ),
+                );
+
+                $isProbe = $failures > 0
+                    && $cooldownUntil <= $now;
+
                 $attempts[] = [
                     'provider' => $provider,
                     'model' => $model,
-                    'score' => (
-                        $modelIndex * 10000
-                    ) + (
-                        $providerPriority * 1000
-                    ) + min(
-                        900,
-                        intdiv(
-                            $latencyMs,
-                            20,
-                        ),
+                    'score' => $this->attemptScore(
+                        $state,
+                        $providerTieBreak,
+                        $modelIndex,
+                        $isProbe,
                     ),
-                    'cooldown_until' => max(
-                        0,
-                        (int) (
-                            $state['cooldown_until']
-                            ?? 0
-                        ),
-                    ),
+                    'cooldown_until' => $cooldownUntil,
                 ];
             }
         }
@@ -219,8 +219,13 @@ class AiProviderHealth
             ),
             [
                 'failures' => $failures,
-                'cooldown_until' => time()
-                    + $cooldownSeconds,
+
+                'cooldown_until' => now()
+                    ->addSeconds(
+                        $cooldownSeconds,
+                    )
+                    ->getTimestamp(),
+
                 'latency_ms' => max(
                     0,
                     (int) (
@@ -228,6 +233,7 @@ class AiProviderHealth
                         ?? 0
                     ),
                 ),
+
                 'last_success_at' => max(
                     0,
                     (int) (
@@ -235,6 +241,9 @@ class AiProviderHealth
                         ?? 0
                     ),
                 ),
+
+                'last_failure_at' => now()
+                    ->getTimestamp(),
             ],
             now()->addSeconds(
                 $stateSeconds,
@@ -248,6 +257,32 @@ class AiProviderHealth
         string $key,
         int $latencyMs,
     ): void {
+        $state = $this->state(
+            $provider,
+            $model,
+            $key,
+        );
+
+        $latencyMs = max(
+            1,
+            $latencyMs,
+        );
+
+        $previousLatency = max(
+            0,
+            (int) (
+                $state['latency_ms']
+                ?? 0
+            ),
+        );
+
+        $smoothedLatency = $previousLatency > 0
+            ? (int) round(
+                ($previousLatency * 0.7)
+                + ($latencyMs * 0.3),
+            )
+            : $latencyMs;
+
         Cache::put(
             $this->cacheKey(
                 $provider,
@@ -256,12 +291,21 @@ class AiProviderHealth
             ),
             [
                 'failures' => 0,
+
                 'cooldown_until' => 0,
-                'latency_ms' => max(
+
+                'latency_ms' => $smoothedLatency,
+
+                'last_success_at' => now()
+                    ->getTimestamp(),
+
+                'last_failure_at' => max(
                     0,
-                    $latencyMs,
+                    (int) (
+                        $state['last_failure_at']
+                        ?? 0
+                    ),
                 ),
-                'last_success_at' => time(),
             ],
             now()->addSeconds(
                 max(
@@ -276,11 +320,82 @@ class AiProviderHealth
     }
 
     /**
+     * @param  array{
+     *     failures?: int,
+     *     cooldown_until?: int,
+     *     latency_ms?: int,
+     *     last_success_at?: int,
+     *     last_failure_at?: int
+     * }  $state
+     */
+    private function attemptScore(
+        array $state,
+        int $providerTieBreak,
+        int $modelIndex,
+        bool $isProbe,
+    ): int {
+        /*
+         * Primary model tetap didahulukan daripada fallback.
+         *
+         * Model index:
+         * 0 = primary
+         * 1 = fallback pertama
+         * 2 = fallback berikutnya
+         */
+        $tierBase = $modelIndex * 1_000_000;
+
+        /*
+         * Setelah cooldown selesai, provider yang pernah gagal
+         * diberikan kesempatan satu kali untuk diuji ulang.
+         *
+         * Ini adalah mekanisme half-open circuit breaker.
+         */
+        if ($isProbe) {
+            return $tierBase
+                - 100_000
+                + $providerTieBreak;
+        }
+
+        $latencyMs = max(
+            0,
+            (int) (
+                $state['latency_ms']
+                ?? 0
+            ),
+        );
+
+        /*
+         * Provider yang belum pernah diukur diberi nilai netral
+         * 8 detik.
+         *
+         * Begitu latency nyata tersedia, latency tersebut menjadi
+         * faktor utama pemilihan provider.
+         */
+        $effectiveLatency = $latencyMs > 0
+            ? min(
+                $latencyMs,
+                60_000,
+            )
+            : 8_000;
+
+        /*
+         * providerTieBreak hanya digunakan untuk kondisi
+         * latency sama / cold start.
+         *
+         * Jadi AI_PROVIDER_ORDER tidak lagi memaksa urutan provider.
+         */
+        return $tierBase
+            + $effectiveLatency
+            + ($providerTieBreak * 10);
+    }
+
+    /**
      * @return array{
      *     failures: int,
      *     cooldown_until: int,
      *     latency_ms: int,
-     *     last_success_at: int
+     *     last_success_at: int,
+     *     last_failure_at: int
      * }|array{}
      */
     private function state(
@@ -308,6 +423,7 @@ class AiProviderHealth
                     ?? 0
                 ),
             ),
+
             'cooldown_until' => max(
                 0,
                 (int) (
@@ -315,6 +431,7 @@ class AiProviderHealth
                     ?? 0
                 ),
             ),
+
             'latency_ms' => max(
                 0,
                 (int) (
@@ -322,6 +439,7 @@ class AiProviderHealth
                     ?? 0
                 ),
             ),
+
             'last_success_at' => max(
                 0,
                 (int) (
@@ -329,13 +447,24 @@ class AiProviderHealth
                     ?? 0
                 ),
             ),
+
+            'last_failure_at' => max(
+                0,
+                (int) (
+                    $state['last_failure_at']
+                    ?? 0
+                ),
+            ),
         ];
     }
 
     /**
+     * Dipakai hanya sebagai tie-breaker ketika belum ada
+     * data latency provider.
+     *
      * @return array<string, int>
      */
-    private function providerPriorityMap(): array
+    private function providerTieBreakMap(): array
     {
         $order = config(
             'services.ai.provider_order',
@@ -383,7 +512,11 @@ class AiProviderHealth
         string $model,
         string $key,
     ): string {
-        return 'skillpath-ai-provider-health:v1:'
+        /*
+         * v2 sengaja dipakai agar cache dari algoritma lama
+         * tidak ikut digunakan.
+         */
+        return 'skillpath-ai-provider-health:v2:'
             .sha1(
                 strtolower(
                     trim($provider),
