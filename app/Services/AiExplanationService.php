@@ -14,9 +14,6 @@ use Throwable;
 
 class AiExplanationService
 {
-    /**
-     * @param  array<int, array<string, mixed>>  $analysis
-     */
     public function skillGapSummary(
         User $user,
         array $analysis,
@@ -38,13 +35,10 @@ class AiExplanationService
                     'gap' => $item['gap'],
                     'priority' => $item['priority'],
                     'status' => $item['status'],
-
                     'prerequisites' => collect(
                         $item['prerequisites'],
                     )
-                        ->pluck(
-                            'name',
-                        )
+                        ->pluck('name')
                         ->all(),
                 ],
             )
@@ -60,19 +54,13 @@ class AiExplanationService
             ?->name;
 
         if (
-            ! is_string(
-                $careerName,
-            )
-            || trim(
-                $careerName,
-            ) === ''
+            ! is_string($careerName)
+            || trim($careerName) === ''
         ) {
             return $unavailable;
         }
 
-        $careerName = trim(
-            $careerName,
-        );
+        $careerName = trim($careerName);
 
         $providers = $this
             ->configuredProviders();
@@ -103,10 +91,7 @@ class AiExplanationService
                 .'|'
                 .$provider['base_url']
                 .'|'
-                .implode(
-                    ',',
-                    $provider['models'],
-                )
+                .implode(',', $provider['models'])
                 .';';
         }
 
@@ -125,19 +110,11 @@ class AiExplanationService
 
         if (
             is_array($cached)
-            && (
-                $cached[
-                    'generated_by_ai'
-                ] ?? false
-            ) === true
+            && ($cached['generated_by_ai'] ?? false) === true
             && is_string(
-                $cached[
-                    'summary'
-                ] ?? null,
+                $cached['summary'] ?? null,
             )
-            && trim(
-                $cached['summary'],
-            ) !== ''
+            && trim($cached['summary']) !== ''
             && $this->looksIndonesian(
                 $cached['summary'],
             )
@@ -151,7 +128,6 @@ class AiExplanationService
                     $cached['summary'],
                 ),
                 true,
-
                 is_string(
                     $cachedModel,
                 )
@@ -180,13 +156,10 @@ class AiExplanationService
             true,
         );
 
-        $deadline = $startedAt
-            + (
-                float
-            ) config(
-                'services.ai.request_timeout',
-                30,
-            );
+        $deadline = $startedAt + (float) config(
+            'services.ai.request_timeout',
+            30,
+        );
 
         $blockedProviders = [];
 
@@ -286,7 +259,6 @@ class AiExplanationService
                     $provider['name'],
                     $model,
                     $provider['key'],
-
                     (int) round(
                         (
                             microtime(true)
@@ -306,9 +278,7 @@ class AiExplanationService
                     'model' => $result->model,
                     'generated_by_ai' => true,
                 ],
-                now()->addDays(
-                    7,
-                ),
+                now()->addDays(7),
             );
 
             return $result;
@@ -317,7 +287,6 @@ class AiExplanationService
         Cache::put(
             $failureCacheKey,
             true,
-
             now()->addSeconds(
                 (int) config(
                     'services.ai.failure_cache_seconds',
@@ -368,21 +337,17 @@ class AiExplanationService
         $definitions = [
             [
                 'name' => 'juanrouter',
-
                 'key' => config(
                     'services.juanrouter.key',
                 ),
-
                 'model' => config(
                     'services.juanrouter.model',
                     'gpt-5.6-luna',
                 ),
-
                 'fallback_models' => config(
                     'services.juanrouter.fallback_models',
                     [],
                 ),
-
                 'base_url' => config(
                     'services.juanrouter.base_url',
                     'https://router.juan.web.id/v1',
@@ -391,21 +356,17 @@ class AiExplanationService
 
             [
                 'name' => 'gemini',
-
                 'key' => config(
                     'services.gemini.key',
                 ),
-
                 'model' => config(
                     'services.gemini.model',
                     'gemini-3.6-flash',
                 ),
-
                 'fallback_models' => config(
                     'services.gemini.fallback_models',
                     [],
                 ),
-
                 'base_url' => config(
                     'services.gemini.base_url',
                     'https://generativelanguage.googleapis.com/v1beta',
@@ -414,21 +375,17 @@ class AiExplanationService
 
             [
                 'name' => 'openrouter',
-
                 'key' => config(
                     'services.openrouter.key',
                 ),
-
                 'model' => config(
                     'services.openrouter.model',
                     'nex-agi/nex-n2.5-pro:free',
                 ),
-
                 'fallback_models' => config(
                     'services.openrouter.fallback_models',
                     [],
                 ),
-
                 'base_url' => config(
                     'services.openrouter.base_url',
                     'https://openrouter.ai/api/v1',
@@ -437,21 +394,17 @@ class AiExplanationService
 
             [
                 'name' => 'xkiro',
-
                 'key' => config(
                     'services.xkiro.key',
                 ),
-
                 'model' => config(
                     'services.xkiro.model',
                     'qwen/qwen3.8-max:free',
                 ),
-
                 'fallback_models' => config(
                     'services.xkiro.fallback_models',
                     [],
                 ),
-
                 'base_url' => config(
                     'services.xkiro.base_url',
                     'https://api.xkiro.com/v1',
@@ -886,15 +839,11 @@ class AiExplanationService
 
             if ($provider === 'openrouter') {
                 $request->withHeaders([
-                    'HTTP-Referer' => (
-                        string
-                    ) config(
+                    'HTTP-Referer' => (string) config(
                         'app.url',
                     ),
 
-                    'X-Title' => (
-                        string
-                    ) config(
+                    'X-Title' => (string) config(
                         'app.name',
                     ),
                 ]);
@@ -1367,11 +1316,8 @@ class AiExplanationService
     private function nextAttemptTimeout(
         float $deadline,
     ): ?int {
-        $remainingSeconds = (
-            int
-        ) floor(
-            $deadline
-                - microtime(true),
+        $remainingSeconds = (int) floor(
+            $deadline - microtime(true),
         );
 
         if ($remainingSeconds < 1) {
@@ -1425,12 +1371,8 @@ class AiExplanationService
                 10,
 
                 min(
-                    (
-                        int
-                    ) ceil(
-                        (
-                            float
-                        ) trim(
+                    (int) ceil(
+                        (float) trim(
                             $retryAfter,
                         ),
                     ),
@@ -1454,14 +1396,8 @@ class AiExplanationService
             );
 
             if (is_numeric($reset)) {
-                $resetTimestamp = (
-                    int
-                ) floor(
-                    (
-                        (
-                            float
-                        ) $reset
-                    ) / 1000,
+                $resetTimestamp = (int) floor(
+                    ((float) $reset) / 1000,
                 );
 
                 $currentTimestamp = now()

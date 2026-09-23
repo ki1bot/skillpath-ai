@@ -382,8 +382,7 @@ class AiInsightService
         );
 
         foreach (
-            $this->orderedAttempts($providers)
-            as $attempt
+            $this->orderedAttempts($providers) as $attempt
         ) {
             $provider = $attempt['provider'];
             $model = $attempt['model'];
@@ -547,21 +546,17 @@ class AiInsightService
         $definitions = [
             [
                 'name' => 'juanrouter',
-
                 'key' => config(
                     'services.juanrouter.key',
                 ),
-
                 'model' => config(
                     'services.juanrouter.model',
                     'gpt-5.6-luna',
                 ),
-
                 'fallback_models' => config(
                     'services.juanrouter.fallback_models',
                     [],
                 ),
-
                 'base_url' => config(
                     'services.juanrouter.base_url',
                     'https://router.juan.web.id/v1',
@@ -570,21 +565,17 @@ class AiInsightService
 
             [
                 'name' => 'gemini',
-
                 'key' => config(
                     'services.gemini.key',
                 ),
-
                 'model' => config(
                     'services.gemini.model',
                     'gemini-3.6-flash',
                 ),
-
                 'fallback_models' => config(
                     'services.gemini.fallback_models',
                     [],
                 ),
-
                 'base_url' => config(
                     'services.gemini.base_url',
                     'https://generativelanguage.googleapis.com/v1beta',
@@ -593,21 +584,17 @@ class AiInsightService
 
             [
                 'name' => 'openrouter',
-
                 'key' => config(
                     'services.openrouter.key',
                 ),
-
                 'model' => config(
                     'services.openrouter.model',
                     'nex-agi/nex-n2.5-pro:free',
                 ),
-
                 'fallback_models' => config(
                     'services.openrouter.fallback_models',
                     [],
                 ),
-
                 'base_url' => config(
                     'services.openrouter.base_url',
                     'https://openrouter.ai/api/v1',
@@ -616,21 +603,17 @@ class AiInsightService
 
             [
                 'name' => 'xkiro',
-
                 'key' => config(
                     'services.xkiro.key',
                 ),
-
                 'model' => config(
                     'services.xkiro.model',
                     'qwen/qwen3.8-max:free',
                 ),
-
                 'fallback_models' => config(
                     'services.xkiro.fallback_models',
                     [],
                 ),
-
                 'base_url' => config(
                     'services.xkiro.base_url',
                     'https://api.xkiro.com/v1',
@@ -1119,14 +1102,6 @@ class AiInsightService
                 'stream' => false,
             ];
 
-            /*
-             * GPT-5.6 Luna menggunakan parameter modern
-             * Chat Completions.
-             *
-             * Ketika reasoning diaktifkan, temperature tidak
-             * dikirim karena GPT-5.6 tidak menerima temperature
-             * bersama reasoning effort selain "none".
-             */
             if (
                 $provider === 'juanrouter'
                 && Str::contains(
@@ -1186,15 +1161,11 @@ class AiInsightService
 
             if ($provider === 'openrouter') {
                 $request->withHeaders([
-                    'HTTP-Referer' => (
-                        string
-                    ) config(
+                    'HTTP-Referer' => (string) config(
                         'app.url',
                     ),
 
-                    'X-Title' => (
-                        string
-                    ) config(
+                    'X-Title' => (string) config(
                         'app.name',
                     ),
                 ]);
@@ -1830,11 +1801,8 @@ class AiInsightService
     private function nextAttemptTimeout(
         float $deadline,
     ): ?int {
-        $remainingSeconds = (
-            int
-        ) floor(
-            $deadline
-                - microtime(true),
+        $remainingSeconds = (int) floor(
+            $deadline - microtime(true),
         );
 
         if ($remainingSeconds < 1) {
@@ -1887,12 +1855,8 @@ class AiInsightService
             $ttlSeconds = max(
                 10,
                 min(
-                    (
-                        int
-                    ) ceil(
-                        (
-                            float
-                        ) trim(
+                    (int) ceil(
+                        (float) trim(
                             $retryAfter,
                         ),
                     ),
@@ -1915,14 +1879,8 @@ class AiInsightService
             );
 
             if (is_numeric($reset)) {
-                $resetTimestamp = (
-                    int
-                ) floor(
-                    (
-                        (
-                            float
-                        ) $reset
-                    ) / 1000,
+                $resetTimestamp = (int) floor(
+                    ((float) $reset) / 1000,
                 );
 
                 $currentTimestamp = now()
