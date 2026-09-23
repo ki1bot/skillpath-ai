@@ -40,7 +40,6 @@
 
         <env name="GEMINI_API_KEY" value="" force="true"/>
         <env name="OPENROUTER_API_KEY" value="" force="true"/>
-        <env name="TOKENROUTER_API_KEY" value="" force="true"/>
         <env name="XKIRO_API_KEY" value="" force="true"/>
 
         <env name="GOOGLE_DRIVE_API_KEY" value="" force="true"/>

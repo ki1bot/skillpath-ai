@@ -459,7 +459,6 @@ class AiProviderHealth
                 'openrouter',
                 'xkiro',
                 'gemini',
-                'tokenrouter',
             ],
         );
 

@@ -20,7 +20,6 @@ class AiProviderHealthTest extends TestCase
                 'openrouter',
                 'xkiro',
                 'gemini',
-                'tokenrouter',
             ],
 
             'services.ai.health_cooldown_seconds' => 45,
@@ -70,7 +69,6 @@ class AiProviderHealthTest extends TestCase
                 'openrouter:openrouter-primary',
                 'xkiro:xkiro-primary',
                 'gemini:gemini-primary',
-                'tokenrouter:tokenrouter-primary',
 
                 'openrouter:openrouter-fallback',
                 'xkiro:xkiro-fallback',
@@ -324,18 +322,6 @@ class AiProviderHealthTest extends TestCase
                 'models' => [
                     'openrouter-primary',
                     'openrouter-fallback',
-                ],
-            ],
-
-            [
-                'name' => 'tokenrouter',
-
-                'key' => 'tokenrouter-key',
-
-                'base_url' => 'https://tokenrouter.test',
-
-                'models' => [
-                    'tokenrouter-primary',
                 ],
             ],
 

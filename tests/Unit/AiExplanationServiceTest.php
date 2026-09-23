@@ -18,7 +18,6 @@ class AiExplanationServiceTest extends TestCase
         Cache::flush();
 
         config([
-            'services.tokenrouter.key' => null,
             'services.xkiro.key' => null,
         ]);
     }
@@ -28,7 +27,6 @@ class AiExplanationServiceTest extends TestCase
         config([
             'services.gemini.key' => null,
             'services.openrouter.key' => null,
-            'services.tokenrouter.key' => null,
             'services.xkiro.key' => null,
         ]);
 
@@ -112,68 +110,11 @@ class AiExplanationServiceTest extends TestCase
         );
     }
 
-    public function test_valid_indonesian_tokenrouter_response_is_displayed(): void
-    {
-        config([
-            'services.gemini.key' => null,
-            'services.openrouter.key' => null,
-            'services.tokenrouter.key' => 'test-tokenrouter-key',
-            'services.tokenrouter.model' => 'z-ai/glm-5.3-free',
-            'services.tokenrouter.fallback_models' => [],
-            'services.tokenrouter.base_url' => 'https://api.tokenrouter.com/v1',
-            'services.xkiro.key' => null,
-        ]);
-
-        Http::fake([
-            'https://api.tokenrouter.com/v1/chat/completions' => Http::response(
-                [
-                    'id' => 'tokenrouter-test',
-                    'model' => 'glm-5.3',
-                    'choices' => [
-                        [
-                            'index' => 0,
-                            'message' => [
-                                'role' => 'assistant',
-                                'content' => 'Database menjadi prioritas utama karena kemampuan saat ini masih 30 dari target 75. Kesenjangan tersebut perlu ditutup sebelum mempelajari kemampuan lanjutan.',
-                            ],
-                            'finish_reason' => 'stop',
-                        ],
-                    ],
-                ],
-                200,
-            ),
-        ]);
-
-        $result = app(AiExplanationService::class)
-            ->skillGapSummary(
-                $this->user(),
-                $this->analysis(),
-            );
-
-        $this->assertTrue(
-            $result->generatedByAi,
-        );
-
-        $this->assertSame(
-            'glm-5.3',
-            $result->model,
-        );
-
-        Http::assertSent(
-            fn ($request) => $request->url()
-                === 'https://api.tokenrouter.com/v1/chat/completions'
-                && $request['model']
-                === 'z-ai/glm-5.3-free'
-                && ! isset($request['provider']),
-        );
-    }
-
     public function test_valid_indonesian_xkiro_response_is_displayed(): void
     {
         config([
             'services.gemini.key' => null,
             'services.openrouter.key' => null,
-            'services.tokenrouter.key' => null,
             'services.xkiro.key' => 'test-xkiro-key',
             'services.xkiro.model' => 'qwen/qwen3.8-max:free',
             'services.xkiro.fallback_models' => [

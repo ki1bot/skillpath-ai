@@ -27,7 +27,6 @@ class AiAutomaticFailoverTest extends TestCase
                 'openrouter',
                 'xkiro',
                 'gemini',
-                'tokenrouter',
             ],
             'services.ai.health_cooldown_seconds' => 45,
             'services.ai.health_max_cooldown_seconds' => 300,
@@ -44,7 +43,6 @@ class AiAutomaticFailoverTest extends TestCase
             'services.xkiro.base_url' => 'https://xkiro.test/v1',
 
             'services.gemini.key' => null,
-            'services.tokenrouter.key' => null,
         ]);
 
         $openrouterCalls = 0;

@@ -555,22 +555,6 @@ class AiInsightService
                 ),
             ],
             [
-                'name' => 'tokenrouter',
-                'key' => config('services.tokenrouter.key'),
-                'model' => config(
-                    'services.tokenrouter.model',
-                    '',
-                ),
-                'fallback_models' => config(
-                    'services.tokenrouter.fallback_models',
-                    [],
-                ),
-                'base_url' => config(
-                    'services.tokenrouter.base_url',
-                    'https://api.tokenrouter.com/v1',
-                ),
-            ],
-            [
                 'name' => 'xkiro',
                 'key' => config('services.xkiro.key'),
                 'model' => config(
@@ -1175,7 +1159,6 @@ class AiInsightService
     ): string {
         return match ($provider) {
             'openrouter' => 'OpenRouter',
-            'tokenrouter' => 'TokenRouter',
             'xkiro' => 'xKiro',
             default => Str::headline($provider),
         };

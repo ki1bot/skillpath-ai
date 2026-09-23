@@ -103,7 +103,7 @@ return [
                         ',',
                         (string) env(
                             'AI_PROVIDER_ORDER',
-                            'openrouter,xkiro,gemini,tokenrouter',
+                            'openrouter,xkiro,gemini',
                         ),
                     ),
                 ),
@@ -161,35 +161,6 @@ return [
         'base_url' => env(
             'OPENROUTER_BASE_URL',
             'https://openrouter.ai/api/v1',
-        ),
-    ],
-
-    'tokenrouter' => [
-        'key' => env('TOKENROUTER_API_KEY'),
-
-        'model' => env(
-            'TOKENROUTER_MODEL',
-            '',
-        ),
-
-        'fallback_models' => array_values(
-            array_filter(
-                array_map(
-                    'trim',
-                    explode(
-                        ',',
-                        (string) env(
-                            'TOKENROUTER_FALLBACK_MODELS',
-                            '',
-                        ),
-                    ),
-                ),
-            ),
-        ),
-
-        'base_url' => env(
-            'TOKENROUTER_BASE_URL',
-            'https://api.tokenrouter.com/v1',
         ),
     ],
 

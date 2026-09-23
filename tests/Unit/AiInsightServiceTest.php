@@ -20,7 +20,6 @@ class AiInsightServiceTest extends TestCase
         Cache::flush();
 
         config([
-            'services.tokenrouter.key' => null,
             'services.xkiro.key' => null,
         ]);
     }
@@ -30,7 +29,6 @@ class AiInsightServiceTest extends TestCase
         config([
             'services.gemini.key' => null,
             'services.openrouter.key' => null,
-            'services.tokenrouter.key' => null,
             'services.xkiro.key' => null,
         ]);
 
@@ -154,86 +152,11 @@ class AiInsightServiceTest extends TestCase
         );
     }
 
-    public function test_ai_insights_can_use_tokenrouter_chat_completion_response(): void
-    {
-        config([
-            'services.gemini.key' => null,
-            'services.openrouter.key' => null,
-            'services.tokenrouter.key' => 'test-tokenrouter-key',
-            'services.tokenrouter.model' => 'z-ai/glm-5.3-free',
-            'services.tokenrouter.fallback_models' => [],
-            'services.tokenrouter.base_url' => 'https://api.tokenrouter.com/v1',
-            'services.xkiro.key' => null,
-        ]);
-
-        Http::fake([
-            'https://api.tokenrouter.com/v1/chat/completions' => Http::response(
-                [
-                    'id' => 'tokenrouter-test',
-                    'model' => 'glm-5.3',
-                    'choices' => [
-                        [
-                            'index' => 0,
-                            'message' => [
-                                'role' => 'assistant',
-                                'content' => '<PROGRESS>Perkembangan dari TokenRouter berhasil dibuat.</PROGRESS>'
-                                    .'<SCHEDULE>Jadwal dari TokenRouter berhasil dibuat.</SCHEDULE>'
-                                    .'<OBSTACLES>Kendala dari TokenRouter berhasil dikelompokkan.</OBSTACLES>',
-                            ],
-                            'finish_reason' => 'stop',
-                        ],
-                    ],
-                ],
-                200,
-            ),
-        ]);
-
-        $user = User::factory()->create([
-            'weekly_study_hours' => 6,
-        ]);
-
-        $result = app(AiInsightService::class)
-            ->progress(
-                $user,
-                [
-                    'score' => 25,
-                    'skill_mastery' => 30,
-                    'roadmap_completion' => 10,
-                    'project_score' => 0,
-                    'consistency' => 20,
-                    'evaluation_score' => 0,
-                ],
-            );
-
-        $this->assertTrue(
-            $result['generated_by_ai'],
-        );
-
-        $this->assertSame(
-            'glm-5.3',
-            $result['model'],
-        );
-
-        $this->assertSame(
-            'Perkembangan dari TokenRouter berhasil dibuat.',
-            $result['progress'],
-        );
-
-        Http::assertSent(
-            fn ($request) => $request->url()
-                === 'https://api.tokenrouter.com/v1/chat/completions'
-                && $request['model']
-                === 'z-ai/glm-5.3-free'
-                && ! isset($request['provider']),
-        );
-    }
-
     public function test_ai_insights_can_use_xkiro_chat_completion_response(): void
     {
         config([
             'services.gemini.key' => null,
             'services.openrouter.key' => null,
-            'services.tokenrouter.key' => null,
             'services.xkiro.key' => 'test-xkiro-key',
             'services.xkiro.model' => 'qwen/qwen3.8-max:free',
             'services.xkiro.fallback_models' => [
