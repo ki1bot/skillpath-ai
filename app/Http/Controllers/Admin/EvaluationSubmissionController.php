@@ -239,6 +239,7 @@ class EvaluationSubmissionController extends Controller
 
         $score = (int) $validated['score'];
         $passed = $score >= 70;
+
         $adminNotes = trim(
             (string) (
                 $validated['admin_notes']
@@ -481,6 +482,9 @@ class EvaluationSubmissionController extends Controller
         );
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function normalizeQuizOptions(mixed $options): array
     {
         if (is_string($options)) {
