@@ -95,11 +95,9 @@ class EvaluationSubmissionController extends Controller
                     )
                     : null;
 
-                $options = is_array(
+                $options = $this->normalizeQuizOptions(
                     $material?->quiz_options,
-                )
-                    ? $material->quiz_options
-                    : [];
+                );
 
                 $answer = is_string(
                     $evaluation->answer,
@@ -481,5 +479,35 @@ class EvaluationSubmissionController extends Controller
                 ? "Nilai {$result['score']}/100 disimpan. Pengumpulan dinyatakan lulus."
                 : "Nilai {$result['score']}/100 disimpan. Pengumpulan belum lulus dan mahasiswa harus mengulang sesuai jalur penguatan yang tersedia.",
         );
+    }
+
+    private function normalizeQuizOptions(mixed $options): array
+    {
+        if (is_string($options)) {
+            $decoded = json_decode(
+                $options,
+                true,
+            );
+
+            $options = is_array($decoded)
+                ? $decoded
+                : [];
+        }
+
+        if (! is_array($options)) {
+            return [];
+        }
+
+        $normalized = [];
+
+        foreach ($options as $key => $value) {
+            if (! is_string($value)) {
+                continue;
+            }
+
+            $normalized[(string) $key] = $value;
+        }
+
+        return $normalized;
     }
 }

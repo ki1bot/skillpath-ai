@@ -82,7 +82,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\Admin\EvaluationSubmissionController::update
-* @see app/Http/Controllers/Admin/EvaluationSubmissionController.php:221
+* @see app/Http/Controllers/Admin/EvaluationSubmissionController.php:219
 * @route '/admin/submissions/{evaluation}'
 */
 export const update = (args: { evaluation: number | { id: number } } | [evaluation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -97,7 +97,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\EvaluationSubmissionController::update
-* @see app/Http/Controllers/Admin/EvaluationSubmissionController.php:221
+* @see app/Http/Controllers/Admin/EvaluationSubmissionController.php:219
 * @route '/admin/submissions/{evaluation}'
 */
 update.url = (args: { evaluation: number | { id: number } } | [evaluation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -130,7 +130,7 @@ update.url = (args: { evaluation: number | { id: number } } | [evaluation: numbe
 
 /**
 * @see \App\Http\Controllers\Admin\EvaluationSubmissionController::update
-* @see app/Http/Controllers/Admin/EvaluationSubmissionController.php:221
+* @see app/Http/Controllers/Admin/EvaluationSubmissionController.php:219
 * @route '/admin/submissions/{evaluation}'
 */
 update.patch = (args: { evaluation: number | { id: number } } | [evaluation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -140,7 +140,7 @@ update.patch = (args: { evaluation: number | { id: number } } | [evaluation: num
 
 /**
 * @see \App\Http\Controllers\Admin\EvaluationSubmissionController::update
-* @see app/Http/Controllers/Admin/EvaluationSubmissionController.php:221
+* @see app/Http/Controllers/Admin/EvaluationSubmissionController.php:219
 * @route '/admin/submissions/{evaluation}'
 */
 const updateForm = (args: { evaluation: number | { id: number } } | [evaluation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -155,7 +155,7 @@ const updateForm = (args: { evaluation: number | { id: number } } | [evaluation:
 
 /**
 * @see \App\Http\Controllers\Admin\EvaluationSubmissionController::update
-* @see app/Http/Controllers/Admin/EvaluationSubmissionController.php:221
+* @see app/Http/Controllers/Admin/EvaluationSubmissionController.php:219
 * @route '/admin/submissions/{evaluation}'
 */
 updateForm.patch = (args: { evaluation: number | { id: number } } | [evaluation: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
