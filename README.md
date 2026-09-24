@@ -304,10 +304,45 @@ Semua keputusan utama tetap berasal dari data dan aturan yang ada pada aplikasi.
 
 ---
 
+## Public Live Chat
+
+Halaman utama SkillPath AI memiliki fitur live chat yang dapat digunakan oleh pengunjung sebelum login.
+
+Live chat digunakan untuk membantu menjawab pertanyaan umum mengenai SkillPath AI, seperti:
+
+- fungsi dan tujuan SkillPath AI;
+- cara menggunakan website;
+- fitur yang tersedia;
+- proses registrasi dan login;
+- informasi umum mengenai project;
+- teknologi yang digunakan pada aplikasi.
+
+Live chat tidak digunakan untuk mengerjakan bagian pembelajaran pengguna.
+
+Karena itu live chat tidak memberikan:
+
+- jawaban atau kunci assessment;
+- penyelesaian soal assessment;
+- roadmap personal;
+- pengerjaan proyek atau tugas proyek;
+- hasil evaluasi;
+- nilai atau skor yang seharusnya dihitung oleh aplikasi.
+
+Live chat hanya ditampilkan pada halaman utama ketika pengunjung belum login.
+
+Pengguna yang sudah login tidak dapat menggunakan endpoint public chat.
+
+Akses live chat juga memiliki rate limit untuk mengurangi penggunaan endpoint secara berlebihan.
+
+Public live chat menggunakan Juan Router dengan API key yang dapat dipisahkan dari API key AI internal aplikasi.
+
+---
+
 ## AI Provider
 
-SkillPath AI menggunakan tiga provider AI:
+SkillPath AI menggunakan empat provider AI:
 
+- Juan Router;
 - OpenRouter;
 - xKiro;
 - Google Gemini.
@@ -315,6 +350,10 @@ SkillPath AI menggunakan tiga provider AI:
 Konfigurasi model saat ini:
 
 ```text
+Juan Router
+├── Primary  : gpt-6-luna
+└── Fallback : gpt-5.6-luna
+
 OpenRouter
 ├── Primary  : nex-agi/nex-n2.5-pro:free
 └── Fallback : openrouter/free
@@ -344,7 +383,7 @@ AiProviderHealth
 Konfigurasi awal provider:
 
 ```env
-AI_PROVIDER_ORDER=openrouter,xkiro,gemini
+AI_PROVIDER_ORDER=juanrouter,openrouter,xkiro,gemini
 ```
 
 Urutan tersebut hanya digunakan sebagai tie-breaker saat belum ada data performa yang cukup.
@@ -440,8 +479,8 @@ Dengan mekanisme ini, provider yang lebih stabil dan cepat dapat memperoleh prio
 Konfigurasi timeout:
 
 ```env
-AI_REQUEST_TIMEOUT=30
-AI_ATTEMPT_TIMEOUT=10
+AI_REQUEST_TIMEOUT=60
+AI_ATTEMPT_TIMEOUT=25
 AI_CONNECT_TIMEOUT=5
 AI_FAILURE_CACHE_SECONDS=10
 ```
@@ -450,7 +489,7 @@ AI_FAILURE_CACHE_SECONDS=10
 
 `AI_ATTEMPT_TIMEOUT` membatasi waktu untuk satu model/provider.
 
-Dengan konfigurasi default, provider yang lambat tidak dapat menahan seluruh request terlalu lama.
+Konfigurasi tersebut memberi waktu lebih panjang kepada model yang membutuhkan proses lebih lama, tetapi tetap membatasi satu percobaan agar provider lain masih dapat digunakan ketika terjadi kegagalan.
 
 ---
 
@@ -895,6 +934,20 @@ Database cache membuat state AI tetap tersedia pada environment yang menggunakan
 
 # Konfigurasi AI
 
+## Juan Router
+
+```env
+JUANROUTER_API_KEY=
+JUANROUTER_MODEL=gpt-6-luna
+JUANROUTER_FALLBACK_MODELS=gpt-5.6-luna
+JUANROUTER_BASE_URL=https://router.juan.web.id/v1
+JUANROUTER_REASONING_EFFORT=low
+```
+
+Juan Router menggunakan `gpt-6-luna` sebagai primary model dan `gpt-5.6-luna` sebagai fallback.
+
+---
+
 ## OpenRouter
 
 ```env
@@ -925,6 +978,48 @@ XKIRO_MODEL=qwen/qwen3.8-max:free
 XKIRO_FALLBACK_MODELS=mistralai/mistral-large-2512
 XKIRO_BASE_URL=https://api.xkiro.com/v1
 ```
+
+---
+
+## Public Live Chat
+
+Public live chat menggunakan konfigurasi Juan Router yang terpisah dari konfigurasi AI internal.
+
+```env
+JUANROUTER_CHAT_API_KEY=
+JUANROUTER_CHAT_MODEL=gpt-6-luna
+JUANROUTER_CHAT_FALLBACK_MODELS=gpt-5.6-luna
+JUANROUTER_CHAT_BASE_URL=https://router.juan.web.id/v1
+
+PUBLIC_CHAT_ENABLED=true
+PUBLIC_CHAT_REQUEST_TIMEOUT=50
+PUBLIC_CHAT_MAX_HISTORY_MESSAGES=8
+```
+
+Pada production, API key live chat sebaiknya dibuat terpisah dari `JUANROUTER_API_KEY`.
+
+Dengan konfigurasi tersebut, quota public live chat dapat diatur sendiri tanpa memengaruhi API key AI internal.
+
+---
+
+## AI Failover dan Timeout
+
+```env
+AI_PROVIDER_ORDER=juanrouter,openrouter,xkiro,gemini
+
+AI_REQUEST_TIMEOUT=60
+AI_ATTEMPT_TIMEOUT=25
+AI_CONNECT_TIMEOUT=5
+AI_FAILURE_CACHE_SECONDS=10
+
+AI_HEALTH_COOLDOWN_SECONDS=45
+AI_HEALTH_MAX_COOLDOWN_SECONDS=300
+AI_HEALTH_STATE_SECONDS=600
+```
+
+Urutan pada `AI_PROVIDER_ORDER` digunakan sebagai tie-breaker awal.
+
+Setelah aplikasi memiliki data performa, urutan provider dapat berubah berdasarkan health state dan latency masing-masing provider.
 
 ---
 
@@ -1059,6 +1154,16 @@ Beberapa halaman dapat dibuka tanpa login:
 
 Halaman tersebut digunakan untuk informasi umum project, karier, kebijakan privasi, ketentuan, dan kebutuhan integrasi platform.
 
+Public live chat ditampilkan pada halaman utama (`/`) ketika pengunjung belum login.
+
+Endpoint public live chat:
+
+```text
+POST /bantuan/chat
+```
+
+Endpoint tersebut memiliki rate limit dan tidak dapat digunakan oleh pengguna yang sudah login.
+
 ---
 
 # Quality Check
@@ -1083,20 +1188,23 @@ Untuk memeriksa fitur AI:
 
 ```bash
 docker compose exec app php artisan test \
-    --filter='AiProviderHealthTest|AiAutomaticFailoverTest|AiInsightServiceTest|AiExplanationServiceTest'
+    --filter='AiProviderHealthTest|AiAutomaticFailoverTest|AiInsightServiceTest|AiExplanationServiceTest|JuanRouterIntegrationTest|PublicChatTest'
 ```
 
 Test tersebut mencakup:
 
+- Juan Router;
 - OpenRouter;
 - xKiro;
 - Gemini;
+- public live chat;
 - fallback model;
 - dynamic provider ordering;
 - cooldown;
 - automatic failover;
 - half-open retry;
-- validasi output AI.
+- validasi output AI;
+- pembatasan public live chat untuk assessment, roadmap, dan pengerjaan proyek.
 
 ---
 
@@ -1280,8 +1388,15 @@ Fitur utama yang sudah tersedia saat ini:
 - project recommendation;
 - project readiness;
 - AI learning assistant;
+- Juan Router;
+- OpenRouter;
+- xKiro;
+- Google Gemini;
+- public live chat;
+- dedicated API key untuk public live chat;
 - automatic AI failover;
 - dynamic AI provider health;
+- responsive public pages untuk desktop, tablet, dan mobile;
 - feedback;
 - admin dashboard;
 - user management;
