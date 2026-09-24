@@ -365,7 +365,6 @@ xKiro
 Google Gemini
 ├── Primary    : gemini-3.6-flash
 ├── Fallback 1 : gemini-3.5-flash-lite
-└── Fallback 2 : gemini-3.1-flash-lite
 ```
 
 ---
@@ -964,7 +963,7 @@ OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 ```env
 GEMINI_API_KEY=
 GEMINI_MODEL=gemini-3.6-flash
-GEMINI_FALLBACK_MODELS=gemini-3.5-flash-lite,gemini-3.1-flash-lite
+GEMINI_FALLBACK_MODELS=gemini-3.5-flash-lite
 GEMINI_BASE_URL=https://generativelanguage.googleapis.com/v1beta
 ```
 
