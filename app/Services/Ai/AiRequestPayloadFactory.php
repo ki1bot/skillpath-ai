@@ -79,7 +79,10 @@ class AiRequestPayloadFactory
             $provider === 'juanrouter'
             && Str::contains(
                 Str::lower($model),
-                'gpt-5.6',
+                [
+                    'gpt-5.6',
+                    'gpt-6',
+                ],
             )
         ) {
             unset(

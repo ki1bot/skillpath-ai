@@ -12,6 +12,7 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\PublicChatController;
 use App\Http\Controllers\PublicPageController;
 use App\Http\Controllers\RoadmapController;
 use App\Http\Controllers\SessionHeartbeatController;
@@ -22,6 +23,13 @@ Route::get(
     '/',
     [PublicPageController::class, 'home'],
 )->name('home');
+
+Route::post(
+    '/bantuan/chat',
+    PublicChatController::class,
+)
+    ->middleware('throttle:6,1')
+    ->name('public-chat.store');
 
 Route::get(
     '/tentang',

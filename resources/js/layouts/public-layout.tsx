@@ -1,8 +1,10 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import AppLogoIcon from '@/components/app-logo-icon';
+import PublicProjectChat from '@/components/public-project-chat';
 import { Button } from '@/components/ui/button';
+import type { Auth } from '@/types';
 
 export default function PublicLayout({
     children,
@@ -11,7 +13,17 @@ export default function PublicLayout({
 }) {
     const [mobileOpen, setMobileOpen] = useState(false);
 
+    const page = usePage();
+
+    const { auth } = page.props as {
+        auth: Auth;
+    };
+
     const closeMenu = () => setMobileOpen(false);
+
+    const currentPath = page.url.split('?')[0];
+
+    const showPublicChat = currentPath === '/' && auth.user === null;
 
     return (
         <div className="min-h-screen overflow-x-clip">
@@ -219,6 +231,8 @@ export default function PublicLayout({
                     </div>
                 </div>
             </footer>
+
+            {showPublicChat && <PublicProjectChat />}
         </div>
     );
 }

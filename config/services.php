@@ -77,12 +77,12 @@ return [
     'ai' => [
         'request_timeout' => max(
             3,
-            (int) env('AI_REQUEST_TIMEOUT', 30),
+            (int) env('AI_REQUEST_TIMEOUT', 60),
         ),
 
         'attempt_timeout' => max(
             2,
-            (int) env('AI_ATTEMPT_TIMEOUT', 10),
+            (int) env('AI_ATTEMPT_TIMEOUT', 25),
         ),
 
         'connect_timeout' => max(
@@ -140,7 +140,7 @@ return [
 
         'model' => env(
             'JUANROUTER_MODEL',
-            'gpt-5.6-luna',
+            'gpt-6-luna',
         ),
 
         'fallback_models' => array_values(
@@ -151,7 +151,7 @@ return [
                         ',',
                         (string) env(
                             'JUANROUTER_FALLBACK_MODELS',
-                            '',
+                            'gpt-5.6-luna',
                         ),
                     ),
                 ),
@@ -166,6 +166,61 @@ return [
         'reasoning_effort' => env(
             'JUANROUTER_REASONING_EFFORT',
             'low',
+        ),
+    ],
+
+    'public_chat' => [
+        'enabled' => env(
+            'PUBLIC_CHAT_ENABLED',
+            true,
+        ),
+
+        'key' => env('JUANROUTER_CHAT_API_KEY')
+            ?: env('JUANROUTER_API_KEY'),
+
+        'model' => env(
+            'JUANROUTER_CHAT_MODEL',
+            'gpt-6-luna',
+        ),
+
+        'fallback_models' => array_values(
+            array_filter(
+                array_map(
+                    'trim',
+                    explode(
+                        ',',
+                        (string) env(
+                            'JUANROUTER_CHAT_FALLBACK_MODELS',
+                            'gpt-5.6-luna',
+                        ),
+                    ),
+                ),
+            ),
+        ),
+
+        'base_url' => env('JUANROUTER_CHAT_BASE_URL')
+            ?: env(
+                'JUANROUTER_BASE_URL',
+                'https://router.juan.web.id/v1',
+            ),
+
+        'request_timeout' => max(
+            10,
+            (int) env(
+                'PUBLIC_CHAT_REQUEST_TIMEOUT',
+                50,
+            ),
+        ),
+
+        'max_history_messages' => min(
+            12,
+            max(
+                2,
+                (int) env(
+                    'PUBLIC_CHAT_MAX_HISTORY_MESSAGES',
+                    8,
+                ),
+            ),
         ),
     ],
 

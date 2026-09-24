@@ -29,8 +29,8 @@ class JuanRouterIntegrationTest extends TestCase
                 'gemini',
             ],
 
-            'services.ai.request_timeout' => 30,
-            'services.ai.attempt_timeout' => 10,
+            'services.ai.request_timeout' => 60,
+            'services.ai.attempt_timeout' => 25,
             'services.ai.connect_timeout' => 5,
             'services.ai.failure_cache_seconds' => 10,
 
@@ -39,8 +39,10 @@ class JuanRouterIntegrationTest extends TestCase
             'services.ai.health_state_seconds' => 600,
 
             'services.juanrouter.key' => 'test-juanrouter-key',
-            'services.juanrouter.model' => 'gpt-5.6-luna',
-            'services.juanrouter.fallback_models' => [],
+            'services.juanrouter.model' => 'gpt-6-luna',
+            'services.juanrouter.fallback_models' => [
+                'gpt-5.6-luna',
+            ],
             'services.juanrouter.base_url' => 'https://router.juan.web.id/v1',
             'services.juanrouter.reasoning_effort' => 'low',
 
@@ -59,7 +61,7 @@ class JuanRouterIntegrationTest extends TestCase
                 [
                     'id' => 'juanrouter-insight-test',
                     'object' => 'chat.completion',
-                    'model' => 'gpt-5.6-luna',
+                    'model' => 'gpt-6-luna',
 
                     'choices' => [
                         [
@@ -112,7 +114,7 @@ class JuanRouterIntegrationTest extends TestCase
         );
 
         $this->assertSame(
-            'gpt-5.6-luna',
+            'gpt-6-luna',
             $result['model'],
         );
 
@@ -134,7 +136,7 @@ class JuanRouterIntegrationTest extends TestCase
                     === 'https://router.juan.web.id/v1/chat/completions'
 
                     && $request['model']
-                        === 'gpt-5.6-luna'
+                        === 'gpt-6-luna'
 
                     && $request[
                         'reasoning_effort'
@@ -169,7 +171,7 @@ class JuanRouterIntegrationTest extends TestCase
                 [
                     'id' => 'juanrouter-explanation-test',
                     'object' => 'chat.completion',
-                    'model' => 'gpt-5.6-luna',
+                    'model' => 'gpt-6-luna',
 
                     'choices' => [
                         [
@@ -229,7 +231,7 @@ class JuanRouterIntegrationTest extends TestCase
         );
 
         $this->assertSame(
-            'gpt-5.6-luna',
+            'gpt-6-luna',
             $result->model,
         );
 
@@ -243,7 +245,7 @@ class JuanRouterIntegrationTest extends TestCase
                     === 'https://router.juan.web.id/v1/chat/completions'
 
                     && $request['model']
-                        === 'gpt-5.6-luna'
+                        === 'gpt-6-luna'
 
                     && $request[
                         'reasoning_effort'

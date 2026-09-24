@@ -1,5 +1,6 @@
 import Auth from './Auth'
 import PublicPageController from './PublicPageController'
+import PublicChatController from './PublicChatController'
 import SessionHeartbeatController from './SessionHeartbeatController'
 import DashboardController from './DashboardController'
 import OnboardingController from './OnboardingController'
@@ -17,6 +18,7 @@ import Settings from './Settings'
 const Controllers = {
     Auth: Object.assign(Auth, Auth),
     PublicPageController: Object.assign(PublicPageController, PublicPageController),
+    PublicChatController: Object.assign(PublicChatController, PublicChatController),
     SessionHeartbeatController: Object.assign(SessionHeartbeatController, SessionHeartbeatController),
     DashboardController: Object.assign(DashboardController, DashboardController),
     OnboardingController: Object.assign(OnboardingController, OnboardingController),

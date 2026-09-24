@@ -22,11 +22,11 @@ class AiProviderRegistry
                 'key' => config('services.juanrouter.key'),
                 'model' => config(
                     'services.juanrouter.model',
-                    'gpt-5.6-luna',
+                    'gpt-6-luna',
                 ),
                 'fallback_models' => config(
                     'services.juanrouter.fallback_models',
-                    [],
+                    ['gpt-5.6-luna'],
                 ),
                 'base_url' => config(
                     'services.juanrouter.base_url',
