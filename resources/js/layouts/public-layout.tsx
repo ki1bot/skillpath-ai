@@ -26,19 +26,19 @@ export default function PublicLayout({
     const showPublicChat = currentPath === '/' && auth.user === null;
 
     return (
-        <div className="min-h-screen overflow-x-clip">
+        <div className="min-h-[100dvh] overflow-x-clip">
             <header className="sticky top-0 z-40 border-b-2 border-foreground bg-background/95 backdrop-blur-md">
-                <div className="neo-page flex min-h-17 items-center justify-between gap-3">
+                <div className="neo-page flex min-h-[3.75rem] items-center justify-between gap-3 sm:min-h-[4.25rem]">
                     <Link
                         href="/"
-                        className="flex min-w-0 items-center gap-3 font-extrabold tracking-tight"
+                        className="flex min-w-0 items-center gap-2.5 font-extrabold tracking-tight sm:gap-3"
                         onClick={closeMenu}
                     >
-                        <span className="flex size-9 shrink-0 items-center justify-center rounded-[9px] border-2 border-foreground bg-secondary text-[#171717] shadow-[2px_2px_0_var(--neo-shadow-color)]">
-                            <AppLogoIcon className="size-5" />
+                        <span className="flex size-8 shrink-0 items-center justify-center rounded-[8px] border-2 border-foreground bg-secondary text-[#171717] shadow-[2px_2px_0_var(--neo-shadow-color)] sm:size-9 sm:rounded-[9px]">
+                            <AppLogoIcon className="size-4 sm:size-5" />
                         </span>
 
-                        <span className="truncate text-base sm:text-lg">
+                        <span className="truncate text-sm sm:text-lg">
                             SkillPath AI
                         </span>
                     </Link>
@@ -73,7 +73,7 @@ export default function PublicLayout({
                         type="button"
                         variant="outline"
                         size="icon-sm"
-                        className="md:hidden"
+                        className="shrink-0 md:hidden"
                         onClick={() => setMobileOpen((value) => !value)}
                         aria-expanded={mobileOpen}
                         aria-controls="public-mobile-menu"
@@ -90,9 +90,9 @@ export default function PublicLayout({
                 {mobileOpen && (
                     <div
                         id="public-mobile-menu"
-                        className="animate-in border-t-2 border-foreground bg-background px-4 py-4 duration-150 fade-in slide-in-from-top-1 md:hidden"
+                        className="animate-in border-t-2 border-foreground bg-background duration-150 fade-in slide-in-from-top-1 md:hidden"
                     >
-                        <nav className="mx-auto grid max-w-7xl gap-2.5">
+                        <nav className="neo-page grid gap-2.5 py-3.5">
                             <Link
                                 href="/karier"
                                 onClick={closeMenu}
@@ -110,13 +110,17 @@ export default function PublicLayout({
                             </Link>
 
                             <div className="mt-1 grid grid-cols-2 gap-2.5">
-                                <Button asChild variant="outline">
+                                <Button
+                                    asChild
+                                    variant="outline"
+                                    className="w-full"
+                                >
                                     <Link href="/login" onClick={closeMenu}>
                                         Masuk
                                     </Link>
                                 </Button>
 
-                                <Button asChild>
+                                <Button asChild className="w-full">
                                     <Link href="/register" onClick={closeMenu}>
                                         Buat akun
                                     </Link>
@@ -129,30 +133,30 @@ export default function PublicLayout({
 
             {children}
 
-            <footer className="mt-16 border-t-2 border-foreground/20 bg-card sm:mt-20">
-                <div className="neo-page py-10 lg:py-12">
-                    <div className="grid gap-10 md:grid-cols-[1.4fr_0.8fr_1fr]">
-                        <div className="max-w-md">
+            <footer className="mt-12 border-t-2 border-foreground/20 bg-card sm:mt-20">
+                <div className="neo-page py-8 sm:py-10 lg:py-12">
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-[1.4fr_0.8fr_1fr] md:gap-10">
+                        <div className="col-span-2 max-w-md md:col-span-1">
                             <Link
                                 href="/"
                                 className="inline-flex items-center gap-3"
                             >
-                                <span className="flex size-10 items-center justify-center rounded-[9px] border-2 border-foreground bg-secondary text-[#171717] shadow-[2px_2px_0_var(--neo-shadow-color)]">
+                                <span className="flex size-9 items-center justify-center rounded-[9px] border-2 border-foreground bg-secondary text-[#171717] shadow-[2px_2px_0_var(--neo-shadow-color)] sm:size-10">
                                     <AppLogoIcon className="size-5" />
                                 </span>
 
                                 <div>
-                                    <p className="text-lg font-black tracking-tight">
+                                    <p className="text-base font-black tracking-tight sm:text-lg">
                                         SkillPath AI
                                     </p>
 
-                                    <p className="text-xs font-bold text-muted-foreground">
+                                    <p className="text-[11px] font-bold text-muted-foreground sm:text-xs">
                                         Belajar lebih terarah.
                                     </p>
                                 </div>
                             </Link>
 
-                            <p className="mt-5 text-sm leading-6 font-medium text-muted-foreground">
+                            <p className="mt-4 max-w-sm text-sm leading-6 font-medium text-muted-foreground sm:mt-5">
                                 SkillPath membantu mahasiswa memahami kemampuan,
                                 melihat bagian yang masih perlu dikembangkan,
                                 dan menentukan langkah belajar berikutnya.
@@ -160,11 +164,11 @@ export default function PublicLayout({
                         </div>
 
                         <div>
-                            <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
+                            <p className="text-[11px] font-black tracking-[0.14em] text-muted-foreground uppercase sm:text-xs">
                                 Navigasi
                             </p>
 
-                            <nav className="mt-4 flex flex-col items-start gap-3 text-sm font-bold">
+                            <nav className="mt-3 flex flex-col items-start gap-3 text-sm font-bold sm:mt-4">
                                 <Link
                                     href="/"
                                     className="underline-offset-4 transition-opacity hover:underline"
@@ -189,11 +193,11 @@ export default function PublicLayout({
                         </div>
 
                         <div>
-                            <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
+                            <p className="text-[11px] font-black tracking-[0.14em] text-muted-foreground uppercase sm:text-xs">
                                 Informasi
                             </p>
 
-                            <nav className="mt-4 flex flex-col items-start gap-3 text-sm font-bold">
+                            <nav className="mt-3 flex flex-col items-start gap-3 text-sm font-bold sm:mt-4">
                                 <Link
                                     href="/privacy-policy"
                                     className="underline-offset-4 transition-opacity hover:underline"
@@ -218,13 +222,13 @@ export default function PublicLayout({
                         </div>
                     </div>
 
-                    <div className="mt-10 flex flex-col gap-2 border-t-2 border-foreground/10 pt-5 text-xs font-semibold text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+                    <div className="mt-8 flex flex-col gap-2 border-t-2 border-foreground/10 pt-4 text-[11px] leading-5 font-semibold text-muted-foreground sm:mt-10 sm:flex-row sm:items-center sm:justify-between sm:pt-5 sm:text-xs">
                         <p>
                             © {new Date().getFullYear()} SkillPath AI. Semua hak
                             dilindungi.
                         </p>
 
-                        <p>
+                        <p className="max-w-xl">
                             SkillPath AI merupakan alat bantu pembelajaran,
                             bukan penilaian akademik resmi.
                         </p>
