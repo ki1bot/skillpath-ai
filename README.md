@@ -363,8 +363,8 @@ xKiro
 └── Fallback : mistralai/mistral-large-2512
 
 Google Gemini
-├── Primary    : gemini-3.6-flash
-├── Fallback 1 : gemini-3.5-flash-lite
+├── Primary     : gemini-3.6-flash
+├── Fallback    : gemini-3.5-flash-lite
 ```
 
 ---

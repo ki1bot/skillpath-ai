@@ -61,7 +61,7 @@ return [
                         ',',
                         (string) env(
                             'GEMINI_FALLBACK_MODELS',
-                            'gemini-3.5-flash-lite,gemini-3.1-flash-lite',
+                            'gemini-3.5-flash-lite',
                         ),
                     ),
                 ),

@@ -468,9 +468,9 @@ class AiInsightServiceTest extends TestCase
     {
         config([
             'services.gemini.key' => 'test-gemini-key',
-            'services.gemini.model' => 'gemini-3.5-flash-lite',
+            'services.gemini.model' => 'gemini-3.6-flash',
             'services.gemini.fallback_models' => [
-                'gemini-3.1-flash-lite',
+                'gemini-3.5-flash-lite',
             ],
             'services.gemini.base_url' => 'https://generativelanguage.googleapis.com/v1beta',
             'services.openrouter.key' => null,
@@ -481,7 +481,7 @@ class AiInsightServiceTest extends TestCase
                 if (
                     str_contains(
                         $request->url(),
-                        'gemini-3.5-flash-lite',
+                        'gemini-3.6-flash',
                     )
                 ) {
                     return Http::response(
@@ -508,7 +508,7 @@ class AiInsightServiceTest extends TestCase
                                 'finishReason' => 'STOP',
                             ],
                         ],
-                        'modelVersion' => 'gemini-3.1-flash-lite',
+                        'modelVersion' => 'gemini-3.5-flash-lite',
                     ],
                     200,
                 );
@@ -537,7 +537,7 @@ class AiInsightServiceTest extends TestCase
         );
 
         $this->assertSame(
-            'gemini-3.1-flash-lite',
+            'gemini-3.5-flash-lite',
             $result['model'],
         );
 
