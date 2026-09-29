@@ -1,5 +1,5 @@
-import { MessageCircle, SendHorizontal, X } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { MessageCircle, Play, SendHorizontal, Square, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -16,6 +16,8 @@ type ChatResponse = {
     blocked?: boolean;
     errors?: Record<string, string[]>;
 };
+
+type ConversationStatus = 'idle' | 'active' | 'ended';
 
 const welcomeMessage: ChatMessage = {
     id: 'welcome',
@@ -54,23 +56,24 @@ function csrfToken(): string {
 
 export default function PublicProjectChat() {
     const [open, setOpen] = useState(false);
-
-    const [messages, setMessages] = useState<ChatMessage[]>([welcomeMessage]);
-
+    const [conversationStatus, setConversationStatus] =
+        useState<ConversationStatus>('idle');
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState('');
     const [sending, setSending] = useState(false);
 
     const scrollRef = useRef<HTMLDivElement>(null);
-
     const inputRef = useRef<HTMLTextAreaElement>(null);
+    const requestControllerRef = useRef<AbortController | null>(null);
+    const conversationIdRef = useRef(0);
 
-    const visibleQuickQuestions = useMemo(
-        () => messages.length === 1 && !sending,
-        [messages.length, sending],
-    );
+    const conversationActive = conversationStatus === 'active';
+
+    const visibleQuickQuestions =
+        conversationActive && messages.length === 1 && !sending;
 
     useEffect(() => {
-        if (!open) {
+        if (!open || !conversationActive) {
             return;
         }
 
@@ -80,10 +83,10 @@ export default function PublicProjectChat() {
                 behavior: 'smooth',
             });
         });
-    }, [messages, open, sending]);
+    }, [conversationActive, messages, open, sending]);
 
     useEffect(() => {
-        if (!open) {
+        if (!open || !conversationActive) {
             return;
         }
 
@@ -98,7 +101,7 @@ export default function PublicProjectChat() {
         }, 120);
 
         return () => window.clearTimeout(timer);
-    }, [open]);
+    }, [conversationActive, open]);
 
     useEffect(() => {
         if (!open) {
@@ -138,6 +141,12 @@ export default function PublicProjectChat() {
         };
     }, [open]);
 
+    useEffect(() => {
+        return () => {
+            requestControllerRef.current?.abort();
+        };
+    }, []);
+
     const appendAssistantMessage = (content: string) => {
         setMessages((current) => [
             ...current,
@@ -149,12 +158,36 @@ export default function PublicProjectChat() {
         ]);
     };
 
+    const startConversation = () => {
+        requestControllerRef.current?.abort();
+        requestControllerRef.current = null;
+        conversationIdRef.current += 1;
+
+        setMessages([welcomeMessage]);
+        setInput('');
+        setSending(false);
+        setConversationStatus('active');
+    };
+
+    const endConversation = () => {
+        requestControllerRef.current?.abort();
+        requestControllerRef.current = null;
+        conversationIdRef.current += 1;
+
+        setMessages([]);
+        setInput('');
+        setSending(false);
+        setConversationStatus('ended');
+    };
+
     const sendMessage = async (preset?: string) => {
         const message = (preset ?? input).trim();
 
-        if (message.length < 2 || sending) {
+        if (!conversationActive || message.length < 2 || sending) {
             return;
         }
+
+        const conversationId = conversationIdRef.current;
 
         const history = messages
             .filter((item) => item.id !== 'welcome')
@@ -176,28 +209,27 @@ export default function PublicProjectChat() {
         setInput('');
         setSending(true);
 
+        const controller = new AbortController();
+
+        requestControllerRef.current = controller;
+
         try {
             const token = csrfToken();
 
             const response = await fetch('/bantuan/chat', {
                 method: 'POST',
-
                 credentials: 'same-origin',
-
+                signal: controller.signal,
                 headers: {
                     Accept: 'application/json',
-
                     'Content-Type': 'application/json',
-
                     'X-Requested-With': 'XMLHttpRequest',
-
                     ...(token
                         ? {
                               'X-XSRF-TOKEN': token,
                           }
                         : {}),
                 },
-
                 body: JSON.stringify({
                     message,
                     history,
@@ -207,6 +239,13 @@ export default function PublicProjectChat() {
             const data = (await response
                 .json()
                 .catch(() => ({}))) as ChatResponse;
+
+            if (
+                controller.signal.aborted ||
+                conversationIdRef.current !== conversationId
+            ) {
+                return;
+            }
 
             if (response.status === 429) {
                 appendAssistantMessage(
@@ -248,13 +287,32 @@ export default function PublicProjectChat() {
 
             appendAssistantMessage(data.message.trim());
         } catch {
+            if (
+                controller.signal.aborted ||
+                conversationIdRef.current !== conversationId
+            ) {
+                return;
+            }
+
             appendAssistantMessage(
                 'Koneksi ke layanan bantuan terputus. Periksa koneksi internetmu lalu coba lagi.',
             );
         } finally {
-            setSending(false);
+            if (requestControllerRef.current === controller) {
+                requestControllerRef.current = null;
+            }
+
+            if (conversationIdRef.current === conversationId) {
+                setSending(false);
+            }
         }
     };
+
+    const panelSubtitle = conversationActive
+        ? 'Percakapan aktif dengan AI'
+        : conversationStatus === 'ended'
+          ? 'Percakapan telah diakhiri'
+          : 'Mulai percakapan dengan AI';
 
     return (
         <>
@@ -287,7 +345,7 @@ export default function PublicProjectChat() {
                                         </p>
 
                                         <p className="truncate text-[10px] font-bold text-[#171717]/65 sm:text-[11px]">
-                                            Tanya seputar website
+                                            {panelSubtitle}
                                         </p>
                                     </div>
                                 </div>
@@ -305,103 +363,158 @@ export default function PublicProjectChat() {
                             </Button>
                         </header>
 
-                        <div
-                            ref={scrollRef}
-                            className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain bg-background/45 p-3 sm:p-4"
-                            aria-live="polite"
-                        >
-                            {messages.map((message) => (
+                        {conversationActive ? (
+                            <>
                                 <div
-                                    key={message.id}
-                                    className={`flex ${
-                                        message.role === 'user'
-                                            ? 'justify-end'
-                                            : 'justify-start'
-                                    }`}
+                                    ref={scrollRef}
+                                    className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain bg-background/45 p-3 sm:p-4"
+                                    aria-live="polite"
                                 >
-                                    <div
-                                        className={`max-w-[92%] rounded-[10px] border-2 border-foreground px-3 py-2.5 text-[13px] leading-5 font-medium break-words whitespace-pre-wrap shadow-[2px_2px_0_var(--neo-shadow-color)] sm:max-w-[88%] sm:rounded-[11px] sm:px-3.5 sm:text-sm sm:leading-6 ${
-                                            message.role === 'user'
-                                                ? 'bg-[var(--neo-lime)] text-[#171717]'
-                                                : 'bg-card text-card-foreground'
-                                        }`}
-                                    >
-                                        {message.content}
-                                    </div>
-                                </div>
-                            ))}
-
-                            {visibleQuickQuestions && (
-                                <div className="grid gap-2 pt-1">
-                                    {quickQuestions.map((question) => (
-                                        <button
-                                            key={question}
-                                            type="button"
-                                            className="min-h-11 rounded-[9px] border-2 border-foreground bg-card px-3 py-2.5 text-left text-xs leading-5 font-bold transition-transform active:translate-x-[1px] active:translate-y-[1px] active:shadow-none sm:min-h-0 sm:py-2 sm:hover:-translate-y-0.5"
-                                            onClick={() =>
-                                                void sendMessage(question)
-                                            }
+                                    {messages.map((message) => (
+                                        <div
+                                            key={message.id}
+                                            className={`flex ${
+                                                message.role === 'user'
+                                                    ? 'justify-end'
+                                                    : 'justify-start'
+                                            }`}
                                         >
-                                            {question}
-                                        </button>
+                                            <div
+                                                className={`max-w-[92%] rounded-[10px] border-2 border-foreground px-3 py-2.5 text-[13px] leading-5 font-medium break-words whitespace-pre-wrap shadow-[2px_2px_0_var(--neo-shadow-color)] sm:max-w-[88%] sm:rounded-[11px] sm:px-3.5 sm:text-sm sm:leading-6 ${
+                                                    message.role === 'user'
+                                                        ? 'bg-[var(--neo-lime)] text-[#171717]'
+                                                        : 'bg-card text-card-foreground'
+                                                }`}
+                                            >
+                                                {message.content}
+                                            </div>
+                                        </div>
                                     ))}
+
+                                    {visibleQuickQuestions && (
+                                        <div className="grid gap-2 pt-1">
+                                            {quickQuestions.map((question) => (
+                                                <button
+                                                    key={question}
+                                                    type="button"
+                                                    className="min-h-11 rounded-[9px] border-2 border-foreground bg-card px-3 py-2.5 text-left text-xs leading-5 font-bold transition-transform active:translate-x-[1px] active:translate-y-[1px] active:shadow-none sm:min-h-0 sm:py-2 sm:hover:-translate-y-0.5"
+                                                    onClick={() =>
+                                                        void sendMessage(
+                                                            question,
+                                                        )
+                                                    }
+                                                >
+                                                    {question}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {sending && (
+                                        <div className="flex justify-start">
+                                            <div className="rounded-[10px] border-2 border-foreground bg-card px-3.5 py-2.5 text-sm font-bold shadow-[2px_2px_0_var(--neo-shadow-color)] sm:rounded-[11px]">
+                                                <span className="inline-flex items-center gap-1.5">
+                                                    <span className="size-1.5 animate-pulse rounded-full bg-foreground" />
+                                                    <span className="size-1.5 animate-pulse rounded-full bg-foreground [animation-delay:120ms]" />
+                                                    <span className="size-1.5 animate-pulse rounded-full bg-foreground [animation-delay:240ms]" />
+                                                </span>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
-                            )}
 
-                            {sending && (
-                                <div className="flex justify-start">
-                                    <div className="rounded-[10px] border-2 border-foreground bg-card px-3.5 py-2.5 text-sm font-bold shadow-[2px_2px_0_var(--neo-shadow-color)] sm:rounded-[11px]">
-                                        <span className="inline-flex items-center gap-1.5">
-                                            <span className="size-1.5 animate-pulse rounded-full bg-foreground" />
+                                <div className="shrink-0 border-t-2 border-foreground bg-card p-2.5 sm:p-3">
+                                    <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                        <p className="text-[10px] leading-4 font-semibold text-muted-foreground sm:text-[11px]">
+                                            Percakapan tetap aktif sampai kamu
+                                            mengakhirinya.
+                                        </p>
 
-                                            <span className="size-1.5 animate-pulse rounded-full bg-foreground [animation-delay:120ms]" />
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            className="w-full shrink-0 sm:w-auto"
+                                            onClick={endConversation}
+                                        >
+                                            <Square className="size-3.5" />
+                                            Akhiri percakapan
+                                        </Button>
+                                    </div>
 
-                                            <span className="size-1.5 animate-pulse rounded-full bg-foreground [animation-delay:240ms]" />
-                                        </span>
+                                    <div className="flex items-end gap-2">
+                                        <Textarea
+                                            ref={inputRef}
+                                            value={input}
+                                            onChange={(event) =>
+                                                setInput(event.target.value)
+                                            }
+                                            onKeyDown={(event) => {
+                                                if (
+                                                    event.key === 'Enter' &&
+                                                    !event.shiftKey
+                                                ) {
+                                                    event.preventDefault();
+
+                                                    void sendMessage();
+                                                }
+                                            }}
+                                            placeholder="Tulis pertanyaan tentang SkillPath..."
+                                            className="max-h-28 min-h-11 resize-none px-3 py-2.5 text-base sm:text-sm"
+                                            maxLength={600}
+                                            disabled={sending}
+                                            aria-label="Pesan untuk bantuan SkillPath"
+                                        />
+
+                                        <Button
+                                            type="button"
+                                            size="icon"
+                                            className="size-11 shrink-0"
+                                            onClick={() => void sendMessage()}
+                                            disabled={
+                                                sending ||
+                                                input.trim().length < 2
+                                            }
+                                            aria-label="Kirim pesan"
+                                        >
+                                            <SendHorizontal />
+                                        </Button>
                                     </div>
                                 </div>
-                            )}
-                        </div>
+                            </>
+                        ) : (
+                            <div className="flex min-h-0 flex-1 items-center justify-center bg-background/45 p-4 sm:p-5">
+                                <div className="w-full rounded-[12px] border-2 border-foreground bg-card p-4 text-center shadow-[3px_3px_0_var(--neo-shadow-color)] sm:p-5">
+                                    <span className="mx-auto flex size-11 items-center justify-center rounded-[10px] border-2 border-foreground bg-[var(--neo-lime)] text-[#171717] shadow-[2px_2px_0_var(--neo-shadow-color)]">
+                                        <MessageCircle className="size-5" />
+                                    </span>
 
-                        <div className="shrink-0 border-t-2 border-foreground bg-card p-2.5 sm:p-3">
-                            <div className="flex items-end gap-2">
-                                <Textarea
-                                    ref={inputRef}
-                                    value={input}
-                                    onChange={(event) =>
-                                        setInput(event.target.value)
-                                    }
-                                    onKeyDown={(event) => {
-                                        if (
-                                            event.key === 'Enter' &&
-                                            !event.shiftKey
-                                        ) {
-                                            event.preventDefault();
+                                    <h2 className="mt-4 text-base font-black tracking-tight">
+                                        {conversationStatus === 'ended'
+                                            ? 'Percakapan sudah diakhiri'
+                                            : 'Mulai percakapan dengan AI'}
+                                    </h2>
 
-                                            void sendMessage();
-                                        }
-                                    }}
-                                    placeholder="Tulis pertanyaan tentang SkillPath..."
-                                    className="max-h-28 min-h-11 resize-none px-3 py-2.5 text-base sm:text-sm"
-                                    maxLength={600}
-                                    disabled={sending}
-                                    aria-label="Pesan untuk bantuan SkillPath"
-                                />
+                                    <p className="mx-auto mt-2 max-w-xs text-xs leading-5 font-medium text-muted-foreground sm:text-sm sm:leading-6">
+                                        {conversationStatus === 'ended'
+                                            ? 'Sesi sebelumnya sudah dihentikan. Mulai percakapan baru jika kamu ingin bertanya lagi tentang SkillPath.'
+                                            : 'Tekan tombol di bawah untuk mulai bertanya tentang fitur, cara menggunakan website, dan informasi umum SkillPath.'}
+                                    </p>
 
-                                <Button
-                                    type="button"
-                                    size="icon"
-                                    className="size-11 shrink-0"
-                                    onClick={() => void sendMessage()}
-                                    disabled={
-                                        sending || input.trim().length < 2
-                                    }
-                                    aria-label="Kirim pesan"
-                                >
-                                    <SendHorizontal />
-                                </Button>
+                                    <Button
+                                        type="button"
+                                        className="mt-4 w-full"
+                                        onClick={startConversation}
+                                    >
+                                        <Play className="size-4" />
+
+                                        {conversationStatus === 'ended'
+                                            ? 'Mulai percakapan baru'
+                                            : 'Mulai percakapan'}
+                                    </Button>
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </section>
                 ) : (
                     <button
