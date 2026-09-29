@@ -4,6 +4,54 @@ set -euo pipefail
 
 cd /var/www/html
 
+retry_command() {
+    local max_attempts="$1"
+    local delay_seconds="$2"
+    shift 2
+
+    local attempt=1
+
+    until "$@"; do
+        if [ "$attempt" -ge "$max_attempts" ]; then
+            echo "Command failed after ${attempt} attempts: $*" >&2
+            return 1
+        fi
+
+        echo "Command failed on attempt ${attempt}/${max_attempts}. Retrying in ${delay_seconds} seconds..." >&2
+
+        attempt=$((attempt + 1))
+        sleep "$delay_seconds"
+    done
+}
+
+wait_for_database() {
+    local host="${DB_HOST:-}"
+    local port="${DB_PORT:-5432}"
+    local max_attempts="${DB_STARTUP_MAX_ATTEMPTS:-30}"
+    local delay_seconds="${DB_STARTUP_RETRY_DELAY:-2}"
+    local attempt=1
+
+    if [ -z "$host" ]; then
+        return 0
+    fi
+
+    echo "Waiting for database at ${host}:${port}..."
+
+    until php -r 'exit(@fsockopen($argv[1], (int) $argv[2], $errno, $errstr, 2) ? 0 : 1);' "$host" "$port"; do
+        if [ "$attempt" -ge "$max_attempts" ]; then
+            echo "Database ${host}:${port} is still unavailable after ${attempt} attempts." >&2
+            return 1
+        fi
+
+        echo "Database is not reachable yet. Attempt ${attempt}/${max_attempts}. Retrying in ${delay_seconds} seconds..."
+
+        attempt=$((attempt + 1))
+        sleep "$delay_seconds"
+    done
+
+    echo "Database ${host}:${port} is reachable."
+}
+
 mkdir -p \
     storage/framework/cache/data \
     storage/framework/sessions \
@@ -81,9 +129,14 @@ if [ "${DOCKER_MODE:-production}" = "development" ]; then
             ;;
     esac
 
+    wait_for_database
+
     gosu "$RUN_AS" php artisan config:clear
 
-    gosu "$RUN_AS" php artisan migrate --force
+    retry_command \
+        "${DB_MIGRATION_MAX_ATTEMPTS:-10}" \
+        "${DB_MIGRATION_RETRY_DELAY:-3}" \
+        gosu "$RUN_AS" php artisan migrate --force
 
     if [ "${RUN_SEEDER:-false}" = "true" ]; then
         gosu "$RUN_AS" php artisan db:seed --force
@@ -149,9 +202,14 @@ sed -ri "s#DocumentRoot /var/www/html#DocumentRoot /var/www/html/public#" /etc/a
 
 chown -R www-data:www-data storage bootstrap/cache
 
+wait_for_database
+
 php artisan config:clear
 
-php artisan migrate --force
+retry_command \
+    "${DB_MIGRATION_MAX_ATTEMPTS:-10}" \
+    "${DB_MIGRATION_RETRY_DELAY:-3}" \
+    php artisan migrate --force
 
 if [ "${RUN_SEEDER:-false}" = "true" ]; then
     echo "Running full database seeder..."

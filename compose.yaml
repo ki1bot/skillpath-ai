@@ -13,6 +13,11 @@ services:
             - '5173:5173'
         environment:
             DB_HOST: postgres
+            DB_PORT: '5432'
+            DB_STARTUP_MAX_ATTEMPTS: '30'
+            DB_STARTUP_RETRY_DELAY: '2'
+            DB_MIGRATION_MAX_ATTEMPTS: '10'
+            DB_MIGRATION_RETRY_DELAY: '3'
             PHP_CLI_SERVER_WORKERS: '8'
         volumes:
             - .:/var/www/html
@@ -21,6 +26,15 @@ services:
         depends_on:
             postgres:
                 condition: service_healthy
+                restart: true
+        healthcheck:
+            test:
+                - CMD-SHELL
+                - 'php -r ''exit(@fsockopen("127.0.0.1", 8080) ? 0 : 1);'''
+            interval: 10s
+            timeout: 3s
+            retries: 6
+            start_period: 30s
 
     postgres:
         image: postgres:18
@@ -36,7 +50,7 @@ services:
         healthcheck:
             test:
                 - CMD-SHELL
-                - pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"
+                - pg_isready -h 127.0.0.1 -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"
             interval: 5s
             timeout: 5s
             retries: 10
