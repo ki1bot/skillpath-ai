@@ -58,7 +58,7 @@ class AssessmentSubmitService
                 ->route('dashboard')
                 ->with(
                     'error',
-                    'Bank soal AssesAssessmentment sudah berubah dan sesi tidak dapat dilanjutkan.',
+                    'Bank soal Assessment sudah berubah dan sesi tidak dapat dilanjutkan.',
                 );
         }
 

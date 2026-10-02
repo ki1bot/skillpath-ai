@@ -3,7 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\Assessment;
+use App\Models\Career;
 use App\Services\Assessment\AssessmentQuestionBankSynchronizer;
+use App\Support\AcademicProgramCatalog;
 use Database\Seeders\AssessmentQuestions\AssessmentQuestionBank;
 use Database\Seeders\AssessmentQuestions\IlmuKomunikasiQuestionBank;
 use Database\Seeders\AssessmentQuestions\ManajemenQuestionBank;
@@ -32,8 +34,38 @@ class AcademicAssessmentQuestionPoolSeeder extends Seeder
     ): void {
         foreach (self::QUESTION_BANKS as $questionBank) {
             $studyProgram = $questionBank::studyProgram();
+            $program = AcademicProgramCatalog::program(
+                $studyProgram,
+            );
+
+            if ($program === null) {
+                continue;
+            }
+
+            $career = Career::query()
+                ->where(
+                    'slug',
+                    $program['slug'],
+                )
+                ->where(
+                    'name',
+                    $studyProgram,
+                )
+                ->where(
+                    'is_active',
+                    true,
+                )
+                ->first();
+
+            if (! $career) {
+                continue;
+            }
 
             $assessment = Assessment::query()
+                ->where(
+                    'career_id',
+                    $career->id,
+                )
                 ->where(
                     'study_program',
                     $studyProgram,

@@ -87,25 +87,10 @@ class AcademicProgramLearningMaterialSeeder extends Seeder
                 $skill->slug,
             );
 
-            $question = AssessmentQuestion::query()
-                ->where(
-                    'skill_id',
-                    $skill->id,
-                )
-                ->whereHas(
-                    'assessment',
-                    fn ($query) => $query
-                        ->where(
-                            'is_active',
-                            true,
-                        )
-                        ->where(
-                            'study_program',
-                            $studyProgram,
-                        ),
-                )
-                ->orderBy('id')
-                ->first();
+            $question = $this->assessmentQuestionForSkill(
+                $skill,
+                $studyProgram,
+            );
 
             $quiz = $this->quizData(
                 $skill,
@@ -196,6 +181,57 @@ class AcademicProgramLearningMaterialSeeder extends Seeder
         throw new RuntimeException(
             'Skill '.$skillSlug.' tidak terhubung dengan jurusan akademik.',
         );
+    }
+
+    private function assessmentQuestionForSkill(
+        Skill $skill,
+        string $studyProgram,
+    ): ?AssessmentQuestion {
+        $program = AcademicProgramCatalog::program(
+            $studyProgram,
+        );
+
+        if ($program === null) {
+            throw new RuntimeException(
+                'Jurusan '.$studyProgram.' tidak ditemukan pada katalog akademik.',
+            );
+        }
+
+        return AssessmentQuestion::query()
+            ->where(
+                'skill_id',
+                $skill->id,
+            )
+            ->whereHas(
+                'assessment',
+                fn ($query) => $query
+                    ->where(
+                        'is_active',
+                        true,
+                    )
+                    ->where(
+                        'study_program',
+                        $studyProgram,
+                    )
+                    ->whereHas(
+                        'career',
+                        fn ($careerQuery) => $careerQuery
+                            ->where(
+                                'slug',
+                                $program['slug'],
+                            )
+                            ->where(
+                                'name',
+                                $studyProgram,
+                            )
+                            ->where(
+                                'is_active',
+                                true,
+                            ),
+                    ),
+            )
+            ->orderBy('id')
+            ->first();
     }
 
     /**

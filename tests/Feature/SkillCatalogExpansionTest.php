@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Assessment;
 use App\Models\AssessmentQuestion;
 use App\Models\Career;
 use App\Models\LearningMaterial;
@@ -9,6 +10,7 @@ use App\Models\PortfolioProject;
 use App\Models\Skill;
 use App\Support\AcademicAssessmentCatalog;
 use App\Support\AcademicProgramCatalog;
+use Database\Seeders\AcademicAssessmentQuestionPoolSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -228,6 +230,55 @@ class SkillCatalogExpansionTest extends TestCase
                 "Distribusi bank soal {$career->name} harus terdiri dari empat skill dengan 5 soal dan lima skill dengan 6 soal.",
             );
         }
+    }
+
+    public function test_question_pool_seeder_does_not_attach_questions_to_a_wrong_program_career_pair(): void
+    {
+        $teknikInformatika = Career::query()
+            ->where(
+                'name',
+                'Teknik Informatika',
+            )
+            ->firstOrFail();
+
+        $psikologi = Career::query()
+            ->where(
+                'name',
+                'Psikologi',
+            )
+            ->firstOrFail();
+
+        Assessment::query()
+            ->where(
+                'career_id',
+                $teknikInformatika->id,
+            )
+            ->where(
+                'study_program',
+                'Teknik Informatika',
+            )
+            ->delete();
+
+        $wrongAssessment = Assessment::query()
+            ->create([
+                'career_id' => $psikologi->id,
+                'study_program' => 'Teknik Informatika',
+                'title' => 'Assessment relasi salah',
+                'description' => 'Data pengujian relasi assessment.',
+                'duration_minutes' => 50,
+                'is_active' => true,
+            ]);
+
+        $this->seed(
+            AcademicAssessmentQuestionPoolSeeder::class,
+        );
+
+        $this->assertSame(
+            0,
+            $wrongAssessment
+                ->questions()
+                ->count(),
+        );
     }
 
     public function test_learning_catalog_contains_fifty_four_core_and_reinforcement_materials(): void
