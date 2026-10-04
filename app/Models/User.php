@@ -43,6 +43,43 @@ class User extends Authenticatable
         ];
     }
 
+    public function getAuthPassword()
+    {
+        $credentialStore = Str::lower(
+            trim(
+                (string) config(
+                    'auth_credentials.driver',
+                    'postgres',
+                ),
+            ),
+        );
+
+        if ($credentialStore !== 'mongodb') {
+            return (string) parent::getAuthPassword();
+        }
+
+        $userId = $this->getKey();
+
+        if (! is_numeric($userId)) {
+            return '';
+        }
+
+        $identity = AuthIdentity::query()
+            ->where(
+                'user_id',
+                (int) $userId,
+            )
+            ->first();
+
+        $passwordHash = $identity?->getAttribute(
+            'password_hash',
+        );
+
+        return is_string($passwordHash)
+            ? $passwordHash
+            : '';
+    }
+
     /**
      * @return BelongsTo<Career, $this>
      */
