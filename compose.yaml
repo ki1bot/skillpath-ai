@@ -20,6 +20,7 @@ services:
             DB_MIGRATION_RETRY_DELAY: '3'
             MONGODB_URI: mongodb://mongodb:27017
             MONGODB_DATABASE: ${MONGODB_DATABASE:-skillpathai_auth}
+            MONGODB_TEST_DATABASE: ${MONGODB_TEST_DATABASE:-skillpathai_auth_test}
             AUTH_CREDENTIAL_STORE: ${AUTH_CREDENTIAL_STORE:-postgres}
             PHP_CLI_SERVER_WORKERS: '8'
         volumes:
@@ -66,7 +67,7 @@ services:
         image: mongo:8.0
         restart: unless-stopped
         ports:
-            - '27017:27017'
+            - '127.0.0.1:27017:27017'
         volumes:
             - mongodb_data:/data/db
         healthcheck:

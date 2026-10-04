@@ -4,6 +4,7 @@ namespace Tests;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Laravel\Fortify\Features;
+use Tests\Concerns\UsesMongoCredentials;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -12,6 +13,19 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
 
         $this->withoutVite();
+
+        if (
+            ! in_array(
+                UsesMongoCredentials::class,
+                class_uses_recursive(static::class),
+                true,
+            )
+        ) {
+            config()->set(
+                'auth_credentials.driver',
+                'postgres',
+            );
+        }
     }
 
     protected function skipUnlessFortifyHas(string $feature, ?string $message = null): void
