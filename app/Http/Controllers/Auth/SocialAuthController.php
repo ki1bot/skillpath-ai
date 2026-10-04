@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\SocialAccount;
 use App\Models\User;
+use App\Services\Auth\AuthCredentialStore;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,6 +26,10 @@ class SocialAuthController extends Controller
     private const INTENT_AUTHENTICATE = 'authenticate';
 
     private const INTENT_LINK = 'link';
+
+    public function __construct(
+        private readonly AuthCredentialStore $credentialStore,
+    ) {}
 
     public function redirect(
         Request $request,
@@ -129,10 +134,12 @@ class SocialAuthController extends Controller
             );
         }
 
-        $intent = $request->session()->get(
-            'social-auth.intent',
-            self::INTENT_AUTHENTICATE,
-        );
+        $intent = $request
+            ->session()
+            ->get(
+                'social-auth.intent',
+                self::INTENT_AUTHENTICATE,
+            );
 
         if ($intent === self::INTENT_LINK) {
             return $this->completeLink(
@@ -142,7 +149,9 @@ class SocialAuthController extends Controller
             );
         }
 
-        if ($request->user() instanceof User) {
+        if (
+            $request->user() instanceof User
+        ) {
             $this->clearSocialAuthState(
                 $request,
             );
@@ -170,6 +179,15 @@ class SocialAuthController extends Controller
             $existingSocialAccount !== null
             && $existingSocialAccount->user instanceof User
         ) {
+            $credentialFailure = $this->ensureCredentialIdentity(
+                $request,
+                $existingSocialAccount->user,
+            );
+
+            if ($credentialFailure !== null) {
+                return $credentialFailure;
+            }
+
             $this->authenticate(
                 $request,
                 $existingSocialAccount->user,
@@ -290,6 +308,15 @@ class SocialAuthController extends Controller
             );
         }
 
+        $credentialFailure = $this->ensureCredentialIdentity(
+            $request,
+            $user,
+        );
+
+        if ($credentialFailure !== null) {
+            return $credentialFailure;
+        }
+
         $this->authenticate(
             $request,
             $user,
@@ -311,9 +338,11 @@ class SocialAuthController extends Controller
     ): RedirectResponse {
         $user = $request->user();
 
-        $linkUserId = $request->session()->get(
-            'social-auth.link_user_id',
-        );
+        $linkUserId = $request
+            ->session()
+            ->get(
+                'social-auth.link_user_id',
+            );
 
         if (
             ! $user instanceof User
@@ -398,8 +427,8 @@ class SocialAuthController extends Controller
                 'profile.edit',
             )->withErrors([
                 'social' => 'Akun '
-                    .$this->providerLabel($provider)
-                    .' gagal ditautkan. Silakan coba lagi.',
+                .$this->providerLabel($provider)
+                .' gagal ditautkan. Silakan coba lagi.',
             ]);
         }
 
@@ -412,31 +441,57 @@ class SocialAuthController extends Controller
                 'profile.edit',
             )->withErrors([
                 'social' => 'Akun '
-                    .$this->providerLabel($provider)
-                    .' tersebut sudah terhubung ke akun SkillPath AI lain.',
+                .$this->providerLabel($provider)
+                .' tersebut sudah terhubung ke akun SkillPath AI lain.',
             ]);
         }
 
-        if ($result === 'already_linked_to_different_account') {
+        if (
+            $result
+            === 'already_linked_to_different_account'
+        ) {
             return to_route(
                 'profile.edit',
             )->withErrors([
                 'social' => 'Akun SkillPath AI ini sudah memiliki akun '
-                    .$this->providerLabel($provider)
-                    .' yang terhubung.',
+                .$this->providerLabel($provider)
+                .' yang terhubung.',
             ]);
         }
 
-        Inertia::flash('toast', [
-            'type' => 'success',
-            'message' => 'Akun '
+        Inertia::flash(
+            'toast',
+            [
+                'type' => 'success',
+                'message' => 'Akun '
                 .$this->providerLabel($provider)
                 .' berhasil ditautkan.',
-        ]);
+            ],
+        );
 
         return to_route(
             'profile.edit',
         );
+    }
+
+    private function ensureCredentialIdentity(
+        Request $request,
+        User $user,
+    ): ?RedirectResponse {
+        try {
+            $this->credentialStore->ensureForUser(
+                $user,
+            );
+
+            return null;
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return $this->failed(
+                $request,
+                'Penyimpanan akun autentikasi sedang tidak tersedia. Silakan coba lagi.',
+            );
+        }
     }
 
     private function authenticate(
@@ -501,11 +556,13 @@ class SocialAuthController extends Controller
     private function clearSocialAuthState(
         Request $request,
     ): void {
-        $request->session()->forget([
-            'social-auth.intent',
-            'social-auth.source',
-            'social-auth.link_user_id',
-        ]);
+        $request
+            ->session()
+            ->forget([
+                'social-auth.intent',
+                'social-auth.source',
+                'social-auth.link_user_id',
+            ]);
     }
 
     private function validateProvider(

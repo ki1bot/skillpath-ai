@@ -18,6 +18,9 @@ services:
             DB_STARTUP_RETRY_DELAY: '2'
             DB_MIGRATION_MAX_ATTEMPTS: '10'
             DB_MIGRATION_RETRY_DELAY: '3'
+            MONGODB_URI: mongodb://mongodb:27017
+            MONGODB_DATABASE: ${MONGODB_DATABASE:-skillpathai_auth}
+            AUTH_CREDENTIAL_STORE: ${AUTH_CREDENTIAL_STORE:-postgres}
             PHP_CLI_SERVER_WORKERS: '8'
         volumes:
             - .:/var/www/html
@@ -25,6 +28,9 @@ services:
             - node_modules_data:/var/www/html/node_modules
         depends_on:
             postgres:
+                condition: service_healthy
+                restart: true
+            mongodb:
                 condition: service_healthy
                 restart: true
         healthcheck:
@@ -56,10 +62,31 @@ services:
             retries: 10
             start_period: 10s
 
+    mongodb:
+        image: mongo:8.0
+        restart: unless-stopped
+        ports:
+            - '27017:27017'
+        volumes:
+            - mongodb_data:/data/db
+        healthcheck:
+            test:
+                - CMD
+                - mongosh
+                - --quiet
+                - --eval
+                - db.adminCommand('ping').ok
+            interval: 5s
+            timeout: 5s
+            retries: 10
+            start_period: 10s
+
 volumes:
     postgres_data:
         external: true
         name: skillpath-ai-postgres-persistent
+
+    mongodb_data:
 
     vendor_data:
 

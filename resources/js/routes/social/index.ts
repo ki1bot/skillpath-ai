@@ -2,7 +2,7 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
 import link from './link'
 /**
 * @see \App\Http\Controllers\Auth\SocialAuthController::redirect
-* @see app/Http/Controllers/Auth/SocialAuthController.php:29
+* @see app/Http/Controllers/Auth/SocialAuthController.php:34
 * @route '/auth/{provider}/redirect'
 */
 export const redirect = (args: { provider: string | number } | [provider: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -17,7 +17,7 @@ redirect.definition = {
 
 /**
 * @see \App\Http\Controllers\Auth\SocialAuthController::redirect
-* @see app/Http/Controllers/Auth/SocialAuthController.php:29
+* @see app/Http/Controllers/Auth/SocialAuthController.php:34
 * @route '/auth/{provider}/redirect'
 */
 redirect.url = (args: { provider: string | number } | [provider: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -44,7 +44,7 @@ redirect.url = (args: { provider: string | number } | [provider: string | number
 
 /**
 * @see \App\Http\Controllers\Auth\SocialAuthController::redirect
-* @see app/Http/Controllers/Auth/SocialAuthController.php:29
+* @see app/Http/Controllers/Auth/SocialAuthController.php:34
 * @route '/auth/{provider}/redirect'
 */
 redirect.get = (args: { provider: string | number } | [provider: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -54,7 +54,7 @@ redirect.get = (args: { provider: string | number } | [provider: string | number
 
 /**
 * @see \App\Http\Controllers\Auth\SocialAuthController::redirect
-* @see app/Http/Controllers/Auth/SocialAuthController.php:29
+* @see app/Http/Controllers/Auth/SocialAuthController.php:34
 * @route '/auth/{provider}/redirect'
 */
 redirect.head = (args: { provider: string | number } | [provider: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -64,7 +64,7 @@ redirect.head = (args: { provider: string | number } | [provider: string | numbe
 
 /**
 * @see \App\Http\Controllers\Auth\SocialAuthController::redirect
-* @see app/Http/Controllers/Auth/SocialAuthController.php:29
+* @see app/Http/Controllers/Auth/SocialAuthController.php:34
 * @route '/auth/{provider}/redirect'
 */
 const redirectForm = (args: { provider: string | number } | [provider: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -74,7 +74,7 @@ const redirectForm = (args: { provider: string | number } | [provider: string | 
 
 /**
 * @see \App\Http\Controllers\Auth\SocialAuthController::redirect
-* @see app/Http/Controllers/Auth/SocialAuthController.php:29
+* @see app/Http/Controllers/Auth/SocialAuthController.php:34
 * @route '/auth/{provider}/redirect'
 */
 redirectForm.get = (args: { provider: string | number } | [provider: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -84,7 +84,7 @@ redirectForm.get = (args: { provider: string | number } | [provider: string | nu
 
 /**
 * @see \App\Http\Controllers\Auth\SocialAuthController::redirect
-* @see app/Http/Controllers/Auth/SocialAuthController.php:29
+* @see app/Http/Controllers/Auth/SocialAuthController.php:34
 * @route '/auth/{provider}/redirect'
 */
 redirectForm.head = (args: { provider: string | number } | [provider: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -101,7 +101,7 @@ redirect.form = redirectForm
 
 /**
 * @see \App\Http\Controllers\Auth\SocialAuthController::callback
-* @see app/Http/Controllers/Auth/SocialAuthController.php:96
+* @see app/Http/Controllers/Auth/SocialAuthController.php:101
 * @route '/auth/{provider}/callback'
 */
 export const callback = (args: { provider: string | number } | [provider: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -116,7 +116,7 @@ callback.definition = {
 
 /**
 * @see \App\Http\Controllers\Auth\SocialAuthController::callback
-* @see app/Http/Controllers/Auth/SocialAuthController.php:96
+* @see app/Http/Controllers/Auth/SocialAuthController.php:101
 * @route '/auth/{provider}/callback'
 */
 callback.url = (args: { provider: string | number } | [provider: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -143,7 +143,7 @@ callback.url = (args: { provider: string | number } | [provider: string | number
 
 /**
 * @see \App\Http\Controllers\Auth\SocialAuthController::callback
-* @see app/Http/Controllers/Auth/SocialAuthController.php:96
+* @see app/Http/Controllers/Auth/SocialAuthController.php:101
 * @route '/auth/{provider}/callback'
 */
 callback.get = (args: { provider: string | number } | [provider: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -153,7 +153,7 @@ callback.get = (args: { provider: string | number } | [provider: string | number
 
 /**
 * @see \App\Http\Controllers\Auth\SocialAuthController::callback
-* @see app/Http/Controllers/Auth/SocialAuthController.php:96
+* @see app/Http/Controllers/Auth/SocialAuthController.php:101
 * @route '/auth/{provider}/callback'
 */
 callback.head = (args: { provider: string | number } | [provider: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -163,7 +163,7 @@ callback.head = (args: { provider: string | number } | [provider: string | numbe
 
 /**
 * @see \App\Http\Controllers\Auth\SocialAuthController::callback
-* @see app/Http/Controllers/Auth/SocialAuthController.php:96
+* @see app/Http/Controllers/Auth/SocialAuthController.php:101
 * @route '/auth/{provider}/callback'
 */
 const callbackForm = (args: { provider: string | number } | [provider: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -173,7 +173,7 @@ const callbackForm = (args: { provider: string | number } | [provider: string | 
 
 /**
 * @see \App\Http\Controllers\Auth\SocialAuthController::callback
-* @see app/Http/Controllers/Auth/SocialAuthController.php:96
+* @see app/Http/Controllers/Auth/SocialAuthController.php:101
 * @route '/auth/{provider}/callback'
 */
 callbackForm.get = (args: { provider: string | number } | [provider: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -183,7 +183,7 @@ callbackForm.get = (args: { provider: string | number } | [provider: string | nu
 
 /**
 * @see \App\Http\Controllers\Auth\SocialAuthController::callback
-* @see app/Http/Controllers/Auth/SocialAuthController.php:96
+* @see app/Http/Controllers/Auth/SocialAuthController.php:101
 * @route '/auth/{provider}/callback'
 */
 callbackForm.head = (args: { provider: string | number } | [provider: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

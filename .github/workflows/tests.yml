@@ -35,6 +35,7 @@ jobs:
       DB_DATABASE: skillpath_ai
       DB_USERNAME: root
       DB_PASSWORD: password
+      AUTH_CREDENTIAL_STORE: postgres
 
     steps:
       - name: Checkout code
@@ -46,6 +47,7 @@ jobs:
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
         with:
           php-version: '8.4'
+          extensions: mongodb
           tools: composer:v2
           coverage: none
 

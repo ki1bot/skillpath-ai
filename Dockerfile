@@ -6,6 +6,7 @@ FROM php:8.4-cli-bookworm AS php-base
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+        $PHPIZE_DEPS \
         ca-certificates \
         git \
         gosu \
@@ -17,6 +18,8 @@ RUN apt-get update \
         libzip-dev \
         procps \
         unzip \
+    && pecl install mongodb-2.5.3 \
+    && docker-php-ext-enable mongodb \
     && docker-php-ext-install \
         bcmath \
         curl \
@@ -24,6 +27,7 @@ RUN apt-get update \
         mbstring \
         pdo_pgsql \
         zip \
+    && apt-get purge -y --auto-remove $PHPIZE_DEPS \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer /usr/bin/composer /usr/local/bin/composer
@@ -83,6 +87,7 @@ FROM php:8.4-apache-bookworm AS runtime
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+        $PHPIZE_DEPS \
         ca-certificates \
         libcurl4-openssl-dev \
         libicu-dev \
@@ -90,6 +95,8 @@ RUN apt-get update \
         libpq-dev \
         libzip-dev \
         unzip \
+    && pecl install mongodb-2.5.3 \
+    && docker-php-ext-enable mongodb \
     && docker-php-ext-install \
         bcmath \
         curl \
@@ -98,6 +105,7 @@ RUN apt-get update \
         opcache \
         pdo_pgsql \
         zip \
+    && apt-get purge -y --auto-remove $PHPIZE_DEPS \
     && rm -f \
         /etc/apache2/mods-enabled/mpm_event.conf \
         /etc/apache2/mods-enabled/mpm_event.load \
