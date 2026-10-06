@@ -243,6 +243,14 @@ Route::middleware([
                     'updateRole',
                 ],
             )->name('users.role.update');
+
+            Route::delete(
+                '/users/{user}',
+                [
+                    UserManagementController::class,
+                    'destroy',
+                ],
+            )->name('users.destroy');
         });
 
     Route::prefix('admin')

@@ -34,9 +34,9 @@ class PublicProjectChatService
             ];
         }
 
-        $juanRouter = $this->juanRouterProvider();
+        $providers = $this->providers();
 
-        if ($juanRouter === null) {
+        if ($providers === []) {
             return $this->unavailableReply();
         }
 
@@ -56,7 +56,7 @@ class PublicProjectChatService
         }
 
         $result = $this->coordinator->complete(
-            [$juanRouter],
+            $providers,
             $this->systemPrompt(),
             $payload,
             1024,
@@ -83,6 +83,60 @@ class PublicProjectChatService
     }
 
     /**
+     * @return list<array{
+     *     name: string,
+     *     key: string,
+     *     base_url: string,
+     *     models: list<string>
+     * }>
+     */
+    private function providers(): array
+    {
+        $providers = [];
+
+        $primary = $this->makeProvider(
+            'juanrouter',
+            config('services.public_chat.key'),
+            config(
+                'services.public_chat.model',
+                'gpt-6-luna',
+            ),
+            config(
+                'services.public_chat.base_url',
+                'https://router.juan.web.id/v1',
+            ),
+            config(
+                'services.public_chat.fallback_models',
+                ['gpt-5.6-luna'],
+            ),
+        );
+
+        if ($primary !== null) {
+            $providers[] = $primary;
+        }
+
+        $backup = $this->makeProvider(
+            'juanrouter_backup',
+            config('services.juanrouter_backup.key'),
+            config(
+                'services.juanrouter_backup.model',
+                'deepseek-v4.1-flash',
+            ),
+            config(
+                'services.juanrouter_backup.base_url',
+                'https://router.juan.web.id/v1',
+            ),
+            [],
+        );
+
+        if ($backup !== null) {
+            $providers[] = $backup;
+        }
+
+        return $providers;
+    }
+
+    /**
      * @return array{
      *     name: string,
      *     key: string,
@@ -90,25 +144,13 @@ class PublicProjectChatService
      *     models: list<string>
      * }|null
      */
-    private function juanRouterProvider(): ?array
-    {
-        $key = config('services.public_chat.key');
-
-        $model = config(
-            'services.public_chat.model',
-            'gpt-6-luna',
-        );
-
-        $baseUrl = config(
-            'services.public_chat.base_url',
-            'https://router.juan.web.id/v1',
-        );
-
-        $fallbackModels = config(
-            'services.public_chat.fallback_models',
-            ['gpt-5.6-luna'],
-        );
-
+    private function makeProvider(
+        string $name,
+        mixed $key,
+        mixed $model,
+        mixed $baseUrl,
+        mixed $fallbackModels,
+    ): ?array {
         if (
             ! is_string($key)
             || trim($key) === ''
@@ -138,7 +180,7 @@ class PublicProjectChatService
         }
 
         return [
-            'name' => 'juanrouter',
+            'name' => $name,
             'key' => trim($key),
             'base_url' => trim($baseUrl),
             'models' => array_values(

@@ -81,6 +81,19 @@ class AiProviderRegistry
                     'https://api.xkiro.com/v1',
                 ),
             ],
+            [
+                'name' => 'juanrouter_backup',
+                'key' => config('services.juanrouter_backup.key'),
+                'model' => config(
+                    'services.juanrouter_backup.model',
+                    'deepseek-v4.1-flash',
+                ),
+                'fallback_models' => [],
+                'base_url' => config(
+                    'services.juanrouter_backup.base_url',
+                    'https://router.juan.web.id/v1',
+                ),
+            ],
         ];
 
         $providers = [];
@@ -157,6 +170,7 @@ class AiProviderRegistry
     {
         return match ($provider) {
             'juanrouter' => 'Juan Router',
+            'juanrouter_backup' => 'Juan Router Backup',
             'openrouter' => 'OpenRouter',
             'xkiro' => 'xKiro',
             'gemini' => 'Gemini',

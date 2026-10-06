@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Mail\AccountDeletedMail;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -37,6 +39,10 @@ class UserManagementTest extends TestCase
             ->assertInertia(
                 fn (Assert $page) => $page
                     ->component('admin/users')
+                    ->where(
+                        'managerId',
+                        $manager->id,
+                    )
                     ->has('users.data', 2),
             );
     }
@@ -242,6 +248,109 @@ class UserManagementTest extends TestCase
             'student',
             $student->fresh()->role,
         );
+    }
+
+    public function test_manager_can_delete_user_and_notification_email_is_sent(): void
+    {
+        Mail::fake();
+
+        $manager = $this->manager();
+
+        $user = User::factory()->create([
+            'name' => 'Akun Dihapus',
+            'email' => 'deleted-user@example.test',
+            'role' => 'student',
+        ]);
+
+        $userId = $user->id;
+        $userEmail = (string) $user->email;
+
+        $this->actingAs($manager)
+            ->delete(
+                route(
+                    'admin.users.destroy',
+                    $user,
+                ),
+            )
+            ->assertSessionHasNoErrors()
+            ->assertRedirect();
+
+        $this->assertDatabaseMissing(
+            'users',
+            [
+                'id' => $userId,
+            ],
+        );
+
+        Mail::assertSent(
+            AccountDeletedMail::class,
+            fn (AccountDeletedMail $mail): bool => $mail->hasTo(
+                $userEmail,
+            )
+            && $mail->recipientEmail === $userEmail,
+        );
+    }
+
+    public function test_manager_cannot_delete_own_account(): void
+    {
+        Mail::fake();
+
+        $manager = $this->manager();
+
+        $this->actingAs($manager)
+            ->delete(
+                route(
+                    'admin.users.destroy',
+                    $manager,
+                ),
+            )
+            ->assertSessionHasErrors([
+                'delete' => 'Akun pengelola pengguna tidak dapat dihapus dari halaman ini.',
+            ]);
+
+        $this->assertDatabaseHas(
+            'users',
+            [
+                'id' => $manager->id,
+                'email' => self::MANAGER_EMAIL,
+            ],
+        );
+
+        Mail::assertNothingSent();
+    }
+
+    public function test_regular_admin_cannot_delete_user(): void
+    {
+        Mail::fake();
+
+        $admin = User::factory()->create([
+            'name' => 'Admin Biasa',
+            'email' => 'regular-admin@example.test',
+            'role' => 'admin',
+            'email_verified_at' => now(),
+        ]);
+
+        $user = User::factory()->create([
+            'email' => 'protected-user@example.test',
+        ]);
+
+        $this->actingAs($admin)
+            ->delete(
+                route(
+                    'admin.users.destroy',
+                    $user,
+                ),
+            )
+            ->assertForbidden();
+
+        $this->assertDatabaseHas(
+            'users',
+            [
+                'id' => $user->id,
+            ],
+        );
+
+        Mail::assertNothingSent();
     }
 
     private function manager(): User

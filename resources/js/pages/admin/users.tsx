@@ -2,6 +2,15 @@ import { Form, Head, Link } from '@inertiajs/react';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
 
 type ManagedUser = {
     id: number;
@@ -29,9 +38,96 @@ type UsersPagination = {
 
 type Props = {
     users: UsersPagination;
+    managerId: number;
 };
 
-export default function Users({ users }: Props) {
+type DeleteUserDialogProps = {
+    user: ManagedUser;
+    disabled: boolean;
+    fullWidth?: boolean;
+};
+
+function DeleteUserDialog({
+    user,
+    disabled,
+    fullWidth = false,
+}: DeleteUserDialogProps) {
+    if (disabled) {
+        return (
+            <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled
+                className={fullWidth ? 'w-full' : undefined}
+            >
+                Akun Anda
+            </Button>
+        );
+    }
+
+    return (
+        <Dialog>
+            <DialogTrigger asChild>
+                <Button
+                    type="button"
+                    size="sm"
+                    variant="destructive"
+                    className={fullWidth ? 'w-full' : undefined}
+                >
+                    Hapus
+                </Button>
+            </DialogTrigger>
+
+            <DialogContent>
+                <DialogTitle>Hapus akun ini?</DialogTitle>
+
+                <DialogDescription>
+                    Akun {user.name} ({user.email}) akan dihapus secara permanen
+                    beserta data yang terkait dengan akun tersebut. Email
+                    pemberitahuan penghapusan juga akan dikirim ke alamat email
+                    pengguna.
+                </DialogDescription>
+
+                <Form
+                    action={`/admin/users/${user.id}`}
+                    method="delete"
+                    options={{
+                        preserveScroll: true,
+                    }}
+                >
+                    {({ processing, errors }) => (
+                        <div className="space-y-5">
+                            <InputError message={errors.delete} />
+
+                            <DialogFooter className="gap-2">
+                                <DialogClose asChild>
+                                    <Button
+                                        type="button"
+                                        variant="secondary"
+                                        disabled={processing}
+                                    >
+                                        Batal
+                                    </Button>
+                                </DialogClose>
+
+                                <Button
+                                    type="submit"
+                                    variant="destructive"
+                                    disabled={processing}
+                                >
+                                    {processing ? 'Menghapus...' : 'Hapus'}
+                                </Button>
+                            </DialogFooter>
+                        </div>
+                    )}
+                </Form>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
+export default function Users({ users, managerId }: Props) {
     return (
         <>
             <Head title="Pengguna" />
@@ -39,7 +135,7 @@ export default function Users({ users }: Props) {
             <div className="mx-auto w-full max-w-6xl space-y-7 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
                 <Heading
                     title="Pengguna"
-                    description="Kelola role akun yang terdaftar pada SkillPath AI."
+                    description="Kelola role dan akun yang terdaftar pada SkillPath AI."
                 />
 
                 <div className="neo-card overflow-hidden">
@@ -73,6 +169,10 @@ export default function Users({ users }: Props) {
 
                                     <th className="px-5 py-3 text-sm font-bold">
                                         Ubah role
+                                    </th>
+
+                                    <th className="px-5 py-3 text-sm font-bold">
+                                        Hapus akun
                                     </th>
                                 </tr>
                             </thead>
@@ -150,6 +250,13 @@ export default function Users({ users }: Props) {
                                                 )}
                                             </Form>
                                         </td>
+
+                                        <td className="px-5 py-4">
+                                            <DeleteUserDialog
+                                                user={user}
+                                                disabled={user.id === managerId}
+                                            />
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -212,6 +319,12 @@ export default function Users({ users }: Props) {
                                         </>
                                     )}
                                 </Form>
+
+                                <DeleteUserDialog
+                                    user={user}
+                                    disabled={user.id === managerId}
+                                    fullWidth
+                                />
                             </div>
                         ))}
                     </div>

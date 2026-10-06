@@ -46,11 +46,75 @@ class AiCompletionCoordinator
         );
 
         $blockedProviders = [];
+        $regularAttempts = [];
+        $backupAttempts = [];
+
+        $backupProviders = config(
+            'services.ai.backup_providers',
+            ['juanrouter_backup'],
+        );
+
+        if (is_string($backupProviders)) {
+            $backupProviders = explode(
+                ',',
+                $backupProviders,
+            );
+        }
+
+        if (! is_array($backupProviders)) {
+            $backupProviders = [];
+        }
+
+        $normalizedBackupProviders = [];
+
+        foreach ($backupProviders as $backupProvider) {
+            if (
+                ! is_string($backupProvider)
+                || trim($backupProvider) === ''
+            ) {
+                continue;
+            }
+
+            $normalizedBackupProviders[] = Str::lower(
+                trim($backupProvider),
+            );
+        }
+
+        $normalizedBackupProviders = array_values(
+            array_unique($normalizedBackupProviders),
+        );
 
         foreach (
             $this->providerHealth
                 ->orderedAttempts($providers) as $attempt
         ) {
+            $providerName = Str::lower(
+                trim(
+                    $attempt['provider']['name'],
+                ),
+            );
+
+            if (
+                in_array(
+                    $providerName,
+                    $normalizedBackupProviders,
+                    true,
+                )
+            ) {
+                $backupAttempts[] = $attempt;
+
+                continue;
+            }
+
+            $regularAttempts[] = $attempt;
+        }
+
+        $attempts = [
+            ...$regularAttempts,
+            ...$backupAttempts,
+        ];
+
+        foreach ($attempts as $attempt) {
             $provider = $attempt['provider'];
             $model = $attempt['model'];
 

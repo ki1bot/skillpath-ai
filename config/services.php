@@ -103,7 +103,22 @@ return [
                         ',',
                         (string) env(
                             'AI_PROVIDER_ORDER',
-                            'juanrouter,openrouter,xkiro,gemini',
+                            'juanrouter,openrouter,xkiro,gemini,juanrouter_backup',
+                        ),
+                    ),
+                ),
+            ),
+        ),
+
+        'backup_providers' => array_values(
+            array_filter(
+                array_map(
+                    'trim',
+                    explode(
+                        ',',
+                        (string) env(
+                            'AI_BACKUP_PROVIDERS',
+                            'juanrouter_backup',
                         ),
                     ),
                 ),
@@ -166,6 +181,20 @@ return [
         'reasoning_effort' => env(
             'JUANROUTER_REASONING_EFFORT',
             'low',
+        ),
+    ],
+
+    'juanrouter_backup' => [
+        'key' => env('JUANROUTER_BACKUP_API_KEY'),
+
+        'model' => env(
+            'JUANROUTER_BACKUP_MODEL',
+            'deepseek-v4.1-flash',
+        ),
+
+        'base_url' => env(
+            'JUANROUTER_BACKUP_BASE_URL',
+            'https://router.juan.web.id/v1',
         ),
     ],
 

@@ -116,9 +116,7 @@ export default function Register({ passwordRules }: Props) {
                             >
                                 {processing && <Spinner />}
 
-                                {processing
-                                    ? 'Membuat akun...'
-                                    : 'Buat akun dan verifikasi email'}
+                                {processing ? 'Membuat akun...' : 'Buat akun'}
                             </Button>
                         </div>
 
