@@ -11,6 +11,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -70,8 +72,31 @@ class ProfileController extends Controller
             403,
         );
 
+        $validated = $request->validated();
+
+        $currentEmail = Str::lower(
+            trim(
+                (string) $user->email,
+            ),
+        );
+
+        $newEmail = Str::lower(
+            trim(
+                (string) ($validated['email'] ?? ''),
+            ),
+        );
+
+        if (
+            $user->isSuperAdmin()
+            && $newEmail !== $currentEmail
+        ) {
+            throw ValidationException::withMessages([
+                'email' => 'Alamat email super admin tidak dapat diubah.',
+            ]);
+        }
+
         $user->fill(
-            $request->validated(),
+            $validated,
         );
 
         if ($user->isDirty('email')) {
@@ -112,6 +137,12 @@ class ProfileController extends Controller
         abort_unless(
             $user instanceof User,
             403,
+        );
+
+        abort_if(
+            $user->isSuperAdmin(),
+            403,
+            'Akun super admin tidak dapat dihapus.',
         );
 
         Auth::logout();

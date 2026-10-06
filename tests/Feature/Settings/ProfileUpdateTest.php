@@ -10,6 +10,8 @@ class ProfileUpdateTest extends TestCase
 {
     use RefreshDatabase;
 
+    private const SUPER_ADMIN_EMAIL = 'super-admin@example.test';
+
     public function test_profile_page_is_displayed()
     {
         $user = User::factory()->create();
@@ -61,6 +63,39 @@ class ProfileUpdateTest extends TestCase
         $this->assertNotNull($user->refresh()->email_verified_at);
     }
 
+    public function test_super_admin_email_cannot_be_changed()
+    {
+        config()->set(
+            'security.user_manager_email',
+            self::SUPER_ADMIN_EMAIL,
+        );
+
+        $superAdmin = User::factory()->create([
+            'name' => 'Super Admin',
+            'email' => self::SUPER_ADMIN_EMAIL,
+            'role' => 'admin',
+            'email_verified_at' => now(),
+        ]);
+
+        $response = $this
+            ->actingAs($superAdmin)
+            ->patch(route('profile.update'), [
+                'name' => 'Super Admin',
+                'email' => 'changed@example.test',
+            ]);
+
+        $response->assertSessionHasErrors([
+            'email' => 'Alamat email super admin tidak dapat diubah.',
+        ]);
+
+        $superAdmin->refresh();
+
+        $this->assertSame(
+            self::SUPER_ADMIN_EMAIL,
+            $superAdmin->email,
+        );
+    }
+
     public function test_user_can_delete_their_account()
     {
         $user = User::factory()->create();
@@ -77,6 +112,32 @@ class ProfileUpdateTest extends TestCase
 
         $this->assertGuest();
         $this->assertNull($user->fresh());
+    }
+
+    public function test_super_admin_cannot_delete_their_account()
+    {
+        config()->set(
+            'security.user_manager_email',
+            self::SUPER_ADMIN_EMAIL,
+        );
+
+        $superAdmin = User::factory()->create([
+            'name' => 'Super Admin',
+            'email' => self::SUPER_ADMIN_EMAIL,
+            'role' => 'admin',
+            'email_verified_at' => now(),
+        ]);
+
+        $this
+            ->actingAs($superAdmin)
+            ->delete(route('profile.destroy'), [
+                'password' => 'password',
+            ])
+            ->assertForbidden();
+
+        $this->assertNotNull(
+            $superAdmin->fresh(),
+        );
     }
 
     public function test_correct_password_must_be_provided_to_delete_account()

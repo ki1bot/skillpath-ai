@@ -83,6 +83,8 @@ export default function Profile() {
         return null;
     }
 
+    const isSuperAdmin = auth.canManageUsers;
+
     return (
         <>
             <Head title="Pengaturan profil" />
@@ -93,7 +95,11 @@ export default function Profile() {
                 <Heading
                     variant="small"
                     title="Profil"
-                    description="Perbarui nama dan alamat email Anda"
+                    description={
+                        isSuperAdmin
+                            ? 'Perbarui nama Anda. Alamat email super admin dikunci untuk menjaga akses pengelolaan pengguna.'
+                            : 'Perbarui nama dan alamat email Anda'
+                    }
                 />
 
                 <Form
@@ -134,9 +140,17 @@ export default function Profile() {
                                     defaultValue={user.email}
                                     name="email"
                                     required
+                                    readOnly={isSuperAdmin}
                                     autoComplete="username"
                                     placeholder="Alamat email"
                                 />
+
+                                {isSuperAdmin && (
+                                    <p className="text-sm text-muted-foreground">
+                                        Email ini merupakan identitas super
+                                        admin dan tidak dapat diubah.
+                                    </p>
+                                )}
 
                                 <InputError
                                     className="mt-2"
@@ -226,7 +240,7 @@ export default function Profile() {
                 </div>
             </div>
 
-            <DeleteUser />
+            {!isSuperAdmin && <DeleteUser />}
         </>
     );
 }

@@ -132,25 +132,30 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
-    public function canManageUsers(): bool
+    public function isSuperAdmin(): bool
     {
-        $managerEmail = config(
+        $superAdminEmail = config(
             'security.user_manager_email',
         );
 
         if (
-            ! $this->isAdmin()
-            || $this->email_verified_at === null
-            || ! is_string($managerEmail)
-            || trim($managerEmail) === ''
+            ! is_string($superAdminEmail)
+            || trim($superAdminEmail) === ''
         ) {
             return false;
         }
 
         return Str::lower(
-            trim($this->email),
+            trim((string) $this->email),
         ) === Str::lower(
-            trim($managerEmail),
+            trim($superAdminEmail),
         );
+    }
+
+    public function canManageUsers(): bool
+    {
+        return $this->isSuperAdmin()
+            && $this->isAdmin()
+            && $this->email_verified_at !== null;
     }
 }
