@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Settings;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\PasswordUpdateRequest;
 use App\Models\User;
-use App\Services\Auth\AuthCredentialStore;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
@@ -13,10 +12,6 @@ use Inertia\Response;
 
 class SecurityController extends Controller
 {
-    public function __construct(
-        private readonly AuthCredentialStore $credentialStore,
-    ) {}
-
     /**
      * Show the user's security settings page.
      */
@@ -44,12 +39,11 @@ class SecurityController extends Controller
             403,
         );
 
-        $this->credentialStore->updatePassword(
-            $user,
-            $request
+        $user->forceFill([
+            'password' => $request
                 ->string('password')
                 ->toString(),
-        );
+        ])->save();
 
         Inertia::flash(
             'toast',

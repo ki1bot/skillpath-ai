@@ -4,17 +4,12 @@ namespace App\Actions\Fortify;
 
 use App\Concerns\PasswordValidationRules;
 use App\Models\User;
-use App\Services\Auth\AuthCredentialStore;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\ResetsUserPasswords;
 
 class ResetUserPassword implements ResetsUserPasswords
 {
     use PasswordValidationRules;
-
-    public function __construct(
-        private readonly AuthCredentialStore $credentialStore,
-    ) {}
 
     /**
      * Validate and reset the user's forgotten password.
@@ -30,9 +25,8 @@ class ResetUserPassword implements ResetsUserPasswords
             ],
         )->validate();
 
-        $this->credentialStore->updatePassword(
-            $user,
-            $input['password'],
-        );
+        $user->forceFill([
+            'password' => $input['password'],
+        ])->save();
     }
 }

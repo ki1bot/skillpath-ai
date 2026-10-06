@@ -7,21 +7,15 @@ use App\Http\Requests\Settings\ProfileDeleteRequest;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
 use App\Models\SocialAccount;
 use App\Models\User;
-use App\Services\Auth\AuthCredentialStore;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
-use Throwable;
 
 class ProfileController extends Controller
 {
-    public function __construct(
-        private readonly AuthCredentialStore $credentialStore,
-    ) {}
-
     /**
      * Show the user's profile settings page.
      */
@@ -81,11 +75,6 @@ class ProfileController extends Controller
         );
 
         if ($user->isDirty('email')) {
-            $this->credentialStore->updateEmail(
-                $user,
-                (string) $user->email,
-            );
-
             $user->email_verified_at = null;
 
             Cache::forget(
@@ -136,14 +125,6 @@ class ProfileController extends Controller
         );
 
         $user->delete();
-
-        try {
-            $this->credentialStore->deleteForUser(
-                $user,
-            );
-        } catch (Throwable $exception) {
-            report($exception);
-        }
 
         $request
             ->session()

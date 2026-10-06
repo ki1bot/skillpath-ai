@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\SocialAccount;
 use App\Models\User;
-use App\Services\Auth\AuthCredentialStore;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,10 +25,6 @@ class SocialAuthController extends Controller
     private const INTENT_AUTHENTICATE = 'authenticate';
 
     private const INTENT_LINK = 'link';
-
-    public function __construct(
-        private readonly AuthCredentialStore $credentialStore,
-    ) {}
 
     public function redirect(
         Request $request,
@@ -179,15 +174,6 @@ class SocialAuthController extends Controller
             $existingSocialAccount !== null
             && $existingSocialAccount->user instanceof User
         ) {
-            $credentialFailure = $this->ensureCredentialIdentity(
-                $request,
-                $existingSocialAccount->user,
-            );
-
-            if ($credentialFailure !== null) {
-                return $credentialFailure;
-            }
-
             $this->authenticate(
                 $request,
                 $existingSocialAccount->user,
@@ -306,15 +292,6 @@ class SocialAuthController extends Controller
                 .$this->providerLabel($provider)
                 .'. Silakan coba lagi.',
             );
-        }
-
-        $credentialFailure = $this->ensureCredentialIdentity(
-            $request,
-            $user,
-        );
-
-        if ($credentialFailure !== null) {
-            return $credentialFailure;
         }
 
         $this->authenticate(
@@ -472,26 +449,6 @@ class SocialAuthController extends Controller
         return to_route(
             'profile.edit',
         );
-    }
-
-    private function ensureCredentialIdentity(
-        Request $request,
-        User $user,
-    ): ?RedirectResponse {
-        try {
-            $this->credentialStore->ensureForUser(
-                $user,
-            );
-
-            return null;
-        } catch (Throwable $exception) {
-            report($exception);
-
-            return $this->failed(
-                $request,
-                'Penyimpanan akun autentikasi sedang tidak tersedia. Silakan coba lagi.',
-            );
-        }
     }
 
     private function authenticate(

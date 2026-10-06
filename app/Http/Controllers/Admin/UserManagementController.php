@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Mail\AccountDeletedMail;
 use App\Models\User;
-use App\Services\Auth\AuthCredentialStore;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -17,10 +16,6 @@ use Throwable;
 
 class UserManagementController extends Controller
 {
-    public function __construct(
-        private readonly AuthCredentialStore $credentialStore,
-    ) {}
-
     public function index(Request $request): Response
     {
         $manager = $request->user();
@@ -130,20 +125,6 @@ class UserManagementController extends Controller
 
         $user->delete();
 
-        $credentialDeleted = true;
-
-        try {
-            $this->credentialStore->deleteForUser(
-                $user,
-            );
-        } catch (Throwable $exception) {
-            report($exception);
-
-            $credentialDeleted = false;
-        }
-
-        $notificationSent = true;
-
         try {
             Mail::to(
                 $deletedUserEmail,
@@ -156,31 +137,11 @@ class UserManagementController extends Controller
         } catch (Throwable $exception) {
             report($exception);
 
-            $notificationSent = false;
-        }
-
-        if (
-            ! $credentialDeleted
-            || ! $notificationSent
-        ) {
-            $issues = [];
-
-            if (! $credentialDeleted) {
-                $issues[] = 'credential MongoDB gagal dibersihkan';
-            }
-
-            if (! $notificationSent) {
-                $issues[] = 'email pemberitahuan gagal dikirim';
-            }
-
             Inertia::flash(
                 'toast',
                 [
                     'type' => 'warning',
-                    'message' => "Akun {$deletedUserName} telah dihapus, tetapi ".implode(
-                        ' dan ',
-                        $issues,
-                    ).'.',
+                    'message' => "Akun {$deletedUserName} telah dihapus, tetapi email pemberitahuan gagal dikirim.",
                 ],
             );
 

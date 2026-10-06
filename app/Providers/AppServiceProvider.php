@@ -2,9 +2,7 @@
 
 namespace App\Providers;
 
-use App\Auth\HybridUserProvider;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
@@ -25,13 +23,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Auth::provider(
-            'hybrid',
-            fn ($app, array $config): HybridUserProvider => $app->make(
-                HybridUserProvider::class,
-            ),
-        );
-
         $this->configureDefaults();
     }
 

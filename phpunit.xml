@@ -33,9 +33,6 @@
         <env name="DB_DATABASE" value=":memory:" force="true"/>
         <env name="DB_URL" value="" force="true"/>
 
-        <env name="AUTH_CREDENTIAL_STORE" value="postgres" force="true"/>
-        <env name="MONGODB_TEST_DATABASE" value="skillpathai_auth_test" force="true"/>
-
         <env name="MAIL_MAILER" value="array" force="true"/>
         <env name="RESEND_API_KEY" value="" force="true"/>
 

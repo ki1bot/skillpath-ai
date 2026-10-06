@@ -18,8 +18,6 @@ RUN apt-get update \
         libzip-dev \
         procps \
         unzip \
-    && pecl install mongodb-2.5.3 \
-    && docker-php-ext-enable mongodb \
     && docker-php-ext-install \
         bcmath \
         curl \
@@ -95,8 +93,6 @@ RUN apt-get update \
         libpq-dev \
         libzip-dev \
         unzip \
-    && pecl install mongodb-2.5.3 \
-    && docker-php-ext-enable mongodb \
     && docker-php-ext-install \
         bcmath \
         curl \

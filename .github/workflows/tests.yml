@@ -28,16 +28,6 @@ jobs:
           --health-timeout=5s
           --health-retries=5
 
-      mongodb:
-        image: mongo:8.0
-        ports:
-          - 27017:27017
-        options: >-
-          --health-cmd="mongosh --quiet --eval 'db.adminCommand({ ping: 1 }).ok'"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-
     env:
       DB_CONNECTION: pgsql
       DB_HOST: 127.0.0.1
@@ -45,10 +35,6 @@ jobs:
       DB_DATABASE: skillpath_ai
       DB_USERNAME: root
       DB_PASSWORD: password
-      MONGODB_URI: mongodb://127.0.0.1:27017
-      MONGODB_DATABASE: skillpathai_auth
-      MONGODB_TEST_DATABASE: skillpathai_auth_test
-      AUTH_CREDENTIAL_STORE: postgres
 
     steps:
       - name: Checkout code
@@ -60,7 +46,6 @@ jobs:
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
         with:
           php-version: '8.4'
-          extensions: mongodb
           tools: composer:v2
           coverage: none
 
