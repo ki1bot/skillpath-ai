@@ -4,7 +4,6 @@ import { useState } from 'react';
 import AppLogoIcon from '@/components/app-logo-icon';
 import PublicProjectChat from '@/components/public-project-chat';
 import { Button } from '@/components/ui/button';
-import type { Auth } from '@/types';
 
 export default function PublicLayout({
     children,
@@ -15,9 +14,7 @@ export default function PublicLayout({
 
     const page = usePage();
 
-    const { auth } = page.props as {
-        auth: Auth;
-    };
+    const { auth, publicChat } = page.props;
 
     const closeMenu = () => setMobileOpen(false);
 
@@ -236,7 +233,9 @@ export default function PublicLayout({
                 </div>
             </footer>
 
-            {showPublicChat && <PublicProjectChat />}
+            {showPublicChat && (
+                <PublicProjectChat initialModel={publicChat.model} />
+            )}
         </div>
     );
 }

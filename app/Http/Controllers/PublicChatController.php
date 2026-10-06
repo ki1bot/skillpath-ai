@@ -71,6 +71,7 @@ class PublicChatController extends Controller
         return response()->json(
             [
                 'message' => $result['message'],
+                'model' => $result['model'],
                 'blocked' => $result['blocked'],
             ],
             $result['available']

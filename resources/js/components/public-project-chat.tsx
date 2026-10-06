@@ -13,6 +13,7 @@ type ChatMessage = {
 
 type ChatResponse = {
     message?: string;
+    model?: string | null;
     blocked?: boolean;
     errors?: Record<string, string[]>;
 };
@@ -54,13 +55,20 @@ function csrfToken(): string {
     }
 }
 
-export default function PublicProjectChat() {
+export default function PublicProjectChat({
+    initialModel,
+}: {
+    initialModel: string;
+}) {
     const [open, setOpen] = useState(false);
     const [conversationStatus, setConversationStatus] =
         useState<ConversationStatus>('idle');
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState('');
     const [sending, setSending] = useState(false);
+    const [activeModel, setActiveModel] = useState<string | null>(
+        initialModel.trim() || null,
+    );
 
     const scrollRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -166,6 +174,7 @@ export default function PublicProjectChat() {
         setMessages([welcomeMessage]);
         setInput('');
         setSending(false);
+        setActiveModel(initialModel.trim() || null);
         setConversationStatus('active');
     };
 
@@ -177,6 +186,7 @@ export default function PublicProjectChat() {
         setMessages([]);
         setInput('');
         setSending(false);
+        setActiveModel(initialModel.trim() || null);
         setConversationStatus('ended');
     };
 
@@ -285,6 +295,10 @@ export default function PublicProjectChat() {
                 return;
             }
 
+            if (typeof data.model === 'string' && data.model.trim()) {
+                setActiveModel(data.model.trim());
+            }
+
             appendAssistantMessage(data.message.trim());
         } catch {
             if (
@@ -332,22 +346,28 @@ export default function PublicProjectChat() {
                         role="dialog"
                         aria-label="Bantuan SkillPath"
                     >
-                        <header className="flex shrink-0 items-center justify-between gap-3 border-b-2 border-[#171717] bg-[var(--neo-blue)] px-3 py-2.5 text-[#171717] sm:px-4 sm:py-3">
-                            <div className="min-w-0">
-                                <div className="flex items-center gap-2">
-                                    <span className="flex size-8 shrink-0 items-center justify-center rounded-[8px] border-2 border-[#171717] bg-[#fffdf8] shadow-[2px_2px_0_#171717]">
-                                        <MessageCircle className="size-4" />
-                                    </span>
+                        <header className="flex shrink-0 items-start justify-between gap-3 border-b-2 border-[#171717] bg-[var(--neo-blue)] px-3 py-2.5 text-[#171717] sm:px-4 sm:py-3">
+                            <div className="flex min-w-0 items-start gap-2">
+                                <span className="flex size-8 shrink-0 items-center justify-center rounded-[8px] border-2 border-[#171717] bg-[#fffdf8] shadow-[2px_2px_0_#171717]">
+                                    <MessageCircle className="size-4" />
+                                </span>
 
-                                    <div className="min-w-0">
-                                        <p className="truncate text-sm font-black">
-                                            Bantuan SkillPath
-                                        </p>
+                                <div className="min-w-0">
+                                    <p className="truncate text-sm font-black">
+                                        Bantuan SkillPath
+                                    </p>
 
-                                        <p className="truncate text-[10px] font-bold text-[#171717]/65 sm:text-[11px]">
-                                            {panelSubtitle}
-                                        </p>
-                                    </div>
+                                    <p className="truncate text-[10px] font-bold text-[#171717]/65 sm:text-[11px]">
+                                        {panelSubtitle}
+                                    </p>
+
+                                    {activeModel && (
+                                        <span className="mt-1.5 inline-flex max-w-full rounded-full border-2 border-[#171717] bg-[var(--neo-lime)] px-2 py-0.5 text-[9px] font-black text-[#171717] uppercase">
+                                            <span className="truncate">
+                                                AI · {activeModel}
+                                            </span>
+                                        </span>
+                                    )}
                                 </div>
                             </div>
 

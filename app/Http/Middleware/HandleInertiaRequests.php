@@ -54,6 +54,12 @@ class HandleInertiaRequests extends Middleware
                 'security.idle_timeout_minutes',
                 10,
             ),
+            'publicChat' => [
+                'model' => (string) config(
+                    'services.public_chat.model',
+                    'gpt-6-luna',
+                ),
+            ],
         ];
     }
 }

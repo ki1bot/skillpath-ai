@@ -8,6 +8,9 @@ declare module '@inertiajs/core' {
             auth: Auth;
             sidebarOpen: boolean;
             idleTimeoutMinutes: number;
+            publicChat: {
+                model: string;
+            };
             flash: {
                 success?: string | null;
                 error?: string | null;

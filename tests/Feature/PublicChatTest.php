@@ -98,6 +98,7 @@ class PublicChatTest extends TestCase
             ->assertOk()
             ->assertJson([
                 'message' => 'SkillPath membantu mahasiswa memahami kemampuan dan menentukan langkah belajar berikutnya dengan lebih terarah.',
+                'model' => 'gpt-6-luna',
                 'blocked' => false,
             ]);
 
@@ -140,6 +141,7 @@ class PublicChatTest extends TestCase
         $response
             ->assertOk()
             ->assertJson([
+                'model' => null,
                 'blocked' => true,
             ]);
 
@@ -209,6 +211,7 @@ class PublicChatTest extends TestCase
         )
             ->assertOk()
             ->assertJson([
+                'model' => 'gpt-5.6-luna',
                 'blocked' => false,
             ]);
 
