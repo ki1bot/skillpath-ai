@@ -150,6 +150,7 @@ class AiInsightService
         $result = $this->ask(
             $user,
             'progress',
+            'progress',
             'Rangkum perkembangan kesiapan berdasarkan data pada progress. Berikan saran pembagian waktu belajar berdasarkan waktu belajar dan materi yang tersedia pada schedule. Jelaskan pola kendala berdasarkan kendala yang benar-benar tercatat pada obstacles. Jangan membuat nilai, skill, materi, progres, kendala, atau fakta baru. Setiap bagian maksimal 90 kata.',
             [
                 'readiness' => $readiness,
@@ -208,6 +209,7 @@ class AiInsightService
     ): array {
         $result = $this->ask(
             $user,
+            'projects',
             'project-'.$project->id,
             'Berikan umpan balik proyek yang memiliki tiga bagian teks: Kekuatan, Risiko, dan Langkah berikutnya. Gunakan hanya deskripsi proyek, kesiapan, progres, dan catatan pengguna yang diberikan. Jangan mengklaim membaca source code atau repository. Jangan membuat progres, fakta, atau kemampuan baru. Maksimal 140 kata.',
             [
@@ -256,6 +258,7 @@ class AiInsightService
     ): array {
         $result = $this->ask(
             $user,
+            'materials',
             'exercise-'.$material->id,
             'Buat tepat tiga variasi latihan bernomor 1, 2, dan 3 berdasarkan practice_task yang diberikan. Variasi pertama lebih sederhana, variasi kedua menekankan bukti atau dokumentasi, dan variasi ketiga menambahkan edge case yang masih berkaitan dengan skill dan materi yang sama. Jangan membuat skill baru. Maksimal 120 kata.',
             [
@@ -293,6 +296,7 @@ class AiInsightService
      */
     private function ask(
         User $user,
+        string $feature,
         string $scope,
         string $task,
         array $context,
@@ -300,7 +304,9 @@ class AiInsightService
         array $requiredTags = [],
         int $timeoutSeconds = 30,
     ): ?array {
-        $providers = $this->providers->configured();
+        $providers = $this->providers->forFeature(
+            $feature,
+        );
 
         if ($providers === []) {
             return null;
@@ -316,7 +322,9 @@ class AiInsightService
             return null;
         }
 
-        $cacheKey = 'skillpath-ai-insight:v11:'
+        $cacheKey = 'skillpath-ai-insight:v12:'
+            .$feature
+            .':'
             .$scope
             .':'
             .$user->id
@@ -396,6 +404,7 @@ class AiInsightService
             Log::warning(
                 'AI insight providers were exhausted.',
                 [
+                    'feature' => $feature,
                     'scope' => $scope,
                     'user_id' => $user->id,
                     'elapsed_ms' => (int) round(
@@ -421,14 +430,18 @@ class AiInsightService
 
         Cache::forget($failureCacheKey);
 
-        Cache::put(
-            $cacheKey,
-            [
-                'content' => $result->content,
-                'model' => $result->model,
-            ],
-            now()->addDays(7),
-        );
+        if (! $this->providers->isBackupProvider(
+            $result->provider,
+        )) {
+            Cache::put(
+                $cacheKey,
+                [
+                    'content' => $result->content,
+                    'model' => $result->model,
+                ],
+                now()->addDays(7),
+            );
+        }
 
         return [
             'content' => $result->content,

@@ -62,7 +62,9 @@ class AiExplanationService
             return $unavailable;
         }
 
-        $providers = $this->providers->configured();
+        $providers = $this->providers->forFeature(
+            'skills',
+        );
 
         if ($providers === []) {
             return $unavailable;
@@ -81,7 +83,7 @@ class AiExplanationService
             return $unavailable;
         }
 
-        $cacheKey = 'skill-gap-explanation:v13:'
+        $cacheKey = 'skill-gap-explanation:v14:'
             .$user->id
             .':'
             .sha1(
@@ -180,15 +182,19 @@ class AiExplanationService
 
         Cache::forget($failureCacheKey);
 
-        Cache::put(
-            $cacheKey,
-            [
-                'summary' => $result->content,
-                'model' => $result->model,
-                'generated_by_ai' => true,
-            ],
-            now()->addDays(7),
-        );
+        if (! $this->providers->isBackupProvider(
+            $result->provider,
+        )) {
+            Cache::put(
+                $cacheKey,
+                [
+                    'summary' => $result->content,
+                    'model' => $result->model,
+                    'generated_by_ai' => true,
+                ],
+                now()->addDays(7),
+            );
+        }
 
         return new AiExplanationResult(
             $result->content,

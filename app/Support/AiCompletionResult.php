@@ -7,5 +7,6 @@ final readonly class AiCompletionResult
     public function __construct(
         public string $content,
         public string $model,
+        public ?string $provider = null,
     ) {}
 }

@@ -46,6 +46,11 @@
         <env name="OPENROUTER_API_KEY" value="" force="true"/>
         <env name="XKIRO_API_KEY" value="" force="true"/>
 
+        <env name="AI_SKILLS_PROVIDER" value="" force="true"/>
+        <env name="AI_PROGRESS_PROVIDER" value="" force="true"/>
+        <env name="AI_MATERIAL_PROVIDER" value="" force="true"/>
+        <env name="AI_PROJECT_PROVIDER" value="" force="true"/>
+
         <env name="GOOGLE_DRIVE_API_KEY" value="" force="true"/>
         <env name="GOOGLE_DRIVE_VERIFY_SUBMISSION_FOLDER" value="false" force="true"/>
 

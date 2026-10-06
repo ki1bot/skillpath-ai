@@ -242,6 +242,7 @@ class AiCompletionCoordinator
             return new AiCompletionResult(
                 $normalized,
                 $result->model,
+                $provider['name'],
             );
         }
 

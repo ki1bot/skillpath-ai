@@ -95,6 +95,28 @@ return [
             (int) env('AI_FAILURE_CACHE_SECONDS', 10),
         ),
 
+        'feature_providers' => [
+            'skills' => env(
+                'AI_SKILLS_PROVIDER',
+                'gemini',
+            ),
+
+            'progress' => env(
+                'AI_PROGRESS_PROVIDER',
+                'xkiro',
+            ),
+
+            'materials' => env(
+                'AI_MATERIAL_PROVIDER',
+                'openrouter',
+            ),
+
+            'projects' => env(
+                'AI_PROJECT_PROVIDER',
+                'juanrouter',
+            ),
+        ],
+
         'provider_order' => array_values(
             array_filter(
                 array_map(
