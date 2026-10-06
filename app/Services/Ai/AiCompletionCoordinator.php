@@ -49,6 +49,7 @@ class AiCompletionCoordinator
         $blockedProviders = [];
         $regularAttempts = [];
         $backupAttempts = [];
+        $backupAttemptKeys = [];
 
         $backupProviders = config(
             'services.ai.backup_providers',
@@ -107,10 +108,49 @@ class AiCompletionCoordinator
             ) {
                 $backupAttempts[] = $attempt;
 
+                $backupAttemptKeys[
+                    $this->attemptKey($attempt)
+                ] = true;
+
                 continue;
             }
 
             $regularAttempts[] = $attempt;
+        }
+
+        if ($normalizedBackupProviders !== []) {
+            foreach (
+                $this->providerHealth
+                    ->orderedAttempts(
+                        $providers,
+                        true,
+                    ) as $attempt
+            ) {
+                $providerName = Str::lower(
+                    trim(
+                        $attempt['provider']['name'],
+                    ),
+                );
+
+                if (
+                    ! in_array(
+                        $providerName,
+                        $normalizedBackupProviders,
+                        true,
+                    )
+                ) {
+                    continue;
+                }
+
+                $attemptKey = $this->attemptKey($attempt);
+
+                if (isset($backupAttemptKeys[$attemptKey])) {
+                    continue;
+                }
+
+                $backupAttempts[] = $attempt;
+                $backupAttemptKeys[$attemptKey] = true;
+            }
         }
 
         $attempts = [
@@ -194,6 +234,34 @@ class AiCompletionCoordinator
                 continue;
             }
 
+            if (
+                $this->isUnsupportedResolvedModel(
+                    $provider['name'],
+                    $model,
+                    $result->model,
+                )
+            ) {
+                $this->providerHealth->recordFailure(
+                    $provider['name'],
+                    $model,
+                    $provider['key'],
+                );
+
+                Log::warning(
+                    $this->registry->label(
+                        $provider['name'],
+                    )
+                        .' resolved an unsuitable model.',
+                    [
+                        'provider' => $provider['name'],
+                        'requested_model' => $model,
+                        'resolved_model' => $result->model,
+                    ],
+                );
+
+                continue;
+            }
+
             $this->providerHealth->recordSuccess(
                 $provider['name'],
                 $model,
@@ -242,12 +310,60 @@ class AiCompletionCoordinator
 
             return new AiCompletionResult(
                 $normalized,
-                $result->model,
+                $model,
                 $provider['name'],
             );
         }
 
         return null;
+    }
+
+    /**
+     * @param  array{
+     *     provider: array{
+     *         name: string,
+     *         key: string,
+     *         base_url: string,
+     *         models: list<string>
+     *     },
+     *     model: string
+     * }  $attempt
+     */
+    private function attemptKey(array $attempt): string
+    {
+        return Str::lower(
+            trim(
+                $attempt['provider']['name'],
+            ),
+        )
+            .'|'
+            .trim($attempt['model']);
+    }
+
+    private function isUnsupportedResolvedModel(
+        string $provider,
+        string $requestedModel,
+        string $resolvedModel,
+    ): bool {
+        if (
+            Str::lower(trim($provider)) !== 'openrouter'
+            || Str::lower(trim($requestedModel)) !== 'openrouter/free'
+        ) {
+            return false;
+        }
+
+        $resolvedModel = Str::lower(
+            trim($resolvedModel),
+        );
+
+        return Str::contains(
+            $resolvedModel,
+            [
+                'content-safety',
+                'moderation',
+                'guardrail',
+            ],
+        );
     }
 
     private function nextAttemptTimeout(
