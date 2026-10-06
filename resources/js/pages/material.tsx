@@ -235,6 +235,7 @@ export default function MaterialPage({
                                             className="flex gap-3 rounded-[10px] border-2 border-foreground/15 bg-muted/30 p-4 text-sm leading-6 font-semibold"
                                         >
                                             <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
+
                                             <span>{objective}</span>
                                         </div>
                                     ),
@@ -319,30 +320,45 @@ export default function MaterialPage({
 
                                     <div className="mt-4 space-y-2">
                                         <div className="h-3 w-full animate-pulse rounded bg-muted" />
+
                                         <div className="h-3 w-10/12 animate-pulse rounded bg-muted" />
                                     </div>
                                 </section>
                             }
                         >
                             {hasAiExercise && aiExercise ? (
-                                <section className="neo-card p-5 sm:p-6">
-                                    <details>
-                                        <summary className="cursor-pointer text-sm font-black">
-                                            Lihat latihan tambahan
-                                        </summary>
+                                <section className="neo-card overflow-hidden">
+                                    <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-foreground px-5 py-5 sm:px-6">
+                                        <p className="text-lg font-black">
+                                            Latihan tambahan
+                                        </p>
 
-                                        <div className="mt-4 border-t-2 border-foreground/15 pt-4">
-                                            <p className="text-sm leading-7 font-semibold whitespace-pre-line">
-                                                {aiExercise.content}
-                                            </p>
+                                        {aiExercise.model && (
+                                            <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-lime)] px-2.5 py-1 text-[10px] font-black text-[#171717] uppercase">
+                                                AI · {aiExercise.model}
+                                            </span>
+                                        )}
+                                    </div>
 
-                                            <p className="mt-4 text-xs leading-5 font-medium text-muted-foreground">
-                                                Latihan tambahan ini tidak
-                                                mengubah nilai atau status
-                                                materi.
-                                            </p>
-                                        </div>
-                                    </details>
+                                    <div className="p-5 sm:p-6">
+                                        <details>
+                                            <summary className="cursor-pointer text-sm font-black">
+                                                Lihat latihan tambahan
+                                            </summary>
+
+                                            <div className="mt-4 border-t-2 border-foreground/15 pt-4">
+                                                <p className="text-sm leading-7 font-semibold whitespace-pre-line">
+                                                    {aiExercise.content}
+                                                </p>
+
+                                                <p className="mt-4 text-xs leading-5 font-medium text-muted-foreground">
+                                                    Latihan tambahan ini tidak
+                                                    mengubah nilai atau status
+                                                    materi.
+                                                </p>
+                                            </div>
+                                        </details>
+                                    </div>
                                 </section>
                             ) : (
                                 <section className="neo-card p-5 sm:p-6">

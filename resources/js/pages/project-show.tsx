@@ -620,9 +620,17 @@ export default function ProjectShow({
 
                         <Card>
                             <CardHeader className="border-b-2 border-foreground">
-                                <CardTitle className="text-lg font-black">
-                                    Bantuan tambahan
-                                </CardTitle>
+                                <div className="flex flex-wrap items-center justify-between gap-3">
+                                    <CardTitle className="text-lg font-black">
+                                        Bantuan tambahan
+                                    </CardTitle>
+
+                                    {hasAiFeedback && aiFeedback?.model && (
+                                        <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-lime)] px-2.5 py-1 text-[10px] font-black text-[#171717] uppercase">
+                                            AI · {aiFeedback.model}
+                                        </span>
+                                    )}
+                                </div>
                             </CardHeader>
 
                             <CardContent className="pt-5">
