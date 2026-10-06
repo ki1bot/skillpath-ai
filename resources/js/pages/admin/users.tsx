@@ -84,9 +84,7 @@ function DeleteUserDialog({
 
                 <DialogDescription>
                     Akun {user.name} ({user.email}) akan dihapus secara permanen
-                    beserta data yang terkait dengan akun tersebut. Email
-                    pemberitahuan penghapusan juga akan dikirim ke alamat email
-                    pengguna.
+                    beserta data yang terkait dengan akun tersebut.
                 </DialogDescription>
 
                 <Form
