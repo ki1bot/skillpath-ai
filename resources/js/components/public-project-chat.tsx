@@ -1,4 +1,4 @@
-import { MessageCircle, Play, SendHorizontal, Square, X } from 'lucide-react';
+import { MessageCircle, Play, SendHorizontal, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -437,7 +437,6 @@ export default function PublicProjectChat() {
                                             className="w-full shrink-0 sm:w-auto"
                                             onClick={endConversation}
                                         >
-                                            <Square className="size-3.5" />
                                             Akhiri percakapan
                                         </Button>
                                     </div>

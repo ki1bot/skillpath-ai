@@ -8,6 +8,8 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Contracts\Hashing\Hasher;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+use MongoDB\Driver\Exception\Exception as MongoDriverException;
 
 class HybridUserProvider implements UserProvider
 {
@@ -83,8 +85,14 @@ class HybridUserProvider implements UserProvider
         }
 
         if ($this->credentialStore->usesMongo()) {
-            $identity = $this->credentialStore
-                ->findIdentityByEmail($email);
+            try {
+                $identity = $this->credentialStore
+                    ->findIdentityByEmail($email);
+            } catch (MongoDriverException $exception) {
+                $this->throwCredentialStoreUnavailable(
+                    $exception,
+                );
+            }
 
             $userId = $identity?->getAttribute(
                 'user_id',
@@ -130,8 +138,14 @@ class HybridUserProvider implements UserProvider
             return false;
         }
 
-        $passwordHash = $this->credentialStore
-            ->passwordHashFor($user);
+        try {
+            $passwordHash = $this->credentialStore
+                ->passwordHashFor($user);
+        } catch (MongoDriverException $exception) {
+            $this->throwCredentialStoreUnavailable(
+                $exception,
+            );
+        }
 
         return $passwordHash !== null
             && $this->hasher->check(
@@ -161,11 +175,25 @@ class HybridUserProvider implements UserProvider
             return;
         }
 
-        $this->credentialStore
-            ->rehashPasswordIfRequired(
-                $user,
-                $plainPassword,
-                $force,
-            );
+        try {
+            $this->credentialStore
+                ->rehashPasswordIfRequired(
+                    $user,
+                    $plainPassword,
+                    $force,
+                );
+        } catch (MongoDriverException $exception) {
+            report($exception);
+        }
+    }
+
+    private function throwCredentialStoreUnavailable(
+        MongoDriverException $exception,
+    ): never {
+        report($exception);
+
+        throw ValidationException::withMessages([
+            'email' => 'Layanan autentikasi sedang tidak dapat terhubung ke penyimpanan kredensial. Silakan coba lagi beberapa saat.',
+        ]);
     }
 }

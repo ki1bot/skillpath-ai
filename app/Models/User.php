@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
+use MongoDB\Driver\Exception\Exception as MongoDriverException;
 
 #[Fillable([
     'name',
@@ -64,12 +65,18 @@ class User extends Authenticatable
             return '';
         }
 
-        $identity = AuthIdentity::query()
-            ->where(
-                'user_id',
-                (int) $userId,
-            )
-            ->first();
+        try {
+            $identity = AuthIdentity::query()
+                ->where(
+                    'user_id',
+                    (int) $userId,
+                )
+                ->first();
+        } catch (MongoDriverException $exception) {
+            report($exception);
+
+            return '';
+        }
 
         $passwordHash = $identity?->getAttribute(
             'password_hash',
