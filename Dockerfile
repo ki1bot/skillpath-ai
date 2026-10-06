@@ -26,7 +26,8 @@ RUN apt-get update \
         pdo_pgsql \
         zip \
     && apt-get purge -y --auto-remove $PHPIZE_DEPS \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && printf 'expose_php=Off\n' > /usr/local/etc/php/conf.d/zz-security.ini
 
 COPY --from=composer /usr/bin/composer /usr/local/bin/composer
 COPY --from=node /usr/local/bin/node /usr/local/bin/node
@@ -111,7 +112,8 @@ RUN apt-get update \
         /etc/apache2/mods-enabled/mpm_prefork.load \
     && a2enmod mpm_prefork \
     && a2enmod rewrite headers expires deflate \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && printf 'expose_php=Off\n' > /usr/local/etc/php/conf.d/zz-security.ini
 
 ENV DOCKER_MODE=production
 ENV APP_ENV=production

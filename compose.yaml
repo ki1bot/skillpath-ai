@@ -9,8 +9,8 @@ services:
         init: true
         restart: unless-stopped
         ports:
-            - '8080:8080'
-            - '5173:5173'
+            - '127.0.0.1:8080:8080'
+            - '127.0.0.1:5173:5173'
         environment:
             DB_HOST: postgres
             DB_PORT: '5432'
@@ -40,7 +40,7 @@ services:
         image: postgres:18
         restart: unless-stopped
         ports:
-            - '5433:5432'
+            - '127.0.0.1:5433:5432'
         environment:
             POSTGRES_DB: ${DB_DATABASE}
             POSTGRES_USER: ${DB_USERNAME}
