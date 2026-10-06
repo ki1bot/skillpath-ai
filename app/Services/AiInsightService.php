@@ -1,488 +1,504 @@
 <?php
 
-namespace App\Services;
+namespace App\Support;
 
-use App\Models\LearningMaterial;
-use App\Models\PortfolioProject;
-use App\Models\Roadmap;
-use App\Models\RoadmapItem;
-use App\Models\User;
-use App\Models\UserProject;
-use App\Services\Ai\AiCompletionCoordinator;
-use App\Services\Ai\AiInsightFormatter;
-use App\Services\Ai\AiProviderRegistry;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 
-class AiInsightService
+class AiProviderHealth
 {
-    public function __construct(
-        private readonly AiProviderRegistry $providers,
-        private readonly AiCompletionCoordinator $coordinator,
-        private readonly AiInsightFormatter $formatter,
-    ) {}
-
     /**
-     * @param  array<string, mixed>  $readiness
-     * @return array{
-     *     progress: string|null,
-     *     schedule: string|null,
-     *     obstacles: string|null,
-     *     generated_by_ai: bool,
-     *     model: string|null
-     * }
-     */
-    public function progress(
-        User $user,
-        array $readiness,
-    ): array {
-        $history = $user->readinessSnapshots()
-            ->latest()
-            ->limit(5)
-            ->get([
-                'score',
-                'trigger',
-                'created_at',
-            ])
-            ->map(
-                fn ($item) => [
-                    'score' => (float) $item->score,
-                    'trigger' => $item->trigger,
-                    'date' => $item
-                        ->created_at
-                        ?->toDateTimeString(),
-                ],
-            )
-            ->values()
-            ->all();
-
-        $evaluations = $user->evaluations()
-            ->latest()
-            ->limit(5)
-            ->get([
-                'score',
-                'passed',
-                'created_at',
-            ])
-            ->map(
-                fn ($item) => [
-                    'score' => (float) $item->score,
-                    'passed' => (bool) $item->passed,
-                    'date' => $item
-                        ->created_at
-                        ?->toDateTimeString(),
-                ],
-            )
-            ->values()
-            ->all();
-
-        $obstacles = $user->progressLogs()
-            ->whereNotNull('obstacle')
-            ->where(
-                'obstacle',
-                '!=',
-                '',
-            )
-            ->latest('logged_at')
-            ->limit(8)
-            ->pluck('obstacle')
-            ->filter(
-                fn ($value) => is_string($value)
-                    && trim($value) !== '',
-            )
-            ->map(
-                fn ($value) => trim(
-                    (string) $value,
-                ),
-            )
-            ->values()
-            ->all();
-
-        $recentMinutes = (int) $user->progressLogs()
-            ->where(
-                'logged_at',
-                '>=',
-                now()->subDays(14),
-            )
-            ->sum('minutes_spent');
-
-        $roadmap = Roadmap::query()
-            ->where(
-                'user_id',
-                $user->id,
-            )
-            ->where(
-                'is_active',
-                true,
-            )
-            ->with(
-                'items.material:id,title,estimated_minutes',
-            )
-            ->first();
-
-        $nextMaterials = $roadmap
-            ?->items
-            ->filter(
-                fn (RoadmapItem $item) => in_array(
-                    $item->status,
-                    [
-                        'available',
-                        'needs_reinforcement',
-                    ],
-                    true,
-                ),
-            )
-            ->sortBy('position')
-            ->take(3)
-            ->map(
-                fn (RoadmapItem $item) => [
-                    'title' => $item
-                        ->material
-                        ->title,
-                    'minutes' => (int) $item
-                        ->material
-                        ->estimated_minutes,
-                ],
-            )
-            ->values()
-            ->all() ?? [];
-
-        $result = $this->ask(
-            $user,
-            'progress',
-            'progress',
-            'Rangkum perkembangan kesiapan berdasarkan data pada progress. Berikan saran pembagian waktu belajar berdasarkan waktu belajar dan materi yang tersedia pada schedule. Jelaskan pola kendala berdasarkan kendala yang benar-benar tercatat pada obstacles. Jangan membuat nilai, skill, materi, progres, kendala, atau fakta baru. Setiap bagian maksimal 90 kata.',
-            [
-                'readiness' => $readiness,
-                'history' => $history,
-                'evaluations' => $evaluations,
-                'weekly_study_hours' => (int) $user
-                    ->weekly_study_hours,
-                'recent_minutes_14_days' => $recentMinutes,
-                'next_materials' => $nextMaterials,
-                'obstacles' => $obstacles,
-            ],
-            900,
-            [
-                'PROGRESS',
-                'SCHEDULE',
-                'OBSTACLES',
-            ],
-            (int) config(
-                'services.ai.request_timeout',
-                30,
-            ),
-        );
-
-        if ($result === null) {
-            return $this->emptyProgress();
-        }
-
-        $sections = $this->formatter->sections(
-            $result['content'],
-        );
-
-        if ($sections === null) {
-            return $this->emptyProgress();
-        }
-
-        return [
-            ...$sections,
-            'generated_by_ai' => true,
-            'model' => $result['model'],
-        ];
-    }
-
-    /**
-     * @param  array<string, mixed>  $readiness
-     * @return array{
-     *     content: string|null,
-     *     generated_by_ai: bool,
-     *     model: string|null
-     * }
-     */
-    public function projectFeedback(
-        User $user,
-        PortfolioProject $project,
-        ?UserProject $userProject,
-        array $readiness,
-    ): array {
-        $result = $this->ask(
-            $user,
-            'projects',
-            'project-'.$project->id,
-            'Berikan umpan balik proyek yang memiliki tiga bagian teks: Kekuatan, Risiko, dan Langkah berikutnya. Gunakan hanya deskripsi proyek, kesiapan, progres, dan catatan pengguna yang diberikan. Jangan mengklaim membaca source code atau repository. Jangan membuat progres, fakta, atau kemampuan baru. Maksimal 140 kata.',
-            [
-                'project' => [
-                    'title' => $project->title,
-                    'difficulty' => $project->difficulty,
-                    'problem_statement' => $project
-                        ->problem_statement,
-                    'minimum_features' => $project
-                        ->minimum_features,
-                    'completion_criteria' => $project
-                        ->completion_criteria,
-                ],
-                'readiness' => $readiness,
-                'progress' => $userProject
-                    ? [
-                        'status' => $userProject->status,
-                        'percentage' => (int) $userProject
-                            ->progress_percentage,
-                        'notes' => $userProject->notes,
-                    ]
-                    : null,
-            ],
-            600,
-            [],
-            (int) config(
-                'services.ai.request_timeout',
-                30,
-            ),
-        );
-
-        return $result
-            ?? $this->emptyContent();
-    }
-
-    /**
-     * @return array{
-     *     content: string|null,
-     *     generated_by_ai: bool,
-     *     model: string|null
-     * }
-     */
-    public function exerciseVariation(
-        User $user,
-        LearningMaterial $material,
-    ): array {
-        $result = $this->ask(
-            $user,
-            'materials',
-            'exercise-'.$material->id,
-            'Buat tepat tiga variasi latihan bernomor 1, 2, dan 3 berdasarkan practice_task yang diberikan. Variasi pertama lebih sederhana, variasi kedua menekankan bukti atau dokumentasi, dan variasi ketiga menambahkan edge case yang masih berkaitan dengan skill dan materi yang sama. Jangan membuat skill baru. Maksimal 120 kata.',
-            [
-                'skill' => $material
-                    ->skill
-                    ?->name,
-                'title' => $material->title,
-                'difficulty' => $material
-                    ->difficulty,
-                'objectives' => $material
-                    ->learning_objectives,
-                'practice_task' => $material
-                    ->practice_task,
-            ],
-            500,
-            [],
-            (int) config(
-                'services.ai.request_timeout',
-                30,
-            ),
-        );
-
-        return $result
-            ?? $this->emptyContent();
-    }
-
-    /**
-     * @param  array<string, mixed>  $context
-     * @param  array<int, string>  $requiredTags
-     * @return array{
-     *     content: string,
-     *     generated_by_ai: true,
+     * @param  list<array{
+     *     name: string,
+     *     key: string,
+     *     base_url: string,
+     *     models: list<string>
+     * }>  $providers
+     * @return list<array{
+     *     provider: array{
+     *         name: string,
+     *         key: string,
+     *         base_url: string,
+     *         models: list<string>
+     *     },
      *     model: string
-     * }|null
+     * }>
      */
-    private function ask(
-        User $user,
-        string $feature,
-        string $scope,
-        string $task,
-        array $context,
-        int $maxTokens,
-        array $requiredTags = [],
-        int $timeoutSeconds = 30,
-    ): ?array {
-        $providers = $this->providers->forFeature(
-            $feature,
-        );
+    public function orderedAttempts(
+        array $providers,
+        bool $ignoreCooldown = false,
+    ): array {
+        $tieBreakMap = $this->providerTieBreakMap();
+        $now = now()->getTimestamp();
+        $attempts = [];
 
-        if ($providers === []) {
-            return null;
-        }
-
-        $json = json_encode(
-            $context,
-            JSON_UNESCAPED_UNICODE
-                | JSON_UNESCAPED_SLASHES,
-        );
-
-        if (! is_string($json)) {
-            return null;
-        }
-
-        $cacheKey = 'skillpath-ai-insight:v12:'
-            .$feature
-            .':'
-            .$scope
-            .':'
-            .$user->id
-            .':'
-            .sha1(
-                $this->providers->signature(
-                    $providers,
-                )
-                    .'|'
-                    .$json,
-            );
-
-        $cached = Cache::get($cacheKey);
-
-        if (
-            is_array($cached)
-            && is_string(
-                $cached['content'] ?? null,
-            )
-            && is_string(
-                $cached['model'] ?? null,
-            )
-            && $this->formatter
-                ->validCachedContent(
-                    $cached['content'],
-                    $requiredTags,
-                )
+        foreach (
+            $providers as $providerIndex => $provider
         ) {
-            return [
-                'content' => $cached['content'],
-                'generated_by_ai' => true,
-                'model' => $cached['model'],
-            ];
+            $providerTieBreak = $tieBreakMap[
+                $provider['name']
+            ] ?? (
+                count($tieBreakMap)
+                + $providerIndex
+            );
+
+            foreach (
+                $provider['models'] as $modelIndex => $model
+            ) {
+                $state = $this->state(
+                    $provider['name'],
+                    $model,
+                    $provider['key'],
+                );
+
+                $cooldownUntil = max(
+                    0,
+                    (int) (
+                        $state['cooldown_until']
+                        ?? 0
+                    ),
+                );
+
+                $failures = max(
+                    0,
+                    (int) (
+                        $state['failures']
+                        ?? 0
+                    ),
+                );
+
+                $isProbe = $failures > 0
+                    && $cooldownUntil <= $now;
+
+                $attempts[] = [
+                    'provider' => $provider,
+                    'model' => $model,
+                    'score' => $this->attemptScore(
+                        $state,
+                        $providerTieBreak,
+                        $modelIndex,
+                        $isProbe,
+                    ),
+                    'cooldown_until' => $cooldownUntil,
+                ];
+            }
         }
 
-        $failureCacheKey = $cacheKey.':failure';
-
-        if (Cache::has($failureCacheKey)) {
-            return null;
+        if ($attempts === []) {
+            return [];
         }
 
-        $startedAt = microtime(true);
-
-        $result = $this->coordinator->complete(
-            $providers,
-            $this->formatter->systemPrompt(
-                $task,
-                $requiredTags,
-            ),
-            $json,
-            $maxTokens,
-            $timeoutSeconds,
-            fn (string $content): ?string => $this
-                ->formatter
-                ->normalize(
-                    $content,
-                    $requiredTags,
+        $ready = $ignoreCooldown
+            ? $attempts
+            : array_values(
+                array_filter(
+                    $attempts,
+                    fn (array $attempt): bool => (
+                        $attempt['cooldown_until']
+                        <= $now
+                    ),
                 ),
-            $this->formatter->geminiJsonSchema(
-                $requiredTags,
+            );
+
+        /*
+         * Jika seluruh model sedang cooldown, jangan menembus
+         * circuit breaker.
+         *
+         * Request berikutnya akan mencoba kembali setelah minimal
+         * satu cooldown selesai.
+         */
+        if ($ready === []) {
+            return [];
+        }
+
+        usort(
+            $ready,
+            fn (
+                array $left,
+                array $right,
+            ): int => (
+                $left['score']
+                <=> $right['score']
             ),
-            'AI insight',
         );
 
-        if ($result === null) {
-            Cache::put(
-                $failureCacheKey,
-                true,
-                now()->addSeconds(
-                    (int) config(
-                        'services.ai.failure_cache_seconds',
-                        10,
-                    ),
+        return array_map(
+            fn (array $attempt): array => [
+                'provider' => $attempt[
+                    'provider'
+                ],
+                'model' => $attempt[
+                    'model'
+                ],
+            ],
+            $ready,
+        );
+    }
+
+    public function recordFailure(
+        string $provider,
+        string $model,
+        string $key,
+        bool $providerBlocked = false,
+    ): void {
+        $state = $this->state(
+            $provider,
+            $model,
+            $key,
+        );
+
+        $failures = min(
+            6,
+            max(
+                0,
+                (int) (
+                    $state['failures']
+                    ?? 0
+                ),
+            ) + 1,
+        );
+
+        $baseCooldown = max(
+            10,
+            (int) config(
+                'services.ai.health_cooldown_seconds',
+                45,
+            ),
+        );
+
+        $maxCooldown = max(
+            $baseCooldown,
+            (int) config(
+                'services.ai.health_max_cooldown_seconds',
+                300,
+            ),
+        );
+
+        $cooldownSeconds = min(
+            $maxCooldown,
+            (int) (
+                $baseCooldown
+                * (2 ** ($failures - 1))
+            ),
+        );
+
+        if ($providerBlocked) {
+            $cooldownSeconds = max(
+                $cooldownSeconds,
+                min(
+                    $maxCooldown,
+                    120,
                 ),
             );
+        }
 
-            Log::warning(
-                'AI insight providers were exhausted.',
-                [
-                    'feature' => $feature,
-                    'scope' => $scope,
-                    'user_id' => $user->id,
-                    'elapsed_ms' => (int) round(
-                        (
-                            microtime(true)
-                            - $startedAt
-                        ) * 1000,
+        $stateSeconds = max(
+            $cooldownSeconds + 60,
+            (int) config(
+                'services.ai.health_state_seconds',
+                600,
+            ),
+        );
+
+        Cache::put(
+            $this->cacheKey(
+                $provider,
+                $model,
+                $key,
+            ),
+            [
+                'failures' => $failures,
+
+                'cooldown_until' => now()
+                    ->addSeconds(
+                        $cooldownSeconds,
+                    )
+                    ->getTimestamp(),
+
+                'latency_ms' => max(
+                    0,
+                    (int) (
+                        $state['latency_ms']
+                        ?? 0
                     ),
-                    'providers' => collect($providers)
-                        ->map(
-                            fn (array $provider) => [
-                                'name' => $provider['name'],
-                                'models' => $provider['models'],
-                            ],
-                        )
-                        ->values()
-                        ->all(),
-                ],
-            );
+                ),
 
-            return null;
+                'last_success_at' => max(
+                    0,
+                    (int) (
+                        $state['last_success_at']
+                        ?? 0
+                    ),
+                ),
+
+                'last_failure_at' => now()
+                    ->getTimestamp(),
+            ],
+            now()->addSeconds(
+                $stateSeconds,
+            ),
+        );
+    }
+
+    public function recordSuccess(
+        string $provider,
+        string $model,
+        string $key,
+        int $latencyMs,
+    ): void {
+        $state = $this->state(
+            $provider,
+            $model,
+            $key,
+        );
+
+        $latencyMs = max(
+            1,
+            $latencyMs,
+        );
+
+        $previousLatency = max(
+            0,
+            (int) (
+                $state['latency_ms']
+                ?? 0
+            ),
+        );
+
+        /*
+         * Exponential moving average:
+         *
+         * 70% latency sebelumnya
+         * 30% latency request terbaru
+         */
+        $smoothedLatency = $previousLatency > 0
+            ? (int) round(
+                ($previousLatency * 0.7)
+                + ($latencyMs * 0.3),
+            )
+            : $latencyMs;
+
+        Cache::put(
+            $this->cacheKey(
+                $provider,
+                $model,
+                $key,
+            ),
+            [
+                'failures' => 0,
+
+                'cooldown_until' => 0,
+
+                'latency_ms' => $smoothedLatency,
+
+                'last_success_at' => now()
+                    ->getTimestamp(),
+
+                'last_failure_at' => max(
+                    0,
+                    (int) (
+                        $state['last_failure_at']
+                        ?? 0
+                    ),
+                ),
+            ],
+            now()->addSeconds(
+                max(
+                    60,
+                    (int) config(
+                        'services.ai.health_state_seconds',
+                        600,
+                    ),
+                ),
+            ),
+        );
+    }
+
+    /**
+     * @param  array{
+     *     failures?: int,
+     *     cooldown_until?: int,
+     *     latency_ms?: int,
+     *     last_success_at?: int,
+     *     last_failure_at?: int
+     * }  $state
+     */
+    private function attemptScore(
+        array $state,
+        int $providerTieBreak,
+        int $modelIndex,
+        bool $isProbe,
+    ): int {
+        /*
+         * Primary model tetap berada pada tier sebelum fallback.
+         */
+        $tierBase = $modelIndex * 1_000_000;
+
+        /*
+         * Model yang sebelumnya gagal mendapat kesempatan
+         * half-open probe setelah cooldown selesai.
+         */
+        if ($isProbe) {
+            return $tierBase
+                - 100_000
+                + $providerTieBreak;
         }
 
-        Cache::forget($failureCacheKey);
+        $latencyMs = max(
+            0,
+            (int) (
+                $state['latency_ms']
+                ?? 0
+            ),
+        );
 
-        if (! $this->providers->isBackupProvider(
-            $result->provider,
-        )) {
-            Cache::put(
-                $cacheKey,
-                [
-                    'content' => $result->content,
-                    'model' => $result->model,
-                ],
-                now()->addDays(7),
-            );
-        }
+        /*
+         * Provider baru yang belum memiliki data diberi nilai
+         * netral sebesar 8 detik.
+         */
+        $effectiveLatency = $latencyMs > 0
+            ? min(
+                $latencyMs,
+                60_000,
+            )
+            : 8_000;
 
-        return [
-            'content' => $result->content,
-            'generated_by_ai' => true,
-            'model' => $result->model,
-        ];
+        return $tierBase
+            + $effectiveLatency
+            + ($providerTieBreak * 10);
     }
 
     /**
      * @return array{
-     *     progress: null,
-     *     schedule: null,
-     *     obstacles: null,
-     *     generated_by_ai: false,
-     *     model: null
-     * }
+     *     failures: int,
+     *     cooldown_until: int,
+     *     latency_ms: int,
+     *     last_success_at: int,
+     *     last_failure_at: int
+     * }|array{}
      */
-    private function emptyProgress(): array
-    {
+    private function state(
+        string $provider,
+        string $model,
+        string $key,
+    ): array {
+        $state = Cache::get(
+            $this->cacheKey(
+                $provider,
+                $model,
+                $key,
+            ),
+        );
+
+        if (! is_array($state)) {
+            return [];
+        }
+
         return [
-            'progress' => null,
-            'schedule' => null,
-            'obstacles' => null,
-            'generated_by_ai' => false,
-            'model' => null,
+            'failures' => max(
+                0,
+                (int) (
+                    $state['failures']
+                    ?? 0
+                ),
+            ),
+
+            'cooldown_until' => max(
+                0,
+                (int) (
+                    $state['cooldown_until']
+                    ?? 0
+                ),
+            ),
+
+            'latency_ms' => max(
+                0,
+                (int) (
+                    $state['latency_ms']
+                    ?? 0
+                ),
+            ),
+
+            'last_success_at' => max(
+                0,
+                (int) (
+                    $state['last_success_at']
+                    ?? 0
+                ),
+            ),
+
+            'last_failure_at' => max(
+                0,
+                (int) (
+                    $state['last_failure_at']
+                    ?? 0
+                ),
+            ),
         ];
     }
 
     /**
-     * @return array{
-     *     content: null,
-     *     generated_by_ai: false,
-     *     model: null
-     * }
+     * @return array<string, int>
      */
-    private function emptyContent(): array
+    private function providerTieBreakMap(): array
     {
-        return [
-            'content' => null,
-            'generated_by_ai' => false,
-            'model' => null,
-        ];
+        $order = config(
+            'services.ai.provider_order',
+            [
+                'juanrouter',
+                'openrouter',
+                'xkiro',
+                'gemini',
+            ],
+        );
+
+        if (is_string($order)) {
+            $order = explode(
+                ',',
+                $order,
+            );
+        }
+
+        if (! is_array($order)) {
+            $order = [];
+        }
+
+        $priority = [];
+
+        foreach ($order as $index => $provider) {
+            if (
+                ! is_string($provider)
+                || trim($provider) === ''
+            ) {
+                continue;
+            }
+
+            $priority[
+                strtolower(
+                    trim($provider),
+                )
+            ] = (int) $index;
+        }
+
+        return $priority;
+    }
+
+    private function cacheKey(
+        string $provider,
+        string $model,
+        string $key,
+    ): string {
+        return 'skillpath-ai-provider-health:v2:'
+            .sha1(
+                strtolower(
+                    trim($provider),
+                )
+                .'|'
+                .trim($model)
+                .'|'
+                .hash(
+                    'sha256',
+                    $key,
+                ),
+            );
     }
 }

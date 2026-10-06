@@ -35,6 +35,7 @@ class AiCompletionCoordinator
         callable $normalize,
         ?array $geminiJsonSchema = null,
         string $logScope = 'AI',
+        bool $forceRetry = false,
     ): ?AiCompletionResult {
         if ($providers === []) {
             return null;
@@ -86,7 +87,10 @@ class AiCompletionCoordinator
 
         foreach (
             $this->providerHealth
-                ->orderedAttempts($providers) as $attempt
+                ->orderedAttempts(
+                    $providers,
+                    $forceRetry,
+                ) as $attempt
         ) {
             $providerName = Str::lower(
                 trim(
@@ -114,7 +118,7 @@ class AiCompletionCoordinator
             ...$backupAttempts,
         ];
 
-        foreach ($attempts as $attempt) {
+        foreach ($attempts as $attemptIndex => $attempt) {
             $provider = $attempt['provider'];
             $model = $attempt['model'];
 
@@ -142,7 +146,10 @@ class AiCompletionCoordinator
             }
 
             $attemptTimeout = $this
-                ->nextAttemptTimeout($deadline);
+                ->nextAttemptTimeout(
+                    $deadline,
+                    count($attempts) - $attemptIndex,
+                );
 
             if ($attemptTimeout === null) {
                 break;
@@ -187,6 +194,23 @@ class AiCompletionCoordinator
                 continue;
             }
 
+            $this->providerHealth->recordSuccess(
+                $provider['name'],
+                $model,
+                $provider['key'],
+                (int) round(
+                    (
+                        microtime(true)
+                        - $attemptStartedAt
+                    ) * 1000,
+                ),
+            );
+
+            $this->rateLimits->clear(
+                $provider['name'],
+                $provider['key'],
+            );
+
             $normalized = $normalize(
                 $result->content,
             );
@@ -195,12 +219,6 @@ class AiCompletionCoordinator
                 ! is_string($normalized)
                 || trim($normalized) === ''
             ) {
-                $this->providerHealth->recordFailure(
-                    $provider['name'],
-                    $model,
-                    $provider['key'],
-                );
-
                 Log::warning(
                     $this->registry->label(
                         $provider['name'],
@@ -222,23 +240,6 @@ class AiCompletionCoordinator
                 continue;
             }
 
-            $this->providerHealth->recordSuccess(
-                $provider['name'],
-                $model,
-                $provider['key'],
-                (int) round(
-                    (
-                        microtime(true)
-                        - $attemptStartedAt
-                    ) * 1000,
-                ),
-            );
-
-            $this->rateLimits->clear(
-                $provider['name'],
-                $provider['key'],
-            );
-
             return new AiCompletionResult(
                 $normalized,
                 $result->model,
@@ -251,6 +252,7 @@ class AiCompletionCoordinator
 
     private function nextAttemptTimeout(
         float $deadline,
+        int $remainingAttempts,
     ): ?int {
         $remainingSeconds = (int) floor(
             $deadline - microtime(true),
@@ -260,12 +262,26 @@ class AiCompletionCoordinator
             return null;
         }
 
-        return min(
-            $remainingSeconds,
+        $attemptLimit = max(
+            1,
             (int) config(
                 'services.ai.attempt_timeout',
                 10,
             ),
+        );
+
+        $fairShare = max(
+            1,
+            intdiv(
+                $remainingSeconds,
+                max(1, $remainingAttempts),
+            ),
+        );
+
+        return min(
+            $remainingSeconds,
+            $attemptLimit,
+            $fairShare,
         );
     }
 }

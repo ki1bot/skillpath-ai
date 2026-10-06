@@ -391,8 +391,17 @@ class AiInsightFormatter
             return false;
         }
 
-        return $indonesianCount >= 2
-            && $indonesianCount > $englishCount;
+        if (
+            $englishCount >= 4
+            && $englishCount > ($indonesianCount * 2)
+        ) {
+            return false;
+        }
+
+        return preg_match(
+            '/\p{L}/u',
+            $text,
+        ) === 1;
     }
 
     /**

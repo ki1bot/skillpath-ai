@@ -121,9 +121,10 @@ class AiExplanationService
 
         $failureCacheKey = $cacheKey.':failure';
 
-        if (Cache::has($failureCacheKey)) {
-            return $unavailable;
-        }
+        $forceRetry = (bool) Cache::pull(
+            $failureCacheKey,
+            false,
+        );
 
         $startedAt = microtime(true);
 
@@ -141,6 +142,7 @@ class AiExplanationService
                 ->normalizeSummary($content),
             null,
             'skill gap',
+            $forceRetry,
         );
 
         if ($result === null) {

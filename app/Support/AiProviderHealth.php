@@ -25,6 +25,7 @@ class AiProviderHealth
      */
     public function orderedAttempts(
         array $providers,
+        bool $ignoreCooldown = false,
     ): array {
         $tieBreakMap = $this->providerTieBreakMap();
         $now = now()->getTimestamp();
@@ -86,15 +87,17 @@ class AiProviderHealth
             return [];
         }
 
-        $ready = array_values(
-            array_filter(
-                $attempts,
-                fn (array $attempt): bool => (
-                    $attempt['cooldown_until']
-                    <= $now
+        $ready = $ignoreCooldown
+            ? $attempts
+            : array_values(
+                array_filter(
+                    $attempts,
+                    fn (array $attempt): bool => (
+                        $attempt['cooldown_until']
+                        <= $now
+                    ),
                 ),
-            ),
-        );
+            );
 
         /*
          * Jika seluruh model sedang cooldown, jangan menembus
