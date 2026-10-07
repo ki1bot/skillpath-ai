@@ -420,9 +420,10 @@ export default function MaterialPage({
 
                                             <p className="mt-2 text-sm leading-6 font-semibold">
                                                 Admin sudah memeriksa hasil
-                                                tugas dan nilainya berada di
-                                                atas 70. Materi berikutnya
-                                                sekarang dapat dibuka.
+                                                tugas dan nilainya sudah
+                                                mencapai nilai minimal 70.
+                                                Materi berikutnya sekarang dapat
+                                                dibuka.
                                             </p>
 
                                             {item.evaluation_score !== null &&
@@ -476,11 +477,11 @@ export default function MaterialPage({
                                     </p>
 
                                     <p className="mt-2 text-sm leading-6 font-semibold">
-                                        Nilai sebelumnya belum berada di atas
-                                        70. Selesaikan materi penguatan yang
-                                        muncul di jalur belajar, lalu kembali ke
-                                        materi ini untuk mengirim hasil
-                                        perbaikan.
+                                        Nilai sebelumnya belum mencapai nilai
+                                        minimal 70. Selesaikan materi penguatan
+                                        yang muncul di jalur belajar, lalu
+                                        kembali ke materi ini untuk mengirim
+                                        hasil perbaikan.
                                     </p>
 
                                     <Button
@@ -495,77 +496,72 @@ export default function MaterialPage({
                                     </Button>
                                 </div>
                             ) : (
-                                <>
-                                    <form
-                                        onSubmit={evaluate}
-                                        className="mt-6 grid gap-5"
-                                    >
-                                        <label>
-                                            <span className="mb-2 block text-sm font-black">
-                                                Folder hasil tugas di Google
-                                                Drive
-                                            </span>
+                                <form
+                                    onSubmit={evaluate}
+                                    className="mt-6 grid gap-5"
+                                >
+                                    <label>
+                                        <span className="mb-2 block text-sm font-black">
+                                            Folder hasil tugas di Google Drive
+                                        </span>
 
-                                            <Input
-                                                type="url"
-                                                value={
-                                                    evaluationForm.data
-                                                        .practical_evidence_url
-                                                }
-                                                onChange={(event) =>
-                                                    evaluationForm.setData(
-                                                        'practical_evidence_url',
-                                                        event.target.value,
-                                                    )
-                                                }
-                                                placeholder="https://drive.google.com/drive/folders/..."
-                                                required
-                                            />
+                                        <Input
+                                            type="url"
+                                            value={
+                                                evaluationForm.data
+                                                    .practical_evidence_url
+                                            }
+                                            onChange={(event) =>
+                                                evaluationForm.setData(
+                                                    'practical_evidence_url',
+                                                    event.target.value,
+                                                )
+                                            }
+                                            placeholder="https://drive.google.com/drive/folders/..."
+                                            required
+                                        />
 
-                                            <p className="mt-2 text-xs leading-5 font-medium text-muted-foreground">
-                                                Buat satu folder khusus untuk
-                                                tugas ini. Masukkan seluruh
-                                                hasil yang diminta pada
-                                                instruksi tugas ke dalam folder
-                                                tersebut. Atur akses agar admin
-                                                dapat membukanya, kemudian
-                                                tempel link folder di sini.
-                                            </p>
+                                        <p className="mt-2 text-xs leading-5 font-medium text-muted-foreground">
+                                            Buat satu folder khusus untuk tugas
+                                            ini. Masukkan seluruh hasil yang
+                                            diminta pada instruksi tugas ke
+                                            dalam folder tersebut. Atur akses
+                                            agar admin dapat membukanya,
+                                            kemudian tempel link folder di sini.
+                                        </p>
 
-                                            {evaluationForm.data.practical_evidence_url.trim()
-                                                .length > 0 &&
-                                                !evaluationEvidenceValid && (
-                                                    <p className="mt-2 text-xs font-bold text-destructive">
-                                                        Gunakan link folder
-                                                        Google Drive, bukan link
-                                                        file.
-                                                    </p>
-                                                )}
-
-                                            {evaluationForm.errors
-                                                .practical_evidence_url && (
+                                        {evaluationForm.data.practical_evidence_url.trim()
+                                            .length > 0 &&
+                                            !evaluationEvidenceValid && (
                                                 <p className="mt-2 text-xs font-bold text-destructive">
-                                                    {
-                                                        evaluationForm.errors
-                                                            .practical_evidence_url
-                                                    }
+                                                    Gunakan link folder Google
+                                                    Drive, bukan link file.
                                                 </p>
                                             )}
-                                        </label>
 
-                                        <Button
-                                            className="justify-self-start"
-                                            disabled={
-                                                !evaluationReady ||
-                                                evaluationForm.processing
-                                            }
-                                        >
-                                            {evaluationForm.processing
-                                                ? 'Mengirim...'
-                                                : 'Kirim untuk diperiksa'}
-                                        </Button>
-                                    </form>
-                                </>
+                                        {evaluationForm.errors
+                                            .practical_evidence_url && (
+                                            <p className="mt-2 text-xs font-bold text-destructive">
+                                                {
+                                                    evaluationForm.errors
+                                                        .practical_evidence_url
+                                                }
+                                            </p>
+                                        )}
+                                    </label>
+
+                                    <Button
+                                        className="justify-self-start"
+                                        disabled={
+                                            !evaluationReady ||
+                                            evaluationForm.processing
+                                        }
+                                    >
+                                        {evaluationForm.processing
+                                            ? 'Mengirim...'
+                                            : 'Kirim untuk diperiksa'}
+                                    </Button>
+                                </form>
                             )}
 
                             {latestEvaluation &&

@@ -39,18 +39,33 @@ class PortfolioProject extends Model
         return 'slug';
     }
 
+    /**
+     * @return BelongsTo<Career, $this>
+     */
     public function career(): BelongsTo
     {
         return $this->belongsTo(Career::class);
     }
 
+    /**
+     * @return BelongsToMany<Skill, $this>
+     */
     public function skills(): BelongsToMany
     {
-        return $this->belongsToMany(Skill::class, 'portfolio_project_skill')
-            ->withPivot(['required_level', 'weight'])
+        return $this->belongsToMany(
+            Skill::class,
+            'portfolio_project_skill',
+        )
+            ->withPivot([
+                'required_level',
+                'weight',
+            ])
             ->withTimestamps();
     }
 
+    /**
+     * @return HasMany<UserProject, $this>
+     */
     public function userProjects(): HasMany
     {
         return $this->hasMany(UserProject::class);

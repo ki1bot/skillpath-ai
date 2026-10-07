@@ -383,7 +383,7 @@ class SkillPathRecommendationTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_admin_score_71_passes_submission_and_completes_material(): void
+    public function test_admin_score_70_passes_submission_and_completes_material(): void
     {
         [$material, $item] = $this->databaseMaterialAndRoadmapItem();
 
@@ -411,8 +411,8 @@ class SkillPathRecommendationTest extends TestCase
                     $evaluation,
                 ),
                 [
-                    'score' => 71,
-                    'admin_notes' => 'Pekerjaan sudah memenuhi nilai kelulusan.',
+                    'score' => 70,
+                    'admin_notes' => 'Pekerjaan sudah memenuhi nilai minimal kelulusan.',
                 ],
             )
             ->assertSessionHasNoErrors()
@@ -431,7 +431,7 @@ class SkillPathRecommendationTest extends TestCase
         );
 
         $this->assertSame(
-            71.0,
+            70.0,
             (float) $evaluation->score,
         );
 
@@ -455,7 +455,7 @@ class SkillPathRecommendationTest extends TestCase
         );
 
         $this->assertSame(
-            71.0,
+            70.0,
             (float) $item->evaluation_score,
         );
 
@@ -503,7 +503,7 @@ class SkillPathRecommendationTest extends TestCase
         }
     }
 
-    public function test_admin_score_70_fails_submission_and_keeps_next_material_locked(): void
+    public function test_admin_score_69_fails_submission_and_keeps_next_material_locked(): void
     {
         [$material, $item] = $this->databaseMaterialAndRoadmapItem();
 
@@ -545,8 +545,8 @@ class SkillPathRecommendationTest extends TestCase
                     $evaluation,
                 ),
                 [
-                    'score' => 70,
-                    'admin_notes' => 'Nilai belum berada di atas 70.',
+                    'score' => 69,
+                    'admin_notes' => 'Nilai belum mencapai batas minimal 70.',
                 ],
             )
             ->assertSessionHasNoErrors()
@@ -566,7 +566,7 @@ class SkillPathRecommendationTest extends TestCase
         );
 
         $this->assertSame(
-            70.0,
+            69.0,
             (float) $evaluation->score,
         );
 

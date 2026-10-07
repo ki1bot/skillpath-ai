@@ -159,6 +159,20 @@ class AcademicPortfolioProjectSeeder extends Seeder
         $legacyProjects->delete();
     }
 
+    /**
+     * @return list<array{
+     *     career: string,
+     *     area: string,
+     *     title: string,
+     *     slug: string,
+     *     summary: string,
+     *     problem_statement: string,
+     *     estimated_hours: int,
+     *     minimum_features: list<string>,
+     *     stretch_features: list<string>,
+     *     completion_criteria: list<string>
+     * }>
+     */
     private function definitions(): array
     {
         return [

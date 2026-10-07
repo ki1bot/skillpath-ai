@@ -34,19 +34,10 @@ class ProjectController extends Controller
             ->map(function (PortfolioProject $project) use ($user, $service) {
                 return [
                     ...$project->toArray(),
-                    'readiness' => $service->calculate(
-                        $user,
-                        $project,
-                    ),
+                    'readiness' => $service->calculate($user, $project),
                     'user_project' => UserProject::query()
-                        ->where(
-                            'user_id',
-                            $user->id,
-                        )
-                        ->where(
-                            'portfolio_project_id',
-                            $project->id,
-                        )
+                        ->where('user_id', $user->id)
+                        ->where('portfolio_project_id', $project->id)
                         ->first(),
                 ];
             })
@@ -72,12 +63,9 @@ class ProjectController extends Controller
             )
             ->values();
 
-        return Inertia::render(
-            'projects',
-            [
-                'projects' => $projects,
-            ],
-        );
+        return Inertia::render('projects', [
+            'projects' => $projects,
+        ]);
     }
 
     public function show(
@@ -89,8 +77,7 @@ class ProjectController extends Controller
         $user = $request->user();
 
         abort_unless(
-            $portfolioProject->career_id
-                === $user->target_career_id,
+            $portfolioProject->career_id === $user->target_career_id,
             404,
         );
 
@@ -100,14 +87,8 @@ class ProjectController extends Controller
         ]);
 
         $userProject = UserProject::query()
-            ->where(
-                'user_id',
-                $user->id,
-            )
-            ->where(
-                'portfolio_project_id',
-                $portfolioProject->id,
-            )
+            ->where('user_id', $user->id)
+            ->where('portfolio_project_id', $portfolioProject->id)
             ->first();
 
         $readiness = $service->calculate(
@@ -115,48 +96,41 @@ class ProjectController extends Controller
             $portfolioProject,
         );
 
-        return Inertia::render(
-            'project-show',
-            [
-                'project' => $portfolioProject,
-                'readiness' => $readiness,
-                'userProject' => $userProject,
-                'aiFeedback' => Inertia::defer(
-                    function () use (
-                        $aiInsightService,
-                        $user,
-                        $portfolioProject,
-                        $userProject,
-                        $readiness,
-                    ): array {
-                        $aiFeedback = $aiInsightService
-                            ->projectFeedback(
-                                $user,
-                                $portfolioProject,
-                                $userProject,
-                                $readiness,
-                            );
+        return Inertia::render('project-show', [
+            'project' => $portfolioProject,
+            'readiness' => $readiness,
+            'userProject' => $userProject,
+            'aiFeedback' => Inertia::defer(
+                function () use (
+                    $aiInsightService,
+                    $user,
+                    $portfolioProject,
+                    $userProject,
+                    $readiness,
+                ): array {
+                    $aiFeedback = $aiInsightService
+                        ->projectFeedback(
+                            $user,
+                            $portfolioProject,
+                            $userProject,
+                            $readiness,
+                        );
 
-                        $generated = $aiFeedback['generated_by_ai']
-                            && is_string(
-                                $aiFeedback['content'],
-                            )
-                            && trim(
-                                $aiFeedback['content'],
-                            ) !== '';
+                    $generated = $aiFeedback['generated_by_ai']
+                        && is_string($aiFeedback['content'])
+                        && trim($aiFeedback['content']) !== '';
 
-                        return [
-                            'content' => $aiFeedback['content'],
-                            'generatedByAi' => $generated,
-                            'model' => $aiFeedback['model'],
-                            'message' => $generated
-                                ? null
-                                : 'Umpan balik AI sedang tidak tersedia. Silakan coba lagi.',
-                        ];
-                    },
-                ),
-            ],
-        );
+                    return [
+                        'content' => $aiFeedback['content'],
+                        'generatedByAi' => $generated,
+                        'model' => $aiFeedback['model'],
+                        'message' => $generated
+                            ? null
+                            : 'Umpan balik AI sedang tidak tersedia. Silakan coba lagi.',
+                    ];
+                },
+            ),
+        ]);
     }
 
     public function start(
@@ -167,14 +141,11 @@ class ProjectController extends Controller
         $user = $request->user();
 
         abort_unless(
-            $portfolioProject->career_id
-                === $user->target_career_id,
+            $portfolioProject->career_id === $user->target_career_id,
             404,
         );
 
-        $portfolioProject->loadMissing(
-            'skills',
-        );
+        $portfolioProject->loadMissing('skills');
 
         $readiness = $readinessService->calculate(
             $user,
@@ -226,20 +197,13 @@ class ProjectController extends Controller
         $user = $request->user();
 
         abort_unless(
-            $portfolioProject->career_id
-                === $user->target_career_id,
+            $portfolioProject->career_id === $user->target_career_id,
             404,
         );
 
         $current = UserProject::query()
-            ->where(
-                'user_id',
-                $user->id,
-            )
-            ->where(
-                'portfolio_project_id',
-                $portfolioProject->id,
-            )
+            ->where('user_id', $user->id)
+            ->where('portfolio_project_id', $portfolioProject->id)
             ->firstOrFail();
 
         if ($current->status === 'completed') {
@@ -270,14 +234,11 @@ class ProjectController extends Controller
         DB::transaction(
             function () use (
                 $user,
-                $portfolioProject,
                 $current,
                 $googleDriveUrl,
             ): void {
                 $userProject = UserProject::query()
-                    ->whereKey(
-                        $current->id,
-                    )
+                    ->whereKey($current->id)
                     ->lockForUpdate()
                     ->firstOrFail();
 

@@ -38,11 +38,17 @@ class UserProject extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return BelongsTo<PortfolioProject, $this>
+     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(

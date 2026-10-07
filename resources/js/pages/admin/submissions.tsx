@@ -228,8 +228,8 @@ function SubmissionCard({ submission }: { submission: Submission }) {
 
                         <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
                             Periksa seluruh hasil tugas terlebih dahulu. Nilai
-                            71 sampai 100 dinyatakan lulus dan membuka materi
-                            berikutnya. Nilai 0 sampai 70 belum lulus.
+                            70 sampai 100 dinyatakan lulus dan membuka materi
+                            berikutnya. Nilai 0 sampai 69 belum lulus.
                         </p>
 
                         <label className="mt-5 block">

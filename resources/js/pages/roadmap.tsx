@@ -109,7 +109,7 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                                 penyelesaian sekitar {roadmap.estimated_weeks}{' '}
                                 minggu. Kerjakan materi secara berurutan. Materi
                                 berikutnya baru terbuka setelah tugas sebelumnya
-                                diperiksa admin dan mendapat nilai di atas 70.
+                                diperiksa admin dan mendapat nilai minimal 70.
                             </p>
                         </div>
 
@@ -297,7 +297,7 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                                                         <br />
                                                         Selesaikan materi
                                                         sebelumnya dan dapatkan
-                                                        nilai di atas 70 untuk
+                                                        nilai minimal 70 untuk
                                                         membuka materi ini.
                                                     </div>
                                                 ) : (
