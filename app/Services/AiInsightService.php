@@ -210,30 +210,56 @@ class AiInsightService
         $result = $this->ask(
             $user,
             'projects',
-            'project-'.$project->id,
-            'Berikan umpan balik proyek yang memiliki tiga bagian teks: Kekuatan, Risiko, dan Langkah berikutnya. Gunakan hanya deskripsi proyek, kesiapan, progres, dan catatan pengguna yang diberikan. Jangan mengklaim membaca source code atau repository. Jangan membuat progres, fakta, atau kemampuan baru. Maksimal 140 kata.',
+            'project-task-explanation-'.$project->id,
+            'Jelaskan tugas proyek ini agar mahasiswa memahami apa yang harus dikerjakan tanpa mengerjakan proyek untuk mereka. Susun penjelasan menjadi empat bagian dengan judul teks biasa: Tujuan proyek, Urutan pengerjaan, Isi folder Google Drive, dan Cek sebelum dikumpulkan. Jelaskan hubungan antara masalah proyek, bagian wajib, kemampuan yang digunakan, dan kriteria selesai. Jika data readiness atau progress tersedia, gunakan hanya untuk menunjukkan bagian yang sebaiknya lebih diperhatikan. Jangan memberikan jawaban akhir, source code jadi, hasil analisis jadi, nilai, atau requirement baru yang tidak ada pada data. Jangan mengubah bagian wajib dan kriteria selesai. Gunakan bahasa yang wajar seperti penjelasan dosen atau asisten kepada mahasiswa. Maksimal 220 kata.',
             [
                 'project' => [
+                    'career' => $project
+                        ->career
+                        ?->name,
                     'title' => $project->title,
                     'difficulty' => $project->difficulty,
+                    'summary' => $project->summary,
                     'problem_statement' => $project
                         ->problem_statement,
+                    'skills' => $project
+                        ->skills
+                        ->pluck('name')
+                        ->values()
+                        ->all(),
                     'minimum_features' => $project
                         ->minimum_features,
+                    'stretch_features' => $project
+                        ->stretch_features,
                     'completion_criteria' => $project
                         ->completion_criteria,
+                    'estimated_hours' => (int) $project
+                        ->estimated_hours,
                 ],
-                'readiness' => $readiness,
+                'readiness' => [
+                    'score' => $readiness[
+                        'score'
+                    ] ?? null,
+                    'recommendation' => $readiness[
+                        'recommendation'
+                    ] ?? null,
+                    'top_gaps' => $readiness[
+                        'top_gaps'
+                    ] ?? [],
+                ],
                 'progress' => $userProject
                     ? [
                         'status' => $userProject->status,
                         'percentage' => (int) $userProject
                             ->progress_percentage,
-                        'notes' => $userProject->notes,
+                        'evaluation_score' => $userProject
+                            ->evaluation_score,
+                        'admin_notes' => $userProject
+                            ->admin_notes,
                     ]
                     : null,
             ],
-            600,
+            850,
             [],
             (int) config(
                 'services.ai.request_timeout',
@@ -259,8 +285,8 @@ class AiInsightService
         $result = $this->ask(
             $user,
             'materials',
-            'exercise-'.$material->id,
-            'Buat tepat tiga variasi latihan bernomor 1, 2, dan 3 berdasarkan practice_task yang diberikan. Variasi pertama lebih sederhana, variasi kedua menekankan bukti atau dokumentasi, dan variasi ketiga menambahkan edge case yang masih berkaitan dengan skill dan materi yang sama. Jangan membuat skill baru. Maksimal 120 kata.',
+            'material-task-explanation-'.$material->id,
+            'Jelaskan tugas praktik yang sudah diberikan agar mahasiswa memahami maksud tugas dan cara mengerjakannya. Jangan membuat latihan baru. Susun penjelasan menjadi empat bagian dengan judul teks biasa: Tujuan tugas, Urutan pengerjaan, Isi folder Google Drive, dan Cek sebelum dikumpulkan. Gunakan hanya learning objectives dan practice_task yang tersedia. Jelaskan istilah teknis seperlunya dengan bahasa yang mudah dipahami. Jangan memberikan jawaban akhir, source code jadi, hasil analisis jadi, nilai, atau requirement tambahan yang tidak ada pada tugas. AI hanya membantu menjelaskan tugas, bukan mengerjakan atau menilai tugas. Gunakan bahasa yang alami seperti penjelasan seorang asisten kepada mahasiswa. Maksimal 200 kata.',
             [
                 'skill' => $material
                     ->skill
@@ -268,12 +294,14 @@ class AiInsightService
                 'title' => $material->title,
                 'difficulty' => $material
                     ->difficulty,
+                'material_type' => $material
+                    ->material_type,
                 'objectives' => $material
                     ->learning_objectives,
                 'practice_task' => $material
                     ->practice_task,
             ],
-            500,
+            750,
             [],
             (int) config(
                 'services.ai.request_timeout',
@@ -322,7 +350,7 @@ class AiInsightService
             return null;
         }
 
-        $cacheKey = 'skillpath-ai-insight:v12:'
+        $cacheKey = 'skillpath-ai-insight:v13:'
             .$feature
             .':'
             .$scope

@@ -779,7 +779,7 @@ export default function ProjectShow({
                             <CardHeader className="border-b-2 border-foreground">
                                 <div className="flex flex-wrap items-center justify-between gap-3">
                                     <CardTitle className="text-lg font-black">
-                                        Bantuan tambahan
+                                        Bantuan AI memahami proyek
                                     </CardTitle>
 
                                     {hasAiFeedback && aiFeedback?.model && (
@@ -794,16 +794,23 @@ export default function ProjectShow({
                                 <Deferred
                                     data="aiFeedback"
                                     fallback={
-                                        <div className="space-y-2">
-                                            <div className="h-3 w-full animate-pulse rounded bg-muted" />
-                                            <div className="h-3 w-9/12 animate-pulse rounded bg-muted" />
+                                        <div>
+                                            <p className="text-sm font-black">
+                                                Memuat penjelasan proyek dari
+                                                AI...
+                                            </p>
+
+                                            <div className="mt-3 space-y-2">
+                                                <div className="h-3 w-full animate-pulse rounded bg-muted" />
+                                                <div className="h-3 w-9/12 animate-pulse rounded bg-muted" />
+                                            </div>
                                         </div>
                                     }
                                 >
                                     {hasAiFeedback && aiFeedback ? (
                                         <details>
                                             <summary className="cursor-pointer text-sm font-black">
-                                                Lihat saran pengerjaan
+                                                Lihat penjelasan tugas proyek
                                             </summary>
 
                                             <div className="mt-4 border-t-2 border-foreground/15 pt-4">
@@ -812,11 +819,13 @@ export default function ProjectShow({
                                                 </p>
 
                                                 <p className="mt-3 text-xs leading-5 font-medium text-muted-foreground">
-                                                    Saran ini membantu
-                                                    pengerjaan, tetapi nilai
-                                                    tetap diberikan admin dari
-                                                    hasil proyek yang
-                                                    dikumpulkan.
+                                                    AI hanya membantu memahami
+                                                    tujuan proyek, urutan
+                                                    pengerjaan, dan hasil yang
+                                                    perlu dikumpulkan. AI tidak
+                                                    menentukan nilai dan tidak
+                                                    menggantikan pemeriksaan
+                                                    admin.
                                                 </p>
                                             </div>
                                         </details>
@@ -826,8 +835,13 @@ export default function ProjectShow({
                                                 <CircleAlert className="mt-0.5 size-5 shrink-0" />
 
                                                 <p className="text-sm leading-6 font-medium text-muted-foreground">
-                                                    {aiFeedback?.message ??
-                                                        'Saran tambahan sedang tidak tersedia. Tugas utama tetap dapat dikerjakan.'}
+                                                    Penjelasan proyek dari AI
+                                                    sedang tidak tersedia.
+                                                    Proyek tetap dapat
+                                                    dikerjakan berdasarkan
+                                                    bagian wajib dan kriteria
+                                                    selesai yang tersedia di
+                                                    halaman ini.
                                                 </p>
                                             </div>
 

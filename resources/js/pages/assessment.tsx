@@ -539,7 +539,7 @@ export default function AssessmentPage({
 
                 {!assessment.started ? (
                     <section className="neo-card mt-6 p-6 sm:p-8">
-                        <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start">
+                        <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_280px]">
                             <div>
                                 <div className="flex size-11 items-center justify-center rounded-[10px] border-2 border-[#171717] bg-[var(--neo-blue)] text-[#171717]">
                                     {isRepeat ? (
@@ -576,7 +576,7 @@ export default function AssessmentPage({
                                 </Button>
                             </div>
 
-                            <div className="rounded-[12px] border-2 border-foreground bg-muted/30 p-5">
+                            <div className="rounded-[12px] border-2 border-foreground bg-muted/30 p-5 lg:self-end">
                                 <p className="text-xs font-black tracking-wide uppercase">
                                     Yang perlu diketahui
                                 </p>

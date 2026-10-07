@@ -156,7 +156,12 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                                 </div>
                             </div>
 
-                            <div className="space-y-4 border-l-2 border-dashed border-foreground/35 pl-5 sm:pl-8">
+                            <div className="relative space-y-4">
+                                <div
+                                    aria-hidden="true"
+                                    className="absolute inset-y-0 left-0 border-l-2 border-dashed border-foreground/35"
+                                />
+
                                 {stage.items.map((item) => {
                                     const reinforcementRequired =
                                         item.status ===
@@ -174,17 +179,11 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                                         'reinforcement';
 
                                     return (
-                                        <article
+                                        <div
                                             key={item.id}
-                                            className={`neo-card-flat relative grid gap-5 p-5 md:grid-cols-[auto_1fr_auto] md:items-center ${
-                                                locked ? 'opacity-65' : ''
-                                            } ${
-                                                reinforcement
-                                                    ? 'border-[var(--neo-pink)]'
-                                                    : ''
-                                            }`}
+                                            className="relative pl-5 sm:pl-8"
                                         >
-                                            <div className="absolute top-8 -left-[31px] flex size-6 items-center justify-center rounded-full border-2 border-foreground bg-background sm:-left-[43px]">
+                                            <div className="absolute top-1/2 left-px z-10 flex size-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-foreground bg-background">
                                                 {itemCompleted ? (
                                                     <CheckCircle2 className="size-4 fill-secondary" />
                                                 ) : reinforcementRequired ? (
@@ -196,142 +195,154 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                                                 )}
                                             </div>
 
-                                            <div className="hidden size-12 items-center justify-center rounded-[11px] border-2 border-foreground bg-muted font-mono text-sm font-black md:flex">
-                                                {String(item.position).padStart(
-                                                    2,
-                                                    '0',
-                                                )}
-                                            </div>
-
-                                            <div>
-                                                <div className="flex flex-wrap items-center gap-2">
-                                                    <span className="text-xs font-black tracking-wide text-muted-foreground uppercase">
-                                                        {
-                                                            item.material.skill
-                                                                .name
-                                                        }
-                                                    </span>
-
-                                                    {reinforcement && (
-                                                        <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-pink)] px-2 py-0.5 text-[10px] font-black text-[#171717] uppercase">
-                                                            Penguatan
-                                                        </span>
-                                                    )}
-
-                                                    {item.status ===
-                                                        'needs_reinforcement' && (
-                                                        <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-orange)] px-2 py-0.5 text-[10px] font-black text-[#171717] uppercase">
-                                                            Perlu diperbaiki
-                                                        </span>
-                                                    )}
+                                            <article
+                                                className={`neo-card-flat grid gap-5 p-5 md:grid-cols-[auto_1fr_auto] md:items-center ${
+                                                    locked ? 'opacity-65' : ''
+                                                } ${
+                                                    reinforcement
+                                                        ? 'border-[var(--neo-pink)]'
+                                                        : ''
+                                                }`}
+                                            >
+                                                <div className="hidden size-12 items-center justify-center rounded-[11px] border-2 border-foreground bg-muted font-mono text-sm font-black md:flex">
+                                                    {String(
+                                                        item.position,
+                                                    ).padStart(2, '0')}
                                                 </div>
 
-                                                <h3 className="mt-1 text-lg font-black">
-                                                    {item.material.title}
-                                                </h3>
+                                                <div>
+                                                    <div className="flex flex-wrap items-center gap-2">
+                                                        <span className="text-xs font-black tracking-wide text-muted-foreground uppercase">
+                                                            {
+                                                                item.material
+                                                                    .skill.name
+                                                            }
+                                                        </span>
 
-                                                <p className="mt-2 text-sm leading-relaxed font-medium text-muted-foreground">
-                                                    {item.material.summary}
-                                                </p>
-
-                                                <div className="mt-3 flex flex-wrap gap-3 text-xs font-bold">
-                                                    <span>
-                                                        {
-                                                            item.material
-                                                                .estimated_minutes
-                                                        }{' '}
-                                                        menit
-                                                    </span>
-
-                                                    <span>
-                                                        {
-                                                            item.material
-                                                                .difficulty
-                                                        }
-                                                    </span>
-
-                                                    <span>
-                                                        {statusLabel[
-                                                            item.status
-                                                        ] ?? item.status}
-                                                    </span>
-
-                                                    {item.evaluation_score !==
-                                                        null &&
-                                                        item.evaluation_score !==
-                                                            undefined && (
-                                                            <span>
-                                                                Nilai:{' '}
-                                                                {
-                                                                    item.evaluation_score
-                                                                }
-                                                                /100
+                                                        {reinforcement && (
+                                                            <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-pink)] px-2 py-0.5 text-[10px] font-black text-[#171717] uppercase">
+                                                                Penguatan
                                                             </span>
                                                         )}
 
-                                                    {item.evaluation_attempts >
-                                                        0 && (
+                                                        {item.status ===
+                                                            'needs_reinforcement' && (
+                                                            <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-orange)] px-2 py-0.5 text-[10px] font-black text-[#171717] uppercase">
+                                                                Perlu diperbaiki
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    <h3 className="mt-1 text-lg font-black">
+                                                        {item.material.title}
+                                                    </h3>
+
+                                                    <p className="mt-2 text-sm leading-relaxed font-medium text-muted-foreground">
+                                                        {item.material.summary}
+                                                    </p>
+
+                                                    <div className="mt-3 flex flex-wrap gap-3 text-xs font-bold">
                                                         <span>
                                                             {
-                                                                item.evaluation_attempts
+                                                                item.material
+                                                                    .estimated_minutes
                                                             }{' '}
-                                                            pengumpulan
+                                                            menit
                                                         </span>
+
+                                                        <span>
+                                                            {
+                                                                item.material
+                                                                    .difficulty
+                                                            }
+                                                        </span>
+
+                                                        <span>
+                                                            {statusLabel[
+                                                                item.status
+                                                            ] ?? item.status}
+                                                        </span>
+
+                                                        {item.evaluation_score !==
+                                                            null &&
+                                                            item.evaluation_score !==
+                                                                undefined && (
+                                                                <span>
+                                                                    Nilai:{' '}
+                                                                    {
+                                                                        item.evaluation_score
+                                                                    }
+                                                                    /100
+                                                                </span>
+                                                            )}
+
+                                                        {item.evaluation_attempts >
+                                                            0 && (
+                                                            <span>
+                                                                {
+                                                                    item.evaluation_attempts
+                                                                }{' '}
+                                                                pengumpulan
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                <div className="md:text-right">
+                                                    {reinforcementRequired ? (
+                                                        <div className="max-w-48 text-xs font-bold text-muted-foreground">
+                                                            <RotateCcw className="mb-2 inline size-4" />
+                                                            <br />
+                                                            Selesaikan materi
+                                                            penguatan yang
+                                                            muncul sebelum
+                                                            kembali ke materi
+                                                            ini.
+                                                        </div>
+                                                    ) : item.status ===
+                                                      'locked' ? (
+                                                        <div className="max-w-52 text-xs leading-5 font-bold text-muted-foreground">
+                                                            <LockKeyhole className="mb-2 inline size-4" />
+                                                            <br />
+                                                            Selesaikan materi
+                                                            sebelumnya dan
+                                                            dapatkan nilai
+                                                            minimal 70 untuk
+                                                            membuka materi ini.
+                                                        </div>
+                                                    ) : (
+                                                        <Button
+                                                            asChild
+                                                            variant={
+                                                                itemCompleted
+                                                                    ? 'outline'
+                                                                    : 'default'
+                                                            }
+                                                            size="sm"
+                                                        >
+                                                            <Link
+                                                                href={`/roadmap/materials/${item.material.slug}`}
+                                                            >
+                                                                {itemCompleted
+                                                                    ? 'Tinjau ulang'
+                                                                    : item.status ===
+                                                                        'needs_reinforcement'
+                                                                      ? 'Perbaiki tugas'
+                                                                      : 'Buka materi'}
+
+                                                                {item.status ===
+                                                                    'needs_reinforcement' ||
+                                                                reinforcement ? (
+                                                                    <RotateCcw />
+                                                                ) : (
+                                                                    <ArrowRight />
+                                                                )}
+                                                            </Link>
+                                                        </Button>
                                                     )}
                                                 </div>
-                                            </div>
-
-                                            <div className="md:text-right">
-                                                {reinforcementRequired ? (
-                                                    <div className="max-w-48 text-xs font-bold text-muted-foreground">
-                                                        <RotateCcw className="mb-2 inline size-4" />
-                                                        <br />
-                                                        Selesaikan materi
-                                                        penguatan yang muncul
-                                                        sebelum kembali ke
-                                                        materi ini.
-                                                    </div>
-                                                ) : item.status === 'locked' ? (
-                                                    <div className="max-w-52 text-xs leading-5 font-bold text-muted-foreground">
-                                                        <LockKeyhole className="mb-2 inline size-4" />
-                                                        <br />
-                                                        Selesaikan materi
-                                                        sebelumnya dan dapatkan
-                                                        nilai minimal 70 untuk
-                                                        membuka materi ini.
-                                                    </div>
-                                                ) : (
-                                                    <Button
-                                                        asChild
-                                                        variant={
-                                                            itemCompleted
-                                                                ? 'outline'
-                                                                : 'default'
-                                                        }
-                                                        size="sm"
-                                                    >
-                                                        <Link
-                                                            href={`/roadmap/materials/${item.material.slug}`}
-                                                        >
-                                                            {itemCompleted
-                                                                ? 'Tinjau ulang'
-                                                                : item.status ===
-                                                                    'needs_reinforcement'
-                                                                  ? 'Perbaiki tugas'
-                                                                  : 'Buka materi'}
-
-                                                            {item.status ===
-                                                                'needs_reinforcement' ||
-                                                            reinforcement ? (
-                                                                <RotateCcw />
-                                                            ) : (
-                                                                <ArrowRight />
-                                                            )}
-                                                        </Link>
-                                                    </Button>
-                                                )}
-                                            </div>
-                                        </article>
+                                            </article>
+                                        </div>
                                     );
                                 })}
                             </div>

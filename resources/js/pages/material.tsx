@@ -306,7 +306,7 @@ export default function MaterialPage({
                             fallback={
                                 <section className="neo-card p-5 sm:p-6">
                                     <p className="text-sm font-black">
-                                        Memuat latihan tambahan...
+                                        Memuat penjelasan tugas dari AI...
                                     </p>
 
                                     <div className="mt-4 space-y-2">
@@ -320,7 +320,7 @@ export default function MaterialPage({
                                 <section className="neo-card overflow-hidden">
                                     <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-foreground px-5 py-5 sm:px-6">
                                         <p className="text-lg font-black">
-                                            Latihan tambahan
+                                            Bantuan AI memahami tugas
                                         </p>
 
                                         {aiExercise.model && (
@@ -333,7 +333,7 @@ export default function MaterialPage({
                                     <div className="p-5 sm:p-6">
                                         <details>
                                             <summary className="cursor-pointer text-sm font-black">
-                                                Lihat latihan tambahan
+                                                Lihat penjelasan tugas
                                             </summary>
 
                                             <div className="mt-4 border-t-2 border-foreground/15 pt-4">
@@ -342,9 +342,13 @@ export default function MaterialPage({
                                                 </p>
 
                                                 <p className="mt-4 text-xs leading-5 font-medium text-muted-foreground">
-                                                    Latihan tambahan ini tidak
-                                                    menentukan nilai dan tidak
-                                                    mengubah status materi.
+                                                    AI hanya membantu
+                                                    menjelaskan maksud tugas,
+                                                    urutan pengerjaan, dan hasil
+                                                    yang perlu dikumpulkan.
+                                                    Penilaian tetap dilakukan
+                                                    oleh admin berdasarkan isi
+                                                    folder Google Drive.
                                                 </p>
                                             </div>
                                         </details>
@@ -357,12 +361,14 @@ export default function MaterialPage({
 
                                         <div>
                                             <p className="text-sm font-black">
-                                                Latihan tambahan belum tersedia
+                                                Penjelasan tugas dari AI belum
+                                                tersedia
                                             </p>
 
                                             <p className="mt-1 text-sm leading-6 font-medium text-muted-foreground">
-                                                {aiExercise?.message ??
-                                                    'Kamu tetap dapat menyelesaikan materi dan mengirim tugas tanpa latihan tambahan.'}
+                                                Tugas tetap dapat dikerjakan
+                                                berdasarkan instruksi praktik
+                                                yang tersedia di atas.
                                             </p>
                                         </div>
                                     </div>
