@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\AdminController::index
-* @see app/Http/Controllers/AdminController.php:21
+* @see app/Http/Controllers/AdminController.php:23
 * @route '/admin'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::index
-* @see app/Http/Controllers/AdminController.php:21
+* @see app/Http/Controllers/AdminController.php:23
 * @route '/admin'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\AdminController::index
-* @see app/Http/Controllers/AdminController.php:21
+* @see app/Http/Controllers/AdminController.php:23
 * @route '/admin'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\AdminController::index
-* @see app/Http/Controllers/AdminController.php:21
+* @see app/Http/Controllers/AdminController.php:23
 * @route '/admin'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\AdminController::index
-* @see app/Http/Controllers/AdminController.php:21
+* @see app/Http/Controllers/AdminController.php:23
 * @route '/admin'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 
 /**
 * @see \App\Http\Controllers\AdminController::index
-* @see app/Http/Controllers/AdminController.php:21
+* @see app/Http/Controllers/AdminController.php:23
 * @route '/admin'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +65,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\AdminController::index
-* @see app/Http/Controllers/AdminController.php:21
+* @see app/Http/Controllers/AdminController.php:23
 * @route '/admin'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -82,7 +82,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\AdminController::storeCareer
-* @see app/Http/Controllers/AdminController.php:78
+* @see app/Http/Controllers/AdminController.php:84
 * @route '/admin/careers'
 */
 export const storeCareer = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -97,7 +97,7 @@ storeCareer.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::storeCareer
-* @see app/Http/Controllers/AdminController.php:78
+* @see app/Http/Controllers/AdminController.php:84
 * @route '/admin/careers'
 */
 storeCareer.url = (options?: RouteQueryOptions) => {
@@ -106,7 +106,7 @@ storeCareer.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\AdminController::storeCareer
-* @see app/Http/Controllers/AdminController.php:78
+* @see app/Http/Controllers/AdminController.php:84
 * @route '/admin/careers'
 */
 storeCareer.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -116,7 +116,7 @@ storeCareer.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\AdminController::storeCareer
-* @see app/Http/Controllers/AdminController.php:78
+* @see app/Http/Controllers/AdminController.php:84
 * @route '/admin/careers'
 */
 const storeCareerForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -126,7 +126,7 @@ const storeCareerForm = (options?: RouteQueryOptions): RouteFormDefinition<'post
 
 /**
 * @see \App\Http\Controllers\AdminController::storeCareer
-* @see app/Http/Controllers/AdminController.php:78
+* @see app/Http/Controllers/AdminController.php:84
 * @route '/admin/careers'
 */
 storeCareerForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -138,7 +138,7 @@ storeCareer.form = storeCareerForm
 
 /**
 * @see \App\Http\Controllers\AdminController::updateCareer
-* @see app/Http/Controllers/AdminController.php:102
+* @see app/Http/Controllers/AdminController.php:105
 * @route '/admin/careers/{career}'
 */
 export const updateCareer = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -153,7 +153,7 @@ updateCareer.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::updateCareer
-* @see app/Http/Controllers/AdminController.php:102
+* @see app/Http/Controllers/AdminController.php:105
 * @route '/admin/careers/{career}'
 */
 updateCareer.url = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions) => {
@@ -186,7 +186,7 @@ updateCareer.url = (args: { career: string | { slug: string } } | [career: strin
 
 /**
 * @see \App\Http\Controllers\AdminController::updateCareer
-* @see app/Http/Controllers/AdminController.php:102
+* @see app/Http/Controllers/AdminController.php:105
 * @route '/admin/careers/{career}'
 */
 updateCareer.put = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -196,7 +196,7 @@ updateCareer.put = (args: { career: string | { slug: string } } | [career: strin
 
 /**
 * @see \App\Http\Controllers\AdminController::updateCareer
-* @see app/Http/Controllers/AdminController.php:102
+* @see app/Http/Controllers/AdminController.php:105
 * @route '/admin/careers/{career}'
 */
 const updateCareerForm = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -211,7 +211,7 @@ const updateCareerForm = (args: { career: string | { slug: string } } | [career:
 
 /**
 * @see \App\Http\Controllers\AdminController::updateCareer
-* @see app/Http/Controllers/AdminController.php:102
+* @see app/Http/Controllers/AdminController.php:105
 * @route '/admin/careers/{career}'
 */
 updateCareerForm.put = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -228,7 +228,7 @@ updateCareer.form = updateCareerForm
 
 /**
 * @see \App\Http\Controllers\AdminController::destroyCareer
-* @see app/Http/Controllers/AdminController.php:129
+* @see app/Http/Controllers/AdminController.php:143
 * @route '/admin/careers/{career}'
 */
 export const destroyCareer = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -243,7 +243,7 @@ destroyCareer.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::destroyCareer
-* @see app/Http/Controllers/AdminController.php:129
+* @see app/Http/Controllers/AdminController.php:143
 * @route '/admin/careers/{career}'
 */
 destroyCareer.url = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions) => {
@@ -276,7 +276,7 @@ destroyCareer.url = (args: { career: string | { slug: string } } | [career: stri
 
 /**
 * @see \App\Http\Controllers\AdminController::destroyCareer
-* @see app/Http/Controllers/AdminController.php:129
+* @see app/Http/Controllers/AdminController.php:143
 * @route '/admin/careers/{career}'
 */
 destroyCareer.delete = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -286,7 +286,7 @@ destroyCareer.delete = (args: { career: string | { slug: string } } | [career: s
 
 /**
 * @see \App\Http\Controllers\AdminController::destroyCareer
-* @see app/Http/Controllers/AdminController.php:129
+* @see app/Http/Controllers/AdminController.php:143
 * @route '/admin/careers/{career}'
 */
 const destroyCareerForm = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -301,7 +301,7 @@ const destroyCareerForm = (args: { career: string | { slug: string } } | [career
 
 /**
 * @see \App\Http\Controllers\AdminController::destroyCareer
-* @see app/Http/Controllers/AdminController.php:129
+* @see app/Http/Controllers/AdminController.php:143
 * @route '/admin/careers/{career}'
 */
 destroyCareerForm.delete = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -318,7 +318,7 @@ destroyCareer.form = destroyCareerForm
 
 /**
 * @see \App\Http\Controllers\AdminController::attachCareerSkill
-* @see app/Http/Controllers/AdminController.php:136
+* @see app/Http/Controllers/AdminController.php:156
 * @route '/admin/careers/{career}/skills'
 */
 export const attachCareerSkill = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -333,7 +333,7 @@ attachCareerSkill.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::attachCareerSkill
-* @see app/Http/Controllers/AdminController.php:136
+* @see app/Http/Controllers/AdminController.php:156
 * @route '/admin/careers/{career}/skills'
 */
 attachCareerSkill.url = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions) => {
@@ -366,7 +366,7 @@ attachCareerSkill.url = (args: { career: string | { slug: string } } | [career: 
 
 /**
 * @see \App\Http\Controllers\AdminController::attachCareerSkill
-* @see app/Http/Controllers/AdminController.php:136
+* @see app/Http/Controllers/AdminController.php:156
 * @route '/admin/careers/{career}/skills'
 */
 attachCareerSkill.post = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -376,7 +376,7 @@ attachCareerSkill.post = (args: { career: string | { slug: string } } | [career:
 
 /**
 * @see \App\Http\Controllers\AdminController::attachCareerSkill
-* @see app/Http/Controllers/AdminController.php:136
+* @see app/Http/Controllers/AdminController.php:156
 * @route '/admin/careers/{career}/skills'
 */
 const attachCareerSkillForm = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -386,7 +386,7 @@ const attachCareerSkillForm = (args: { career: string | { slug: string } } | [ca
 
 /**
 * @see \App\Http\Controllers\AdminController::attachCareerSkill
-* @see app/Http/Controllers/AdminController.php:136
+* @see app/Http/Controllers/AdminController.php:156
 * @route '/admin/careers/{career}/skills'
 */
 attachCareerSkillForm.post = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -398,7 +398,7 @@ attachCareerSkill.form = attachCareerSkillForm
 
 /**
 * @see \App\Http\Controllers\AdminController::removeCareerSkill
-* @see app/Http/Controllers/AdminController.php:158
+* @see app/Http/Controllers/AdminController.php:184
 * @route '/admin/careers/{career}/skills/{skill}'
 */
 export const removeCareerSkill = (args: { career: string | { slug: string }, skill: string | { slug: string } } | [career: string | { slug: string }, skill: string | { slug: string } ], options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -413,7 +413,7 @@ removeCareerSkill.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::removeCareerSkill
-* @see app/Http/Controllers/AdminController.php:158
+* @see app/Http/Controllers/AdminController.php:184
 * @route '/admin/careers/{career}/skills/{skill}'
 */
 removeCareerSkill.url = (args: { career: string | { slug: string }, skill: string | { slug: string } } | [career: string | { slug: string }, skill: string | { slug: string } ], options?: RouteQueryOptions) => {
@@ -443,7 +443,7 @@ removeCareerSkill.url = (args: { career: string | { slug: string }, skill: strin
 
 /**
 * @see \App\Http\Controllers\AdminController::removeCareerSkill
-* @see app/Http/Controllers/AdminController.php:158
+* @see app/Http/Controllers/AdminController.php:184
 * @route '/admin/careers/{career}/skills/{skill}'
 */
 removeCareerSkill.delete = (args: { career: string | { slug: string }, skill: string | { slug: string } } | [career: string | { slug: string }, skill: string | { slug: string } ], options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -453,7 +453,7 @@ removeCareerSkill.delete = (args: { career: string | { slug: string }, skill: st
 
 /**
 * @see \App\Http\Controllers\AdminController::removeCareerSkill
-* @see app/Http/Controllers/AdminController.php:158
+* @see app/Http/Controllers/AdminController.php:184
 * @route '/admin/careers/{career}/skills/{skill}'
 */
 const removeCareerSkillForm = (args: { career: string | { slug: string }, skill: string | { slug: string } } | [career: string | { slug: string }, skill: string | { slug: string } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -468,7 +468,7 @@ const removeCareerSkillForm = (args: { career: string | { slug: string }, skill:
 
 /**
 * @see \App\Http\Controllers\AdminController::removeCareerSkill
-* @see app/Http/Controllers/AdminController.php:158
+* @see app/Http/Controllers/AdminController.php:184
 * @route '/admin/careers/{career}/skills/{skill}'
 */
 removeCareerSkillForm.delete = (args: { career: string | { slug: string }, skill: string | { slug: string } } | [career: string | { slug: string }, skill: string | { slug: string } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -485,7 +485,7 @@ removeCareerSkill.form = removeCareerSkillForm
 
 /**
 * @see \App\Http\Controllers\AdminController::storeSkill
-* @see app/Http/Controllers/AdminController.php:167
+* @see app/Http/Controllers/AdminController.php:199
 * @route '/admin/skills'
 */
 export const storeSkill = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -500,7 +500,7 @@ storeSkill.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::storeSkill
-* @see app/Http/Controllers/AdminController.php:167
+* @see app/Http/Controllers/AdminController.php:199
 * @route '/admin/skills'
 */
 storeSkill.url = (options?: RouteQueryOptions) => {
@@ -509,7 +509,7 @@ storeSkill.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\AdminController::storeSkill
-* @see app/Http/Controllers/AdminController.php:167
+* @see app/Http/Controllers/AdminController.php:199
 * @route '/admin/skills'
 */
 storeSkill.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -519,7 +519,7 @@ storeSkill.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\AdminController::storeSkill
-* @see app/Http/Controllers/AdminController.php:167
+* @see app/Http/Controllers/AdminController.php:199
 * @route '/admin/skills'
 */
 const storeSkillForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -529,7 +529,7 @@ const storeSkillForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'
 
 /**
 * @see \App\Http\Controllers\AdminController::storeSkill
-* @see app/Http/Controllers/AdminController.php:167
+* @see app/Http/Controllers/AdminController.php:199
 * @route '/admin/skills'
 */
 storeSkillForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -541,7 +541,7 @@ storeSkill.form = storeSkillForm
 
 /**
 * @see \App\Http\Controllers\AdminController::updateSkill
-* @see app/Http/Controllers/AdminController.php:187
+* @see app/Http/Controllers/AdminController.php:214
 * @route '/admin/skills/{skill}'
 */
 export const updateSkill = (args: { skill: string | { slug: string } } | [skill: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -556,7 +556,7 @@ updateSkill.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::updateSkill
-* @see app/Http/Controllers/AdminController.php:187
+* @see app/Http/Controllers/AdminController.php:214
 * @route '/admin/skills/{skill}'
 */
 updateSkill.url = (args: { skill: string | { slug: string } } | [skill: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions) => {
@@ -589,7 +589,7 @@ updateSkill.url = (args: { skill: string | { slug: string } } | [skill: string |
 
 /**
 * @see \App\Http\Controllers\AdminController::updateSkill
-* @see app/Http/Controllers/AdminController.php:187
+* @see app/Http/Controllers/AdminController.php:214
 * @route '/admin/skills/{skill}'
 */
 updateSkill.put = (args: { skill: string | { slug: string } } | [skill: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -599,7 +599,7 @@ updateSkill.put = (args: { skill: string | { slug: string } } | [skill: string |
 
 /**
 * @see \App\Http\Controllers\AdminController::updateSkill
-* @see app/Http/Controllers/AdminController.php:187
+* @see app/Http/Controllers/AdminController.php:214
 * @route '/admin/skills/{skill}'
 */
 const updateSkillForm = (args: { skill: string | { slug: string } } | [skill: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -614,7 +614,7 @@ const updateSkillForm = (args: { skill: string | { slug: string } } | [skill: st
 
 /**
 * @see \App\Http\Controllers\AdminController::updateSkill
-* @see app/Http/Controllers/AdminController.php:187
+* @see app/Http/Controllers/AdminController.php:214
 * @route '/admin/skills/{skill}'
 */
 updateSkillForm.put = (args: { skill: string | { slug: string } } | [skill: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -631,7 +631,7 @@ updateSkill.form = updateSkillForm
 
 /**
 * @see \App\Http\Controllers\AdminController::destroySkill
-* @see app/Http/Controllers/AdminController.php:210
+* @see app/Http/Controllers/AdminController.php:243
 * @route '/admin/skills/{skill}'
 */
 export const destroySkill = (args: { skill: string | { slug: string } } | [skill: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -646,7 +646,7 @@ destroySkill.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::destroySkill
-* @see app/Http/Controllers/AdminController.php:210
+* @see app/Http/Controllers/AdminController.php:243
 * @route '/admin/skills/{skill}'
 */
 destroySkill.url = (args: { skill: string | { slug: string } } | [skill: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions) => {
@@ -679,7 +679,7 @@ destroySkill.url = (args: { skill: string | { slug: string } } | [skill: string 
 
 /**
 * @see \App\Http\Controllers\AdminController::destroySkill
-* @see app/Http/Controllers/AdminController.php:210
+* @see app/Http/Controllers/AdminController.php:243
 * @route '/admin/skills/{skill}'
 */
 destroySkill.delete = (args: { skill: string | { slug: string } } | [skill: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -689,7 +689,7 @@ destroySkill.delete = (args: { skill: string | { slug: string } } | [skill: stri
 
 /**
 * @see \App\Http\Controllers\AdminController::destroySkill
-* @see app/Http/Controllers/AdminController.php:210
+* @see app/Http/Controllers/AdminController.php:243
 * @route '/admin/skills/{skill}'
 */
 const destroySkillForm = (args: { skill: string | { slug: string } } | [skill: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -704,7 +704,7 @@ const destroySkillForm = (args: { skill: string | { slug: string } } | [skill: s
 
 /**
 * @see \App\Http\Controllers\AdminController::destroySkill
-* @see app/Http/Controllers/AdminController.php:210
+* @see app/Http/Controllers/AdminController.php:243
 * @route '/admin/skills/{skill}'
 */
 destroySkillForm.delete = (args: { skill: string | { slug: string } } | [skill: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -721,7 +721,7 @@ destroySkill.form = destroySkillForm
 
 /**
 * @see \App\Http\Controllers\AdminController::storePrerequisite
-* @see app/Http/Controllers/AdminController.php:217
+* @see app/Http/Controllers/AdminController.php:262
 * @route '/admin/prerequisites'
 */
 export const storePrerequisite = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -736,7 +736,7 @@ storePrerequisite.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::storePrerequisite
-* @see app/Http/Controllers/AdminController.php:217
+* @see app/Http/Controllers/AdminController.php:262
 * @route '/admin/prerequisites'
 */
 storePrerequisite.url = (options?: RouteQueryOptions) => {
@@ -745,7 +745,7 @@ storePrerequisite.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\AdminController::storePrerequisite
-* @see app/Http/Controllers/AdminController.php:217
+* @see app/Http/Controllers/AdminController.php:262
 * @route '/admin/prerequisites'
 */
 storePrerequisite.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -755,7 +755,7 @@ storePrerequisite.post = (options?: RouteQueryOptions): RouteDefinition<'post'> 
 
 /**
 * @see \App\Http\Controllers\AdminController::storePrerequisite
-* @see app/Http/Controllers/AdminController.php:217
+* @see app/Http/Controllers/AdminController.php:262
 * @route '/admin/prerequisites'
 */
 const storePrerequisiteForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -765,7 +765,7 @@ const storePrerequisiteForm = (options?: RouteQueryOptions): RouteFormDefinition
 
 /**
 * @see \App\Http\Controllers\AdminController::storePrerequisite
-* @see app/Http/Controllers/AdminController.php:217
+* @see app/Http/Controllers/AdminController.php:262
 * @route '/admin/prerequisites'
 */
 storePrerequisiteForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -777,7 +777,7 @@ storePrerequisite.form = storePrerequisiteForm
 
 /**
 * @see \App\Http\Controllers\AdminController::destroyPrerequisite
-* @see app/Http/Controllers/AdminController.php:254
+* @see app/Http/Controllers/AdminController.php:299
 * @route '/admin/prerequisites/{id}'
 */
 export const destroyPrerequisite = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -792,7 +792,7 @@ destroyPrerequisite.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::destroyPrerequisite
-* @see app/Http/Controllers/AdminController.php:254
+* @see app/Http/Controllers/AdminController.php:299
 * @route '/admin/prerequisites/{id}'
 */
 destroyPrerequisite.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -819,7 +819,7 @@ destroyPrerequisite.url = (args: { id: string | number } | [id: string | number 
 
 /**
 * @see \App\Http\Controllers\AdminController::destroyPrerequisite
-* @see app/Http/Controllers/AdminController.php:254
+* @see app/Http/Controllers/AdminController.php:299
 * @route '/admin/prerequisites/{id}'
 */
 destroyPrerequisite.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -829,7 +829,7 @@ destroyPrerequisite.delete = (args: { id: string | number } | [id: string | numb
 
 /**
 * @see \App\Http\Controllers\AdminController::destroyPrerequisite
-* @see app/Http/Controllers/AdminController.php:254
+* @see app/Http/Controllers/AdminController.php:299
 * @route '/admin/prerequisites/{id}'
 */
 const destroyPrerequisiteForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -844,7 +844,7 @@ const destroyPrerequisiteForm = (args: { id: string | number } | [id: string | n
 
 /**
 * @see \App\Http\Controllers\AdminController::destroyPrerequisite
-* @see app/Http/Controllers/AdminController.php:254
+* @see app/Http/Controllers/AdminController.php:299
 * @route '/admin/prerequisites/{id}'
 */
 destroyPrerequisiteForm.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -861,7 +861,7 @@ destroyPrerequisite.form = destroyPrerequisiteForm
 
 /**
 * @see \App\Http\Controllers\AdminController::storeAssessment
-* @see app/Http/Controllers/AdminController.php:263
+* @see app/Http/Controllers/AdminController.php:308
 * @route '/admin/assessments'
 */
 export const storeAssessment = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -876,7 +876,7 @@ storeAssessment.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::storeAssessment
-* @see app/Http/Controllers/AdminController.php:263
+* @see app/Http/Controllers/AdminController.php:308
 * @route '/admin/assessments'
 */
 storeAssessment.url = (options?: RouteQueryOptions) => {
@@ -885,7 +885,7 @@ storeAssessment.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\AdminController::storeAssessment
-* @see app/Http/Controllers/AdminController.php:263
+* @see app/Http/Controllers/AdminController.php:308
 * @route '/admin/assessments'
 */
 storeAssessment.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -895,7 +895,7 @@ storeAssessment.post = (options?: RouteQueryOptions): RouteDefinition<'post'> =>
 
 /**
 * @see \App\Http\Controllers\AdminController::storeAssessment
-* @see app/Http/Controllers/AdminController.php:263
+* @see app/Http/Controllers/AdminController.php:308
 * @route '/admin/assessments'
 */
 const storeAssessmentForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -905,7 +905,7 @@ const storeAssessmentForm = (options?: RouteQueryOptions): RouteFormDefinition<'
 
 /**
 * @see \App\Http\Controllers\AdminController::storeAssessment
-* @see app/Http/Controllers/AdminController.php:263
+* @see app/Http/Controllers/AdminController.php:308
 * @route '/admin/assessments'
 */
 storeAssessmentForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -917,7 +917,7 @@ storeAssessment.form = storeAssessmentForm
 
 /**
 * @see \App\Http\Controllers\AdminController::updateAssessment
-* @see app/Http/Controllers/AdminController.php:278
+* @see app/Http/Controllers/AdminController.php:317
 * @route '/admin/assessments/{assessment}'
 */
 export const updateAssessment = (args: { assessment: number | { id: number } } | [assessment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -932,7 +932,7 @@ updateAssessment.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::updateAssessment
-* @see app/Http/Controllers/AdminController.php:278
+* @see app/Http/Controllers/AdminController.php:317
 * @route '/admin/assessments/{assessment}'
 */
 updateAssessment.url = (args: { assessment: number | { id: number } } | [assessment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -965,7 +965,7 @@ updateAssessment.url = (args: { assessment: number | { id: number } } | [assessm
 
 /**
 * @see \App\Http\Controllers\AdminController::updateAssessment
-* @see app/Http/Controllers/AdminController.php:278
+* @see app/Http/Controllers/AdminController.php:317
 * @route '/admin/assessments/{assessment}'
 */
 updateAssessment.put = (args: { assessment: number | { id: number } } | [assessment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -975,7 +975,7 @@ updateAssessment.put = (args: { assessment: number | { id: number } } | [assessm
 
 /**
 * @see \App\Http\Controllers\AdminController::updateAssessment
-* @see app/Http/Controllers/AdminController.php:278
+* @see app/Http/Controllers/AdminController.php:317
 * @route '/admin/assessments/{assessment}'
 */
 const updateAssessmentForm = (args: { assessment: number | { id: number } } | [assessment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -990,7 +990,7 @@ const updateAssessmentForm = (args: { assessment: number | { id: number } } | [a
 
 /**
 * @see \App\Http\Controllers\AdminController::updateAssessment
-* @see app/Http/Controllers/AdminController.php:278
+* @see app/Http/Controllers/AdminController.php:317
 * @route '/admin/assessments/{assessment}'
 */
 updateAssessmentForm.put = (args: { assessment: number | { id: number } } | [assessment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1007,7 +1007,7 @@ updateAssessment.form = updateAssessmentForm
 
 /**
 * @see \App\Http\Controllers\AdminController::destroyAssessment
-* @see app/Http/Controllers/AdminController.php:295
+* @see app/Http/Controllers/AdminController.php:328
 * @route '/admin/assessments/{assessment}'
 */
 export const destroyAssessment = (args: { assessment: number | { id: number } } | [assessment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -1022,7 +1022,7 @@ destroyAssessment.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::destroyAssessment
-* @see app/Http/Controllers/AdminController.php:295
+* @see app/Http/Controllers/AdminController.php:328
 * @route '/admin/assessments/{assessment}'
 */
 destroyAssessment.url = (args: { assessment: number | { id: number } } | [assessment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -1055,7 +1055,7 @@ destroyAssessment.url = (args: { assessment: number | { id: number } } | [assess
 
 /**
 * @see \App\Http\Controllers\AdminController::destroyAssessment
-* @see app/Http/Controllers/AdminController.php:295
+* @see app/Http/Controllers/AdminController.php:328
 * @route '/admin/assessments/{assessment}'
 */
 destroyAssessment.delete = (args: { assessment: number | { id: number } } | [assessment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -1065,7 +1065,7 @@ destroyAssessment.delete = (args: { assessment: number | { id: number } } | [ass
 
 /**
 * @see \App\Http\Controllers\AdminController::destroyAssessment
-* @see app/Http/Controllers/AdminController.php:295
+* @see app/Http/Controllers/AdminController.php:328
 * @route '/admin/assessments/{assessment}'
 */
 const destroyAssessmentForm = (args: { assessment: number | { id: number } } | [assessment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1080,7 +1080,7 @@ const destroyAssessmentForm = (args: { assessment: number | { id: number } } | [
 
 /**
 * @see \App\Http\Controllers\AdminController::destroyAssessment
-* @see app/Http/Controllers/AdminController.php:295
+* @see app/Http/Controllers/AdminController.php:328
 * @route '/admin/assessments/{assessment}'
 */
 destroyAssessmentForm.delete = (args: { assessment: number | { id: number } } | [assessment: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1097,7 +1097,7 @@ destroyAssessment.form = destroyAssessmentForm
 
 /**
 * @see \App\Http\Controllers\AdminController::storeMaterial
-* @see app/Http/Controllers/AdminController.php:331
+* @see app/Http/Controllers/AdminController.php:364
 * @route '/admin/materials'
 */
 export const storeMaterial = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -1112,7 +1112,7 @@ storeMaterial.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::storeMaterial
-* @see app/Http/Controllers/AdminController.php:331
+* @see app/Http/Controllers/AdminController.php:364
 * @route '/admin/materials'
 */
 storeMaterial.url = (options?: RouteQueryOptions) => {
@@ -1121,7 +1121,7 @@ storeMaterial.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\AdminController::storeMaterial
-* @see app/Http/Controllers/AdminController.php:331
+* @see app/Http/Controllers/AdminController.php:364
 * @route '/admin/materials'
 */
 storeMaterial.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -1131,7 +1131,7 @@ storeMaterial.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => (
 
 /**
 * @see \App\Http\Controllers\AdminController::storeMaterial
-* @see app/Http/Controllers/AdminController.php:331
+* @see app/Http/Controllers/AdminController.php:364
 * @route '/admin/materials'
 */
 const storeMaterialForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1141,7 +1141,7 @@ const storeMaterialForm = (options?: RouteQueryOptions): RouteFormDefinition<'po
 
 /**
 * @see \App\Http\Controllers\AdminController::storeMaterial
-* @see app/Http/Controllers/AdminController.php:331
+* @see app/Http/Controllers/AdminController.php:364
 * @route '/admin/materials'
 */
 storeMaterialForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1153,7 +1153,7 @@ storeMaterial.form = storeMaterialForm
 
 /**
 * @see \App\Http\Controllers\AdminController::updateMaterial
-* @see app/Http/Controllers/AdminController.php:346
+* @see app/Http/Controllers/AdminController.php:399
 * @route '/admin/materials/{learningMaterial}'
 */
 export const updateMaterial = (args: { learningMaterial: string | { slug: string } } | [learningMaterial: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -1168,7 +1168,7 @@ updateMaterial.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::updateMaterial
-* @see app/Http/Controllers/AdminController.php:346
+* @see app/Http/Controllers/AdminController.php:399
 * @route '/admin/materials/{learningMaterial}'
 */
 updateMaterial.url = (args: { learningMaterial: string | { slug: string } } | [learningMaterial: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions) => {
@@ -1201,7 +1201,7 @@ updateMaterial.url = (args: { learningMaterial: string | { slug: string } } | [l
 
 /**
 * @see \App\Http\Controllers\AdminController::updateMaterial
-* @see app/Http/Controllers/AdminController.php:346
+* @see app/Http/Controllers/AdminController.php:399
 * @route '/admin/materials/{learningMaterial}'
 */
 updateMaterial.put = (args: { learningMaterial: string | { slug: string } } | [learningMaterial: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -1211,7 +1211,7 @@ updateMaterial.put = (args: { learningMaterial: string | { slug: string } } | [l
 
 /**
 * @see \App\Http\Controllers\AdminController::updateMaterial
-* @see app/Http/Controllers/AdminController.php:346
+* @see app/Http/Controllers/AdminController.php:399
 * @route '/admin/materials/{learningMaterial}'
 */
 const updateMaterialForm = (args: { learningMaterial: string | { slug: string } } | [learningMaterial: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1226,7 +1226,7 @@ const updateMaterialForm = (args: { learningMaterial: string | { slug: string } 
 
 /**
 * @see \App\Http\Controllers\AdminController::updateMaterial
-* @see app/Http/Controllers/AdminController.php:346
+* @see app/Http/Controllers/AdminController.php:399
 * @route '/admin/materials/{learningMaterial}'
 */
 updateMaterialForm.put = (args: { learningMaterial: string | { slug: string } } | [learningMaterial: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1243,7 +1243,7 @@ updateMaterial.form = updateMaterialForm
 
 /**
 * @see \App\Http\Controllers\AdminController::destroyMaterial
-* @see app/Http/Controllers/AdminController.php:364
+* @see app/Http/Controllers/AdminController.php:441
 * @route '/admin/materials/{learningMaterial}'
 */
 export const destroyMaterial = (args: { learningMaterial: string | { slug: string } } | [learningMaterial: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -1258,7 +1258,7 @@ destroyMaterial.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::destroyMaterial
-* @see app/Http/Controllers/AdminController.php:364
+* @see app/Http/Controllers/AdminController.php:441
 * @route '/admin/materials/{learningMaterial}'
 */
 destroyMaterial.url = (args: { learningMaterial: string | { slug: string } } | [learningMaterial: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions) => {
@@ -1291,7 +1291,7 @@ destroyMaterial.url = (args: { learningMaterial: string | { slug: string } } | [
 
 /**
 * @see \App\Http\Controllers\AdminController::destroyMaterial
-* @see app/Http/Controllers/AdminController.php:364
+* @see app/Http/Controllers/AdminController.php:441
 * @route '/admin/materials/{learningMaterial}'
 */
 destroyMaterial.delete = (args: { learningMaterial: string | { slug: string } } | [learningMaterial: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -1301,7 +1301,7 @@ destroyMaterial.delete = (args: { learningMaterial: string | { slug: string } } 
 
 /**
 * @see \App\Http\Controllers\AdminController::destroyMaterial
-* @see app/Http/Controllers/AdminController.php:364
+* @see app/Http/Controllers/AdminController.php:441
 * @route '/admin/materials/{learningMaterial}'
 */
 const destroyMaterialForm = (args: { learningMaterial: string | { slug: string } } | [learningMaterial: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1316,7 +1316,7 @@ const destroyMaterialForm = (args: { learningMaterial: string | { slug: string }
 
 /**
 * @see \App\Http\Controllers\AdminController::destroyMaterial
-* @see app/Http/Controllers/AdminController.php:364
+* @see app/Http/Controllers/AdminController.php:441
 * @route '/admin/materials/{learningMaterial}'
 */
 destroyMaterialForm.delete = (args: { learningMaterial: string | { slug: string } } | [learningMaterial: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1333,7 +1333,7 @@ destroyMaterial.form = destroyMaterialForm
 
 /**
 * @see \App\Http\Controllers\AdminController::storeProject
-* @see app/Http/Controllers/AdminController.php:372
+* @see app/Http/Controllers/AdminController.php:464
 * @route '/admin/projects'
 */
 export const storeProject = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -1348,7 +1348,7 @@ storeProject.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::storeProject
-* @see app/Http/Controllers/AdminController.php:372
+* @see app/Http/Controllers/AdminController.php:464
 * @route '/admin/projects'
 */
 storeProject.url = (options?: RouteQueryOptions) => {
@@ -1357,7 +1357,7 @@ storeProject.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\AdminController::storeProject
-* @see app/Http/Controllers/AdminController.php:372
+* @see app/Http/Controllers/AdminController.php:464
 * @route '/admin/projects'
 */
 storeProject.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -1367,7 +1367,7 @@ storeProject.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\AdminController::storeProject
-* @see app/Http/Controllers/AdminController.php:372
+* @see app/Http/Controllers/AdminController.php:464
 * @route '/admin/projects'
 */
 const storeProjectForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1377,7 +1377,7 @@ const storeProjectForm = (options?: RouteQueryOptions): RouteFormDefinition<'pos
 
 /**
 * @see \App\Http\Controllers\AdminController::storeProject
-* @see app/Http/Controllers/AdminController.php:372
+* @see app/Http/Controllers/AdminController.php:464
 * @route '/admin/projects'
 */
 storeProjectForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1389,7 +1389,7 @@ storeProject.form = storeProjectForm
 
 /**
 * @see \App\Http\Controllers\AdminController::updateProject
-* @see app/Http/Controllers/AdminController.php:387
+* @see app/Http/Controllers/AdminController.php:487
 * @route '/admin/projects/{portfolioProject}'
 */
 export const updateProject = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -1404,7 +1404,7 @@ updateProject.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::updateProject
-* @see app/Http/Controllers/AdminController.php:387
+* @see app/Http/Controllers/AdminController.php:487
 * @route '/admin/projects/{portfolioProject}'
 */
 updateProject.url = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions) => {
@@ -1437,7 +1437,7 @@ updateProject.url = (args: { portfolioProject: string | { slug: string } } | [po
 
 /**
 * @see \App\Http\Controllers\AdminController::updateProject
-* @see app/Http/Controllers/AdminController.php:387
+* @see app/Http/Controllers/AdminController.php:487
 * @route '/admin/projects/{portfolioProject}'
 */
 updateProject.put = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -1447,7 +1447,7 @@ updateProject.put = (args: { portfolioProject: string | { slug: string } } | [po
 
 /**
 * @see \App\Http\Controllers\AdminController::updateProject
-* @see app/Http/Controllers/AdminController.php:387
+* @see app/Http/Controllers/AdminController.php:487
 * @route '/admin/projects/{portfolioProject}'
 */
 const updateProjectForm = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1462,7 +1462,7 @@ const updateProjectForm = (args: { portfolioProject: string | { slug: string } }
 
 /**
 * @see \App\Http\Controllers\AdminController::updateProject
-* @see app/Http/Controllers/AdminController.php:387
+* @see app/Http/Controllers/AdminController.php:487
 * @route '/admin/projects/{portfolioProject}'
 */
 updateProjectForm.put = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1479,7 +1479,7 @@ updateProject.form = updateProjectForm
 
 /**
 * @see \App\Http\Controllers\AdminController::destroyProject
-* @see app/Http/Controllers/AdminController.php:405
+* @see app/Http/Controllers/AdminController.php:521
 * @route '/admin/projects/{portfolioProject}'
 */
 export const destroyProject = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -1494,7 +1494,7 @@ destroyProject.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::destroyProject
-* @see app/Http/Controllers/AdminController.php:405
+* @see app/Http/Controllers/AdminController.php:521
 * @route '/admin/projects/{portfolioProject}'
 */
 destroyProject.url = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions) => {
@@ -1527,7 +1527,7 @@ destroyProject.url = (args: { portfolioProject: string | { slug: string } } | [p
 
 /**
 * @see \App\Http\Controllers\AdminController::destroyProject
-* @see app/Http/Controllers/AdminController.php:405
+* @see app/Http/Controllers/AdminController.php:521
 * @route '/admin/projects/{portfolioProject}'
 */
 destroyProject.delete = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -1537,7 +1537,7 @@ destroyProject.delete = (args: { portfolioProject: string | { slug: string } } |
 
 /**
 * @see \App\Http\Controllers\AdminController::destroyProject
-* @see app/Http/Controllers/AdminController.php:405
+* @see app/Http/Controllers/AdminController.php:521
 * @route '/admin/projects/{portfolioProject}'
 */
 const destroyProjectForm = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1552,7 +1552,7 @@ const destroyProjectForm = (args: { portfolioProject: string | { slug: string } 
 
 /**
 * @see \App\Http\Controllers\AdminController::destroyProject
-* @see app/Http/Controllers/AdminController.php:405
+* @see app/Http/Controllers/AdminController.php:521
 * @route '/admin/projects/{portfolioProject}'
 */
 destroyProjectForm.delete = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1569,7 +1569,7 @@ destroyProject.form = destroyProjectForm
 
 /**
 * @see \App\Http\Controllers\AdminController::attachProjectSkill
-* @see app/Http/Controllers/AdminController.php:413
+* @see app/Http/Controllers/AdminController.php:541
 * @route '/admin/projects/{portfolioProject}/skills'
 */
 export const attachProjectSkill = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -1584,7 +1584,7 @@ attachProjectSkill.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::attachProjectSkill
-* @see app/Http/Controllers/AdminController.php:413
+* @see app/Http/Controllers/AdminController.php:541
 * @route '/admin/projects/{portfolioProject}/skills'
 */
 attachProjectSkill.url = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions) => {
@@ -1617,7 +1617,7 @@ attachProjectSkill.url = (args: { portfolioProject: string | { slug: string } } 
 
 /**
 * @see \App\Http\Controllers\AdminController::attachProjectSkill
-* @see app/Http/Controllers/AdminController.php:413
+* @see app/Http/Controllers/AdminController.php:541
 * @route '/admin/projects/{portfolioProject}/skills'
 */
 attachProjectSkill.post = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -1627,7 +1627,7 @@ attachProjectSkill.post = (args: { portfolioProject: string | { slug: string } }
 
 /**
 * @see \App\Http\Controllers\AdminController::attachProjectSkill
-* @see app/Http/Controllers/AdminController.php:413
+* @see app/Http/Controllers/AdminController.php:541
 * @route '/admin/projects/{portfolioProject}/skills'
 */
 const attachProjectSkillForm = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1637,7 +1637,7 @@ const attachProjectSkillForm = (args: { portfolioProject: string | { slug: strin
 
 /**
 * @see \App\Http\Controllers\AdminController::attachProjectSkill
-* @see app/Http/Controllers/AdminController.php:413
+* @see app/Http/Controllers/AdminController.php:541
 * @route '/admin/projects/{portfolioProject}/skills'
 */
 attachProjectSkillForm.post = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1649,7 +1649,7 @@ attachProjectSkill.form = attachProjectSkillForm
 
 /**
 * @see \App\Http\Controllers\AdminController::removeProjectSkill
-* @see app/Http/Controllers/AdminController.php:433
+* @see app/Http/Controllers/AdminController.php:567
 * @route '/admin/projects/{portfolioProject}/skills/{skill}'
 */
 export const removeProjectSkill = (args: { portfolioProject: string | { slug: string }, skill: string | { slug: string } } | [portfolioProject: string | { slug: string }, skill: string | { slug: string } ], options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -1664,7 +1664,7 @@ removeProjectSkill.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::removeProjectSkill
-* @see app/Http/Controllers/AdminController.php:433
+* @see app/Http/Controllers/AdminController.php:567
 * @route '/admin/projects/{portfolioProject}/skills/{skill}'
 */
 removeProjectSkill.url = (args: { portfolioProject: string | { slug: string }, skill: string | { slug: string } } | [portfolioProject: string | { slug: string }, skill: string | { slug: string } ], options?: RouteQueryOptions) => {
@@ -1694,7 +1694,7 @@ removeProjectSkill.url = (args: { portfolioProject: string | { slug: string }, s
 
 /**
 * @see \App\Http\Controllers\AdminController::removeProjectSkill
-* @see app/Http/Controllers/AdminController.php:433
+* @see app/Http/Controllers/AdminController.php:567
 * @route '/admin/projects/{portfolioProject}/skills/{skill}'
 */
 removeProjectSkill.delete = (args: { portfolioProject: string | { slug: string }, skill: string | { slug: string } } | [portfolioProject: string | { slug: string }, skill: string | { slug: string } ], options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -1704,7 +1704,7 @@ removeProjectSkill.delete = (args: { portfolioProject: string | { slug: string }
 
 /**
 * @see \App\Http\Controllers\AdminController::removeProjectSkill
-* @see app/Http/Controllers/AdminController.php:433
+* @see app/Http/Controllers/AdminController.php:567
 * @route '/admin/projects/{portfolioProject}/skills/{skill}'
 */
 const removeProjectSkillForm = (args: { portfolioProject: string | { slug: string }, skill: string | { slug: string } } | [portfolioProject: string | { slug: string }, skill: string | { slug: string } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1719,7 +1719,7 @@ const removeProjectSkillForm = (args: { portfolioProject: string | { slug: strin
 
 /**
 * @see \App\Http\Controllers\AdminController::removeProjectSkill
-* @see app/Http/Controllers/AdminController.php:433
+* @see app/Http/Controllers/AdminController.php:567
 * @route '/admin/projects/{portfolioProject}/skills/{skill}'
 */
 removeProjectSkillForm.delete = (args: { portfolioProject: string | { slug: string }, skill: string | { slug: string } } | [portfolioProject: string | { slug: string }, skill: string | { slug: string } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

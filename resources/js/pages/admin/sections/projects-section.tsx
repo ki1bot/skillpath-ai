@@ -1,6 +1,11 @@
 import { Form } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import {
+    academicPrograms,
+    getStudyProgramDefinition,
+} from '@/lib/academic-programs';
 import { AdminDetails } from '../components/admin-details';
 import { AdminPanel } from '../components/admin-panel';
 import { DeleteButton } from '../components/delete-button';
@@ -14,120 +19,302 @@ type Props = {
     skills: Skill[];
 };
 
+function getProjectArea(project: Project) {
+    const program = getStudyProgramDefinition(project.career?.name ?? '');
+
+    if (!program) {
+        return null;
+    }
+
+    const skillNames = project.skills
+        .map((skill) => skill.name)
+        .sort((first, second) => first.localeCompare(second));
+
+    const areaIndex = program.areas.findIndex((area) => {
+        const areaSkills = [...area.skills].sort((first, second) =>
+            first.localeCompare(second),
+        );
+
+        return (
+            areaSkills.length === skillNames.length &&
+            areaSkills.every((skill, index) => skill === skillNames[index])
+        );
+    });
+
+    return areaIndex < 0
+        ? null
+        : {
+              number: areaIndex + 1,
+              name: program.areas[areaIndex].name,
+          };
+}
+
 export function ProjectsSection({ projects, careers, skills }: Props) {
+    const [careerId, setCareerId] = useState('all');
+
+    const customCareers = careers.filter(
+        (career) =>
+            !academicPrograms.some((program) => program.name === career.name),
+    );
+
+    const filteredProjects = projects
+        .filter(
+            (project) =>
+                careerId === 'all' || project.career_id === Number(careerId),
+        )
+        .sort((first, second) => {
+            const careerComparison = (first.career?.name ?? '').localeCompare(
+                second.career?.name ?? '',
+                'id',
+            );
+
+            if (careerComparison !== 0) {
+                return careerComparison;
+            }
+
+            const firstArea = getProjectArea(first)?.number ?? 99;
+            const secondArea = getProjectArea(second)?.number ?? 99;
+
+            if (firstArea !== secondArea) {
+                return firstArea - secondArea;
+            }
+
+            return first.title.localeCompare(second.title, 'id');
+        });
+
     return (
         <AdminPanel
             title="Proyek portofolio"
-            description="Proyek digunakan untuk menerapkan kemampuan yang sudah dipelajari. Proyek bukan pengganti Assessment."
+            description="Setiap jurusan akademik memiliki tiga proyek. Masing-masing proyek menggunakan tiga kemampuan dari satu bidang."
             accentClass="bg-[var(--neo-lime)] text-[#171717]"
         >
-            <AdminDetails title="Tambah proyek baru">
-                <ProjectForm careers={careers} />
-            </AdminDetails>
+            <div className="rounded-[10px] border-2 border-foreground/15 bg-muted/30 p-4">
+                <p className="text-sm font-black">Ketentuan proyek akademik</p>
+
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                    Proyek 1, 2, dan 3 mewakili bidang yang berbeda dalam satu
+                    jurusan. Admin dapat memperbarui tugas, fitur wajib, dan
+                    kriteria penilaian. Susunan bidang dan kemampuan tetap
+                    dipertahankan agar tidak berbeda dari katalog akademik.
+                    Nilai kelulusan proyek minimal 80.
+                </p>
+            </div>
+
+            {customCareers.length > 0 && (
+                <AdminDetails title="Tambah proyek untuk jurusan nonakademik">
+                    <ProjectForm careers={customCareers} />
+                </AdminDetails>
+            )}
+
+            <label className="block max-w-md">
+                <span className="mb-2 block text-sm font-black">
+                    Filter jurusan
+                </span>
+
+                <select
+                    value={careerId}
+                    onChange={(event) => setCareerId(event.target.value)}
+                    className="w-full rounded-[10px] border-2 border-foreground bg-card px-3 py-2.5 text-sm font-semibold"
+                >
+                    <option value="all">Semua jurusan</option>
+
+                    {careers.map((career) => (
+                        <option key={career.id} value={career.id}>
+                            {career.name}
+                        </option>
+                    ))}
+                </select>
+            </label>
 
             <div className="grid gap-4">
-                {projects.map((project) => (
-                    <AdminDetails
-                        key={project.id}
-                        title={project.title}
-                        meta={`${project.career?.name ?? 'Tanpa jurusan'} · ${project.skills.length} kebutuhan kemampuan`}
-                    >
-                        <div className="grid gap-7">
-                            <ProjectForm project={project} careers={careers} />
+                {filteredProjects.map((project) => {
+                    const isAcademicProject = Boolean(
+                        getStudyProgramDefinition(project.career?.name ?? ''),
+                    );
 
-                            <div className="border-t-2 border-foreground/15 pt-6">
-                                <h3 className="font-black">
-                                    Kemampuan yang dibutuhkan proyek
-                                </h3>
+                    const area = getProjectArea(project);
 
-                                <Form
-                                    action={`/admin/projects/${project.slug}/skills`}
-                                    method="post"
-                                    className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
-                                >
-                                    {({ processing }) => (
-                                        <>
-                                            <SelectField
-                                                label="Kemampuan"
-                                                name="skill_id"
-                                                defaultValue=""
-                                                required
-                                            >
-                                                <option value="">
-                                                    Pilih kemampuan
-                                                </option>
+                    return (
+                        <AdminDetails
+                            key={project.id}
+                            title={
+                                area
+                                    ? `Proyek ${area.number}: ${project.title}`
+                                    : project.title
+                            }
+                            meta={`${
+                                project.career?.name ?? 'Tanpa jurusan'
+                            } · ${
+                                area?.name ?? 'Bidang belum teridentifikasi'
+                            } · ${project.skills.length} kemampuan`}
+                        >
+                            <div className="grid gap-7">
+                                <ProjectForm
+                                    project={project}
+                                    careers={careers}
+                                />
 
-                                                {skills.map((skill) => (
-                                                    <option
+                                <div className="border-t-2 border-foreground/15 pt-6">
+                                    <h3 className="font-black">
+                                        Kemampuan yang digunakan proyek
+                                    </h3>
+
+                                    {isAcademicProject ? (
+                                        <div className="mt-4">
+                                            <p className="text-sm leading-6 text-muted-foreground">
+                                                Ketiga kemampuan berikut
+                                                menentukan bidang proyek.
+                                                Hubungan ini tidak dapat diubah
+                                                melalui pengelolaan proyek
+                                                akademik.
+                                            </p>
+
+                                            <div className="mt-4 grid gap-3 md:grid-cols-3">
+                                                {project.skills.map((skill) => (
+                                                    <div
                                                         key={skill.id}
-                                                        value={skill.id}
+                                                        className="rounded-[10px] border-2 border-foreground/15 bg-muted/20 p-4"
                                                     >
-                                                        {skill.name}
-                                                    </option>
+                                                        <p className="text-sm font-black">
+                                                            {skill.name}
+                                                        </p>
+
+                                                        <p className="mt-2 text-xs font-semibold text-muted-foreground">
+                                                            Tingkat minimum:{' '}
+                                                            {skill.pivot
+                                                                ?.required_level ??
+                                                                '-'}
+                                                        </p>
+                                                    </div>
                                                 ))}
-                                            </SelectField>
+                                            </div>
 
-                                            <InputField
-                                                label="Tingkat minimum"
-                                                type="number"
-                                                name="required_level"
-                                                min={1}
-                                                max={100}
-                                                required
-                                            />
+                                            {!area && (
+                                                <p className="mt-4 text-sm font-bold text-destructive">
+                                                    Hubungan kemampuan proyek
+                                                    ini tidak sesuai dengan
+                                                    salah satu bidang pada
+                                                    katalog akademik. Periksa
+                                                    datanya sebelum melakukan
+                                                    perubahan lain.
+                                                </p>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <Form
+                                                action={`/admin/projects/${project.slug}/skills`}
+                                                method="post"
+                                                className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+                                            >
+                                                {({ processing }) => (
+                                                    <>
+                                                        <SelectField
+                                                            label="Kemampuan"
+                                                            name="skill_id"
+                                                            defaultValue=""
+                                                            required
+                                                        >
+                                                            <option value="">
+                                                                Pilih kemampuan
+                                                            </option>
 
-                                            <InputField
-                                                label="Bobot"
-                                                type="number"
-                                                name="weight"
-                                                min={0.1}
-                                                max={3}
-                                                step={0.1}
-                                                required
-                                            />
+                                                            {skills.map(
+                                                                (skill) => (
+                                                                    <option
+                                                                        key={
+                                                                            skill.id
+                                                                        }
+                                                                        value={
+                                                                            skill.id
+                                                                        }
+                                                                    >
+                                                                        {
+                                                                            skill.name
+                                                                        }
+                                                                    </option>
+                                                                ),
+                                                            )}
+                                                        </SelectField>
 
-                                            <div className="flex items-end">
-                                                <Button
-                                                    disabled={processing}
-                                                    className="w-full"
-                                                >
-                                                    <Plus className="size-4" />
-                                                    Simpan
-                                                </Button>
+                                                        <InputField
+                                                            label="Tingkat minimum"
+                                                            type="number"
+                                                            name="required_level"
+                                                            min={1}
+                                                            max={100}
+                                                            required
+                                                        />
+
+                                                        <InputField
+                                                            label="Bobot"
+                                                            type="number"
+                                                            name="weight"
+                                                            min={0.1}
+                                                            max={3}
+                                                            step={0.1}
+                                                            required
+                                                        />
+
+                                                        <div className="flex items-end">
+                                                            <Button
+                                                                disabled={
+                                                                    processing
+                                                                }
+                                                                className="w-full"
+                                                            >
+                                                                <Plus className="size-4" />
+                                                                Simpan
+                                                            </Button>
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </Form>
+
+                                            <div className="mt-5 flex flex-wrap gap-2">
+                                                {project.skills.map((skill) => (
+                                                    <div
+                                                        key={skill.id}
+                                                        className="flex items-center gap-2 rounded-[10px] border-2 border-foreground bg-muted px-3 py-2 text-xs font-black"
+                                                    >
+                                                        <span>
+                                                            {skill.name} ·
+                                                            minimum{' '}
+                                                            {
+                                                                skill.pivot
+                                                                    ?.required_level
+                                                            }
+                                                        </span>
+
+                                                        <DeleteButton
+                                                            action={`/admin/projects/${project.slug}/skills/${skill.slug}`}
+                                                            compact
+                                                        />
+                                                    </div>
+                                                ))}
                                             </div>
                                         </>
                                     )}
-                                </Form>
-
-                                <div className="mt-5 flex flex-wrap gap-2">
-                                    {project.skills.map((skill) => (
-                                        <div
-                                            key={skill.id}
-                                            className="flex max-w-full items-center gap-2 rounded-[11px] border-2 border-foreground bg-muted px-3 py-2 text-xs font-black"
-                                        >
-                                            <span className="min-w-0 break-words">
-                                                {skill.name} · minimum{' '}
-                                                {skill.pivot?.required_level}
-                                            </span>
-
-                                            <DeleteButton
-                                                action={`/admin/projects/${project.slug}/skills/${skill.slug}`}
-                                                compact
-                                            />
-                                        </div>
-                                    ))}
                                 </div>
-                            </div>
 
-                            <div className="border-t-2 border-foreground/15 pt-5">
-                                <DeleteButton
-                                    action={`/admin/projects/${project.slug}`}
-                                />
+                                {!isAcademicProject && (
+                                    <div className="border-t-2 border-foreground/15 pt-5">
+                                        <DeleteButton
+                                            action={`/admin/projects/${project.slug}`}
+                                        />
+                                    </div>
+                                )}
                             </div>
-                        </div>
-                    </AdminDetails>
-                ))}
+                        </AdminDetails>
+                    );
+                })}
             </div>
+
+            {filteredProjects.length === 0 && (
+                <p className="rounded-[10px] border-2 border-foreground/15 p-5 text-sm font-semibold">
+                    Tidak ada proyek pada jurusan yang dipilih.
+                </p>
+            )}
         </AdminPanel>
     );
 }

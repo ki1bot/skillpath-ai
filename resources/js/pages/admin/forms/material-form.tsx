@@ -14,10 +14,17 @@ type Props = {
     skills: Skill[];
 };
 
+const stages = ['Amatir', 'Menengah', 'Ahli'] as const;
+
 export function MaterialForm({ material, skills }: Props) {
     const action = material
         ? `/admin/materials/${material.slug}`
         : '/admin/materials';
+
+    const isAcademicMaterial = Boolean(
+        material &&
+        /^(belajar|penguatan)-(amatir|menengah|ahli)-/.test(material.slug),
+    );
 
     return (
         <Form
@@ -25,122 +32,213 @@ export function MaterialForm({ material, skills }: Props) {
             method={material ? 'put' : 'post'}
             className="grid gap-5"
         >
-            {({ processing }) => (
+            {({ processing, errors }) => (
                 <>
                     <div className="grid gap-4 md:grid-cols-3">
-                        <SelectField
-                            label="Keahlian"
-                            name="skill_id"
-                            defaultValue={material?.skill_id ?? ''}
-                            required
-                        >
-                            <option value="">Pilih keahlian</option>
+                        <div>
+                            <SelectField
+                                label="Kemampuan"
+                                name={
+                                    isAcademicMaterial ? undefined : 'skill_id'
+                                }
+                                defaultValue={material?.skill_id ?? ''}
+                                disabled={isAcademicMaterial}
+                                required
+                            >
+                                <option value="">Pilih kemampuan</option>
 
-                            {skills.map((skill) => (
-                                <option key={skill.id} value={skill.id}>
-                                    {skill.name}
-                                </option>
-                            ))}
-                        </SelectField>
+                                {skills.map((skill) => (
+                                    <option key={skill.id} value={skill.id}>
+                                        {skill.name}
+                                    </option>
+                                ))}
+                            </SelectField>
 
-                        <InputField
-                            label="Tingkat kesulitan"
-                            name="difficulty"
-                            defaultValue={material?.difficulty ?? 'Dasar'}
-                            required
-                        />
+                            {isAcademicMaterial && (
+                                <input
+                                    type="hidden"
+                                    name="skill_id"
+                                    value={material?.skill_id}
+                                />
+                            )}
 
-                        <InputField
-                            label="Estimasi waktu"
-                            type="number"
-                            name="estimated_minutes"
-                            min={15}
-                            defaultValue={material?.estimated_minutes ?? 90}
-                            required
-                        />
-                    </div>
+                            {errors.skill_id && (
+                                <p className="mt-2 text-xs font-bold text-destructive">
+                                    {errors.skill_id}
+                                </p>
+                            )}
+                        </div>
 
-                    <InputField
-                        label="Judul materi"
-                        name="title"
-                        defaultValue={material?.title}
-                        required
-                    />
+                        <div>
+                            <SelectField
+                                label="Tahap pembelajaran"
+                                name={
+                                    isAcademicMaterial
+                                        ? undefined
+                                        : 'difficulty'
+                                }
+                                defaultValue={material?.difficulty ?? 'Amatir'}
+                                disabled={isAcademicMaterial}
+                                required
+                            >
+                                {stages.map((stage) => (
+                                    <option key={stage} value={stage}>
+                                        {stage}
+                                    </option>
+                                ))}
+                            </SelectField>
 
-                    <TextareaField
-                        label="Ringkasan"
-                        name="summary"
-                        rows={4}
-                        defaultValue={material?.summary}
-                        required
-                    />
+                            {isAcademicMaterial && (
+                                <input
+                                    type="hidden"
+                                    name="difficulty"
+                                    value={material?.difficulty}
+                                />
+                            )}
 
-                    <ArrayFields
-                        name="learning_objectives"
-                        label="Tujuan pembelajaran"
-                        values={material?.learning_objectives}
-                    />
+                            {errors.difficulty && (
+                                <p className="mt-2 text-xs font-bold text-destructive">
+                                    {errors.difficulty}
+                                </p>
+                            )}
+                        </div>
 
-                    <div className="grid gap-4 md:grid-cols-2">
-                        <InputField
-                            label="Judul referensi"
-                            name="resource_title"
-                            defaultValue={material?.resource_title ?? ''}
-                        />
-
-                        <InputField
-                            label="URL referensi"
-                            type="url"
-                            name="resource_url"
-                            defaultValue={material?.resource_url ?? ''}
-                        />
-                    </div>
-
-                    <TextareaField
-                        label="Latihan praktik"
-                        name="practice_task"
-                        rows={4}
-                        defaultValue={material?.practice_task}
-                        required
-                    />
-
-                    <TextareaField
-                        label="Pertanyaan evaluasi"
-                        name="quiz_question"
-                        rows={3}
-                        defaultValue={material?.quiz_question}
-                        required
-                    />
-
-                    <div className="grid gap-4 sm:grid-cols-2">
-                        {(['A', 'B', 'C', 'D'] as const).map((letter) => (
+                        <div>
                             <InputField
-                                key={letter}
-                                label={`Pilihan ${letter}`}
-                                name="quiz_options[]"
-                                defaultValue={material?.quiz_options?.[letter]}
+                                label="Estimasi waktu (menit)"
+                                type="number"
+                                name="estimated_minutes"
+                                min={15}
+                                max={3000}
+                                defaultValue={material?.estimated_minutes ?? 90}
                                 required
                             />
-                        ))}
+
+                            {errors.estimated_minutes && (
+                                <p className="mt-2 text-xs font-bold text-destructive">
+                                    {errors.estimated_minutes}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+
+                    {isAcademicMaterial && (
+                        <div className="rounded-[10px] border-2 border-foreground/15 bg-muted/30 p-4">
+                            <p className="text-sm font-black">
+                                Materi ini sudah menjadi bagian dari roadmap.
+                            </p>
+
+                            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                                Kemampuan dan tahapnya tetap agar susunan
+                                Amatir, Menengah, dan Ahli tidak berubah. Anda
+                                tetap dapat memperbarui tugas, penjelasan,
+                                referensi, dan waktu pengerjaan.
+                            </p>
+                        </div>
+                    )}
+
+                    <div>
+                        <InputField
+                            label="Judul materi"
+                            name="title"
+                            defaultValue={material?.title}
+                            maxLength={180}
+                            required
+                        />
+
+                        {errors.title && (
+                            <p className="mt-2 text-xs font-bold text-destructive">
+                                {errors.title}
+                            </p>
+                        )}
+                    </div>
+
+                    <div>
+                        <TextareaField
+                            label="Ringkasan materi"
+                            name="summary"
+                            rows={4}
+                            maxLength={3000}
+                            defaultValue={material?.summary}
+                            required
+                        />
+
+                        {errors.summary && (
+                            <p className="mt-2 text-xs font-bold text-destructive">
+                                {errors.summary}
+                            </p>
+                        )}
+                    </div>
+
+                    <div>
+                        <ArrayFields
+                            name="learning_objectives"
+                            label="Tujuan pembelajaran"
+                            values={material?.learning_objectives}
+                        />
+
+                        {errors.learning_objectives && (
+                            <p className="mt-2 text-xs font-bold text-destructive">
+                                {errors.learning_objectives}
+                            </p>
+                        )}
                     </div>
 
                     <div className="grid gap-4 md:grid-cols-2">
-                        <SelectField
-                            label="Jawaban benar"
-                            name="quiz_answer"
-                            defaultValue={material?.quiz_answer ?? 'A'}
-                        >
-                            <option value="A">A</option>
-                            <option value="B">B</option>
-                            <option value="C">C</option>
-                            <option value="D">D</option>
-                        </SelectField>
+                        <div>
+                            <InputField
+                                label="Judul referensi"
+                                name="resource_title"
+                                defaultValue={material?.resource_title ?? ''}
+                                maxLength={180}
+                            />
 
-                        <InputField
-                            label="Penjelasan jawaban"
-                            name="quiz_explanation"
-                            defaultValue={material?.quiz_explanation ?? ''}
+                            {errors.resource_title && (
+                                <p className="mt-2 text-xs font-bold text-destructive">
+                                    {errors.resource_title}
+                                </p>
+                            )}
+                        </div>
+
+                        <div>
+                            <InputField
+                                label="URL referensi"
+                                type="url"
+                                name="resource_url"
+                                defaultValue={material?.resource_url ?? ''}
+                                maxLength={1000}
+                            />
+
+                            {errors.resource_url && (
+                                <p className="mt-2 text-xs font-bold text-destructive">
+                                    {errors.resource_url}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+
+                    <div>
+                        <TextareaField
+                            label="Tugas praktik mahasiswa"
+                            name="practice_task"
+                            rows={9}
+                            maxLength={4000}
+                            defaultValue={material?.practice_task}
+                            required
                         />
+
+                        <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                            Jelaskan pekerjaan yang harus dibuat, hasil yang
+                            dikumpulkan, dan hal yang akan diperiksa admin.
+                            Mahasiswa mengirim hasil melalui folder Google
+                            Drive. Nilai minimal kelulusan adalah 70.
+                        </p>
+
+                        {errors.practice_task && (
+                            <p className="mt-2 text-xs font-bold text-destructive">
+                                {errors.practice_task}
+                            </p>
+                        )}
                     </div>
 
                     <Button disabled={processing} className="w-full sm:w-fit">
@@ -150,7 +248,11 @@ export function MaterialForm({ material, skills }: Props) {
                             <Plus className="size-4" />
                         )}
 
-                        {material ? 'Simpan materi' : 'Tambah materi'}
+                        {processing
+                            ? 'Menyimpan...'
+                            : material
+                              ? 'Simpan perubahan materi'
+                              : 'Tambah materi'}
                     </Button>
                 </>
             )}

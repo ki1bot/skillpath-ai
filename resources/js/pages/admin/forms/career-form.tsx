@@ -1,6 +1,7 @@
 import { Form } from '@inertiajs/react';
 import { Plus, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { getStudyProgramDefinition } from '@/lib/academic-programs';
 import {
     ArrayFields,
     InputField,
@@ -12,6 +13,10 @@ import type { Career } from '../types';
 export function CareerForm({ career }: { career?: Career }) {
     const action = career ? `/admin/careers/${career.slug}` : '/admin/careers';
 
+    const isAcademicCareer = Boolean(
+        career && getStudyProgramDefinition(career.name),
+    );
+
     return (
         <Form
             action={action}
@@ -21,19 +26,38 @@ export function CareerForm({ career }: { career?: Career }) {
             {({ processing, errors }) => (
                 <>
                     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                        <InputField
-                            label="Nama jurusan"
-                            name="name"
-                            defaultValue={career?.name}
-                            required
-                        />
+                        <div>
+                            <InputField
+                                label="Nama jurusan"
+                                name={isAcademicCareer ? undefined : 'name'}
+                                defaultValue={career?.name}
+                                disabled={isAcademicCareer}
+                                required
+                            />
 
-                        <InputField
-                            label="Tingkat"
-                            name="difficulty"
-                            defaultValue={career?.difficulty ?? 'Menengah'}
-                            required
-                        />
+                            {isAcademicCareer && (
+                                <input
+                                    type="hidden"
+                                    name="name"
+                                    value={career?.name}
+                                />
+                            )}
+                        </div>
+
+                        <div>
+                            <InputField
+                                label="Tingkat umum jurusan"
+                                name="difficulty"
+                                defaultValue={career?.difficulty ?? 'Menengah'}
+                                maxLength={50}
+                                required
+                            />
+
+                            <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                                Ini bukan tahap Amatir, Menengah, atau Ahli pada
+                                jalur belajar.
+                            </p>
+                        </div>
 
                         <InputField
                             label="Warna aksen"
@@ -48,25 +72,27 @@ export function CareerForm({ career }: { career?: Career }) {
                         label="Ringkasan singkat"
                         name="tagline"
                         defaultValue={career?.tagline}
+                        maxLength={180}
                         required
                     />
 
                     <TextareaField
-                        label="Deskripsi"
+                        label="Deskripsi jurusan"
                         name="description"
                         rows={4}
+                        maxLength={4000}
                         defaultValue={career?.description}
                         required
                     />
 
                     <ArrayFields
                         name="responsibilities"
-                        label="Bidang utama"
+                        label="Tiga bidang utama jurusan"
                         values={career?.responsibilities}
                     />
 
                     <SelectField
-                        label="Status"
+                        label="Status jurusan"
                         name="is_active"
                         defaultValue={career?.is_active === false ? '0' : '1'}
                     >
@@ -75,9 +101,16 @@ export function CareerForm({ career }: { career?: Career }) {
                     </SelectField>
 
                     {Object.keys(errors).length > 0 && (
-                        <p className="text-sm font-bold text-destructive">
-                            Periksa kembali data jurusan yang dimasukkan.
-                        </p>
+                        <div className="rounded-[10px] border-2 border-destructive/30 p-4">
+                            {Object.entries(errors).map(([field, message]) => (
+                                <p
+                                    key={field}
+                                    className="text-sm font-bold text-destructive"
+                                >
+                                    {message}
+                                </p>
+                            ))}
+                        </div>
                     )}
 
                     <Button disabled={processing} className="w-full sm:w-fit">
@@ -87,7 +120,11 @@ export function CareerForm({ career }: { career?: Career }) {
                             <Plus className="size-4" />
                         )}
 
-                        {career ? 'Simpan perubahan' : 'Tambah jurusan'}
+                        {processing
+                            ? 'Menyimpan...'
+                            : career
+                              ? 'Simpan perubahan'
+                              : 'Tambah jurusan'}
                     </Button>
                 </>
             )}

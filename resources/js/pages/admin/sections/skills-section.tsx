@@ -1,6 +1,7 @@
 import { Form } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { academicPrograms } from '@/lib/academic-programs';
 import { AdminDetails } from '../components/admin-details';
 import { AdminPanel } from '../components/admin-panel';
 import { DeleteButton } from '../components/delete-button';
@@ -14,40 +15,60 @@ type Props = {
 };
 
 export function SkillsSection({ skills, prerequisites }: Props) {
+    const academicSkillNames = new Set(
+        academicPrograms.flatMap((program) =>
+            program.areas.flatMap((area) => area.skills),
+        ),
+    );
+
     return (
         <AdminPanel
-            title="Keahlian & prasyarat"
-            description="Kelola kemampuan yang digunakan SkillPath serta hubungan prasyarat yang menentukan urutan belajar."
+            title="Kemampuan dan prasyarat"
+            description="Kelola informasi kemampuan yang digunakan dalam analisis gap, pembelajaran, dan kesiapan proyek. Tingkat materi Amatir, Menengah, dan Ahli diatur secara terpisah."
             accentClass="bg-[var(--neo-blue)] text-[#171717]"
         >
-            <AdminDetails title="Tambah keahlian baru">
+            <AdminDetails title="Tambah kemampuan baru">
                 <SkillForm />
             </AdminDetails>
 
             <div className="grid gap-4 md:grid-cols-2">
-                {skills.map((skill) => (
-                    <AdminDetails
-                        key={skill.id}
-                        title={skill.name}
-                        meta={skill.category}
-                    >
-                        <div className="grid gap-5">
-                            <SkillForm skill={skill} />
+                {skills.map((skill) => {
+                    const isAcademicSkill = academicSkillNames.has(skill.name);
 
-                            <DeleteButton
-                                action={`/admin/skills/${skill.slug}`}
-                            />
-                        </div>
-                    </AdminDetails>
-                ))}
+                    return (
+                        <AdminDetails
+                            key={skill.id}
+                            title={skill.name}
+                            meta={`${skill.category} · ${
+                                isAcademicSkill
+                                    ? 'Kemampuan akademik'
+                                    : 'Kemampuan tambahan'
+                            }`}
+                        >
+                            <div className="grid gap-5">
+                                <SkillForm skill={skill} />
+
+                                {!isAcademicSkill && (
+                                    <DeleteButton
+                                        action={`/admin/skills/${skill.slug}`}
+                                    />
+                                )}
+                            </div>
+                        </AdminDetails>
+                    );
+                })}
             </div>
 
             <div className="border-t-2 border-foreground pt-6">
-                <h3 className="text-lg font-black">Hubungan prasyarat</h3>
+                <h3 className="text-lg font-black">
+                    Hubungan prasyarat kemampuan
+                </h3>
 
-                <p className="mt-1 text-sm text-muted-foreground">
-                    Tentukan kemampuan yang perlu dikuasai sebelum mempelajari
-                    kemampuan lain.
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                    Prasyarat digunakan untuk memberi konteks hubungan
+                    antarkemampuan. Pada roadmap akademik, materi tetap
+                    dikerjakan secara berurutan dari Amatir, Menengah, hingga
+                    Ahli sesuai hasil assessment dan nilai tugas.
                 </p>
 
                 <Form

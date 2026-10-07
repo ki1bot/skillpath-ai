@@ -2,7 +2,7 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
 import skills from './skills'
 /**
 * @see \App\Http\Controllers\AdminController::store
-* @see app/Http/Controllers/AdminController.php:78
+* @see app/Http/Controllers/AdminController.php:84
 * @route '/admin/careers'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -17,7 +17,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::store
-* @see app/Http/Controllers/AdminController.php:78
+* @see app/Http/Controllers/AdminController.php:84
 * @route '/admin/careers'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -26,7 +26,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\AdminController::store
-* @see app/Http/Controllers/AdminController.php:78
+* @see app/Http/Controllers/AdminController.php:84
 * @route '/admin/careers'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -36,7 +36,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\AdminController::store
-* @see app/Http/Controllers/AdminController.php:78
+* @see app/Http/Controllers/AdminController.php:84
 * @route '/admin/careers'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -46,7 +46,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\AdminController::store
-* @see app/Http/Controllers/AdminController.php:78
+* @see app/Http/Controllers/AdminController.php:84
 * @route '/admin/careers'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -58,7 +58,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\AdminController::update
-* @see app/Http/Controllers/AdminController.php:102
+* @see app/Http/Controllers/AdminController.php:105
 * @route '/admin/careers/{career}'
 */
 export const update = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -73,7 +73,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::update
-* @see app/Http/Controllers/AdminController.php:102
+* @see app/Http/Controllers/AdminController.php:105
 * @route '/admin/careers/{career}'
 */
 update.url = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions) => {
@@ -106,7 +106,7 @@ update.url = (args: { career: string | { slug: string } } | [career: string | { 
 
 /**
 * @see \App\Http\Controllers\AdminController::update
-* @see app/Http/Controllers/AdminController.php:102
+* @see app/Http/Controllers/AdminController.php:105
 * @route '/admin/careers/{career}'
 */
 update.put = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -116,7 +116,7 @@ update.put = (args: { career: string | { slug: string } } | [career: string | { 
 
 /**
 * @see \App\Http\Controllers\AdminController::update
-* @see app/Http/Controllers/AdminController.php:102
+* @see app/Http/Controllers/AdminController.php:105
 * @route '/admin/careers/{career}'
 */
 const updateForm = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -131,7 +131,7 @@ const updateForm = (args: { career: string | { slug: string } } | [career: strin
 
 /**
 * @see \App\Http\Controllers\AdminController::update
-* @see app/Http/Controllers/AdminController.php:102
+* @see app/Http/Controllers/AdminController.php:105
 * @route '/admin/careers/{career}'
 */
 updateForm.put = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -148,7 +148,7 @@ update.form = updateForm
 
 /**
 * @see \App\Http\Controllers\AdminController::destroy
-* @see app/Http/Controllers/AdminController.php:129
+* @see app/Http/Controllers/AdminController.php:143
 * @route '/admin/careers/{career}'
 */
 export const destroy = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -163,7 +163,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::destroy
-* @see app/Http/Controllers/AdminController.php:129
+* @see app/Http/Controllers/AdminController.php:143
 * @route '/admin/careers/{career}'
 */
 destroy.url = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions) => {
@@ -196,7 +196,7 @@ destroy.url = (args: { career: string | { slug: string } } | [career: string | {
 
 /**
 * @see \App\Http\Controllers\AdminController::destroy
-* @see app/Http/Controllers/AdminController.php:129
+* @see app/Http/Controllers/AdminController.php:143
 * @route '/admin/careers/{career}'
 */
 destroy.delete = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -206,7 +206,7 @@ destroy.delete = (args: { career: string | { slug: string } } | [career: string 
 
 /**
 * @see \App\Http\Controllers\AdminController::destroy
-* @see app/Http/Controllers/AdminController.php:129
+* @see app/Http/Controllers/AdminController.php:143
 * @route '/admin/careers/{career}'
 */
 const destroyForm = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -221,7 +221,7 @@ const destroyForm = (args: { career: string | { slug: string } } | [career: stri
 
 /**
 * @see \App\Http\Controllers\AdminController::destroy
-* @see app/Http/Controllers/AdminController.php:129
+* @see app/Http/Controllers/AdminController.php:143
 * @route '/admin/careers/{career}'
 */
 destroyForm.delete = (args: { career: string | { slug: string } } | [career: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

@@ -33,17 +33,11 @@ class AcademicStageLearningMaterialSeeder extends Seeder
         $skillSlugs = AcademicProgramCatalog::allSkillSlugs();
 
         $skills = Skill::query()
-            ->whereIn(
-                'slug',
-                $skillSlugs,
-            )
+            ->whereIn('slug', $skillSlugs)
             ->get()
             ->keyBy('slug');
 
-        if (
-            $skills->count()
-            !== count($skillSlugs)
-        ) {
+        if ($skills->count() !== count($skillSlugs)) {
             throw new RuntimeException(
                 'Katalog skill akademik belum lengkap untuk membuat materi bertahap.',
             );
@@ -52,9 +46,7 @@ class AcademicStageLearningMaterialSeeder extends Seeder
         $canonicalMaterialSlugs = [];
 
         foreach ($skillSlugs as $skillSlug) {
-            $skill = $skills->get(
-                $skillSlug,
-            );
+            $skill = $skills->get($skillSlug);
 
             if (! $skill) {
                 throw new RuntimeException(
@@ -63,10 +55,7 @@ class AcademicStageLearningMaterialSeeder extends Seeder
             }
 
             $source = LearningMaterial::query()
-                ->where(
-                    'slug',
-                    'belajar-'.$skillSlug,
-                )
+                ->where('slug', 'belajar-'.$skillSlug)
                 ->first();
 
             if (! $source) {
@@ -75,18 +64,10 @@ class AcademicStageLearningMaterialSeeder extends Seeder
                 );
             }
 
-            foreach (
-                self::STAGES as $stageSlug => $stage
-            ) {
-                $coreSlug = 'belajar-'
-                    .$stageSlug
-                    .'-'
-                    .$skillSlug;
+            foreach (self::STAGES as $stageSlug => $stage) {
+                $coreSlug = 'belajar-'.$stageSlug.'-'.$skillSlug;
 
-                $reinforcementSlug = 'penguatan-'
-                    .$stageSlug
-                    .'-'
-                    .$skillSlug;
+                $reinforcementSlug = 'penguatan-'.$stageSlug.'-'.$skillSlug;
 
                 $practiceTask = $this->stageTask(
                     (string) $source->practice_task,
@@ -94,7 +75,7 @@ class AcademicStageLearningMaterialSeeder extends Seeder
                     $stageSlug,
                 );
 
-                $core = LearningMaterial::updateOrCreate(
+                $core = LearningMaterial::firstOrCreate(
                     [
                         'slug' => $coreSlug,
                     ],
@@ -103,49 +84,35 @@ class AcademicStageLearningMaterialSeeder extends Seeder
                         'material_type' => 'core',
                         'reinforcement_for_material_id' => null,
                         'is_active' => true,
-                        'title' => $stage['title']
-                            .': '
-                            .$skill->name,
+                        'title' => $stage['title'].': '.$skill->name,
                         'summary' => $this->stageSummary(
                             $skill->name,
                             $stageSlug,
                         ),
-                        'learning_objectives' => $this
-                            ->learningObjectives(
-                                $skill->name,
-                                $stageSlug,
-                            ),
-                        'difficulty' => $stage[
-                            'title'
-                        ],
-                        'estimated_minutes' => $stage[
-                            'estimated_minutes'
-                        ],
-                        'resource_title' => $source
-                            ->resource_title,
-                        'resource_url' => $source
-                            ->resource_url,
+                        'learning_objectives' => $this->learningObjectives(
+                            $skill->name,
+                            $stageSlug,
+                        ),
+                        'difficulty' => $stage['title'],
+                        'estimated_minutes' => $stage['estimated_minutes'],
+                        'resource_title' => $source->resource_title,
+                        'resource_url' => $source->resource_url,
                         'practice_task' => $practiceTask,
-                        'quiz_question' => $source
-                            ->quiz_question,
-                        'quiz_options' => $source
-                            ->quiz_options,
-                        'quiz_answer' => $source
-                            ->quiz_answer,
-                        'quiz_explanation' => $source
-                            ->quiz_explanation,
+                        'quiz_question' => $source->quiz_question,
+                        'quiz_options' => $source->quiz_options,
+                        'quiz_answer' => $source->quiz_answer,
+                        'quiz_explanation' => $source->quiz_explanation,
                     ],
                 );
 
-                LearningMaterial::updateOrCreate(
+                LearningMaterial::firstOrCreate(
                     [
                         'slug' => $reinforcementSlug,
                     ],
                     [
                         'skill_id' => $skill->id,
                         'material_type' => 'reinforcement',
-                        'reinforcement_for_material_id' => $core
-                            ->id,
+                        'reinforcement_for_material_id' => $core->id,
                         'is_active' => true,
                         'title' => 'Penguatan '
                             .$stage['title']
@@ -161,31 +128,19 @@ class AcademicStageLearningMaterialSeeder extends Seeder
                             'Memperbaiki hasil berdasarkan catatan admin.',
                             'Menguji kembali hasil sebelum dikumpulkan ulang.',
                         ],
-                        'difficulty' => $stage[
-                            'title'
-                        ],
-                        'estimated_minutes' => $stage[
-                            'reinforcement_minutes'
-                        ],
+                        'difficulty' => $stage['title'],
+                        'estimated_minutes' => $stage['reinforcement_minutes'],
                         'resource_title' => 'Materi penguatan SkillPath',
-                        'resource_url' => $source
-                            ->resource_url,
-                        'practice_task' => $this
-                            ->reinforcementTask(
-                                $skill->name,
-                                $stage[
-                                    'title'
-                                ],
-                                $practiceTask,
-                            ),
-                        'quiz_question' => $source
-                            ->quiz_question,
-                        'quiz_options' => $source
-                            ->quiz_options,
-                        'quiz_answer' => $source
-                            ->quiz_answer,
-                        'quiz_explanation' => $source
-                            ->quiz_explanation,
+                        'resource_url' => $source->resource_url,
+                        'practice_task' => $this->reinforcementTask(
+                            $skill->name,
+                            $stage['title'],
+                            $practiceTask,
+                        ),
+                        'quiz_question' => $source->quiz_question,
+                        'quiz_options' => $source->quiz_options,
+                        'quiz_answer' => $source->quiz_answer,
+                        'quiz_explanation' => $source->quiz_explanation,
                     ],
                 );
 
@@ -197,9 +152,7 @@ class AcademicStageLearningMaterialSeeder extends Seeder
         LearningMaterial::query()
             ->whereIn(
                 'skill_id',
-                $skills
-                    ->pluck('id')
-                    ->all(),
+                $skills->pluck('id')->all(),
             )
             ->whereNotIn(
                 'slug',
@@ -215,9 +168,18 @@ class AcademicStageLearningMaterialSeeder extends Seeder
         string $stage,
     ): string {
         return match ($stage) {
-            'amatir' => 'Tahap Amatir berfokus pada pemahaman dasar '.$skillName.' dan penerapannya pada kasus yang masih sederhana dan terarah.',
-            'menengah' => 'Tahap Menengah melatih penerapan '.$skillName.' pada kasus yang lebih lengkap, termasuk validasi hasil, variasi kondisi, dan alasan pemilihan pendekatan.',
-            'ahli' => 'Tahap Ahli menempatkan '.$skillName.' pada situasi yang lebih mendekati kondisi nyata dengan batasan, kondisi tidak ideal, pengujian, dan pertimbangan keputusan.',
+            'amatir' => 'Tahap Amatir berfokus pada pemahaman dasar '
+                .$skillName
+                .' dan penerapannya pada kasus yang masih sederhana dan terarah.',
+
+            'menengah' => 'Tahap Menengah melatih penerapan '
+                .$skillName
+                .' pada kasus yang lebih lengkap, termasuk validasi hasil, variasi kondisi, dan alasan pemilihan pendekatan.',
+
+            'ahli' => 'Tahap Ahli menempatkan '
+                .$skillName
+                .' pada situasi yang lebih mendekati kondisi nyata dengan batasan, kondisi tidak ideal, pengujian, dan pertimbangan keputusan.',
+
             default => throw new RuntimeException(
                 'Tahap materi tidak dikenali.',
             ),
@@ -237,16 +199,19 @@ class AcademicStageLearningMaterialSeeder extends Seeder
                 'Menerapkan konsep pada satu kasus sederhana.',
                 'Menjelaskan langkah pengerjaan dan hasil yang diperoleh.',
             ],
+
             'menengah' => [
                 'Menerapkan '.$skillName.' tanpa bergantung pada contoh langkah demi langkah.',
                 'Memeriksa hasil dan menangani kesalahan yang umum terjadi.',
                 'Membandingkan alternatif pendekatan dan menjelaskan pilihan yang digunakan.',
             ],
+
             'ahli' => [
                 'Menerapkan '.$skillName.' pada studi kasus dengan beberapa batasan.',
                 'Menguji kondisi normal, kondisi batas, dan kondisi yang berpotensi gagal.',
                 'Menjelaskan trade-off, kelemahan, serta kemungkinan pengembangan solusi.',
             ],
+
             default => throw new RuntimeException(
                 'Tahap materi tidak dikenali.',
             ),
@@ -259,11 +224,23 @@ class AcademicStageLearningMaterialSeeder extends Seeder
         string $stage,
     ): string {
         return match ($stage) {
-            'amatir' => 'Kerjakan tugas dasar '.$skillName.' berikut. Pada tahap ini, fokus utama adalah memahami alur kerja dengan benar dan menghasilkan bukti pengerjaan yang dapat diperiksa. '.$baseTask.' Tidak perlu menambah fitur atau ruang lingkup di luar tugas sebelum bagian dasarnya selesai dan dapat dijelaskan dengan baik.',
+            'amatir' => 'Kerjakan tugas dasar '
+                .$skillName
+                .' berikut. Pada tahap ini, fokus utama adalah memahami alur kerja dengan benar dan menghasilkan bukti pengerjaan yang dapat diperiksa. '
+                .$baseTask
+                .' Tidak perlu menambah fitur atau ruang lingkup di luar tugas sebelum bagian dasarnya selesai dan dapat dijelaskan dengan baik.',
 
-            'menengah' => 'Pada tahap Menengah, gunakan kemampuan '.$skillName.' pada kasus yang berbeda dari hasil tahap Amatir. Kerjakan ketentuan inti berikut sebagai dasar: '.$baseTask.' Setelah bagian utama selesai, tambahkan satu variasi kondisi atau data, lakukan validasi terhadap hasil, lalu jelaskan minimal satu masalah yang kamu temukan dan bagaimana kamu memperbaikinya. Sertakan alasan mengapa pendekatan yang kamu gunakan lebih sesuai dibandingkan alternatif yang paling masuk akal.',
+            'menengah' => 'Pada tahap Menengah, gunakan kemampuan '
+                .$skillName
+                .' pada kasus yang berbeda dari hasil tahap Amatir. Kerjakan ketentuan inti berikut sebagai dasar: '
+                .$baseTask
+                .' Setelah bagian utama selesai, tambahkan satu variasi kondisi atau data, lakukan validasi terhadap hasil, lalu jelaskan minimal satu masalah yang kamu temukan dan bagaimana kamu memperbaikinya. Sertakan alasan mengapa pendekatan yang kamu gunakan lebih sesuai dibandingkan alternatif yang paling masuk akal.',
 
-            'ahli' => 'Pada tahap Ahli, kerjakan '.$skillName.' sebagai studi kasus yang lebih mendekati kondisi nyata. Gunakan ruang lingkup inti berikut sebagai titik awal: '.$baseTask.' Setelah hasil utama selesai, tambahkan batasan atau kondisi yang tidak ideal, uji minimal tiga skenario termasuk satu kondisi batas, dan dokumentasikan hasil pengujiannya. Jelaskan keputusan penting yang kamu ambil, trade-off yang muncul, kelemahan solusi saat ini, serta satu rekomendasi pengembangan jika pekerjaan ini dilanjutkan.',
+            'ahli' => 'Pada tahap Ahli, kerjakan '
+                .$skillName
+                .' sebagai studi kasus yang lebih mendekati kondisi nyata. Gunakan ruang lingkup inti berikut sebagai titik awal: '
+                .$baseTask
+                .' Setelah hasil utama selesai, tambahkan batasan atau kondisi yang tidak ideal, uji minimal tiga skenario termasuk satu kondisi batas, dan dokumentasikan hasil pengujiannya. Jelaskan keputusan penting yang kamu ambil, trade-off yang muncul, kelemahan solusi saat ini, serta satu rekomendasi pengembangan jika pekerjaan ini dilanjutkan.',
 
             default => throw new RuntimeException(
                 'Tahap tugas tidak dikenali.',

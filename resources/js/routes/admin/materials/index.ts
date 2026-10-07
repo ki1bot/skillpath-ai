@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\AdminController::store
-* @see app/Http/Controllers/AdminController.php:331
+* @see app/Http/Controllers/AdminController.php:364
 * @route '/admin/materials'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::store
-* @see app/Http/Controllers/AdminController.php:331
+* @see app/Http/Controllers/AdminController.php:364
 * @route '/admin/materials'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\AdminController::store
-* @see app/Http/Controllers/AdminController.php:331
+* @see app/Http/Controllers/AdminController.php:364
 * @route '/admin/materials'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -35,7 +35,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\AdminController::store
-* @see app/Http/Controllers/AdminController.php:331
+* @see app/Http/Controllers/AdminController.php:364
 * @route '/admin/materials'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -45,7 +45,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\AdminController::store
-* @see app/Http/Controllers/AdminController.php:331
+* @see app/Http/Controllers/AdminController.php:364
 * @route '/admin/materials'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -57,7 +57,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\AdminController::update
-* @see app/Http/Controllers/AdminController.php:346
+* @see app/Http/Controllers/AdminController.php:399
 * @route '/admin/materials/{learningMaterial}'
 */
 export const update = (args: { learningMaterial: string | { slug: string } } | [learningMaterial: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -72,7 +72,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::update
-* @see app/Http/Controllers/AdminController.php:346
+* @see app/Http/Controllers/AdminController.php:399
 * @route '/admin/materials/{learningMaterial}'
 */
 update.url = (args: { learningMaterial: string | { slug: string } } | [learningMaterial: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions) => {
@@ -105,7 +105,7 @@ update.url = (args: { learningMaterial: string | { slug: string } } | [learningM
 
 /**
 * @see \App\Http\Controllers\AdminController::update
-* @see app/Http/Controllers/AdminController.php:346
+* @see app/Http/Controllers/AdminController.php:399
 * @route '/admin/materials/{learningMaterial}'
 */
 update.put = (args: { learningMaterial: string | { slug: string } } | [learningMaterial: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -115,7 +115,7 @@ update.put = (args: { learningMaterial: string | { slug: string } } | [learningM
 
 /**
 * @see \App\Http\Controllers\AdminController::update
-* @see app/Http/Controllers/AdminController.php:346
+* @see app/Http/Controllers/AdminController.php:399
 * @route '/admin/materials/{learningMaterial}'
 */
 const updateForm = (args: { learningMaterial: string | { slug: string } } | [learningMaterial: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -130,7 +130,7 @@ const updateForm = (args: { learningMaterial: string | { slug: string } } | [lea
 
 /**
 * @see \App\Http\Controllers\AdminController::update
-* @see app/Http/Controllers/AdminController.php:346
+* @see app/Http/Controllers/AdminController.php:399
 * @route '/admin/materials/{learningMaterial}'
 */
 updateForm.put = (args: { learningMaterial: string | { slug: string } } | [learningMaterial: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -147,7 +147,7 @@ update.form = updateForm
 
 /**
 * @see \App\Http\Controllers\AdminController::destroy
-* @see app/Http/Controllers/AdminController.php:364
+* @see app/Http/Controllers/AdminController.php:441
 * @route '/admin/materials/{learningMaterial}'
 */
 export const destroy = (args: { learningMaterial: string | { slug: string } } | [learningMaterial: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -162,7 +162,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\AdminController::destroy
-* @see app/Http/Controllers/AdminController.php:364
+* @see app/Http/Controllers/AdminController.php:441
 * @route '/admin/materials/{learningMaterial}'
 */
 destroy.url = (args: { learningMaterial: string | { slug: string } } | [learningMaterial: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions) => {
@@ -195,7 +195,7 @@ destroy.url = (args: { learningMaterial: string | { slug: string } } | [learning
 
 /**
 * @see \App\Http\Controllers\AdminController::destroy
-* @see app/Http/Controllers/AdminController.php:364
+* @see app/Http/Controllers/AdminController.php:441
 * @route '/admin/materials/{learningMaterial}'
 */
 destroy.delete = (args: { learningMaterial: string | { slug: string } } | [learningMaterial: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -205,7 +205,7 @@ destroy.delete = (args: { learningMaterial: string | { slug: string } } | [learn
 
 /**
 * @see \App\Http\Controllers\AdminController::destroy
-* @see app/Http/Controllers/AdminController.php:364
+* @see app/Http/Controllers/AdminController.php:441
 * @route '/admin/materials/{learningMaterial}'
 */
 const destroyForm = (args: { learningMaterial: string | { slug: string } } | [learningMaterial: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -220,7 +220,7 @@ const destroyForm = (args: { learningMaterial: string | { slug: string } } | [le
 
 /**
 * @see \App\Http\Controllers\AdminController::destroy
-* @see app/Http/Controllers/AdminController.php:364
+* @see app/Http/Controllers/AdminController.php:441
 * @route '/admin/materials/{learningMaterial}'
 */
 destroyForm.delete = (args: { learningMaterial: string | { slug: string } } | [learningMaterial: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
