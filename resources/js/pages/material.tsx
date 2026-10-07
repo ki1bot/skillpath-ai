@@ -22,8 +22,6 @@ type Material = {
     resource_title?: string | null;
     resource_url?: string | null;
     practice_task: string;
-    quiz_question: string;
-    quiz_options: Record<string, string>;
     material_type: 'core' | 'reinforcement';
     skill: {
         name: string;
@@ -96,7 +94,6 @@ export default function MaterialPage({
     const [isRetryingAi, setIsRetryingAi] = useState(false);
 
     const evaluationForm = useForm({
-        answer: '',
         practical_evidence_url: '',
     });
 
@@ -115,17 +112,14 @@ export default function MaterialPage({
         evaluationForm.data.practical_evidence_url,
     );
 
-    const evaluationReady =
-        canSubmitEvaluation &&
-        Boolean(evaluationForm.data.answer) &&
-        evaluationEvidenceValid;
+    const evaluationReady = canSubmitEvaluation && evaluationEvidenceValid;
 
     const materialStatus = itemCompleted
         ? 'Selesai'
         : submissionPending
           ? 'Sedang diperiksa oleh admin'
           : reinforcementRequired
-            ? 'Harus mengulang'
+            ? 'Harus memperbaiki tugas'
             : latestEvaluation?.review_status === 'reviewed' &&
                 !latestEvaluation.passed
               ? 'Belum lulus'
@@ -202,9 +196,9 @@ export default function MaterialPage({
 
                 {material.material_type === 'reinforcement' && (
                     <div className="mt-5 rounded-[12px] border-2 border-[#171717] bg-[var(--neo-pink)] p-4 text-sm leading-6 font-semibold text-[#171717]">
-                        Materi ini muncul karena evaluasi sebelumnya belum
-                        memenuhi standar. Selesaikan penguatan ini sebelum
-                        kembali ke materi utama.
+                        Materi ini muncul karena tugas sebelumnya belum memenuhi
+                        nilai kelulusan. Gunakan bagian ini untuk memperbaiki
+                        pekerjaan sebelum kembali ke materi utama.
                     </div>
                 )}
 
@@ -235,7 +229,6 @@ export default function MaterialPage({
                                             className="flex gap-3 rounded-[10px] border-2 border-foreground/15 bg-muted/30 p-4 text-sm leading-6 font-semibold"
                                         >
                                             <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
-
                                             <span>{objective}</span>
                                         </div>
                                     ),
@@ -276,13 +269,13 @@ export default function MaterialPage({
                                     </p>
 
                                     <h2 className="mt-1 text-xl font-black">
-                                        Kerjakan latihan berikut
+                                        Kerjakan tugas berikut
                                     </h2>
                                 </div>
                             </div>
 
                             <div className="mt-5 rounded-[12px] border-2 border-foreground bg-card p-5">
-                                <p className="text-sm leading-7 font-semibold">
+                                <p className="text-sm leading-7 font-semibold whitespace-pre-wrap">
                                     {material.practice_task}
                                 </p>
                             </div>
@@ -300,10 +293,8 @@ export default function MaterialPage({
                                         rel="noreferrer"
                                     >
                                         <BookOpen className="size-4" />
-
                                         {material.resource_title ??
                                             'Buka referensi'}
-
                                         <ExternalLink className="size-4" />
                                     </a>
                                 </Button>
@@ -320,7 +311,6 @@ export default function MaterialPage({
 
                                     <div className="mt-4 space-y-2">
                                         <div className="h-3 w-full animate-pulse rounded bg-muted" />
-
                                         <div className="h-3 w-10/12 animate-pulse rounded bg-muted" />
                                     </div>
                                 </section>
@@ -353,8 +343,8 @@ export default function MaterialPage({
 
                                                 <p className="mt-4 text-xs leading-5 font-medium text-muted-foreground">
                                                     Latihan tambahan ini tidak
-                                                    mengubah nilai atau status
-                                                    materi.
+                                                    menentukan nilai dan tidak
+                                                    mengubah status materi.
                                                 </p>
                                             </div>
                                         </details>
@@ -372,7 +362,7 @@ export default function MaterialPage({
 
                                             <p className="mt-1 text-sm leading-6 font-medium text-muted-foreground">
                                                 {aiExercise?.message ??
-                                                    'Kamu tetap dapat menyelesaikan materi dan evaluasi tanpa latihan tambahan.'}
+                                                    'Kamu tetap dapat menyelesaikan materi dan mengirim tugas tanpa latihan tambahan.'}
                                             </p>
                                         </div>
                                     </div>
@@ -409,11 +399,11 @@ export default function MaterialPage({
 
                                 <div>
                                     <p className="text-xs font-black tracking-wide text-muted-foreground uppercase">
-                                        Evaluasi
+                                        Pengumpulan
                                     </p>
 
                                     <h2 className="mt-1 text-xl font-black">
-                                        Jawab soal dan kirim bukti praktik
+                                        Kirim hasil tugas untuk diperiksa
                                     </h2>
                                 </div>
                             </div>
@@ -429,9 +419,10 @@ export default function MaterialPage({
                                             </p>
 
                                             <p className="mt-2 text-sm leading-6 font-semibold">
-                                                Admin sudah memeriksa
-                                                pengumpulan dan nilai kelulusan
-                                                telah disimpan.
+                                                Admin sudah memeriksa hasil
+                                                tugas dan nilainya berada di
+                                                atas 70. Materi berikutnya
+                                                sekarang dapat dibuka.
                                             </p>
 
                                             {item.evaluation_score !== null &&
@@ -453,10 +444,10 @@ export default function MaterialPage({
                                     </p>
 
                                     <p className="mt-2 text-sm leading-6 font-semibold">
-                                        Jawaban dan folder Google Drive sudah
-                                        diterima. Kamu belum dapat mengirim
-                                        ulang sampai admin selesai memberikan
-                                        nilai.
+                                        Folder Google Drive sudah diterima. Kamu
+                                        belum dapat mengirim ulang sampai admin
+                                        selesai memeriksa hasil tugas dan
+                                        menetapkan nilai.
                                     </p>
 
                                     {latestEvaluation?.evidence_url && (
@@ -481,14 +472,15 @@ export default function MaterialPage({
                             ) : reinforcementRequired ? (
                                 <div className="mt-5 rounded-[12px] border-2 border-[#171717] bg-[var(--neo-pink)] p-5 text-[#171717]">
                                     <p className="font-black">
-                                        Belum bisa mengumpulkan ulang
+                                        Tugas perlu diperbaiki
                                     </p>
 
                                     <p className="mt-2 text-sm leading-6 font-semibold">
-                                        Nilai sebelumnya belum mencapai 70.
-                                        Selesaikan materi penguatan yang muncul
-                                        di jalur belajar, lalu kembali ke materi
-                                        ini untuk mencoba lagi.
+                                        Nilai sebelumnya belum berada di atas
+                                        70. Selesaikan materi penguatan yang
+                                        muncul di jalur belajar, lalu kembali ke
+                                        materi ini untuk mengirim hasil
+                                        perbaikan.
                                     </p>
 
                                     <Button
@@ -504,83 +496,10 @@ export default function MaterialPage({
                                 </div>
                             ) : (
                                 <>
-                                    <div className="mt-5 rounded-[12px] border-2 border-foreground/15 bg-muted/30 p-4">
-                                        <p className="font-black">
-                                            Penilaian dilakukan oleh admin
-                                        </p>
-
-                                        <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
-                                            Jawaban dan folder Google Drive akan
-                                            diperiksa terlebih dahulu. Nilai 70
-                                            sampai 100 dinyatakan lulus. Nilai 0
-                                            sampai 69 belum lulus dan harus
-                                            mengulang.
-                                        </p>
-                                    </div>
-
                                     <form
                                         onSubmit={evaluate}
                                         className="mt-6 grid gap-5"
                                     >
-                                        <fieldset>
-                                            <legend className="text-base leading-7 font-black">
-                                                {material.quiz_question}
-                                            </legend>
-
-                                            <div className="mt-4 grid gap-2.5">
-                                                {Object.entries(
-                                                    material.quiz_options,
-                                                ).map(([key, text]) => (
-                                                    <label
-                                                        key={key}
-                                                        className={`flex cursor-pointer items-start gap-3 rounded-[10px] border-2 border-foreground p-4 text-sm ${
-                                                            evaluationForm.data
-                                                                .answer === key
-                                                                ? 'bg-secondary text-[#171717]'
-                                                                : 'bg-card'
-                                                        }`}
-                                                    >
-                                                        <input
-                                                            type="radio"
-                                                            name="answer"
-                                                            value={key}
-                                                            checked={
-                                                                evaluationForm
-                                                                    .data
-                                                                    .answer ===
-                                                                key
-                                                            }
-                                                            onChange={() =>
-                                                                evaluationForm.setData(
-                                                                    'answer',
-                                                                    key,
-                                                                )
-                                                            }
-                                                            className="mt-1 accent-black"
-                                                            required
-                                                        />
-
-                                                        <span className="leading-6 font-semibold">
-                                                            <strong className="mr-2 font-mono">
-                                                                {key}.
-                                                            </strong>
-
-                                                            {text}
-                                                        </span>
-                                                    </label>
-                                                ))}
-                                            </div>
-
-                                            {evaluationForm.errors.answer && (
-                                                <p className="mt-2 text-xs font-bold text-destructive">
-                                                    {
-                                                        evaluationForm.errors
-                                                            .answer
-                                                    }
-                                                </p>
-                                            )}
-                                        </fieldset>
-
                                         <label>
                                             <span className="mb-2 block text-sm font-black">
                                                 Folder hasil tugas di Google
@@ -604,13 +523,13 @@ export default function MaterialPage({
                                             />
 
                                             <p className="mt-2 text-xs leading-5 font-medium text-muted-foreground">
-                                                Buat satu folder Google Drive
-                                                untuk tugas ini dan masukkan
-                                                hasil pekerjaan ke dalamnya.
-                                                Folder tidak boleh kosong. Atur
-                                                akses menjadi &quot;Siapa saja
-                                                yang memiliki link&quot;, lalu
-                                                tempel link foldernya di sini.
+                                                Buat satu folder khusus untuk
+                                                tugas ini. Masukkan seluruh
+                                                hasil yang diminta pada
+                                                instruksi tugas ke dalam folder
+                                                tersebut. Atur akses agar admin
+                                                dapat membukanya, kemudian
+                                                tempel link folder di sini.
                                             </p>
 
                                             {evaluationForm.data.practical_evidence_url.trim()
@@ -642,7 +561,7 @@ export default function MaterialPage({
                                             }
                                         >
                                             {evaluationForm.processing
-                                                ? 'Memeriksa folder...'
+                                                ? 'Mengirim...'
                                                 : 'Kirim untuk diperiksa'}
                                         </Button>
                                     </form>
@@ -693,7 +612,7 @@ export default function MaterialPage({
                                         </p>
 
                                         <p className="mt-1 leading-5 font-medium text-muted-foreground">
-                                            Baca ringkasan dan lihat apa saja
+                                            Baca ringkasan dan pahami kemampuan
                                             yang perlu kamu kuasai.
                                         </p>
                                     </div>
@@ -706,13 +625,13 @@ export default function MaterialPage({
 
                                     <div>
                                         <p className="font-black">
-                                            Kerjakan latihan
+                                            Kerjakan tugas
                                         </p>
 
                                         <p className="mt-1 leading-5 font-medium text-muted-foreground">
-                                            Selesaikan tugas praktik, lalu
-                                            simpan hasilnya di dalam satu folder
-                                            Google Drive.
+                                            Ikuti instruksi tugas praktik dan
+                                            simpan seluruh hasilnya dalam satu
+                                            folder Google Drive.
                                         </p>
                                     </div>
                                 </div>
@@ -728,10 +647,11 @@ export default function MaterialPage({
                                         </p>
 
                                         <p className="mt-1 leading-5 font-medium text-muted-foreground">
-                                            Jawab soal evaluasi dan kirim link
-                                            folder Google Drive yang berisi
-                                            hasil tugas. Admin akan memeriksa
-                                            sebelum nilai ditetapkan.
+                                            Kirim link folder Google Drive.
+                                            Admin akan memeriksa hasil
+                                            pekerjaan, menetapkan nilai, dan
+                                            memberikan catatan jika ada bagian
+                                            yang perlu diperbaiki.
                                         </p>
                                     </div>
                                 </div>
@@ -748,7 +668,7 @@ export default function MaterialPage({
                             </p>
 
                             <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
-                                Pengumpulan evaluasi: {item.evaluation_attempts}
+                                Pengumpulan tugas: {item.evaluation_attempts}
                                 {item.reinforcement_count > 0 && (
                                     <>
                                         {' '}

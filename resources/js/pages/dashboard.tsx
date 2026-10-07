@@ -894,9 +894,7 @@ export default function Dashboard({
                                 <p className="text-xs leading-5 font-semibold text-muted-foreground">
                                     Skor ini adalah indikator internal SkillPath
                                     untuk membantu membaca perkembangan dan
-                                    menentukan prioritas belajar. Skor ini bukan
-                                    nilai akademik resmi dan bukan jaminan hasil
-                                    di dunia kerja.
+                                    menentukan prioritas belajar.
                                 </p>
                             </div>
                         </div>

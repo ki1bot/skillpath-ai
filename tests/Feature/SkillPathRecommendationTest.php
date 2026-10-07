@@ -18,6 +18,8 @@ class SkillPathRecommendationTest extends TestCase
     use CreatesSkillPathRecommendationUser;
     use RefreshDatabase;
 
+    private const SUBMISSION_URL = 'https://drive.google.com/drive/folders/skillpath-evidence';
+
     private User $user;
 
     protected function setUp(): void
@@ -31,16 +33,7 @@ class SkillPathRecommendationTest extends TestCase
 
     public function test_weakest_academic_skill_is_prioritized_first(): void
     {
-        $roadmap = Roadmap::query()
-            ->where(
-                'user_id',
-                $this->user->id,
-            )
-            ->where(
-                'is_active',
-                true,
-            )
-            ->firstOrFail();
+        $roadmap = $this->activeRoadmap();
 
         $first = $roadmap
             ->items()
@@ -92,6 +85,61 @@ class SkillPathRecommendationTest extends TestCase
         }
     }
 
+    public function test_only_first_roadmap_material_is_available_initially(): void
+    {
+        $items = $this
+            ->activeRoadmap()
+            ->items()
+            ->orderBy('position')
+            ->get();
+
+        $this->assertGreaterThan(
+            1,
+            $items->count(),
+        );
+
+        $this->assertSame(
+            'available',
+            $items
+                ->first()
+                ?->status,
+        );
+
+        foreach ($items->skip(1) as $item) {
+            $this->assertSame(
+                'locked',
+                $item->status,
+            );
+        }
+    }
+
+    public function test_locked_material_cannot_be_opened_before_previous_material_is_completed(): void
+    {
+        $second = $this
+            ->activeRoadmap()
+            ->items()
+            ->with('material')
+            ->orderBy('position')
+            ->skip(1)
+            ->firstOrFail();
+
+        $this->assertSame(
+            'locked',
+            $second->status,
+        );
+
+        $this->actingAs(
+            $this->user,
+        )
+            ->get(
+                route(
+                    'roadmap.material',
+                    $second->material,
+                ),
+            )
+            ->assertForbidden();
+    }
+
     public function test_evaluation_requires_google_drive_evidence(): void
     {
         [$material, $item] = $this->databaseMaterialAndRoadmapItem();
@@ -115,10 +163,7 @@ class SkillPathRecommendationTest extends TestCase
                     'roadmap.evaluate',
                     $item,
                 ),
-                [
-                    'answer' => $material
-                        ->quiz_answer,
-                ],
+                [],
             )
             ->assertSessionHasErrors([
                 'practical_evidence_url',
@@ -133,8 +178,6 @@ class SkillPathRecommendationTest extends TestCase
                     $item,
                 ),
                 [
-                    'answer' => $material
-                        ->quiz_answer,
                     'practical_evidence_url' => 'https://github.com/example/project',
                 ],
             )
@@ -182,7 +225,6 @@ class SkillPathRecommendationTest extends TestCase
             ->value('score');
 
         $this->submitEvaluation(
-            $material,
             $item,
         );
 
@@ -228,6 +270,10 @@ class SkillPathRecommendationTest extends TestCase
             (float) $evaluation->score,
         );
 
+        $this->assertNull(
+            $evaluation->answer,
+        );
+
         $this->assertSame(
             0,
             $this->user
@@ -254,10 +300,9 @@ class SkillPathRecommendationTest extends TestCase
 
     public function test_pending_submission_cannot_be_sent_twice(): void
     {
-        [$material, $item] = $this->databaseMaterialAndRoadmapItem();
+        [, $item] = $this->databaseMaterialAndRoadmapItem();
 
         $this->submitEvaluation(
-            $material,
             $item,
         );
 
@@ -270,9 +315,7 @@ class SkillPathRecommendationTest extends TestCase
                     $item,
                 ),
                 [
-                    'answer' => $material
-                        ->quiz_answer,
-                    'practical_evidence_url' => 'https://drive.google.com/file/d/second-pending-submission/view',
+                    'practical_evidence_url' => 'https://drive.google.com/drive/folders/second-pending-submission',
                 ],
             )
             ->assertSessionHasErrors([
@@ -290,12 +333,11 @@ class SkillPathRecommendationTest extends TestCase
         );
     }
 
-    public function test_admin_can_see_question_answer_and_google_drive_submission(): void
+    public function test_admin_can_see_task_and_google_drive_submission(): void
     {
         [$material, $item] = $this->databaseMaterialAndRoadmapItem();
 
         $this->submitEvaluation(
-            $material,
             $item,
         );
 
@@ -314,20 +356,12 @@ class SkillPathRecommendationTest extends TestCase
                         'admin/submissions',
                     )
                     ->where(
-                        'submissions.data.0.material.quiz_question',
-                        $material->quiz_question,
-                    )
-                    ->where(
                         'submissions.data.0.material.practice_task',
                         $material->practice_task,
                     )
                     ->where(
-                        'submissions.data.0.answer',
-                        $material->quiz_answer,
-                    )
-                    ->where(
-                        'submissions.data.0.material.correct_answer',
-                        $material->quiz_answer,
+                        'submissions.data.0.evidence_url',
+                        self::SUBMISSION_URL,
                     )
                     ->where(
                         'submissions.data.0.review_status',
@@ -349,7 +383,7 @@ class SkillPathRecommendationTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_admin_score_70_passes_submission_and_completes_material(): void
+    public function test_admin_score_71_passes_submission_and_completes_material(): void
     {
         [$material, $item] = $this->databaseMaterialAndRoadmapItem();
 
@@ -365,7 +399,6 @@ class SkillPathRecommendationTest extends TestCase
             ->value('score');
 
         $evaluation = $this->submitEvaluation(
-            $material,
             $item,
         );
 
@@ -378,8 +411,8 @@ class SkillPathRecommendationTest extends TestCase
                     $evaluation,
                 ),
                 [
-                    'score' => 70,
-                    'admin_notes' => 'Pekerjaan sudah memenuhi batas kelulusan.',
+                    'score' => 71,
+                    'admin_notes' => 'Pekerjaan sudah memenuhi nilai kelulusan.',
                 ],
             )
             ->assertSessionHasNoErrors()
@@ -398,7 +431,7 @@ class SkillPathRecommendationTest extends TestCase
         );
 
         $this->assertSame(
-            70.0,
+            71.0,
             (float) $evaluation->score,
         );
 
@@ -422,7 +455,7 @@ class SkillPathRecommendationTest extends TestCase
         );
 
         $this->assertSame(
-            70.0,
+            71.0,
             (float) $item->evaluation_score,
         );
 
@@ -441,14 +474,51 @@ class SkillPathRecommendationTest extends TestCase
             $before,
             $after,
         );
+
+        $roadmapItems = $this
+            ->activeRoadmap()
+            ->items()
+            ->orderBy('position')
+            ->get();
+
+        $this->assertSame(
+            'completed',
+            $roadmapItems
+                ->first()
+                ?->status,
+        );
+
+        $this->assertSame(
+            'available',
+            $roadmapItems
+                ->get(1)
+                ?->status,
+        );
+
+        foreach ($roadmapItems->slice(2) as $roadmapItem) {
+            $this->assertSame(
+                'locked',
+                $roadmapItem->status,
+            );
+        }
     }
 
-    public function test_admin_score_69_fails_submission_without_increasing_skill_and_adds_reinforcement(): void
+    public function test_admin_score_70_fails_submission_and_keeps_next_material_locked(): void
     {
         [$material, $item] = $this->databaseMaterialAndRoadmapItem();
 
         $roadmap = $item
             ->roadmap()
+            ->firstOrFail();
+
+        $nextItem = $roadmap
+            ->items()
+            ->where(
+                'position',
+                '>',
+                $item->position,
+            )
+            ->orderBy('position')
             ->firstOrFail();
 
         $before = (float) UserSkill::query()
@@ -463,7 +533,6 @@ class SkillPathRecommendationTest extends TestCase
             ->value('score');
 
         $evaluation = $this->submitEvaluation(
-            $material,
             $item,
         );
 
@@ -476,8 +545,8 @@ class SkillPathRecommendationTest extends TestCase
                     $evaluation,
                 ),
                 [
-                    'score' => 69,
-                    'admin_notes' => 'Hasil praktik belum memenuhi batas kelulusan.',
+                    'score' => 70,
+                    'admin_notes' => 'Nilai belum berada di atas 70.',
                 ],
             )
             ->assertSessionHasNoErrors()
@@ -485,6 +554,7 @@ class SkillPathRecommendationTest extends TestCase
 
         $evaluation->refresh();
         $item->refresh();
+        $nextItem->refresh();
 
         $this->assertSame(
             'reviewed',
@@ -496,7 +566,7 @@ class SkillPathRecommendationTest extends TestCase
         );
 
         $this->assertSame(
-            69.0,
+            70.0,
             (float) $evaluation->score,
         );
 
@@ -519,6 +589,11 @@ class SkillPathRecommendationTest extends TestCase
         $this->assertSame(
             'reinforcement_required',
             $item->status,
+        );
+
+        $this->assertSame(
+            'locked',
+            $nextItem->status,
         );
 
         $reinforcementItem = RoadmapItem::query()
@@ -572,10 +647,9 @@ class SkillPathRecommendationTest extends TestCase
 
     public function test_reviewed_submission_cannot_be_scored_twice(): void
     {
-        [$material, $item] = $this->databaseMaterialAndRoadmapItem();
+        [, $item] = $this->databaseMaterialAndRoadmapItem();
 
         $evaluation = $this->submitEvaluation(
-            $material,
             $item,
         );
 
@@ -621,10 +695,9 @@ class SkillPathRecommendationTest extends TestCase
 
     public function test_completed_roadmap_item_cannot_be_downgraded_by_progress_update(): void
     {
-        [$material, $item] = $this->databaseMaterialAndRoadmapItem();
+        [, $item] = $this->databaseMaterialAndRoadmapItem();
 
         $evaluation = $this->submitEvaluation(
-            $material,
             $item,
         );
 
@@ -710,7 +783,6 @@ class SkillPathRecommendationTest extends TestCase
         [$material, $item] = $this->databaseMaterialAndRoadmapItem();
 
         $evaluation = $this->submitEvaluation(
-            $material,
             $item,
         );
 
@@ -767,9 +839,7 @@ class SkillPathRecommendationTest extends TestCase
                     $item,
                 ),
                 [
-                    'answer' => $material
-                        ->quiz_answer,
-                    'practical_evidence_url' => 'https://drive.google.com/file/d/completed-second/view',
+                    'practical_evidence_url' => 'https://drive.google.com/drive/folders/completed-second-submission',
                 ],
             )
             ->assertSessionHasNoErrors();
@@ -844,7 +914,6 @@ class SkillPathRecommendationTest extends TestCase
     }
 
     private function submitEvaluation(
-        LearningMaterial $material,
         RoadmapItem $item,
     ): Evaluation {
         $this->actingAs(
@@ -856,9 +925,7 @@ class SkillPathRecommendationTest extends TestCase
                     $item,
                 ),
                 [
-                    'answer' => $material
-                        ->quiz_answer,
-                    'practical_evidence_url' => 'https://drive.google.com/drive/folders/skillpath-evidence',
+                    'practical_evidence_url' => self::SUBMISSION_URL,
                 ],
             )
             ->assertSessionHasNoErrors();
@@ -884,6 +951,20 @@ class SkillPathRecommendationTest extends TestCase
         ]);
     }
 
+    private function activeRoadmap(): Roadmap
+    {
+        return Roadmap::query()
+            ->where(
+                'user_id',
+                $this->user->id,
+            )
+            ->where(
+                'is_active',
+                true,
+            )
+            ->firstOrFail();
+    }
+
     private function databaseMaterialAndRoadmapItem(): array
     {
         $material = LearningMaterial::query()
@@ -904,16 +985,8 @@ class SkillPathRecommendationTest extends TestCase
             )
             ->firstOrFail();
 
-        $item = Roadmap::query()
-            ->where(
-                'user_id',
-                $this->user->id,
-            )
-            ->where(
-                'is_active',
-                true,
-            )
-            ->firstOrFail()
+        $item = $this
+            ->activeRoadmap()
             ->items()
             ->where(
                 'learning_material_id',

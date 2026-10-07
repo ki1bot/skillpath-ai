@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\LearningMaterial;
 use App\Models\ProgressLog;
 use App\Models\Roadmap;
+use App\Models\RoadmapItem;
 use App\Models\Skill;
 use App\Models\User;
 use Illuminate\Support\Collection;
@@ -78,13 +79,6 @@ class RoadmapService
                     ->orderBy('id')
                     ->get()
                     ->groupBy('skill_id');
-
-                $scores = $user
-                    ->userSkills()
-                    ->pluck(
-                        'score',
-                        'skill_id',
-                    );
 
                 $depthMemo = [];
 
@@ -218,12 +212,6 @@ class RoadmapService
                             collect(),
                         );
 
-                    $available = $this
-                        ->prerequisitesSatisfied(
-                            $skill,
-                            $scores,
-                        );
-
                     $stage = min(
                         max(
                             (int) $item['depth'],
@@ -244,20 +232,20 @@ class RoadmapService
                                     $stage,
                                 ),
                                 'position' => $position++,
-                                'status' => $available
-                                    ? 'available'
-                                    : 'locked',
+                                'status' => 'locked',
                                 'progress_percentage' => 0,
-                                'unlocked_at' => $available
-                                    ? now()
-                                    : null,
+                                'unlocked_at' => null,
                             ]);
                     }
                 }
 
-                return $roadmap->load(
-                    'items.material.skill',
+                $this->applySequentialAvailability(
+                    $roadmap,
                 );
+
+                return $roadmap->fresh([
+                    'items.material.skill',
+                ]);
             },
         );
     }
@@ -274,59 +262,15 @@ class RoadmapService
                 'is_active',
                 true,
             )
-            ->with(
-                'items.material.skill.prerequisites',
-            )
             ->first();
 
         if (! $roadmap) {
             return;
         }
 
-        $scores = $user
-            ->userSkills()
-            ->pluck(
-                'score',
-                'skill_id',
-            );
-
-        foreach (
-            $roadmap->items as $item
-        ) {
-            if (
-                in_array(
-                    $item->status,
-                    [
-                        'completed',
-                        'needs_reinforcement',
-                        'reinforcement_required',
-                    ],
-                    true,
-                )
-            ) {
-                continue;
-            }
-
-            $available = $this
-                ->prerequisitesSatisfied(
-                    $item
-                        ->material
-                        ->skill,
-                    $scores,
-                );
-
-            $item->update([
-                'status' => $available
-                    ? 'available'
-                    : 'locked',
-                'unlocked_at' => $available
-                    ? (
-                        $item->unlocked_at
-                        ?? now()
-                    )
-                    : null,
-            ]);
-        }
+        $this->applySequentialAvailability(
+            $roadmap,
+        );
     }
 
     public function adaptAfterSkillChange(
@@ -547,6 +491,10 @@ class RoadmapService
                     $user,
                 );
 
+                $this->applySequentialAvailability(
+                    $roadmap,
+                );
+
                 if ($changed) {
                     ProgressLog::create([
                         'user_id' => $user->id,
@@ -564,6 +512,83 @@ class RoadmapService
                     ]);
             },
         );
+    }
+
+    private function applySequentialAvailability(
+        Roadmap $roadmap,
+    ): void {
+        $items = RoadmapItem::query()
+            ->where(
+                'roadmap_id',
+                $roadmap->id,
+            )
+            ->orderBy(
+                'position',
+            )
+            ->orderBy(
+                'id',
+            )
+            ->get();
+
+        $activeItemFound = false;
+
+        foreach ($items as $item) {
+            if ($item->status === 'completed') {
+                continue;
+            }
+
+            if ($activeItemFound) {
+                if (
+                    $item->status
+                    === 'reinforcement_required'
+                ) {
+                    continue;
+                }
+
+                if (
+                    $item->status !== 'locked'
+                    || $item->unlocked_at !== null
+                ) {
+                    $item->update([
+                        'status' => 'locked',
+                        'unlocked_at' => null,
+                    ]);
+                }
+
+                continue;
+            }
+
+            $activeItemFound = true;
+
+            if (
+                $item->status
+                === 'reinforcement_required'
+            ) {
+                continue;
+            }
+
+            $nextStatus = $item->status
+                === 'needs_reinforcement'
+                ? 'needs_reinforcement'
+                : 'available';
+
+            $updates = [
+                'status' => $nextStatus,
+            ];
+
+            if ($item->unlocked_at === null) {
+                $updates['unlocked_at'] = now();
+            }
+
+            if (
+                $item->status !== $nextStatus
+                || $item->unlocked_at === null
+            ) {
+                $item->update(
+                    $updates,
+                );
+            }
+        }
     }
 
     private function depth(
@@ -626,38 +651,6 @@ class RoadmapService
             );
 
         return $memo[$skillId] = $depth;
-    }
-
-    private function prerequisitesSatisfied(
-        Skill $skill,
-        Collection $scores,
-    ): bool {
-        if (
-            $skill
-                ->prerequisites
-                ->isEmpty()
-        ) {
-            return true;
-        }
-
-        return $skill
-            ->prerequisites
-            ->every(
-                function (
-                    $prerequisite,
-                ) use (
-                    $scores,
-                ) {
-                    return
-                        (float) (
-                            $scores[
-                                $prerequisite->id
-                            ]
-                            ?? 0
-                        )
-                        >= 60;
-                },
-            );
     }
 
     private function availabilityRank(

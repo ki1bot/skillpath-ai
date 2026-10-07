@@ -10,6 +10,7 @@ use App\Models\RoadmapItem;
 use App\Rules\GoogleDriveSubmissionFolder;
 use App\Rules\GoogleDriveUrl;
 use App\Services\AiInsightService;
+use App\Services\RoadmapService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,10 +22,15 @@ class RoadmapController extends Controller
 {
     public function index(
         Request $request,
+        RoadmapService $roadmapService,
     ): Response|RedirectResponse {
         $user = $request
             ->user()
             ->load('targetCareer');
+
+        $roadmapService->refreshAvailability(
+            $user,
+        );
 
         $roadmap = Roadmap::query()
             ->where('user_id', $user->id)
@@ -133,8 +139,13 @@ class RoadmapController extends Controller
     public function material(
         Request $request,
         LearningMaterial $material,
+        RoadmapService $roadmapService,
         AiInsightService $aiInsightService,
     ): Response {
+        $roadmapService->refreshAvailability(
+            $request->user(),
+        );
+
         $item = RoadmapItem::query()
             ->where(
                 'learning_material_id',
@@ -161,10 +172,9 @@ class RoadmapController extends Controller
             ])
             ->firstOrFail();
 
-        abort_if(
-            $item->status === 'locked',
-            403,
-            'Materi ini masih terkunci.',
+        $this->authorizeItem(
+            $request,
+            $item,
         );
 
         $materialPayload = [
@@ -198,12 +208,6 @@ class RoadmapController extends Controller
             'practice_task' => $item
                 ->material
                 ->practice_task,
-            'quiz_question' => $item
-                ->material
-                ->quiz_question,
-            'quiz_options' => $item
-                ->material
-                ->quiz_options,
             'material_type' => $item
                 ->material
                 ->material_type,
@@ -300,7 +304,14 @@ class RoadmapController extends Controller
     public function logProgress(
         Request $request,
         RoadmapItem $roadmapItem,
+        RoadmapService $roadmapService,
     ): RedirectResponse {
+        $roadmapService->refreshAvailability(
+            $request->user(),
+        );
+
+        $roadmapItem->refresh();
+
         $this->authorizeItem(
             $request,
             $roadmapItem,
@@ -410,14 +421,21 @@ class RoadmapController extends Controller
             'success',
             $result['status'] === 'completed'
                 ? 'Aktivitas belajar tersimpan. Status materi tetap selesai.'
-                : 'Progres belajar tersimpan. Materi baru dianggap dikuasai setelah evaluasi lulus.',
+                : 'Progres belajar tersimpan. Materi baru dianggap selesai setelah tugas diperiksa admin dan mendapat nilai di atas 70.',
         );
     }
 
     public function evaluate(
         Request $request,
         RoadmapItem $roadmapItem,
+        RoadmapService $roadmapService,
     ): RedirectResponse {
+        $roadmapService->refreshAvailability(
+            $request->user(),
+        );
+
+        $roadmapItem->refresh();
+
         $this->authorizeItem(
             $request,
             $roadmapItem,
@@ -432,7 +450,7 @@ class RoadmapController extends Controller
         if ($currentItem->status === 'completed') {
             return back()->with(
                 'success',
-                'Materi ini sudah selesai. Status penyelesaian tetap dipertahankan dan evaluasi tidak perlu diulang.',
+                'Materi ini sudah selesai. Nilai yang sudah ditetapkan admin tetap dipertahankan.',
             );
         }
 
@@ -460,11 +478,6 @@ class RoadmapController extends Controller
         }
 
         $validated = $request->validate([
-            'answer' => [
-                'required',
-                'string',
-                'in:A,B,C,D',
-            ],
             'practical_evidence_url' => [
                 'required',
                 'string',
@@ -528,12 +541,12 @@ class RoadmapController extends Controller
                     'evidence_score' => 0,
                     'reflection_score' => 0,
                     'passed' => false,
-                    'answer' => $validated['answer'],
+                    'answer' => null,
                     'evidence_url' => $validated[
                         'practical_evidence_url'
                     ],
                     'reflection' => null,
-                    'feedback' => 'Pengumpulan sudah diterima dan sedang diperiksa oleh admin.',
+                    'feedback' => 'Hasil tugas sudah diterima dan sedang diperiksa oleh admin.',
                     'review_status' => 'pending',
                     'reviewed_by' => null,
                     'reviewed_at' => null,
@@ -553,7 +566,7 @@ class RoadmapController extends Controller
                     'minutes_spent' => 0,
                     'progress_percentage' => (int) $item
                         ->progress_percentage,
-                    'notes' => 'Jawaban evaluasi dan bukti praktik dikirim untuk diperiksa oleh admin.',
+                    'notes' => 'Folder hasil tugas dikirim untuk diperiksa oleh admin.',
                     'evidence_url' => $validated[
                         'practical_evidence_url'
                     ],
@@ -567,13 +580,13 @@ class RoadmapController extends Controller
         if (! $submitted) {
             return back()->with(
                 'success',
-                'Materi ini sudah selesai. Status penyelesaian tetap dipertahankan dan evaluasi tidak perlu diulang.',
+                'Materi ini sudah selesai. Nilai yang sudah ditetapkan admin tetap dipertahankan.',
             );
         }
 
         return back()->with(
             'success',
-            'Pengumpulan berhasil dikirim. Statusnya sekarang sedang diperiksa oleh admin.',
+            'Hasil tugas berhasil dikirim. Admin akan memeriksa folder Google Drive dan memberikan nilai.',
         );
     }
 
@@ -611,6 +624,33 @@ class RoadmapController extends Controller
             ),
             403,
             'Materi ini masih terkunci.',
+        );
+
+        if ($item->status === 'completed') {
+            return;
+        }
+
+        $hasIncompletePreviousItem = RoadmapItem::query()
+            ->where(
+                'roadmap_id',
+                $item->roadmap_id,
+            )
+            ->where(
+                'position',
+                '<',
+                $item->position,
+            )
+            ->where(
+                'status',
+                '!=',
+                'completed',
+            )
+            ->exists();
+
+        abort_if(
+            $hasIncompletePreviousItem,
+            403,
+            'Selesaikan materi sebelumnya dan dapatkan nilai di atas 70 sebelum membuka materi ini.',
         );
     }
 }

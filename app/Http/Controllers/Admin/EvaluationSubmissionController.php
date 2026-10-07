@@ -95,22 +95,6 @@ class EvaluationSubmissionController extends Controller
                     )
                     : null;
 
-                $options = $this->normalizeQuizOptions(
-                    $material?->quiz_options,
-                );
-
-                $answer = is_string(
-                    $evaluation->answer,
-                )
-                    ? $evaluation->answer
-                    : null;
-
-                $correctAnswer = is_string(
-                    $material?->quiz_answer,
-                )
-                    ? $material->quiz_answer
-                    : null;
-
                 return [
                     'id' => $evaluation->id,
                     'review_status' => $evaluation
@@ -119,10 +103,6 @@ class EvaluationSubmissionController extends Controller
                     'passed' => $evaluation->passed,
                     'evidence_url' => $evaluation
                         ->evidence_url,
-                    'answer' => $answer,
-                    'answer_text' => $answer
-                        ? ($options[$answer] ?? null)
-                        : null,
                     'feedback' => $evaluation
                         ->feedback,
                     'admin_notes' => $evaluation
@@ -158,12 +138,6 @@ class EvaluationSubmissionController extends Controller
                                 ->title,
                             'practice_task' => $material
                                 ->practice_task,
-                            'quiz_question' => $material
-                                ->quiz_question,
-                            'correct_answer' => $correctAnswer,
-                            'correct_answer_text' => $correctAnswer
-                                ? ($options[$correctAnswer] ?? null)
-                                : null,
                             'skill' => $material
                                 ->skill
                                 ?->name,
@@ -238,7 +212,7 @@ class EvaluationSubmissionController extends Controller
         ]);
 
         $score = (int) $validated['score'];
-        $passed = $score >= 70;
+        $passed = $score > 70;
 
         $adminNotes = trim(
             (string) (
@@ -306,7 +280,7 @@ class EvaluationSubmissionController extends Controller
                     : (
                         $passed
                             ? "Nilai {$score}/100. Tugas dinyatakan lulus."
-                            : "Nilai {$score}/100. Tugas belum lulus. Silakan pelajari kembali materi dan kumpulkan ulang setelah siap."
+                            : "Nilai {$score}/100. Tugas belum lulus karena nilai kelulusan harus di atas 70. Silakan perbaiki tugas sesuai hasil pemeriksaan admin."
                     );
 
                 $submission->update([
@@ -437,10 +411,6 @@ class EvaluationSubmissionController extends Controller
                     'user_id' => $student->id,
                     'passed' => $passed,
                     'score' => $score,
-                    'is_reinforcement' => (
-                        $material->material_type
-                        === 'reinforcement'
-                    ),
                     'material_title' => $material
                         ->title,
                     'skill_name' => $material
@@ -459,7 +429,7 @@ class EvaluationSubmissionController extends Controller
         if ($result['passed']) {
             $roadmapService->adaptAfterSkillChange(
                 $student,
-                "Roadmap diurutkan ulang setelah evaluasi {$result['material_title']} dinilai lulus dan mengubah skor {$result['skill_name']}.",
+                "Roadmap diurutkan ulang setelah tugas {$result['material_title']} dinilai lulus dan mengubah skor {$result['skill_name']}.",
             );
         } else {
             $roadmapService->refreshAvailability(
@@ -477,41 +447,8 @@ class EvaluationSubmissionController extends Controller
         return back()->with(
             'success',
             $result['passed']
-                ? "Nilai {$result['score']}/100 disimpan. Pengumpulan dinyatakan lulus."
-                : "Nilai {$result['score']}/100 disimpan. Pengumpulan belum lulus dan mahasiswa harus mengulang sesuai jalur penguatan yang tersedia.",
+                ? "Nilai {$result['score']}/100 disimpan. Tugas dinyatakan lulus dan materi berikutnya dapat dibuka."
+                : "Nilai {$result['score']}/100 disimpan. Tugas belum lulus karena nilai harus di atas 70.",
         );
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function normalizeQuizOptions(mixed $options): array
-    {
-        if (is_string($options)) {
-            $decoded = json_decode(
-                $options,
-                true,
-            );
-
-            $options = is_array($decoded)
-                ? $decoded
-                : [];
-        }
-
-        if (! is_array($options)) {
-            return [];
-        }
-
-        $normalized = [];
-
-        foreach ($options as $key => $value) {
-            if (! is_string($value)) {
-                continue;
-            }
-
-            $normalized[(string) $key] = $value;
-        }
-
-        return $normalized;
     }
 }

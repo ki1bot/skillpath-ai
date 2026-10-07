@@ -11,8 +11,6 @@ type Submission = {
     score: number;
     passed: boolean;
     evidence_url?: string | null;
-    answer?: string | null;
-    answer_text?: string | null;
     feedback: string;
     admin_notes?: string | null;
     created_at: string;
@@ -31,9 +29,6 @@ type Submission = {
     material?: {
         title: string;
         practice_task: string;
-        quiz_question: string;
-        correct_answer?: string | null;
-        correct_answer_text?: string | null;
         skill?: string | null;
     } | null;
 };
@@ -119,7 +114,7 @@ function SubmissionCard({ submission }: { submission: Submission }) {
                         </div>
 
                         <h2 className="mt-3 text-xl font-black sm:text-2xl">
-                            {submission.material?.title ?? 'Evaluasi materi'}
+                            {submission.material?.title ?? 'Tugas materi'}
                         </h2>
 
                         <p className="mt-2 text-sm font-semibold">
@@ -150,7 +145,7 @@ function SubmissionCard({ submission }: { submission: Submission }) {
                 <div className="min-w-0 space-y-5">
                     <section>
                         <p className="text-xs font-black tracking-wide text-muted-foreground uppercase">
-                            Tugas praktik
+                            Instruksi tugas
                         </p>
 
                         <div className="mt-2 rounded-[10px] border-2 border-foreground/15 bg-muted/20 p-4">
@@ -162,53 +157,18 @@ function SubmissionCard({ submission }: { submission: Submission }) {
 
                     <section>
                         <p className="text-xs font-black tracking-wide text-muted-foreground uppercase">
-                            Soal evaluasi
+                            Hasil tugas
                         </p>
 
-                        <div className="mt-2 rounded-[10px] border-2 border-foreground/15 bg-muted/20 p-4">
-                            <p className="text-sm leading-7 font-semibold">
-                                {submission.material?.quiz_question ?? '-'}
-                            </p>
-
-                            <div className="mt-4 grid gap-3 md:grid-cols-2">
-                                <div className="rounded-[9px] border-2 border-foreground bg-card p-3">
-                                    <p className="text-xs font-black text-muted-foreground uppercase">
-                                        Jawaban mahasiswa
-                                    </p>
-
-                                    <p className="mt-2 text-sm font-black">
-                                        {submission.answer ?? '-'}
-                                        {submission.answer_text
-                                            ? `. ${submission.answer_text}`
-                                            : ''}
-                                    </p>
-                                </div>
-
-                                <div className="rounded-[9px] border-2 border-foreground bg-card p-3">
-                                    <p className="text-xs font-black text-muted-foreground uppercase">
-                                        Jawaban acuan
-                                    </p>
-
-                                    <p className="mt-2 text-sm font-black">
-                                        {submission.material?.correct_answer ??
-                                            '-'}
-                                        {submission.material
-                                            ?.correct_answer_text
-                                            ? `. ${submission.material.correct_answer_text}`
-                                            : ''}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section>
-                        <p className="text-xs font-black tracking-wide text-muted-foreground uppercase">
-                            Bukti Google Drive
+                        <p className="mt-2 max-w-2xl text-sm leading-6 font-medium text-muted-foreground">
+                            Buka folder mahasiswa dan cocokkan isi pekerjaan
+                            dengan instruksi tugas. Nilai harus diberikan dari
+                            hasil pekerjaan yang benar-benar dikumpulkan, bukan
+                            hanya dari keberadaan link folder.
                         </p>
 
                         {submission.evidence_url ? (
-                            <Button asChild variant="outline" className="mt-2">
+                            <Button asChild variant="outline" className="mt-3">
                                 <a
                                     href={submission.evidence_url}
                                     target="_blank"
@@ -218,7 +178,7 @@ function SubmissionCard({ submission }: { submission: Submission }) {
                                 </a>
                             </Button>
                         ) : (
-                            <p className="mt-2 text-sm font-medium text-muted-foreground">
+                            <p className="mt-3 text-sm font-medium text-muted-foreground">
                                 Link Google Drive tidak tersedia.
                             </p>
                         )}
@@ -238,7 +198,7 @@ function SubmissionCard({ submission }: { submission: Submission }) {
                         <p className="mt-2 text-sm font-black">
                             {submission.passed
                                 ? 'Lulus'
-                                : 'Belum lulus, harus mengulang'}
+                                : 'Belum lulus, tugas perlu diperbaiki'}
                         </p>
 
                         <div className="mt-4 border-t-2 border-foreground/15 pt-4">
@@ -267,9 +227,9 @@ function SubmissionCard({ submission }: { submission: Submission }) {
                         <p className="text-lg font-black">Beri nilai</p>
 
                         <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
-                            Nilai 70 sampai 100 dinyatakan lulus. Nilai 0 sampai
-                            69 dinyatakan belum lulus dan mahasiswa harus
-                            mengulang.
+                            Periksa seluruh hasil tugas terlebih dahulu. Nilai
+                            71 sampai 100 dinyatakan lulus dan membuka materi
+                            berikutnya. Nilai 0 sampai 70 belum lulus.
                         </p>
 
                         <label className="mt-5 block">
@@ -312,7 +272,7 @@ function SubmissionCard({ submission }: { submission: Submission }) {
                                         event.target.value,
                                     )
                                 }
-                                placeholder="Tulis catatan jika ada bagian yang perlu diperbaiki atau dipertahankan."
+                                placeholder="Jelaskan bagian yang sudah benar dan bagian yang masih perlu diperbaiki."
                             />
 
                             {form.errors.admin_notes && (
@@ -380,9 +340,10 @@ export default function AdminSubmissionsPage({
                         </h1>
 
                         <p className="mt-3 max-w-2xl text-sm leading-7 font-medium text-muted-foreground">
-                            Periksa jawaban mahasiswa dan bukti Google Drive,
-                            lalu berikan nilai setelah isi tugas benar-benar
-                            ditinjau.
+                            Periksa instruksi tugas dan hasil pekerjaan di
+                            Google Drive. Setelah pekerjaan benar-benar
+                            ditinjau, berikan nilai dan catatan sesuai hasil
+                            mahasiswa.
                         </p>
                     </div>
                 </header>
@@ -390,7 +351,6 @@ export default function AdminSubmissionsPage({
                 <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     <div className="rounded-[10px] border-2 border-[#171717] bg-[var(--neo-yellow)] p-4 text-[#171717]">
                         <p className="text-xs font-black uppercase">Menunggu</p>
-
                         <p className="mt-2 text-2xl font-black">
                             {counts.pending}
                         </p>
@@ -400,7 +360,6 @@ export default function AdminSubmissionsPage({
                         <p className="text-xs font-black text-muted-foreground uppercase">
                             Sudah diperiksa
                         </p>
-
                         <p className="mt-2 text-2xl font-black">
                             {counts.reviewed}
                         </p>
@@ -408,7 +367,6 @@ export default function AdminSubmissionsPage({
 
                     <div className="rounded-[10px] border-2 border-[#171717] bg-[var(--neo-lime)] p-4 text-[#171717]">
                         <p className="text-xs font-black uppercase">Lulus</p>
-
                         <p className="mt-2 text-2xl font-black">
                             {counts.passed}
                         </p>
@@ -418,7 +376,6 @@ export default function AdminSubmissionsPage({
                         <p className="text-xs font-black uppercase">
                             Belum lulus
                         </p>
-
                         <p className="mt-2 text-2xl font-black">
                             {counts.failed}
                         </p>
@@ -451,8 +408,7 @@ export default function AdminSubmissionsPage({
 
                             <p className="mt-2 text-sm font-medium text-muted-foreground">
                                 Pengumpulan baru akan muncul setelah mahasiswa
-                                mengirim jawaban dan link Google Drive dari
-                                halaman materi.
+                                mengirim folder hasil tugas dari halaman materi.
                             </p>
                         </div>
                     )}

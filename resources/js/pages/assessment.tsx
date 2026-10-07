@@ -557,10 +557,7 @@ export default function AssessmentPage({
 
                                 <p className="mt-3 max-w-2xl text-sm leading-6 font-medium text-muted-foreground">
                                     Pilih satu jawaban yang paling sesuai untuk
-                                    setiap soal. Selama sesi masih aktif,
-                                    jawabanmu tersimpan di browser. Jadi, kalau
-                                    halaman direfresh, progres yang sudah
-                                    dikerjakan tetap ada.
+                                    setiap soal.
                                 </p>
 
                                 <Button
@@ -596,12 +593,6 @@ export default function AssessmentPage({
                                     <p>
                                         Setiap bagian berisi paling banyak{' '}
                                         <strong>{SECTION_SIZE}</strong> soal.
-                                    </p>
-
-                                    <p>
-                                        Kalau salah pilih, kamu masih bisa
-                                        menghapus jawaban dan memilih ulang
-                                        sebelum hasil dikirim.
                                     </p>
                                 </div>
                             </div>

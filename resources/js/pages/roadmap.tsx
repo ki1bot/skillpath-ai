@@ -51,8 +51,8 @@ type Roadmap = {
 
 const statusLabel: Record<string, string> = {
     available: 'Siap dipelajari',
-    locked: 'Menunggu prasyarat',
-    completed: 'Dikuasai',
+    locked: 'Menunggu materi sebelumnya',
+    completed: 'Selesai',
     needs_reinforcement: 'Perlu diulang',
     reinforcement_required: 'Selesaikan penguatan',
 };
@@ -107,8 +107,9 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                             <p className="mt-4 max-w-2xl text-sm leading-relaxed font-medium text-muted-foreground">
                                 Jalur ini dibuat dari {roadmap.reason}. Estimasi
                                 penyelesaian sekitar {roadmap.estimated_weeks}{' '}
-                                minggu. Materi penguatan dapat ditambahkan
-                                otomatis ketika evaluasi tidak memenuhi standar.
+                                minggu. Kerjakan materi secara berurutan. Materi
+                                berikutnya baru terbuka setelah tugas sebelumnya
+                                diperiksa admin dan mendapat nilai di atas 70.
                             </p>
                         </div>
 
@@ -220,7 +221,7 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                                                     {item.status ===
                                                         'needs_reinforcement' && (
                                                         <span className="rounded-full border-2 border-[#171717] bg-[var(--neo-orange)] px-2 py-0.5 text-[10px] font-black text-[#171717] uppercase">
-                                                            Ulangi evaluasi
+                                                            Perlu diperbaiki
                                                         </span>
                                                     )}
                                                 </div>
@@ -255,13 +256,26 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                                                         ] ?? item.status}
                                                     </span>
 
+                                                    {item.evaluation_score !==
+                                                        null &&
+                                                        item.evaluation_score !==
+                                                            undefined && (
+                                                            <span>
+                                                                Nilai:{' '}
+                                                                {
+                                                                    item.evaluation_score
+                                                                }
+                                                                /100
+                                                            </span>
+                                                        )}
+
                                                     {item.evaluation_attempts >
                                                         0 && (
                                                         <span>
                                                             {
                                                                 item.evaluation_attempts
                                                             }{' '}
-                                                            percobaan evaluasi
+                                                            pengumpulan
                                                         </span>
                                                     )}
                                                 </div>
@@ -274,26 +288,17 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                                                         <br />
                                                         Selesaikan materi
                                                         penguatan yang muncul
-                                                        sebelum kartu ini.
+                                                        sebelum kembali ke
+                                                        materi ini.
                                                     </div>
                                                 ) : item.status === 'locked' ? (
-                                                    <div className="text-xs font-bold text-muted-foreground">
+                                                    <div className="max-w-52 text-xs leading-5 font-bold text-muted-foreground">
                                                         <LockKeyhole className="mb-2 inline size-4" />
-
                                                         <br />
-
-                                                        {item.material.skill
-                                                            .prerequisites
-                                                            .length > 0
-                                                            ? item.material.skill.prerequisites
-                                                                  .map(
-                                                                      (
-                                                                          prerequisite,
-                                                                      ) =>
-                                                                          prerequisite.name,
-                                                                  )
-                                                                  .join(', ')
-                                                            : 'Belum tersedia'}
+                                                        Selesaikan materi
+                                                        sebelumnya dan dapatkan
+                                                        nilai di atas 70 untuk
+                                                        membuka materi ini.
                                                     </div>
                                                 ) : (
                                                     <Button
@@ -312,7 +317,7 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                                                                 ? 'Tinjau ulang'
                                                                 : item.status ===
                                                                     'needs_reinforcement'
-                                                                  ? 'Pelajari ulang'
+                                                                  ? 'Perbaiki tugas'
                                                                   : 'Buka materi'}
 
                                                             {item.status ===

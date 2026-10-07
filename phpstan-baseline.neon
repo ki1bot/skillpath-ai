@@ -283,12 +283,6 @@ parameters:
             path: app/Services/RoadmapService.php
 
         -
-            message: '#^Method App\\Services\\RoadmapService\:\:prerequisitesSatisfied\(\) has parameter \$scores with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
-            identifier: missingType.generics
-            count: 1
-            path: app/Services/RoadmapService.php
-
-        -
             message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Relations\\Pivot\:\:\$importance_weight\.$#'
             identifier: property.notFound
             count: 1
