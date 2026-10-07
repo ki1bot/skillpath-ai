@@ -68,7 +68,12 @@ interface ProjectReadiness {
 interface UserProject {
     status: string;
     progress_percentage?: number;
+    evaluation_score?: number | null;
+    review_status?: string;
     repository_url?: string | null;
+    admin_notes?: string | null;
+    submitted_at?: string | null;
+    reviewed_at?: string | null;
 }
 
 interface AiFeedback {
@@ -82,6 +87,14 @@ const recommendationClasses: Record<RecommendationLevel, string> = {
     recommended: 'bg-[var(--neo-lime)]',
     strengthen: 'bg-[var(--neo-yellow)]',
     challenge: 'bg-[var(--neo-orange)]',
+};
+
+const projectStatusLabel: Record<string, string> = {
+    planned: 'Belum dimulai',
+    in_progress: 'Sedang dikerjakan',
+    submitted: 'Sedang diperiksa',
+    needs_revision: 'Perlu diperbaiki',
+    completed: 'Selesai',
 };
 
 export default function ProjectShow({
@@ -111,9 +124,17 @@ export default function ProjectShow({
 
     const projectStarted = Boolean(userProject);
     const projectCompleted = userProject?.status === 'completed';
+    const submissionPending = userProject?.review_status === 'pending';
+    const needsRevision = userProject?.status === 'needs_revision';
+
+    const canSubmit = projectStarted && !projectCompleted && !submissionPending;
 
     const updateProgress = (event: React.FormEvent) => {
         event.preventDefault();
+
+        if (!canSubmit) {
+            return;
+        }
 
         progressForm.patch(`/projects/${project.slug}`, {
             preserveScroll: true,
@@ -145,12 +166,16 @@ export default function ProjectShow({
             return (
                 url.protocol === 'https:' &&
                 url.hostname.toLowerCase() === 'drive.google.com' &&
-                url.pathname !== '/'
+                /\/folders\/[A-Za-z0-9_-]+(?:\/|$)/.test(url.pathname)
             );
         } catch {
             return false;
         }
     })();
+
+    const currentStatus = userProject
+        ? (projectStatusLabel[userProject.status] ?? userProject.status)
+        : 'Belum dimulai';
 
     return (
         <>
@@ -185,16 +210,14 @@ export default function ProjectShow({
                                     className={`rounded-full border-2 border-[#171717] px-3 py-1 text-xs font-black text-[#171717] ${
                                         projectCompleted
                                             ? 'bg-[var(--neo-lime)]'
-                                            : projectStarted
-                                              ? 'bg-[var(--neo-yellow)]'
-                                              : 'bg-[#fffdf7]'
+                                            : needsRevision
+                                              ? 'bg-[var(--neo-pink)]'
+                                              : projectStarted
+                                                ? 'bg-[var(--neo-yellow)]'
+                                                : 'bg-[#fffdf7]'
                                     }`}
                                 >
-                                    {projectCompleted
-                                        ? 'Selesai'
-                                        : projectStarted
-                                          ? 'Sedang dikerjakan'
-                                          : 'Belum dimulai'}
+                                    {currentStatus}
                                 </span>
                             </div>
 
@@ -241,6 +264,19 @@ export default function ProjectShow({
                     </div>
                 </header>
 
+                <section className="mt-6 rounded-[12px] border-2 border-foreground bg-muted/30 p-5">
+                    <p className="text-sm font-black">
+                        Nilai proyek dan nilai kesiapan adalah dua hal berbeda
+                    </p>
+
+                    <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
+                        Nilai kesiapan menunjukkan seberapa dekat kemampuanmu
+                        dengan kemampuan yang dibutuhkan proyek. Nilai proyek
+                        diberikan admin setelah hasil di Google Drive diperiksa.
+                        Proyek dinyatakan lulus jika nilainya minimal 80.
+                    </p>
+                </section>
+
                 <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
                     <main className="min-w-0 space-y-5">
                         <Card>
@@ -269,7 +305,7 @@ export default function ProjectShow({
 
                                 <div>
                                     <p className="text-xs font-black tracking-wide text-muted-foreground uppercase">
-                                        Kemampuan yang digunakan
+                                        Tiga kemampuan utama
                                     </p>
 
                                     <div className="mt-3 flex flex-wrap gap-2">
@@ -307,9 +343,10 @@ export default function ProjectShow({
 
                             <CardContent className="pt-5">
                                 <p className="mb-4 text-sm leading-6 font-medium text-muted-foreground">
-                                    Fokus pada daftar wajib terlebih dahulu.
-                                    Fitur tambahan tidak perlu dikerjakan
-                                    sebelum bagian ini selesai.
+                                    Jangan mengejar fitur tambahan sebelum
+                                    seluruh bagian wajib selesai. Admin akan
+                                    membandingkan isi folder pengumpulan dengan
+                                    poin-poin berikut.
                                 </p>
 
                                 <div className="grid gap-3">
@@ -405,9 +442,9 @@ export default function ProjectShow({
                                         </p>
 
                                         <p className="mt-1 text-sm leading-6 font-medium">
-                                            Mulai proyek setelah kamu memahami
-                                            bagian wajib dan kriteria
-                                            pengumpulan.
+                                            Mulai proyek setelah bagian wajib,
+                                            kriteria pemeriksaan, dan cara
+                                            pengumpulan sudah jelas.
                                         </p>
                                     </div>
 
@@ -446,8 +483,12 @@ export default function ProjectShow({
 
                                             <CardTitle className="mt-1 text-xl font-black">
                                                 {projectCompleted
-                                                    ? 'Hasil proyek sudah dikumpulkan'
-                                                    : 'Kumpulkan hasil melalui Google Drive'}
+                                                    ? 'Proyek sudah dinyatakan lulus'
+                                                    : submissionPending
+                                                      ? 'Proyek sedang diperiksa'
+                                                      : needsRevision
+                                                        ? 'Perbaiki dan kumpulkan ulang'
+                                                        : 'Kumpulkan hasil melalui Google Drive'}
                                             </CardTitle>
                                         </div>
                                     </div>
@@ -462,17 +503,93 @@ export default function ProjectShow({
 
                                                     <div>
                                                         <p className="font-black">
-                                                            Status: selesai
+                                                            Status: lulus
                                                         </p>
 
                                                         <p className="mt-1 text-sm leading-6 font-medium">
-                                                            Link Google Drive
-                                                            sudah tersimpan.
-                                                            Kamu masih dapat
-                                                            memperbaruinya.
+                                                            Hasil proyek sudah
+                                                            diperiksa oleh admin
+                                                            dan memenuhi nilai
+                                                            minimal 80.
                                                         </p>
+
+                                                        {userProject.evaluation_score !==
+                                                            null &&
+                                                            userProject.evaluation_score !==
+                                                                undefined && (
+                                                                <p className="mt-3 font-mono text-sm font-black">
+                                                                    Nilai:{' '}
+                                                                    {
+                                                                        userProject.evaluation_score
+                                                                    }
+                                                                    /100
+                                                                </p>
+                                                            )}
+
+                                                        {userProject.admin_notes && (
+                                                            <p className="mt-3 text-sm leading-6 font-medium">
+                                                                {
+                                                                    userProject.admin_notes
+                                                                }
+                                                            </p>
+                                                        )}
                                                     </div>
                                                 </div>
+                                            </div>
+                                        ) : submissionPending ? (
+                                            <div className="rounded-[10px] border-2 border-[#171717] bg-[var(--neo-yellow)] p-4 text-[#171717]">
+                                                <p className="font-black">
+                                                    Menunggu pemeriksaan admin
+                                                </p>
+
+                                                <p className="mt-2 text-sm leading-6 font-medium">
+                                                    Folder sudah diterima. Kamu
+                                                    tidak dapat mengirim ulang
+                                                    sampai admin selesai
+                                                    memberikan nilai.
+                                                </p>
+
+                                                {userProject.evaluation_score !==
+                                                    null &&
+                                                    userProject.evaluation_score !==
+                                                        undefined && (
+                                                        <p className="mt-3 text-sm font-black">
+                                                            Nilai pengumpulan
+                                                            sebelumnya:{' '}
+                                                            {
+                                                                userProject.evaluation_score
+                                                            }
+                                                            /100
+                                                        </p>
+                                                    )}
+                                            </div>
+                                        ) : needsRevision ? (
+                                            <div className="rounded-[10px] border-2 border-[#171717] bg-[var(--neo-pink)] p-4 text-[#171717]">
+                                                <p className="font-black">
+                                                    Hasil proyek masih perlu
+                                                    diperbaiki
+                                                </p>
+
+                                                {userProject.evaluation_score !==
+                                                    null &&
+                                                    userProject.evaluation_score !==
+                                                        undefined && (
+                                                        <p className="mt-2 text-sm font-black">
+                                                            Nilai terakhir:{' '}
+                                                            {
+                                                                userProject.evaluation_score
+                                                            }
+                                                            /100
+                                                        </p>
+                                                    )}
+
+                                                {userProject.admin_notes && (
+                                                    <p className="mt-2 text-sm leading-6 font-medium">
+                                                        {
+                                                            userProject.admin_notes
+                                                        }
+                                                    </p>
+                                                )}
                                             </div>
                                         ) : (
                                             <div className="rounded-[10px] border-2 border-foreground/15 bg-muted/20 p-4">
@@ -482,22 +599,28 @@ export default function ProjectShow({
 
                                                 <div className="mt-3 grid gap-2 text-sm leading-6 font-medium">
                                                     <p>
-                                                        1. Upload hasil proyek
-                                                        atau dokumentasinya ke
+                                                        1. Pastikan semua bagian
+                                                        wajib sudah dikerjakan.
+                                                    </p>
+
+                                                    <p>
+                                                        2. Masukkan hasil,
+                                                        dokumentasi, dan bukti
+                                                        pengujian ke satu folder
                                                         Google Drive.
                                                     </p>
 
                                                     <p>
-                                                        2. Pastikan link dapat
-                                                        dibuka oleh pihak yang
-                                                        memeriksa.
+                                                        3. Atur akses folder
+                                                        agar dapat dibuka oleh
+                                                        pihak yang memiliki
+                                                        link.
                                                     </p>
 
                                                     <p>
-                                                        3. Tempel link di
-                                                        formulir dan kirim
-                                                        setelah semua kriteria
-                                                        selesai.
+                                                        4. Kirim folder dan
+                                                        tunggu admin memberikan
+                                                        nilai.
                                                     </p>
                                                 </div>
                                             </div>
@@ -508,12 +631,15 @@ export default function ProjectShow({
                                                 <Upload className="size-4" />
 
                                                 <p className="text-sm font-black">
-                                                    Isi Drive yang disarankan
+                                                    Isi folder Drive
                                                 </p>
                                             </div>
 
                                             <div className="mt-3 grid gap-2 text-sm leading-6 font-medium text-muted-foreground">
-                                                <p>• Hasil utama proyek.</p>
+                                                <p>
+                                                    • Hasil utama proyek yang
+                                                    dapat diperiksa.
+                                                </p>
 
                                                 <p>
                                                     • Dokumentasi atau petunjuk
@@ -521,66 +647,17 @@ export default function ProjectShow({
                                                 </p>
 
                                                 <p>
-                                                    • Bukti yang mendukung
-                                                    checklist tugas.
+                                                    • Bukti pengujian,
+                                                    screenshot, data, atau
+                                                    dokumen pendukung sesuai
+                                                    proyek.
                                                 </p>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <form
-                                        onSubmit={updateProgress}
-                                        className="grid content-start gap-4"
-                                    >
-                                        <label className="grid gap-2 text-sm font-black">
-                                            Link Google Drive
-                                            <div className="relative">
-                                                <Input
-                                                    type="url"
-                                                    value={
-                                                        progressForm.data
-                                                            .repository_url
-                                                    }
-                                                    onChange={(event) =>
-                                                        progressForm.setData(
-                                                            'repository_url',
-                                                            event.target.value,
-                                                        )
-                                                    }
-                                                    placeholder="https://drive.google.com/file/d/..."
-                                                    required
-                                                />
-
-                                                <ExternalLink className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2" />
-                                            </div>
-                                        </label>
-
-                                        {!googleDriveUrl && (
-                                            <p className="text-xs leading-5 font-medium text-muted-foreground">
-                                                Gunakan tautan dari
-                                                drive.google.com.
-                                            </p>
-                                        )}
-
-                                        {googleDriveUrl &&
-                                            !googleDriveLinkReady && (
-                                                <p className="text-xs leading-5 font-bold text-destructive">
-                                                    Tautan belum valid. Gunakan
-                                                    link HTTPS dari
-                                                    drive.google.com.
-                                                </p>
-                                            )}
-
-                                        {progressForm.errors.repository_url && (
-                                            <p className="text-xs leading-5 font-bold text-destructive">
-                                                {
-                                                    progressForm.errors
-                                                        .repository_url
-                                                }
-                                            </p>
-                                        )}
-
-                                        {googleDriveLinkReady && (
+                                    <div className="grid content-start gap-4">
+                                        {userProject.repository_url && (
                                             <Button
                                                 asChild
                                                 type="button"
@@ -588,32 +665,112 @@ export default function ProjectShow({
                                                 className="w-full"
                                             >
                                                 <a
-                                                    href={googleDriveUrl}
+                                                    href={
+                                                        userProject.repository_url
+                                                    }
                                                     target="_blank"
                                                     rel="noreferrer"
                                                 >
                                                     <ExternalLink className="size-4" />
-                                                    Buka link Drive
+                                                    Buka folder saat ini
                                                 </a>
                                             </Button>
                                         )}
 
-                                        <Button
-                                            disabled={
-                                                progressForm.processing ||
-                                                !googleDriveLinkReady
-                                            }
-                                            className="w-full"
-                                        >
-                                            <Save className="size-4" />
+                                        {canSubmit && (
+                                            <form
+                                                onSubmit={updateProgress}
+                                                className="grid content-start gap-4"
+                                            >
+                                                <label className="grid gap-2 text-sm font-black">
+                                                    Folder Google Drive
+                                                    <div className="relative">
+                                                        <Input
+                                                            type="url"
+                                                            value={
+                                                                progressForm
+                                                                    .data
+                                                                    .repository_url
+                                                            }
+                                                            onChange={(event) =>
+                                                                progressForm.setData(
+                                                                    'repository_url',
+                                                                    event.target
+                                                                        .value,
+                                                                )
+                                                            }
+                                                            placeholder="https://drive.google.com/drive/folders/..."
+                                                            required
+                                                        />
 
-                                            {progressForm.processing
-                                                ? 'Menyimpan...'
-                                                : projectCompleted
-                                                  ? 'Perbarui link Drive'
-                                                  : 'Kumpulkan proyek'}
-                                        </Button>
-                                    </form>
+                                                        <ExternalLink className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2" />
+                                                    </div>
+                                                </label>
+
+                                                {!googleDriveUrl && (
+                                                    <p className="text-xs leading-5 font-medium text-muted-foreground">
+                                                        Gunakan link folder dari
+                                                        drive.google.com.
+                                                    </p>
+                                                )}
+
+                                                {googleDriveUrl &&
+                                                    !googleDriveLinkReady && (
+                                                        <p className="text-xs leading-5 font-bold text-destructive">
+                                                            Gunakan link folder
+                                                            Google Drive, bukan
+                                                            link file.
+                                                        </p>
+                                                    )}
+
+                                                {progressForm.errors
+                                                    .repository_url && (
+                                                    <p className="text-xs leading-5 font-bold text-destructive">
+                                                        {
+                                                            progressForm.errors
+                                                                .repository_url
+                                                        }
+                                                    </p>
+                                                )}
+
+                                                {googleDriveLinkReady && (
+                                                    <Button
+                                                        asChild
+                                                        type="button"
+                                                        variant="outline"
+                                                        className="w-full"
+                                                    >
+                                                        <a
+                                                            href={
+                                                                googleDriveUrl
+                                                            }
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                        >
+                                                            <ExternalLink className="size-4" />
+                                                            Periksa folder
+                                                        </a>
+                                                    </Button>
+                                                )}
+
+                                                <Button
+                                                    disabled={
+                                                        progressForm.processing ||
+                                                        !googleDriveLinkReady
+                                                    }
+                                                    className="w-full"
+                                                >
+                                                    <Save className="size-4" />
+
+                                                    {progressForm.processing
+                                                        ? 'Mengirim...'
+                                                        : needsRevision
+                                                          ? 'Kirim hasil perbaikan'
+                                                          : 'Kirim untuk diperiksa'}
+                                                </Button>
+                                            </form>
+                                        )}
+                                    </div>
                                 </CardContent>
                             </Card>
                         )}
@@ -655,9 +812,11 @@ export default function ProjectShow({
                                                 </p>
 
                                                 <p className="mt-3 text-xs leading-5 font-medium text-muted-foreground">
-                                                    Saran ini hanya pendamping
-                                                    dan tidak menentukan status
-                                                    proyek.
+                                                    Saran ini membantu
+                                                    pengerjaan, tetapi nilai
+                                                    tetap diberikan admin dari
+                                                    hasil proyek yang
+                                                    dikumpulkan.
                                                 </p>
                                             </div>
                                         </details>
@@ -724,13 +883,32 @@ export default function ProjectShow({
                                     </p>
 
                                     <p className="mt-1 font-black">
-                                        {projectCompleted
-                                            ? 'Selesai'
-                                            : projectStarted
-                                              ? 'Sedang dikerjakan'
-                                              : 'Belum dimulai'}
+                                        {currentStatus}
                                     </p>
                                 </div>
+
+                                <div>
+                                    <p className="text-xs font-black text-muted-foreground uppercase">
+                                        Nilai minimum
+                                    </p>
+
+                                    <p className="mt-1 font-black">80 / 100</p>
+                                </div>
+
+                                {userProject?.evaluation_score !== null &&
+                                    userProject?.evaluation_score !==
+                                        undefined && (
+                                        <div>
+                                            <p className="text-xs font-black text-muted-foreground uppercase">
+                                                Nilai terakhir
+                                            </p>
+
+                                            <p className="mt-1 font-black">
+                                                {userProject.evaluation_score}
+                                                /100
+                                            </p>
+                                        </div>
+                                    )}
 
                                 <div>
                                     <p className="text-xs font-black text-muted-foreground uppercase">

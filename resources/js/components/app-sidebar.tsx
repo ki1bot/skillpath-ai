@@ -3,6 +3,7 @@ import {
     Activity,
     ClipboardCheck,
     ClipboardList,
+    FileCheck2,
     FolderKanban,
     LayoutDashboard,
     Map,
@@ -97,6 +98,11 @@ export function AppSidebar() {
             title: 'Pengumpulan Tugas',
             href: '/admin/submissions',
             icon: ClipboardList,
+        },
+        {
+            title: 'Penilaian Proyek',
+            href: '/admin/project-submissions',
+            icon: FileCheck2,
         },
         {
             title: 'Kelola Sistem',

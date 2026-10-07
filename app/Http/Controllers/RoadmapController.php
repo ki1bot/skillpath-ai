@@ -11,6 +11,7 @@ use App\Rules\GoogleDriveSubmissionFolder;
 use App\Rules\GoogleDriveUrl;
 use App\Services\AiInsightService;
 use App\Services\RoadmapService;
+use App\Support\SkillPathScoringPolicy;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -421,7 +422,7 @@ class RoadmapController extends Controller
             'success',
             $result['status'] === 'completed'
                 ? 'Aktivitas belajar tersimpan. Status materi tetap selesai.'
-                : 'Progres belajar tersimpan. Materi baru dianggap selesai setelah tugas diperiksa admin dan mendapat nilai di atas 70.',
+                : 'Progres belajar tersimpan. Materi baru dianggap selesai setelah tugas diperiksa admin dan mendapat nilai minimal '.SkillPathScoringPolicy::LEARNING_PASS_SCORE.'.',
         );
     }
 
@@ -650,7 +651,7 @@ class RoadmapController extends Controller
         abort_if(
             $hasIncompletePreviousItem,
             403,
-            'Selesaikan materi sebelumnya dan dapatkan nilai di atas 70 sebelum membuka materi ini.',
+            'Selesaikan materi sebelumnya dan dapatkan nilai minimal '.SkillPathScoringPolicy::LEARNING_PASS_SCORE.' sebelum membuka materi ini.',
         );
     }
 }

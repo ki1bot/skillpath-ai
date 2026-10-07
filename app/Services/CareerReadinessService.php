@@ -129,33 +129,11 @@ class CareerReadinessService
                                 ->target_career_id,
                         ),
                 )
-                ->get([
-                    'progress_percentage',
-                    'repository_url',
-                ])
+                ->whereNotNull(
+                    'evaluation_score',
+                )
                 ->max(
-                    function ($userProject) {
-                        $progress = (float) $userProject
-                            ->progress_percentage;
-
-                        if (
-                            is_string(
-                                $userProject
-                                    ->repository_url,
-                            )
-                            && trim(
-                                $userProject
-                                    ->repository_url,
-                            ) !== ''
-                        ) {
-                            return $progress;
-                        }
-
-                        return min(
-                            $progress,
-                            60,
-                        );
-                    },
+                    'evaluation_score',
                 ),
             1,
         );

@@ -12,6 +12,10 @@ final class SkillPathScoringPolicy
 
     public const FUNCTIONAL_LEVEL = 66;
 
+    public const LEARNING_PASS_SCORE = 70;
+
+    public const PROJECT_PASS_SCORE = 80;
+
     public const DEFAULT_IMPORTANCE_WEIGHT = 1.0;
 
     public const DEFAULT_PROJECT_WEIGHT = 1.0;

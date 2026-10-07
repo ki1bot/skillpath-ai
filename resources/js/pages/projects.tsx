@@ -49,6 +49,8 @@ interface Project {
     user_project?: {
         status: string;
         progress_percentage: number;
+        evaluation_score?: number | null;
+        review_status?: string;
     } | null;
 }
 
@@ -59,7 +61,10 @@ const recommendationClasses: Record<RecommendationLevel, string> = {
 };
 
 const statusLabels: Record<string, string> = {
+    planned: 'Belum dimulai',
     in_progress: 'Sedang dikerjakan',
+    submitted: 'Sedang diperiksa',
+    needs_revision: 'Perlu diperbaiki',
     completed: 'Selesai',
 };
 
@@ -96,13 +101,15 @@ export default function Projects({ projects }: { projects: Project[] }) {
                             </p>
 
                             <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
-                                Pilih satu proyek untuk dikerjakan dengan serius
+                                Pilih proyek berdasarkan bidang jurusanmu
                             </h1>
 
                             <p className="mt-3 max-w-2xl text-sm leading-7 font-medium text-muted-foreground">
-                                Setiap proyek mewakili bidang berbeda di
-                                jurusanmu. Buka detailnya untuk melihat tugas
-                                wajib, kriteria selesai, dan cara pengumpulan.
+                                Setiap proyek menggabungkan tiga kemampuan dari
+                                satu bidang. Setelah selesai, kirim hasil
+                                melalui Google Drive. Admin akan memeriksa
+                                pekerjaan dan proyek dinyatakan lulus jika
+                                mendapat nilai minimal 80.
                             </p>
                         </div>
 
@@ -122,7 +129,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
                             </span>
 
                             <span className="rounded-full border-2 border-foreground bg-card px-3 py-2">
-                                {completedProjects} selesai
+                                {completedProjects} lulus
                             </span>
                         </div>
                     </div>
@@ -130,14 +137,13 @@ export default function Projects({ projects }: { projects: Project[] }) {
 
                 <section className="mt-6 rounded-[12px] border-2 border-foreground bg-muted/30 p-5">
                     <p className="text-sm font-black">
-                        Cara menggunakan halaman ini
+                        Nilai kesiapan bukan nilai proyek
                     </p>
 
                     <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
-                        Lihat ringkasan proyek, perhatikan nilai kesiapan, lalu
-                        buka detail tugas. Nilai kesiapan hanya membantu membaca
-                        kondisi awal; kamu tetap boleh memilih proyek yang
-                        menantang.
+                        Nilai kesiapan membantu melihat kemampuan sebelum
+                        mengerjakan proyek. Nilai proyek baru diberikan setelah
+                        admin memeriksa hasil yang dikumpulkan.
                     </p>
                 </section>
 
@@ -163,11 +169,20 @@ export default function Projects({ projects }: { projects: Project[] }) {
                             const completed =
                                 project.user_project?.status === 'completed';
 
+                            const needsRevision =
+                                project.user_project?.status ===
+                                'needs_revision';
+
                             const recommendation =
                                 project.readiness.recommendation;
 
                             const progress =
                                 project.user_project?.progress_percentage ?? 0;
+
+                            const status = project.user_project
+                                ? (statusLabels[project.user_project.status] ??
+                                  project.user_project.status)
+                                : 'Belum dimulai';
 
                             return (
                                 <Card
@@ -190,20 +205,14 @@ export default function Projects({ projects }: { projects: Project[] }) {
                                                 className={`rounded-full border-2 border-[#171717] px-2.5 py-1 text-[10px] font-black text-[#171717] ${
                                                     completed
                                                         ? 'bg-[var(--neo-lime)]'
-                                                        : started
-                                                          ? 'bg-[var(--neo-yellow)]'
-                                                          : 'bg-[#fffdf7]'
+                                                        : needsRevision
+                                                          ? 'bg-[var(--neo-pink)]'
+                                                          : started
+                                                            ? 'bg-[var(--neo-yellow)]'
+                                                            : 'bg-[#fffdf7]'
                                                 }`}
                                             >
-                                                {completed
-                                                    ? 'Selesai'
-                                                    : started
-                                                      ? (statusLabels[
-                                                            project.user_project
-                                                                ?.status ?? ''
-                                                        ] ??
-                                                        'Sedang dikerjakan')
-                                                      : 'Belum dimulai'}
+                                                {status}
                                             </span>
                                         </div>
 
@@ -274,6 +283,26 @@ export default function Projects({ projects }: { projects: Project[] }) {
                                             </div>
                                         </div>
 
+                                        {project.user_project
+                                            ?.evaluation_score !== null &&
+                                            project.user_project
+                                                ?.evaluation_score !==
+                                                undefined && (
+                                                <div className="rounded-[10px] border-2 border-foreground/15 bg-card p-4">
+                                                    <p className="text-xs font-black tracking-wide text-muted-foreground uppercase">
+                                                        Nilai proyek
+                                                    </p>
+
+                                                    <p className="mt-1 text-xl font-black">
+                                                        {
+                                                            project.user_project
+                                                                .evaluation_score
+                                                        }
+                                                        /100
+                                                    </p>
+                                                </div>
+                                            )}
+
                                         <div className="rounded-[10px] border-2 border-foreground/15 bg-muted/20 p-4">
                                             <div className="flex items-start gap-2">
                                                 {recommendation.level ===
@@ -327,10 +356,12 @@ export default function Projects({ projects }: { projects: Project[] }) {
                                                 <FolderKanban className="size-4" />
 
                                                 {completed
-                                                    ? 'Lihat detail dan hasil'
-                                                    : started
-                                                      ? 'Lanjutkan proyek'
-                                                      : 'Lihat tugas proyek'}
+                                                    ? 'Lihat hasil proyek'
+                                                    : needsRevision
+                                                      ? 'Perbaiki proyek'
+                                                      : started
+                                                        ? 'Lanjutkan proyek'
+                                                        : 'Lihat tugas proyek'}
 
                                                 <ArrowRight className="size-4" />
                                             </Link>

@@ -11,6 +11,7 @@ use App\Models\UserSkill;
 use App\Services\AdaptiveRoadmapService;
 use App\Services\CareerReadinessService;
 use App\Services\RoadmapService;
+use App\Support\SkillPathScoringPolicy;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -212,7 +213,9 @@ class EvaluationSubmissionController extends Controller
         ]);
 
         $score = (int) $validated['score'];
-        $passed = $score > 70;
+
+        $passed = $score
+            >= SkillPathScoringPolicy::LEARNING_PASS_SCORE;
 
         $adminNotes = trim(
             (string) (
@@ -280,7 +283,7 @@ class EvaluationSubmissionController extends Controller
                     : (
                         $passed
                             ? "Nilai {$score}/100. Tugas dinyatakan lulus."
-                            : "Nilai {$score}/100. Tugas belum lulus karena nilai kelulusan harus di atas 70. Silakan perbaiki tugas sesuai hasil pemeriksaan admin."
+                            : "Nilai {$score}/100. Tugas belum mencapai nilai minimal 70. Perbaiki hasil tugas sesuai bagian yang masih kurang."
                     );
 
                 $submission->update([
@@ -448,7 +451,7 @@ class EvaluationSubmissionController extends Controller
             'success',
             $result['passed']
                 ? "Nilai {$result['score']}/100 disimpan. Tugas dinyatakan lulus dan materi berikutnya dapat dibuka."
-                : "Nilai {$result['score']}/100 disimpan. Tugas belum lulus karena nilai harus di atas 70.",
+                : "Nilai {$result['score']}/100 disimpan. Tugas belum mencapai nilai minimal 70.",
         );
     }
 }

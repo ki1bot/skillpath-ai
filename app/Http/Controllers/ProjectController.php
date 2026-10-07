@@ -5,12 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\PortfolioProject;
 use App\Models\ProgressLog;
 use App\Models\UserProject;
-use App\Rules\ExternalEvidenceUrl;
+use App\Rules\GoogleDriveSubmissionFolder;
 use App\Services\AiInsightService;
-use App\Services\CareerReadinessService;
 use App\Services\ProjectReadinessService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -34,10 +34,19 @@ class ProjectController extends Controller
             ->map(function (PortfolioProject $project) use ($user, $service) {
                 return [
                     ...$project->toArray(),
-                    'readiness' => $service->calculate($user, $project),
+                    'readiness' => $service->calculate(
+                        $user,
+                        $project,
+                    ),
                     'user_project' => UserProject::query()
-                        ->where('user_id', $user->id)
-                        ->where('portfolio_project_id', $project->id)
+                        ->where(
+                            'user_id',
+                            $user->id,
+                        )
+                        ->where(
+                            'portfolio_project_id',
+                            $project->id,
+                        )
                         ->first(),
                 ];
             })
@@ -63,9 +72,12 @@ class ProjectController extends Controller
             )
             ->values();
 
-        return Inertia::render('projects', [
-            'projects' => $projects,
-        ]);
+        return Inertia::render(
+            'projects',
+            [
+                'projects' => $projects,
+            ],
+        );
     }
 
     public function show(
@@ -77,7 +89,8 @@ class ProjectController extends Controller
         $user = $request->user();
 
         abort_unless(
-            $portfolioProject->career_id === $user->target_career_id,
+            $portfolioProject->career_id
+                === $user->target_career_id,
             404,
         );
 
@@ -87,8 +100,14 @@ class ProjectController extends Controller
         ]);
 
         $userProject = UserProject::query()
-            ->where('user_id', $user->id)
-            ->where('portfolio_project_id', $portfolioProject->id)
+            ->where(
+                'user_id',
+                $user->id,
+            )
+            ->where(
+                'portfolio_project_id',
+                $portfolioProject->id,
+            )
             ->first();
 
         $readiness = $service->calculate(
@@ -96,41 +115,48 @@ class ProjectController extends Controller
             $portfolioProject,
         );
 
-        return Inertia::render('project-show', [
-            'project' => $portfolioProject,
-            'readiness' => $readiness,
-            'userProject' => $userProject,
-            'aiFeedback' => Inertia::defer(
-                function () use (
-                    $aiInsightService,
-                    $user,
-                    $portfolioProject,
-                    $userProject,
-                    $readiness,
-                ): array {
-                    $aiFeedback = $aiInsightService
-                        ->projectFeedback(
-                            $user,
-                            $portfolioProject,
-                            $userProject,
-                            $readiness,
-                        );
+        return Inertia::render(
+            'project-show',
+            [
+                'project' => $portfolioProject,
+                'readiness' => $readiness,
+                'userProject' => $userProject,
+                'aiFeedback' => Inertia::defer(
+                    function () use (
+                        $aiInsightService,
+                        $user,
+                        $portfolioProject,
+                        $userProject,
+                        $readiness,
+                    ): array {
+                        $aiFeedback = $aiInsightService
+                            ->projectFeedback(
+                                $user,
+                                $portfolioProject,
+                                $userProject,
+                                $readiness,
+                            );
 
-                    $generated = $aiFeedback['generated_by_ai']
-                        && is_string($aiFeedback['content'])
-                        && trim($aiFeedback['content']) !== '';
+                        $generated = $aiFeedback['generated_by_ai']
+                            && is_string(
+                                $aiFeedback['content'],
+                            )
+                            && trim(
+                                $aiFeedback['content'],
+                            ) !== '';
 
-                    return [
-                        'content' => $aiFeedback['content'],
-                        'generatedByAi' => $generated,
-                        'model' => $aiFeedback['model'],
-                        'message' => $generated
-                            ? null
-                            : 'Umpan balik AI sedang tidak tersedia. Silakan coba lagi.',
-                    ];
-                },
-            ),
-        ]);
+                        return [
+                            'content' => $aiFeedback['content'],
+                            'generatedByAi' => $generated,
+                            'model' => $aiFeedback['model'],
+                            'message' => $generated
+                                ? null
+                                : 'Umpan balik AI sedang tidak tersedia. Silakan coba lagi.',
+                        ];
+                    },
+                ),
+            ],
+        );
     }
 
     public function start(
@@ -141,11 +167,14 @@ class ProjectController extends Controller
         $user = $request->user();
 
         abort_unless(
-            $portfolioProject->career_id === $user->target_career_id,
+            $portfolioProject->career_id
+                === $user->target_career_id,
             404,
         );
 
-        $portfolioProject->loadMissing('skills');
+        $portfolioProject->loadMissing(
+            'skills',
+        );
 
         $readiness = $readinessService->calculate(
             $user,
@@ -159,6 +188,8 @@ class ProjectController extends Controller
             ],
             [
                 'status' => 'in_progress',
+                'progress_percentage' => 0,
+                'review_status' => 'not_submitted',
                 'started_at' => now(),
             ],
         );
@@ -166,7 +197,7 @@ class ProjectController extends Controller
         if (! $userProject->wasRecentlyCreated) {
             return back()->with(
                 'success',
-                'Proyek ini sudah pernah dimulai. Lanjutkan pengerjaan proyek dan kirim bukti Google Drive setelah selesai.',
+                'Proyek ini sudah pernah dimulai. Lanjutkan pengerjaan dan kirim folder Google Drive setelah seluruh bagian wajib selesai.',
             );
         }
 
@@ -183,26 +214,51 @@ class ProjectController extends Controller
         return back()->with(
             'success',
             $readiness['recommendation']['level'] === 'challenge'
-                ? 'Proyek dimulai sebagai challenge. Prioritaskan skill yang masih memiliki gap agar risiko pengerjaan tetap terkendali.'
-                : 'Proyek dimulai. Kerjakan fitur minimum dan unggah hasil ke Google Drive setelah proyek selesai.',
+                ? 'Proyek dimulai sebagai tantangan. Kerjakan bagian wajib secara bertahap dan gunakan daftar kemampuan sebagai panduan.'
+                : 'Proyek dimulai. Kerjakan seluruh bagian wajib sebelum mengirim hasil untuk diperiksa admin.',
         );
     }
 
     public function update(
         Request $request,
         PortfolioProject $portfolioProject,
-        CareerReadinessService $readinessService,
     ): RedirectResponse {
+        $user = $request->user();
+
         abort_unless(
-            $portfolioProject->career_id === $request->user()->target_career_id,
+            $portfolioProject->career_id
+                === $user->target_career_id,
             404,
         );
+
+        $current = UserProject::query()
+            ->where(
+                'user_id',
+                $user->id,
+            )
+            ->where(
+                'portfolio_project_id',
+                $portfolioProject->id,
+            )
+            ->firstOrFail();
+
+        if ($current->status === 'completed') {
+            throw ValidationException::withMessages([
+                'repository_url' => 'Proyek ini sudah lulus dan tidak perlu dikumpulkan ulang.',
+            ]);
+        }
+
+        if ($current->review_status === 'pending') {
+            throw ValidationException::withMessages([
+                'repository_url' => 'Pengumpulan proyek sebelumnya masih diperiksa oleh admin.',
+            ]);
+        }
 
         $validated = $request->validate([
             'repository_url' => [
                 'required',
                 'string',
-                new ExternalEvidenceUrl,
+                new GoogleDriveSubmissionFolder,
                 'max:1000',
             ],
         ]);
@@ -211,67 +267,56 @@ class ProjectController extends Controller
             (string) $validated['repository_url'],
         );
 
-        $host = strtolower(
-            (string) parse_url(
+        DB::transaction(
+            function () use (
+                $user,
+                $portfolioProject,
+                $current,
                 $googleDriveUrl,
-                PHP_URL_HOST,
-            ),
-        );
+            ): void {
+                $userProject = UserProject::query()
+                    ->whereKey(
+                        $current->id,
+                    )
+                    ->lockForUpdate()
+                    ->firstOrFail();
 
-        $path = trim(
-            (string) parse_url(
-                $googleDriveUrl,
-                PHP_URL_PATH,
-            ),
-            '/',
-        );
+                if ($userProject->status === 'completed') {
+                    throw ValidationException::withMessages([
+                        'repository_url' => 'Proyek ini sudah lulus dan tidak perlu dikumpulkan ulang.',
+                    ]);
+                }
 
-        if (
-            $host !== 'drive.google.com'
-            || $path === ''
-        ) {
-            throw ValidationException::withMessages([
-                'repository_url' => 'Masukkan link Google Drive yang valid dari https://drive.google.com/.',
-            ]);
-        }
+                if ($userProject->review_status === 'pending') {
+                    throw ValidationException::withMessages([
+                        'repository_url' => 'Pengumpulan proyek sebelumnya masih diperiksa oleh admin.',
+                    ]);
+                }
 
-        $userProject = UserProject::query()
-            ->where(
-                'user_id',
-                $request->user()->id,
-            )
-            ->where(
-                'portfolio_project_id',
-                $portfolioProject->id,
-            )
-            ->firstOrFail();
+                $userProject->update([
+                    'status' => 'submitted',
+                    'progress_percentage' => 95,
+                    'review_status' => 'pending',
+                    'repository_url' => $googleDriveUrl,
+                    'submitted_at' => now(),
+                    'completed_at' => null,
+                ]);
 
-        $userProject->update([
-            'progress_percentage' => 100,
-            'repository_url' => $googleDriveUrl,
-            'notes' => null,
-            'status' => 'completed',
-            'completed_at' => now(),
-        ]);
-
-        ProgressLog::create([
-            'user_id' => $request->user()->id,
-            'activity_type' => 'project_completed',
-            'minutes_spent' => 0,
-            'progress_percentage' => 100,
-            'notes' => 'Bukti penyelesaian proyek disimpan melalui Google Drive. Status completed mencatat penyelesaian workflow dan bukan penilaian kualitas isi proyek.',
-            'evidence_url' => $googleDriveUrl,
-            'logged_at' => now(),
-        ]);
-
-        $readinessService->snapshot(
-            $request->user(),
-            'project_completed',
+                ProgressLog::create([
+                    'user_id' => $user->id,
+                    'activity_type' => 'project_progress',
+                    'minutes_spent' => 0,
+                    'progress_percentage' => 95,
+                    'notes' => 'Hasil proyek dikirim melalui Google Drive dan sedang menunggu pemeriksaan admin.',
+                    'evidence_url' => $googleDriveUrl,
+                    'logged_at' => now(),
+                ]);
+            },
         );
 
         return back()->with(
             'success',
-            'Bukti proyek berhasil disimpan dan progres ditandai selesai. Status ini mencatat penyelesaian proyek, bukan nilai kualitas isi proyek.',
+            'Hasil proyek berhasil dikirim. Admin akan memeriksa isi folder Google Drive dan memberikan nilai.',
         );
     }
 }
