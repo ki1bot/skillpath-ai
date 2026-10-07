@@ -20,19 +20,50 @@ export function ProjectForm({ project, careers }: Props) {
         ? `/admin/projects/${project.slug}`
         : '/admin/projects';
 
-    const isAcademicProject = Boolean(
-        project?.career && getStudyProgramDefinition(project.career.name),
-    );
+    const program = getStudyProgramDefinition(project?.career?.name ?? '');
+
+    const projectSkillNames =
+        project?.skills
+            .map((skill) => skill.name)
+            .sort((first, second) => first.localeCompare(second)) ?? [];
+
+    const areaIndex =
+        program?.areas.findIndex((area) => {
+            const areaSkillNames = [...area.skills].sort((first, second) =>
+                first.localeCompare(second),
+            );
+
+            return (
+                areaSkillNames.length === projectSkillNames.length &&
+                areaSkillNames.every(
+                    (name, index) => name === projectSkillNames[index],
+                )
+            );
+        }) ?? -1;
+
+    const isAcademicProject = Boolean(program);
+
+    const projectNumber = areaIndex >= 0 ? areaIndex + 1 : null;
+
+    const projectLabel = projectNumber
+        ? `Proyek ${projectNumber}`
+        : (project?.difficulty ?? 'Proyek tambahan');
 
     return (
         <Form
             action={action}
             method={project ? 'put' : 'post'}
-            className="grid gap-5"
+            className="grid min-w-0 gap-5"
         >
             {({ processing, errors }) => (
                 <>
-                    <div className="grid gap-4 md:grid-cols-3">
+                    <input
+                        type="hidden"
+                        name="difficulty"
+                        value={projectLabel}
+                    />
+
+                    <div className="grid min-w-0 gap-4 md:grid-cols-2">
                         <div>
                             <SelectField
                                 label="Jurusan"
@@ -59,194 +90,129 @@ export function ProjectForm({ project, careers }: Props) {
                                     value={project?.career_id}
                                 />
                             )}
-
-                            {errors.career_id && (
-                                <p className="mt-2 text-xs font-bold text-destructive">
-                                    {errors.career_id}
-                                </p>
-                            )}
                         </div>
 
-                        <div>
-                            <InputField
-                                label="Tingkat pengerjaan proyek"
-                                name="difficulty"
-                                defaultValue={project?.difficulty ?? 'Menengah'}
-                                maxLength={50}
-                                required
-                            />
-
-                            <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                                Tingkat proyek berbeda dari tahap Amatir,
-                                Menengah, dan Ahli pada roadmap.
-                            </p>
-
-                            {errors.difficulty && (
-                                <p className="mt-2 text-xs font-bold text-destructive">
-                                    {errors.difficulty}
-                                </p>
-                            )}
-                        </div>
-
-                        <div>
-                            <InputField
-                                label="Estimasi pengerjaan (jam)"
-                                type="number"
-                                name="estimated_hours"
-                                min={1}
-                                max={500}
-                                defaultValue={project?.estimated_hours ?? 8}
-                                required
-                            />
-
-                            {errors.estimated_hours && (
-                                <p className="mt-2 text-xs font-bold text-destructive">
-                                    {errors.estimated_hours}
-                                </p>
-                            )}
-                        </div>
+                        <InputField
+                            label="Estimasi pengerjaan (jam)"
+                            type="number"
+                            name="estimated_hours"
+                            min={1}
+                            max={500}
+                            defaultValue={project?.estimated_hours ?? 8}
+                            required
+                        />
                     </div>
 
-                    {isAcademicProject && (
-                        <div className="rounded-[10px] border-2 border-foreground/15 bg-muted/30 p-4">
-                            <p className="text-sm font-black">
-                                Proyek akademik
+                    {program && (
+                        <div className="rounded-xl border-2 border-foreground/15 bg-muted/20 p-4">
+                            <p className="text-sm font-black">{projectLabel}</p>
+
+                            <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
+                                {areaIndex >= 0
+                                    ? `Proyek ini mencakup bidang ${
+                                          program.areas[areaIndex].name
+                                      } dan tiga kemampuan di dalamnya.`
+                                    : 'Hubungan kemampuan proyek ini perlu diperiksa karena belum cocok dengan salah satu bidang akademik.'}
                             </p>
 
-                            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                                Proyek ini mewakili satu bidang dari jurusan
-                                yang dipilih dan menggunakan tiga kemampuan.
-                                Admin dapat memperbarui isi tugas, fitur wajib,
-                                dan kriteria penilaian tanpa memindahkan proyek
-                                ke jurusan lain.
+                            <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
+                                Admin dapat memperbarui tugas dan kriteria
+                                pemeriksaan, tetapi tidak memindahkan proyek ke
+                                jurusan lain.
                             </p>
                         </div>
                     )}
 
-                    <div>
-                        <InputField
-                            label="Judul proyek"
-                            name="title"
-                            defaultValue={project?.title}
-                            maxLength={180}
-                            required
-                        />
+                    <InputField
+                        label="Judul proyek"
+                        name="title"
+                        defaultValue={project?.title ?? ''}
+                        maxLength={180}
+                        required
+                    />
 
-                        {errors.title && (
-                            <p className="mt-2 text-xs font-bold text-destructive">
-                                {errors.title}
-                            </p>
-                        )}
-                    </div>
+                    <TextareaField
+                        label="Ringkasan proyek"
+                        name="summary"
+                        rows={4}
+                        maxLength={3000}
+                        defaultValue={project?.summary ?? ''}
+                        required
+                    />
 
-                    <div>
-                        <TextareaField
-                            label="Ringkasan proyek"
-                            name="summary"
-                            rows={4}
-                            maxLength={3000}
-                            defaultValue={project?.summary}
-                            required
-                        />
+                    <TextareaField
+                        label="Masalah yang harus diselesaikan"
+                        name="problem_statement"
+                        rows={6}
+                        maxLength={4000}
+                        defaultValue={project?.problem_statement ?? ''}
+                        required
+                    />
 
-                        {errors.summary && (
-                            <p className="mt-2 text-xs font-bold text-destructive">
-                                {errors.summary}
-                            </p>
-                        )}
-                    </div>
+                    <ArrayFields
+                        name="minimum_features"
+                        label="Pekerjaan wajib"
+                        values={project?.minimum_features}
+                    />
 
-                    <div>
-                        <TextareaField
-                            label="Masalah yang harus diselesaikan"
-                            name="problem_statement"
-                            rows={6}
-                            maxLength={4000}
-                            defaultValue={project?.problem_statement}
-                            required
-                        />
+                    <ArrayFields
+                        name="stretch_features"
+                        label="Pengembangan tambahan (opsional)"
+                        values={project?.stretch_features}
+                        required={false}
+                    />
 
-                        {errors.problem_statement && (
-                            <p className="mt-2 text-xs font-bold text-destructive">
-                                {errors.problem_statement}
-                            </p>
-                        )}
-                    </div>
+                    <ArrayFields
+                        name="completion_criteria"
+                        label="Kriteria pemeriksaan admin"
+                        values={project?.completion_criteria}
+                    />
 
-                    <div>
-                        <ArrayFields
-                            name="minimum_features"
-                            label="Pekerjaan wajib"
-                            values={project?.minimum_features}
-                        />
-
-                        {errors.minimum_features && (
-                            <p className="mt-2 text-xs font-bold text-destructive">
-                                {errors.minimum_features}
-                            </p>
-                        )}
-                    </div>
-
-                    <div>
-                        <ArrayFields
-                            name="stretch_features"
-                            label="Pengembangan tambahan (opsional)"
-                            values={project?.stretch_features}
-                            required={false}
-                        />
-
-                        {errors.stretch_features && (
-                            <p className="mt-2 text-xs font-bold text-destructive">
-                                {errors.stretch_features}
-                            </p>
-                        )}
-                    </div>
-
-                    <div>
-                        <ArrayFields
-                            name="completion_criteria"
-                            label="Kriteria pemeriksaan admin"
-                            values={project?.completion_criteria}
-                        />
-
-                        {errors.completion_criteria && (
-                            <p className="mt-2 text-xs font-bold text-destructive">
-                                {errors.completion_criteria}
-                            </p>
-                        )}
-                    </div>
-
-                    <div className="rounded-[10px] border-2 border-foreground/15 p-4">
+                    <div className="rounded-xl border-2 border-foreground/15 p-4">
                         <p className="text-sm font-black">
-                            Pemeriksaan hasil proyek
+                            Pengumpulan dan penilaian proyek
                         </p>
 
-                        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                        <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
                             Mahasiswa mengumpulkan hasil pekerjaan melalui
-                            folder Google Drive. Admin memeriksa bagian wajib
-                            dan kriteria penyelesaian yang telah ditentukan.
-                            Proyek dinyatakan lulus apabila memperoleh nilai
-                            minimal 80.
+                            folder Google Drive. Admin memeriksa fitur wajib,
+                            dokumentasi, pengujian, dan kriteria penyelesaian.
+                            Proyek dinyatakan lulus dengan nilai minimal 80.
                         </p>
                     </div>
 
-                    <Button
-                        type="submit"
-                        disabled={processing}
-                        className="w-full sm:w-fit"
-                    >
-                        {project ? (
-                            <Save className="size-4" />
-                        ) : (
-                            <Plus className="size-4" />
-                        )}
+                    {Object.keys(errors).length > 0 && (
+                        <div className="rounded-xl border-2 border-destructive/30 p-4">
+                            {Object.entries(errors).map(([field, message]) => (
+                                <p
+                                    key={field}
+                                    className="text-xs leading-5 font-bold text-destructive"
+                                >
+                                    {message}
+                                </p>
+                            ))}
+                        </div>
+                    )}
 
-                        {processing
-                            ? 'Menyimpan...'
-                            : project
-                              ? 'Simpan perubahan proyek'
-                              : 'Tambah proyek'}
-                    </Button>
+                    <div>
+                        <Button
+                            type="submit"
+                            disabled={processing}
+                            className="w-full sm:w-auto"
+                        >
+                            {project ? (
+                                <Save className="size-4" />
+                            ) : (
+                                <Plus className="size-4" />
+                            )}
+
+                            {processing
+                                ? 'Menyimpan...'
+                                : project
+                                  ? 'Simpan perubahan proyek'
+                                  : 'Tambah proyek'}
+                        </Button>
+                    </div>
                 </>
             )}
         </Form>

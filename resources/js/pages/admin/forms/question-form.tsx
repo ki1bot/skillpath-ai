@@ -2,6 +2,7 @@ import { Form } from '@inertiajs/react';
 import { Plus, Save } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { getStudyProgramDefinition } from '@/lib/academic-programs';
 import {
     InputField,
     SelectField,
@@ -16,6 +17,24 @@ type Props = {
     defaultAssessmentId?: number;
 };
 
+const stages = ['Amatir', 'Menengah', 'Ahli'] as const;
+
+function normalizeDifficulty(value?: string): string {
+    if (value === 'Dasar') {
+        return 'Amatir';
+    }
+
+    if (value === 'Lanjutan') {
+        return 'Ahli';
+    }
+
+    if (value && stages.some((stage) => stage === value)) {
+        return value;
+    }
+
+    return 'Menengah';
+}
+
 export function QuestionForm({
     question,
     assessments,
@@ -26,50 +45,80 @@ export function QuestionForm({
         ? `/admin/questions/${question.id}`
         : '/admin/questions';
 
-    const [questionType, setQuestionType] = useState<
-        'multiple_choice' | 'case' | 'practical'
-    >(question?.question_type ?? 'multiple_choice');
+    const [assessmentId, setAssessmentId] = useState<number | ''>(
+        question?.assessment_id ?? defaultAssessmentId ?? '',
+    );
+
+    const assessment = assessments.find((item) => item.id === assessmentId);
+
+    const program = getStudyProgramDefinition(assessment?.career?.name ?? '');
+
+    const allowedSkills = program
+        ? new Set(program.areas.flatMap((area) => area.skills))
+        : null;
+
+    const selectableSkills = allowedSkills
+        ? skills.filter((skill) => allowedSkills.has(skill.name))
+        : skills;
 
     return (
         <Form
             action={action}
             method={question ? 'put' : 'post'}
-            className="grid gap-5"
+            className="grid min-w-0 gap-5"
         >
-            {({ processing }) => (
+            {({ processing, errors }) => (
                 <>
-                    <div className="grid gap-4 md:grid-cols-4">
+                    <input
+                        type="hidden"
+                        name="question_type"
+                        value="multiple_choice"
+                    />
+
+                    <div className="rounded-xl border-2 border-foreground/15 bg-muted/20 p-4">
+                        <p className="text-sm font-black">Soal Assessment</p>
+
+                        <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
+                            Assessment menggunakan soal pilihan ganda untuk
+                            mengukur kemampuan awal mahasiswa. Tugas praktik
+                            pada tahap Amatir, Menengah, dan Ahli dikelola
+                            melalui menu Materi Belajar.
+                        </p>
+                    </div>
+
+                    <div className="grid min-w-0 gap-4 md:grid-cols-2">
                         <SelectField
                             label="Assessment"
                             name="assessment_id"
-                            defaultValue={
-                                question?.assessment_id ??
-                                defaultAssessmentId ??
-                                ''
+                            value={assessmentId}
+                            onChange={(event) =>
+                                setAssessmentId(
+                                    event.target.value
+                                        ? Number(event.target.value)
+                                        : '',
+                                )
                             }
                             required
                         >
                             <option value="">Pilih Assessment</option>
 
-                            {assessments.map((assessment) => (
-                                <option
-                                    key={assessment.id}
-                                    value={assessment.id}
-                                >
-                                    {assessment.title}
+                            {assessments.map((item) => (
+                                <option key={item.id} value={item.id}>
+                                    {item.title}
                                 </option>
                             ))}
                         </SelectField>
 
                         <SelectField
-                            label="Keahlian"
+                            key={`${assessmentId}-${question?.id ?? 'new'}`}
+                            label="Kemampuan yang diuji"
                             name="skill_id"
                             defaultValue={question?.skill_id ?? ''}
                             required
                         >
-                            <option value="">Pilih keahlian</option>
+                            <option value="">Pilih kemampuan</option>
 
-                            {skills.map((skill) => (
+                            {selectableSkills.map((skill) => (
                                 <option key={skill.id} value={skill.id}>
                                     {skill.name}
                                 </option>
@@ -77,126 +126,99 @@ export function QuestionForm({
                         </SelectField>
 
                         <SelectField
-                            label="Jenis soal"
-                            name="question_type"
-                            value={questionType}
-                            onChange={(event) =>
-                                setQuestionType(
-                                    event.target.value as
-                                        | 'multiple_choice'
-                                        | 'case'
-                                        | 'practical',
-                                )
-                            }
+                            label="Kompleksitas soal"
+                            name="difficulty"
+                            defaultValue={normalizeDifficulty(
+                                question?.difficulty,
+                            )}
                             required
                         >
-                            <option value="multiple_choice">
-                                Pilihan ganda
-                            </option>
-                            <option value="case">Studi kasus</option>
-                            <option value="practical">Tugas praktik</option>
+                            {stages.map((stage) => (
+                                <option key={stage} value={stage}>
+                                    {stage}
+                                </option>
+                            ))}
                         </SelectField>
 
-                        <InputField
-                            label="Tingkat kesulitan"
-                            name="difficulty"
-                            defaultValue={question?.difficulty ?? 'Dasar'}
-                            required
-                        />
+                        <div className="flex items-end">
+                            <p className="rounded-lg border-2 border-foreground/15 bg-muted/20 px-4 py-3 text-xs leading-5 font-semibold text-muted-foreground">
+                                Jenis soal: pilihan ganda
+                            </p>
+                        </div>
                     </div>
 
                     <TextareaField
-                        label={
-                            questionType === 'case'
-                                ? 'Skenario kasus'
-                                : 'Pertanyaan'
-                        }
+                        label="Pertanyaan"
                         name="prompt"
                         rows={4}
-                        defaultValue={question?.prompt}
+                        maxLength={2000}
+                        defaultValue={question?.prompt ?? ''}
                         required
                     />
 
-                    {questionType === 'practical' && (
-                        <div className="grid gap-4">
-                            <TextareaField
-                                label="Instruksi tugas praktik"
-                                name="practical_instructions"
-                                rows={5}
-                                defaultValue={
-                                    question?.practical_instructions ?? ''
-                                }
-                                required
-                            />
-
-                            <label className="flex items-center gap-3 rounded-[12px] border-2 border-foreground bg-muted p-4 text-sm font-black">
-                                <input
-                                    type="hidden"
-                                    name="evidence_required"
-                                    value="0"
-                                />
-                                <input
-                                    type="checkbox"
-                                    name="evidence_required"
-                                    value="1"
-                                    defaultChecked={
-                                        question?.evidence_required ?? true
-                                    }
-                                    className="size-4 accent-black"
-                                />
-                                Wajib melampirkan tautan bukti praktik
-                            </label>
-                        </div>
-                    )}
-
-                    {questionType !== 'practical' && (
-                        <input
-                            type="hidden"
-                            name="evidence_required"
-                            value="0"
-                        />
-                    )}
-
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid min-w-0 gap-4 md:grid-cols-2">
                         {(['A', 'B', 'C', 'D'] as const).map((letter) => (
                             <InputField
                                 key={letter}
                                 label={`Pilihan ${letter}`}
                                 name="options[]"
-                                defaultValue={question?.options?.[letter]}
+                                defaultValue={question?.options?.[letter] ?? ''}
+                                maxLength={500}
                                 required
                             />
                         ))}
                     </div>
 
-                    <div className="grid gap-4 md:grid-cols-2">
+                    <div className="grid min-w-0 gap-4 md:grid-cols-2">
                         <SelectField
                             label="Jawaban benar"
                             name="correct_answer"
                             defaultValue={question?.correct_answer ?? 'A'}
+                            required
                         >
-                            <option value="A">A</option>
-                            <option value="B">B</option>
-                            <option value="C">C</option>
-                            <option value="D">D</option>
+                            {(['A', 'B', 'C', 'D'] as const).map((letter) => (
+                                <option key={letter} value={letter}>
+                                    Pilihan {letter}
+                                </option>
+                            ))}
                         </SelectField>
 
                         <InputField
                             label="Penjelasan jawaban"
                             name="explanation"
                             defaultValue={question?.explanation ?? ''}
+                            maxLength={2000}
                         />
                     </div>
 
-                    <Button disabled={processing} className="w-full sm:w-fit">
-                        {question ? (
-                            <Save className="size-4" />
-                        ) : (
-                            <Plus className="size-4" />
-                        )}
+                    {Object.keys(errors).length > 0 && (
+                        <div className="rounded-lg border-2 border-destructive/30 p-4">
+                            {Object.entries(errors).map(([field, message]) => (
+                                <p
+                                    key={field}
+                                    className="text-xs leading-5 font-bold text-destructive"
+                                >
+                                    {message}
+                                </p>
+                            ))}
+                        </div>
+                    )}
 
-                        {question ? 'Simpan soal' : 'Tambah soal'}
-                    </Button>
+                    <div>
+                        <Button type="submit" disabled={processing}>
+                            {question ? (
+                                <Save className="size-4" />
+                            ) : (
+                                <Plus className="size-4" />
+                            )}
+
+                            {processing
+                                ? 'Menyimpan...'
+                                : question
+                                  ? 'Simpan soal'
+                                  : 'Tambah soal'}
+                        </Button>
+                    </div>
                 </>
             )}
         </Form>

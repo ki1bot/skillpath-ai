@@ -132,13 +132,13 @@ export function AppSidebar() {
 
     return (
         <Sidebar collapsible="offcanvas" variant="sidebar">
-            <SidebarHeader className="border-b-2 border-sidebar-border bg-sidebar p-3">
+            <SidebarHeader className="border-sidebar-border border-b-2 bg-sidebar p-3">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
                             size="lg"
                             asChild
-                            className="h-auto min-h-14 rounded-[10px] border-2 border-transparent px-2 text-sidebar-foreground hover:border-sidebar-border hover:bg-muted hover:text-sidebar-foreground"
+                            className="hover:border-sidebar-border h-auto min-h-14 rounded-[10px] border-2 border-transparent px-2 text-sidebar-foreground hover:bg-muted hover:text-sidebar-foreground"
                         >
                             <Link href="/dashboard" prefetch>
                                 <AppLogo />
@@ -152,7 +152,7 @@ export function AppSidebar() {
                 <NavMain items={items} />
             </SidebarContent>
 
-            <SidebarFooter className="border-t-2 border-sidebar-border bg-sidebar p-3">
+            <SidebarFooter className="border-sidebar-border border-t-2 bg-sidebar p-3">
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

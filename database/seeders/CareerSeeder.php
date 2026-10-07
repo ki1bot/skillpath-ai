@@ -13,7 +13,7 @@ class CareerSeeder extends Seeder
         foreach (
             AcademicProgramCatalog::programs() as $name => $program
         ) {
-            Career::updateOrCreate(
+            $career = Career::firstOrCreate(
                 [
                     'slug' => $program['slug'],
                 ],
@@ -25,11 +25,17 @@ class CareerSeeder extends Seeder
                         fn (array $area): string => $area['name'],
                         $program['areas'],
                     ),
-                    'difficulty' => $program['difficulty'],
+                    'difficulty' => 'Lintas tahap',
                     'accent' => $program['accent'],
                     'is_active' => true,
                 ],
             );
+
+            if ($career->difficulty !== 'Lintas tahap') {
+                $career->update([
+                    'difficulty' => 'Lintas tahap',
+                ]);
+            }
         }
     }
 }
