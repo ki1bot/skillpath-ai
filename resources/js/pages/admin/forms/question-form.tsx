@@ -28,8 +28,8 @@ function normalizeDifficulty(value?: string): string {
         return 'Ahli';
     }
 
-    if (value && stages.some((stage) => stage === value)) {
-        return value;
+    if (stages.some((stage) => stage === value)) {
+        return value ?? 'Menengah';
     }
 
     return 'Menengah';
@@ -49,6 +49,10 @@ export function QuestionForm({
         question?.assessment_id ?? defaultAssessmentId ?? '',
     );
 
+    const [skillId, setSkillId] = useState<number | ''>(
+        question?.skill_id ?? '',
+    );
+
     const assessment = assessments.find((item) => item.id === assessmentId);
 
     const program = getStudyProgramDefinition(assessment?.career?.name ?? '');
@@ -60,6 +64,13 @@ export function QuestionForm({
     const selectableSkills = allowedSkills
         ? skills.filter((skill) => allowedSkills.has(skill.name))
         : skills;
+
+    const isAcademicQuestion = Boolean(question && program);
+
+    const handleAssessmentChange = (value: string) => {
+        setAssessmentId(value ? Number(value) : '');
+        setSkillId('');
+    };
 
     return (
         <Form
@@ -75,55 +86,87 @@ export function QuestionForm({
                         value="multiple_choice"
                     />
 
+                    <input type="hidden" name="evidence_required" value="0" />
+
                     <div className="rounded-xl border-2 border-foreground/15 bg-muted/20 p-4">
-                        <p className="text-sm font-black">Soal Assessment</p>
+                        <p className="text-sm font-black">Soal pilihan ganda</p>
 
                         <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
-                            Assessment menggunakan soal pilihan ganda untuk
-                            mengukur kemampuan awal mahasiswa. Tugas praktik
-                            pada tahap Amatir, Menengah, dan Ahli dikelola
-                            melalui menu Materi Belajar.
+                            Assessment mengukur kemampuan awal mahasiswa. Tahap
+                            Amatir, Menengah, dan Ahli pada formulir ini
+                            menunjukkan kompleksitas soal, bukan tahap yang
+                            terbuka di roadmap.
                         </p>
                     </div>
 
                     <div className="grid min-w-0 gap-4 md:grid-cols-2">
-                        <SelectField
-                            label="Assessment"
-                            name="assessment_id"
-                            value={assessmentId}
-                            onChange={(event) =>
-                                setAssessmentId(
-                                    event.target.value
-                                        ? Number(event.target.value)
-                                        : '',
-                                )
-                            }
-                            required
-                        >
-                            <option value="">Pilih Assessment</option>
+                        <div className="min-w-0">
+                            <SelectField
+                                label="Assessment"
+                                name={
+                                    isAcademicQuestion
+                                        ? undefined
+                                        : 'assessment_id'
+                                }
+                                value={assessmentId}
+                                disabled={isAcademicQuestion}
+                                onChange={(event) =>
+                                    handleAssessmentChange(event.target.value)
+                                }
+                                required
+                            >
+                                <option value="">Pilih Assessment</option>
 
-                            {assessments.map((item) => (
-                                <option key={item.id} value={item.id}>
-                                    {item.title}
-                                </option>
-                            ))}
-                        </SelectField>
+                                {assessments.map((item) => (
+                                    <option key={item.id} value={item.id}>
+                                        {item.title}
+                                    </option>
+                                ))}
+                            </SelectField>
 
-                        <SelectField
-                            key={`${assessmentId}-${question?.id ?? 'new'}`}
-                            label="Kemampuan yang diuji"
-                            name="skill_id"
-                            defaultValue={question?.skill_id ?? ''}
-                            required
-                        >
-                            <option value="">Pilih kemampuan</option>
+                            {isAcademicQuestion && (
+                                <input
+                                    type="hidden"
+                                    name="assessment_id"
+                                    value={assessmentId}
+                                />
+                            )}
+                        </div>
 
-                            {selectableSkills.map((skill) => (
-                                <option key={skill.id} value={skill.id}>
-                                    {skill.name}
-                                </option>
-                            ))}
-                        </SelectField>
+                        <div className="min-w-0">
+                            <SelectField
+                                label="Kemampuan yang diuji"
+                                name={
+                                    isAcademicQuestion ? undefined : 'skill_id'
+                                }
+                                value={skillId}
+                                disabled={isAcademicQuestion}
+                                onChange={(event) =>
+                                    setSkillId(
+                                        event.target.value
+                                            ? Number(event.target.value)
+                                            : '',
+                                    )
+                                }
+                                required
+                            >
+                                <option value="">Pilih kemampuan</option>
+
+                                {selectableSkills.map((skill) => (
+                                    <option key={skill.id} value={skill.id}>
+                                        {skill.name}
+                                    </option>
+                                ))}
+                            </SelectField>
+
+                            {isAcademicQuestion && (
+                                <input
+                                    type="hidden"
+                                    name="skill_id"
+                                    value={skillId}
+                                />
+                            )}
+                        </div>
 
                         <SelectField
                             label="Kompleksitas soal"
@@ -142,7 +185,7 @@ export function QuestionForm({
 
                         <div className="flex items-end">
                             <p className="rounded-lg border-2 border-foreground/15 bg-muted/20 px-4 py-3 text-xs leading-5 font-semibold text-muted-foreground">
-                                Jenis soal: pilihan ganda
+                                Jenis evaluasi: pilihan ganda
                             </p>
                         </div>
                     </div>
@@ -192,7 +235,7 @@ export function QuestionForm({
                     </div>
 
                     {Object.keys(errors).length > 0 && (
-                        <div className="rounded-lg border-2 border-destructive/30 p-4">
+                        <div className="rounded-xl border-2 border-destructive/30 p-4">
                             {Object.entries(errors).map(([field, message]) => (
                                 <p
                                     key={field}

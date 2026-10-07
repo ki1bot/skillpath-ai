@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Admin\AssessmentQuestionController::store
-* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:12
+* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:16
 * @route '/admin/questions'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AssessmentQuestionController::store
-* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:12
+* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:16
 * @route '/admin/questions'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Admin\AssessmentQuestionController::store
-* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:12
+* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:16
 * @route '/admin/questions'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -35,7 +35,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\Admin\AssessmentQuestionController::store
-* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:12
+* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:16
 * @route '/admin/questions'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -45,7 +45,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\Admin\AssessmentQuestionController::store
-* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:12
+* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:16
 * @route '/admin/questions'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -57,7 +57,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Admin\AssessmentQuestionController::update
-* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:27
+* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:39
 * @route '/admin/questions/{question}'
 */
 export const update = (args: { question: number | { id: number } } | [question: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -72,7 +72,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AssessmentQuestionController::update
-* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:27
+* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:39
 * @route '/admin/questions/{question}'
 */
 update.url = (args: { question: number | { id: number } } | [question: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -105,7 +105,7 @@ update.url = (args: { question: number | { id: number } } | [question: number | 
 
 /**
 * @see \App\Http\Controllers\Admin\AssessmentQuestionController::update
-* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:27
+* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:39
 * @route '/admin/questions/{question}'
 */
 update.put = (args: { question: number | { id: number } } | [question: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -115,7 +115,7 @@ update.put = (args: { question: number | { id: number } } | [question: number | 
 
 /**
 * @see \App\Http\Controllers\Admin\AssessmentQuestionController::update
-* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:27
+* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:39
 * @route '/admin/questions/{question}'
 */
 const updateForm = (args: { question: number | { id: number } } | [question: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -130,7 +130,7 @@ const updateForm = (args: { question: number | { id: number } } | [question: num
 
 /**
 * @see \App\Http\Controllers\Admin\AssessmentQuestionController::update
-* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:27
+* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:39
 * @route '/admin/questions/{question}'
 */
 updateForm.put = (args: { question: number | { id: number } } | [question: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -147,7 +147,7 @@ update.form = updateForm
 
 /**
 * @see \App\Http\Controllers\Admin\AssessmentQuestionController::destroy
-* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:43
+* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:78
 * @route '/admin/questions/{question}'
 */
 export const destroy = (args: { question: number | { id: number } } | [question: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -162,7 +162,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AssessmentQuestionController::destroy
-* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:43
+* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:78
 * @route '/admin/questions/{question}'
 */
 destroy.url = (args: { question: number | { id: number } } | [question: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -195,7 +195,7 @@ destroy.url = (args: { question: number | { id: number } } | [question: number |
 
 /**
 * @see \App\Http\Controllers\Admin\AssessmentQuestionController::destroy
-* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:43
+* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:78
 * @route '/admin/questions/{question}'
 */
 destroy.delete = (args: { question: number | { id: number } } | [question: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -205,7 +205,7 @@ destroy.delete = (args: { question: number | { id: number } } | [question: numbe
 
 /**
 * @see \App\Http\Controllers\Admin\AssessmentQuestionController::destroy
-* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:43
+* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:78
 * @route '/admin/questions/{question}'
 */
 const destroyForm = (args: { question: number | { id: number } } | [question: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -220,7 +220,7 @@ const destroyForm = (args: { question: number | { id: number } } | [question: nu
 
 /**
 * @see \App\Http\Controllers\Admin\AssessmentQuestionController::destroy
-* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:43
+* @see app/Http/Controllers/Admin/AssessmentQuestionController.php:78
 * @route '/admin/questions/{question}'
 */
 destroyForm.delete = (args: { question: number | { id: number } } | [question: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

@@ -21,8 +21,7 @@ class ProjectReadinessService
             ->map(
                 function ($skill) use ($scores) {
                     $current = (float) (
-                        $scores[$skill->id]
-                        ?? 0
+                        $scores[$skill->id] ?? 0
                     );
 
                     $pivot = $skill->pivot;
@@ -77,6 +76,24 @@ class ProjectReadinessService
             )
             ->values();
 
+        if ($requirements->isEmpty()) {
+            return [
+                'score' => 0.0,
+                'score_type' => 'readiness',
+                'quality_assessed' => false,
+                'ready' => false,
+                'missing_count' => 0,
+                'requirements' => [],
+                'top_gaps' => [],
+                'recommendation' => [
+                    'level' => 'challenge',
+                    'rank' => 2,
+                    'label' => 'Belum dikonfigurasi',
+                    'message' => 'Proyek ini belum mempunyai daftar kemampuan yang harus dipenuhi. Hubungi admin agar persyaratan proyek diperiksa sebelum mulai mengerjakan.',
+                ],
+            ];
+        }
+
         $totalWeight = (float) $requirements
             ->sum('weight');
 
@@ -88,13 +105,10 @@ class ProjectReadinessService
                 ),
             );
 
-        $score = $requirements->isEmpty()
-            ? 100
-            : round(
-                $weightedScore
-                / max($totalWeight, 0.1),
-                1,
-            );
+        $score = round(
+            $weightedScore / max($totalWeight, 0.1),
+            1,
+        );
 
         $missing = $requirements
             ->where('ready', false)
@@ -130,7 +144,7 @@ class ProjectReadinessService
             ];
         } else {
             $gapText = $topGapNames === []
-                ? 'beberapa kemampuan dasar'
+                ? 'beberapa kemampuan'
                 : implode(', ', $topGapNames);
 
             if ($hasFoundationalCoverage) {
@@ -138,14 +152,14 @@ class ProjectReadinessService
                     'level' => 'strengthen',
                     'rank' => 1,
                     'label' => 'Perlu penguatan',
-                    'message' => "Kamu sudah menunjukkan kemampuan awal pada seluruh prasyarat proyek, tetapi {$gapText} masih berada di bawah level minimum proyek dan perlu diperkuat.",
+                    'message' => "Kamu sudah mempunyai kemampuan awal untuk mengerjakan proyek ini. Namun, {$gapText} masih perlu ditingkatkan agar memenuhi persyaratan yang ditentukan.",
                 ];
             } else {
                 $recommendation = [
                     'level' => 'challenge',
                     'rank' => 2,
                     'label' => 'Tantangan',
-                    'message' => "Masih ada prasyarat yang belum menunjukkan kemampuan awal yang cukup, terutama pada {$gapText}. Proyek tetap dapat diambil sebagai tantangan, tetapi risiko hambatan pengerjaan lebih tinggi.",
+                    'message' => "Beberapa kemampuan yang dibutuhkan belum cukup kuat, terutama {$gapText}. Proyek tetap dapat dicoba sebagai tantangan, tetapi kamu mungkin perlu mempelajari materi tambahan selama pengerjaan.",
                 ];
             }
         }
