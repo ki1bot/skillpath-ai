@@ -24,33 +24,20 @@ class ProjectController extends Controller
     ): Response|RedirectResponse {
         $user = $request
             ->user()
-            ->loadMissing(
-                'targetCareer',
-            );
+            ->loadMissing('targetCareer');
 
         if (! $user->target_career_id) {
-            return redirect()->route(
-                'onboarding.show',
-            );
+            return redirect()->route('onboarding.show');
         }
 
-        $studyProgram = (string) $user
-            ->targetCareer
-            ->name;
+        $studyProgram = (string) $user->targetCareer->name;
 
         $projects = PortfolioProject::query()
-            ->where(
-                'career_id',
-                $user->target_career_id,
-            )
-            ->with(
-                'skills',
-            )
+            ->where('career_id', $user->target_career_id)
+            ->with('skills')
             ->get()
             ->map(
-                function (
-                    PortfolioProject $project,
-                ) use (
+                function (PortfolioProject $project) use (
                     $user,
                     $service,
                     $studyProgram,
@@ -62,22 +49,14 @@ class ProjectController extends Controller
 
                     return [
                         ...$project->toArray(),
-                        'project_number' => $area[
-                            'number'
-                        ],
-                        'area_name' => $area[
-                            'name'
-                        ],
-                        'readiness' => $service
-                            ->calculate(
-                                $user,
-                                $project,
-                            ),
+                        'project_number' => $area['number'],
+                        'area_name' => $area['name'],
+                        'readiness' => $service->calculate(
+                            $user,
+                            $project,
+                        ),
                         'user_project' => UserProject::query()
-                            ->where(
-                                'user_id',
-                                $user->id,
-                            )
+                            ->where('user_id', $user->id)
                             ->where(
                                 'portfolio_project_id',
                                 $project->id,
@@ -86,17 +65,12 @@ class ProjectController extends Controller
                     ];
                 },
             )
-            ->sortBy(
-                'project_number',
-            )
+            ->sortBy('project_number')
             ->values();
 
-        return Inertia::render(
-            'projects',
-            [
-                'projects' => $projects,
-            ],
-        );
+        return Inertia::render('projects', [
+            'projects' => $projects,
+        ]);
     }
 
     public function show(
@@ -109,7 +83,7 @@ class ProjectController extends Controller
 
         abort_unless(
             $portfolioProject->career_id
-            === $user->target_career_id,
+                === $user->target_career_id,
             404,
         );
 
@@ -119,10 +93,7 @@ class ProjectController extends Controller
         ]);
 
         $userProject = UserProject::query()
-            ->where(
-                'user_id',
-                $user->id,
-            )
+            ->where('user_id', $user->id)
             ->where(
                 'portfolio_project_id',
                 $portfolioProject->id,
@@ -134,58 +105,41 @@ class ProjectController extends Controller
             $portfolioProject,
         );
 
-        return Inertia::render(
-            'project-show',
-            [
-                'project' => $portfolioProject,
-                'readiness' => $readiness,
-                'userProject' => $userProject,
-                'aiFeedback' => Inertia::defer(
-                    function () use (
-                        $aiInsightService,
-                        $user,
-                        $portfolioProject,
-                        $userProject,
-                        $readiness,
-                    ): array {
-                        $aiFeedback = $aiInsightService
-                            ->projectFeedback(
-                                $user,
-                                $portfolioProject,
-                                $userProject,
-                                $readiness,
-                            );
+        return Inertia::render('project-show', [
+            'project' => $portfolioProject,
+            'readiness' => $readiness,
+            'userProject' => $userProject,
+            'aiFeedback' => Inertia::defer(
+                function () use (
+                    $aiInsightService,
+                    $user,
+                    $portfolioProject,
+                    $userProject,
+                    $readiness,
+                ): array {
+                    $aiFeedback = $aiInsightService
+                        ->projectFeedback(
+                            $user,
+                            $portfolioProject,
+                            $userProject,
+                            $readiness,
+                        );
 
-                        $generated = $aiFeedback[
-                            'generated_by_ai'
-                        ]
-                            && is_string(
-                                $aiFeedback[
-                                    'content'
-                                ],
-                            )
-                            && trim(
-                                $aiFeedback[
-                                    'content'
-                                ],
-                            ) !== '';
+                    $generated = $aiFeedback['generated_by_ai']
+                        && is_string($aiFeedback['content'])
+                        && trim($aiFeedback['content']) !== '';
 
-                        return [
-                            'content' => $aiFeedback[
-                                'content'
-                            ],
-                            'generatedByAi' => $generated,
-                            'model' => $aiFeedback[
-                                'model'
-                            ],
-                            'message' => $generated
-                                ? null
-                                : 'Penjelasan proyek dari AI sedang tidak tersedia. Silakan coba lagi.',
-                        ];
-                    },
-                ),
-            ],
-        );
+                    return [
+                        'content' => $aiFeedback['content'],
+                        'generatedByAi' => $generated,
+                        'model' => $aiFeedback['model'],
+                        'message' => $generated
+                            ? null
+                            : 'Penjelasan proyek dari AI sedang tidak tersedia. Silakan coba lagi.',
+                    ];
+                },
+            ),
+        ]);
     }
 
     public function start(
@@ -197,13 +151,18 @@ class ProjectController extends Controller
 
         abort_unless(
             $portfolioProject->career_id
-            === $user->target_career_id,
+                === $user->target_career_id,
             404,
         );
 
-        $portfolioProject->loadMissing(
-            'skills',
-        );
+        $portfolioProject->loadMissing('skills');
+
+        if ($portfolioProject->skills->isEmpty()) {
+            return back()->with(
+                'error',
+                'Proyek ini belum dapat dimulai karena daftar kemampuan yang diperlukan belum tersedia. Hubungi admin agar persyaratan proyek dilengkapi terlebih dahulu.',
+            );
+        }
 
         $readiness = $readinessService->calculate(
             $user,
@@ -236,22 +195,14 @@ class ProjectController extends Controller
             'minutes_spent' => 0,
             'progress_percentage' => 0,
             'notes' => 'Proyek dimulai dengan status rekomendasi: '
-                .$readiness[
-                    'recommendation'
-                ][
-                    'label'
-                ]
+                .$readiness['recommendation']['label']
                 .'.',
             'logged_at' => now(),
         ]);
 
         return back()->with(
             'success',
-            $readiness[
-                'recommendation'
-            ][
-                'level'
-            ] === 'challenge'
+            $readiness['recommendation']['level'] === 'challenge'
                 ? 'Proyek dimulai sebagai tantangan. Kerjakan bagian wajib secara bertahap dan gunakan daftar kemampuan sebagai panduan.'
                 : 'Proyek dimulai. Kerjakan seluruh bagian wajib sebelum mengirim hasil untuk diperiksa admin.',
         );
@@ -265,34 +216,25 @@ class ProjectController extends Controller
 
         abort_unless(
             $portfolioProject->career_id
-            === $user->target_career_id,
+                === $user->target_career_id,
             404,
         );
 
         $current = UserProject::query()
-            ->where(
-                'user_id',
-                $user->id,
-            )
+            ->where('user_id', $user->id)
             ->where(
                 'portfolio_project_id',
                 $portfolioProject->id,
             )
             ->firstOrFail();
 
-        if (
-            $current->status
-            === 'completed'
-        ) {
+        if ($current->status === 'completed') {
             throw ValidationException::withMessages([
                 'repository_url' => 'Proyek ini sudah lulus dan tidak perlu dikumpulkan ulang.',
             ]);
         }
 
-        if (
-            $current->review_status
-            === 'pending'
-        ) {
+        if ($current->review_status === 'pending') {
             throw ValidationException::withMessages([
                 'repository_url' => 'Pengumpulan proyek sebelumnya masih diperiksa oleh admin.',
             ]);
@@ -308,9 +250,7 @@ class ProjectController extends Controller
         ]);
 
         $googleDriveUrl = trim(
-            (string) $validated[
-                'repository_url'
-            ],
+            (string) $validated['repository_url'],
         );
 
         DB::transaction(
@@ -320,25 +260,17 @@ class ProjectController extends Controller
                 $googleDriveUrl,
             ): void {
                 $userProject = UserProject::query()
-                    ->whereKey(
-                        $current->id,
-                    )
+                    ->whereKey($current->id)
                     ->lockForUpdate()
                     ->firstOrFail();
 
-                if (
-                    $userProject->status
-                    === 'completed'
-                ) {
+                if ($userProject->status === 'completed') {
                     throw ValidationException::withMessages([
                         'repository_url' => 'Proyek ini sudah lulus dan tidak perlu dikumpulkan ulang.',
                     ]);
                 }
 
-                if (
-                    $userProject->review_status
-                    === 'pending'
-                ) {
+                if ($userProject->review_status === 'pending') {
                     throw ValidationException::withMessages([
                         'repository_url' => 'Pengumpulan proyek sebelumnya masih diperiksa oleh admin.',
                     ]);
@@ -394,39 +326,22 @@ class ProjectController extends Controller
 
         $projectSkillSlugs = $project
             ->skills
-            ->pluck(
-                'slug',
-            )
+            ->pluck('slug')
             ->sort()
             ->values()
             ->all();
 
-        foreach (
-            $program[
-                'areas'
-            ] as $index => $area
-        ) {
-            $areaSkillSlugs = collect(
-                $area[
-                    'skills'
-                ],
-            )
-                ->pluck(
-                    'slug',
-                )
+        foreach ($program['areas'] as $index => $area) {
+            $areaSkillSlugs = collect($area['skills'])
+                ->pluck('slug')
                 ->sort()
                 ->values()
                 ->all();
 
-            if (
-                $projectSkillSlugs
-                === $areaSkillSlugs
-            ) {
+            if ($projectSkillSlugs === $areaSkillSlugs) {
                 return [
                     'number' => $index + 1,
-                    'name' => (string) $area[
-                        'name'
-                    ],
+                    'name' => (string) $area['name'],
                 ];
             }
         }
