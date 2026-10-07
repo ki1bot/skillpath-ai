@@ -63,12 +63,14 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
             Record<
                 number,
                 {
+                    stage: number;
                     title: string;
                     items: RoadmapItem[];
                 }
             >
         >((result, item) => {
             result[item.stage] ??= {
+                stage: item.stage,
                 title: item.stage_title,
                 items: [],
             };
@@ -77,15 +79,19 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
 
             return result;
         }, {}),
+    ).sort((a, b) => a.stage - b.stage);
+
+    const coreItems = roadmap.items.filter(
+        (item) => item.material.material_type === 'core',
     );
 
-    const completed = roadmap.items.filter(
+    const completed = coreItems.filter(
         (item) => item.status === 'completed',
     ).length;
 
     const percentage =
-        roadmap.items.length > 0
-            ? Math.round((completed / roadmap.items.length) * 100)
+        coreItems.length > 0
+            ? Math.round((completed / coreItems.length) * 100)
             : 0;
 
     return (
@@ -105,11 +111,14 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                             </h1>
 
                             <p className="mt-4 max-w-2xl text-sm leading-relaxed font-medium text-muted-foreground">
-                                Jalur ini dibuat dari {roadmap.reason}. Estimasi
-                                penyelesaian sekitar {roadmap.estimated_weeks}{' '}
-                                minggu. Kerjakan materi secara berurutan. Materi
-                                berikutnya baru terbuka setelah tugas sebelumnya
-                                diperiksa admin dan mendapat nilai minimal 70.
+                                Jalur ini dibuat dari {roadmap.reason}. Materi
+                                disusun ke dalam tiga bidang jurusan dan
+                                diprioritaskan berdasarkan kemampuan yang masih
+                                perlu diperkuat. Estimasi penyelesaian sekitar{' '}
+                                {roadmap.estimated_weeks} minggu. Kerjakan
+                                materi secara berurutan. Materi berikutnya baru
+                                terbuka setelah tugas sebelumnya diperiksa admin
+                                dan mendapat nilai minimal 70.
                             </p>
                         </div>
 
@@ -118,7 +127,7 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                                 <span>Perkembangan</span>
 
                                 <span>
-                                    {completed}/{roadmap.items.length}
+                                    {completed}/{coreItems.length}
                                 </span>
                             </div>
 
@@ -139,7 +148,7 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
 
                 <div className="mt-8 space-y-10">
                     {stages.map((stage, stageIndex) => (
-                        <section key={`${stage.title}-${stageIndex}`}>
+                        <section key={`${stage.stage}-${stage.title}`}>
                             <div className="mb-5 flex items-center gap-3">
                                 <span className="flex size-9 items-center justify-center rounded-[10px] border-2 border-[#171717] bg-secondary font-mono text-sm font-black text-[#171717] shadow-[3px_3px_0_var(--neo-shadow-color)]">
                                     {stageIndex + 1}
@@ -147,7 +156,7 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
 
                                 <div>
                                     <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                        Tahap {stageIndex + 1}
+                                        Bidang {stageIndex + 1}
                                     </p>
 
                                     <h2 className="text-2xl font-black tracking-tight">

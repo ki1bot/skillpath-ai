@@ -8,8 +8,9 @@ use App\Models\Roadmap;
 use App\Models\RoadmapItem;
 use App\Models\Skill;
 use App\Models\User;
-use Illuminate\Support\Collection;
+use App\Support\AcademicProgramCatalog;
 use Illuminate\Support\Facades\DB;
+use RuntimeException;
 
 class RoadmapService
 {
@@ -26,7 +27,7 @@ class RoadmapService
         );
 
         if (! $user->targetCareer) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'Target karier belum dipilih.',
             );
         }
@@ -36,37 +37,60 @@ class RoadmapService
                 $user,
                 $reason,
             ) {
+                $studyProgram = (string) $user
+                    ->targetCareer
+                    ->name;
+
+                $program = AcademicProgramCatalog::program(
+                    $studyProgram,
+                );
+
+                if ($program === null) {
+                    throw new RuntimeException(
+                        'Struktur akademik untuk jurusan '.$studyProgram.' belum tersedia.',
+                    );
+                }
+
                 $analysis = collect(
                     $this
                         ->skillGapService
                         ->analyze($user),
-                )
-                    ->filter(
-                        fn (array $item) => (
-                            $item['gap'] > 0
-                        ),
-                    )
-                    ->values();
+                )->keyBy(
+                    'skill_id',
+                );
 
-                $skillIds = $analysis
-                    ->pluck('skill_id')
-                    ->all();
+                $skillSlugs = AcademicProgramCatalog::skillSlugs(
+                    $studyProgram,
+                );
 
                 $skills = Skill::query()
                     ->whereIn(
-                        'id',
-                        $skillIds,
+                        'slug',
+                        $skillSlugs,
                     )
                     ->with(
                         'prerequisites:id,name,slug',
                     )
                     ->get()
-                    ->keyBy('id');
+                    ->keyBy(
+                        'slug',
+                    );
+
+                if (
+                    $skills->count()
+                    !== count($skillSlugs)
+                ) {
+                    throw new RuntimeException(
+                        'Struktur skill untuk jurusan '.$studyProgram.' belum lengkap.',
+                    );
+                }
 
                 $materialsBySkill = LearningMaterial::query()
                     ->whereIn(
                         'skill_id',
-                        $skillIds,
+                        $skills
+                            ->pluck('id')
+                            ->all(),
                     )
                     ->where(
                         'material_type',
@@ -76,38 +100,132 @@ class RoadmapService
                         'is_active',
                         true,
                     )
-                    ->orderBy('id')
+                    ->orderBy(
+                        'id',
+                    )
                     ->get()
-                    ->groupBy('skill_id');
+                    ->groupBy(
+                        'skill_id',
+                    );
 
-                $depthMemo = [];
-
-                $ordered = $analysis
+                $areas = collect(
+                    $program['areas'],
+                )
+                    ->values()
                     ->map(
                         function (
-                            array $item,
+                            array $area,
+                            int $areaIndex,
                         ) use (
                             $skills,
-                            &$depthMemo,
-                        ) {
-                            $item['depth'] = $this->depth(
-                                $item['skill_id'],
-                                $skills,
-                                $depthMemo,
-                                [],
-                            );
+                            $materialsBySkill,
+                            $analysis,
+                            $studyProgram,
+                        ): array {
+                            $items = collect(
+                                $area['skills'],
+                            )
+                                ->values()
+                                ->map(
+                                    function (
+                                        array $skillDefinition,
+                                        int $catalogIndex,
+                                    ) use (
+                                        $skills,
+                                        $materialsBySkill,
+                                        $analysis,
+                                        $studyProgram,
+                                        $area,
+                                    ): array {
+                                        $skillSlug = (string) $skillDefinition[
+                                            'slug'
+                                        ];
 
-                            return $item;
+                                        $skill = $skills->get(
+                                            $skillSlug,
+                                        );
+
+                                        if (! $skill) {
+                                            throw new RuntimeException(
+                                                'Skill '.$skillSlug.' pada bidang '.$area['name'].' jurusan '.$studyProgram.' belum tersedia.',
+                                            );
+                                        }
+
+                                        $material = $materialsBySkill
+                                            ->get(
+                                                $skill->id,
+                                                collect(),
+                                            )
+                                            ->first();
+
+                                        if (! $material) {
+                                            throw new RuntimeException(
+                                                'Materi utama untuk skill '.$skill->name.' belum tersedia.',
+                                            );
+                                        }
+
+                                        $analysisItem = $analysis->get(
+                                            $skill->id,
+                                        );
+
+                                        return [
+                                            'material' => $material,
+                                            'priority' => is_array(
+                                                $analysisItem,
+                                            )
+                                                ? (float) (
+                                                    $analysisItem[
+                                                        'priority'
+                                                    ] ?? 0
+                                                )
+                                                : 0.0,
+                                            'catalog_index' => $catalogIndex,
+                                        ];
+                                    },
+                                )
+                                ->sort(
+                                    function (
+                                        array $a,
+                                        array $b,
+                                    ): int {
+                                        if (
+                                            $a['priority']
+                                            !== $b['priority']
+                                        ) {
+                                            return
+                                                $b['priority']
+                                                <=> $a['priority'];
+                                        }
+
+                                        return
+                                            $a['catalog_index']
+                                            <=> $b['catalog_index'];
+                                    },
+                                )
+                                ->values();
+
+                            return [
+                                'title' => (string) $area[
+                                    'name'
+                                ],
+                                'priority' => (float) (
+                                    $items->max(
+                                        'priority',
+                                    ) ?? 0
+                                ),
+                                'catalog_index' => $areaIndex,
+                                'items' => $items->all(),
+                            ];
                         },
                     )
                     ->sort(
                         function (
                             array $a,
                             array $b,
-                        ) {
+                        ): int {
                             if (
-                                $a['depth']
-                                === $b['depth']
+                                $a['priority']
+                                !== $b['priority']
                             ) {
                                 return
                                     $b['priority']
@@ -115,8 +233,8 @@ class RoadmapService
                             }
 
                             return
-                                $a['depth']
-                                <=> $b['depth'];
+                                $a['catalog_index']
+                                <=> $b['catalog_index'];
                         },
                     )
                     ->values();
@@ -145,28 +263,24 @@ class RoadmapService
                             $user
                                 ->target_career_id,
                         )
-                        ->max('version')
+                        ->max(
+                            'version',
+                        )
                 ) + 1;
 
-                $totalMinutes = $ordered
+                $totalMinutes = (int) $areas
                     ->sum(
-                        function (
-                            array $item,
-                        ) use (
-                            $materialsBySkill,
-                        ) {
-                            $materials = $materialsBySkill
-                                ->get(
-                                    $item['skill_id'],
-                                );
-
-                            return $materials
-                                ? (int) $materials
-                                    ->sum(
-                                        'estimated_minutes',
-                                    )
-                                : 0;
-                        },
+                        fn (array $area): int => (
+                            (int) collect(
+                                $area['items'],
+                            )->sum(
+                                fn (array $item): int => (
+                                    (int) $item[
+                                        'material'
+                                    ]->estimated_minutes
+                                ),
+                            )
+                        ),
                     );
 
                 $weeklyMinutes = max(
@@ -196,41 +310,25 @@ class RoadmapService
                 $position = 1;
 
                 foreach (
-                    $ordered as $item
+                    $areas as $stageIndex => $area
                 ) {
-                    $skill = $skills->get(
-                        $item['skill_id'],
-                    );
-
-                    if (! $skill) {
-                        continue;
-                    }
-
-                    $materials = $materialsBySkill
-                        ->get(
-                            $item['skill_id'],
-                            collect(),
-                        );
-
-                    $stage = min(
-                        max(
-                            (int) $item['depth'],
-                            1,
-                        ),
-                        4,
-                    );
+                    $stage = $stageIndex + 1;
 
                     foreach (
-                        $materials as $material
+                        $area['items'] as $entry
                     ) {
+                        $material = $entry[
+                            'material'
+                        ];
+
                         $roadmap
                             ->items()
                             ->create([
                                 'learning_material_id' => $material->id,
                                 'stage' => $stage,
-                                'stage_title' => $this->stageTitle(
-                                    $stage,
-                                ),
+                                'stage_title' => $area[
+                                    'title'
+                                ],
                                 'position' => $position++,
                                 'status' => 'locked',
                                 'progress_percentage' => 0,
@@ -277,7 +375,9 @@ class RoadmapService
         User $user,
         string $reason = 'Perubahan skor skill setelah evaluasi',
     ): ?Roadmap {
-        $user->loadMissing('targetCareer');
+        $user->loadMissing(
+            'targetCareer',
+        );
 
         if (! $user->targetCareer) {
             return null;
@@ -315,18 +415,9 @@ class RoadmapService
                     $this
                         ->skillGapService
                         ->analyze($user),
-                )->keyBy('skill_id');
-
-                $skills = $roadmap
-                    ->items
-                    ->map(
-                        fn ($item) => $item
-                            ->material
-                            ?->skill,
-                    )
-                    ->filter()
-                    ->unique('id')
-                    ->keyBy('id');
+                )->keyBy(
+                    'skill_id',
+                );
 
                 $reinforcementParentIds = $roadmap
                     ->items
@@ -337,153 +428,153 @@ class RoadmapService
                     ->unique()
                     ->values();
 
-                $depthMemo = [];
-
-                $candidates = $roadmap
-                    ->items
-                    ->filter(
-                        function ($item) use (
-                            $reinforcementParentIds,
-                        ) {
-                            return
-                                $item
-                                    ->material
-                                    ->material_type
-                                    !== 'reinforcement'
-                                && ! in_array(
-                                    $item->status,
-                                    [
-                                        'completed',
-                                        'reinforcement_required',
-                                    ],
-                                    true,
-                                )
-                                && ! $reinforcementParentIds
-                                    ->contains(
-                                        $item->id,
-                                    );
-                        },
-                    )
-                    ->map(
-                        function ($item) use (
-                            $analysis,
-                            $skills,
-                            &$depthMemo,
-                        ) {
-                            $skillId = $item
-                                ->material
-                                ->skill_id;
-
-                            $analysisItem = $analysis->get(
-                                $skillId,
-                            );
-
-                            return [
-                                'item' => $item,
-                                'availability_rank' => $this
-                                    ->availabilityRank(
-                                        $item->status,
-                                    ),
-                                'depth' => $this->depth(
-                                    $skillId,
-                                    $skills,
-                                    $depthMemo,
-                                    [],
-                                ),
-                                'priority' => is_array(
-                                    $analysisItem,
-                                )
-                                    ? (float) $analysisItem[
-                                        'priority'
-                                    ]
-                                    : 0.0,
-                            ];
-                        },
-                    );
-
-                $slots = $candidates
-                    ->map(
-                        fn (array $entry) => (
-                            (int) $entry[
-                                'item'
-                            ]->position
-                        ),
-                    )
-                    ->sort()
-                    ->values();
-
-                $ordered = $candidates
-                    ->sort(
-                        function (
-                            array $a,
-                            array $b,
-                        ) {
-                            if (
-                                $a['availability_rank']
-                                !== $b['availability_rank']
-                            ) {
-                                return
-                                    $a['availability_rank']
-                                    <=> $b['availability_rank'];
-                            }
-
-                            if (
-                                $a['depth']
-                                !== $b['depth']
-                            ) {
-                                return
-                                    $a['depth']
-                                    <=> $b['depth'];
-                            }
-
-                            if (
-                                $a['priority']
-                                !== $b['priority']
-                            ) {
-                                return
-                                    $b['priority']
-                                    <=> $a['priority'];
-                            }
-
-                            return
-                                $a['item']->position
-                                <=> $b['item']->position;
-                        },
-                    )
-                    ->values();
-
                 $changed = false;
 
                 foreach (
-                    $ordered as $index => $entry
+                    $roadmap
+                        ->items
+                        ->groupBy(
+                            'stage',
+                        ) as $stageItems
                 ) {
-                    $item = $entry['item'];
-                    $position = (int) $slots[$index];
+                    $candidates = $stageItems
+                        ->filter(
+                            function (
+                                RoadmapItem $item,
+                            ) use (
+                                $reinforcementParentIds,
+                            ): bool {
+                                return
+                                    $item
+                                        ->material
+                                        ->material_type
+                                    !== 'reinforcement'
+                                    && ! in_array(
+                                        $item->status,
+                                        [
+                                            'completed',
+                                            'reinforcement_required',
+                                        ],
+                                        true,
+                                    )
+                                    && ! $reinforcementParentIds
+                                        ->contains(
+                                            $item->id,
+                                        );
+                            },
+                        )
+                        ->map(
+                            function (
+                                RoadmapItem $item,
+                            ) use (
+                                $analysis,
+                            ): array {
+                                $skillId = (int) $item
+                                    ->material
+                                    ->skill_id;
 
-                    $stage = min(
-                        max(
-                            (int) $entry['depth'],
-                            1,
-                        ),
-                        4,
-                    );
+                                $analysisItem = $analysis->get(
+                                    $skillId,
+                                );
 
-                    if (
-                        (int) $item->position !== $position
-                        || (int) $item->stage !== $stage
-                        || $item->stage_title
-                            !== $this->stageTitle($stage)
+                                return [
+                                    'item' => $item,
+                                    'availability_rank' => $this
+                                        ->availabilityRank(
+                                            $item->status,
+                                        ),
+                                    'priority' => is_array(
+                                        $analysisItem,
+                                    )
+                                        ? (float) (
+                                            $analysisItem[
+                                                'priority'
+                                            ] ?? 0
+                                        )
+                                        : 0.0,
+                                ];
+                            },
+                        );
+
+                    $slots = $candidates
+                        ->map(
+                            fn (array $entry): int => (
+                                (int) $entry[
+                                    'item'
+                                ]->position
+                            ),
+                        )
+                        ->sort()
+                        ->values();
+
+                    $ordered = $candidates
+                        ->sort(
+                            function (
+                                array $a,
+                                array $b,
+                            ): int {
+                                if (
+                                    $a[
+                                        'availability_rank'
+                                    ]
+                                    !== $b[
+                                        'availability_rank'
+                                    ]
+                                ) {
+                                    return
+                                        $a[
+                                            'availability_rank'
+                                        ]
+                                        <=> $b[
+                                            'availability_rank'
+                                        ];
+                                }
+
+                                if (
+                                    $a['priority']
+                                    !== $b['priority']
+                                ) {
+                                    return
+                                        $b['priority']
+                                        <=> $a['priority'];
+                                }
+
+                                return
+                                    $a[
+                                        'item'
+                                    ]->position
+                                    <=> $b[
+                                        'item'
+                                    ]->position;
+                            },
+                        )
+                        ->values();
+
+                    foreach (
+                        $ordered as $index => $entry
                     ) {
+                        $item = $entry[
+                            'item'
+                        ];
+
+                        $position = (int) $slots[
+                            $index
+                        ];
+
+                        if (
+                            (int) $item
+                                ->position
+                            === $position
+                        ) {
+                            continue;
+                        }
+
+                        $item->update([
+                            'position' => $position,
+                        ]);
+
                         $changed = true;
                     }
-
-                    $item->update([
-                        'position' => $position,
-                        'stage' => $stage,
-                        'stage_title' => $this->stageTitle(
-                            $stage,
-                        ),
-                    ]);
                 }
 
                 $this->recalculateEstimatedWeeks(
@@ -533,7 +624,10 @@ class RoadmapService
         $activeItemFound = false;
 
         foreach ($items as $item) {
-            if ($item->status === 'completed') {
+            if (
+                $item->status
+                === 'completed'
+            ) {
                 continue;
             }
 
@@ -546,8 +640,10 @@ class RoadmapService
                 }
 
                 if (
-                    $item->status !== 'locked'
-                    || $item->unlocked_at !== null
+                    $item->status
+                    !== 'locked'
+                    || $item->unlocked_at
+                    !== null
                 ) {
                     $item->update([
                         'status' => 'locked',
@@ -576,81 +672,26 @@ class RoadmapService
                 'status' => $nextStatus,
             ];
 
-            if ($item->unlocked_at === null) {
-                $updates['unlocked_at'] = now();
+            if (
+                $item->unlocked_at
+                === null
+            ) {
+                $updates[
+                    'unlocked_at'
+                ] = now();
             }
 
             if (
-                $item->status !== $nextStatus
-                || $item->unlocked_at === null
+                $item->status
+                !== $nextStatus
+                || $item->unlocked_at
+                === null
             ) {
                 $item->update(
                     $updates,
                 );
             }
         }
-    }
-
-    private function depth(
-        int $skillId,
-        Collection $skills,
-        array &$memo,
-        array $trail,
-    ): int {
-        if (
-            isset(
-                $memo[$skillId],
-            )
-        ) {
-            return $memo[$skillId];
-        }
-
-        if (
-            in_array(
-                $skillId,
-                $trail,
-                true,
-            )
-        ) {
-            return 1;
-        }
-
-        $skill = $skills->get(
-            $skillId,
-        );
-
-        if (! $skill) {
-            return 1;
-        }
-
-        $trail[] = $skillId;
-
-        $prerequisiteIds = $skill
-            ->prerequisites
-            ->pluck('id')
-            ->filter(
-                fn ($id) => (
-                    $skills->has($id)
-                ),
-            );
-
-        if (
-            $prerequisiteIds->isEmpty()
-        ) {
-            return $memo[$skillId] = 1;
-        }
-
-        $depth = 1
-            + $prerequisiteIds->max(
-                fn ($id) => $this->depth(
-                    (int) $id,
-                    $skills,
-                    $memo,
-                    $trail,
-                ),
-            );
-
-        return $memo[$skillId] = $depth;
     }
 
     private function availabilityRank(
@@ -704,16 +745,5 @@ class RoadmapService
                 1,
             ),
         ]);
-    }
-
-    private function stageTitle(
-        int $stage,
-    ): string {
-        return match ($stage) {
-            1 => 'Fondasi',
-            2 => 'Penguatan Inti',
-            3 => 'Penerapan',
-            default => 'Quality & Delivery',
-        };
     }
 }
