@@ -16,79 +16,89 @@ export function AssessmentsSection({ assessments, careers, skills }: Props) {
     return (
         <AdminPanel
             title="Assessment dan soal"
-            description="Kelola pertanyaan untuk mengukur kemampuan awal mahasiswa. Setiap jurusan akademik mempunyai 50 soal pilihan ganda."
+            description="Kelola 50 soal pilihan ganda untuk Assessment awal setiap jurusan, serta Assessment tambahan jika diperlukan."
             accentClass="bg-[var(--neo-orange)] text-[#171717]"
         >
             <div className="rounded-xl border-2 border-foreground/15 bg-muted/20 p-4">
-                <p className="text-sm font-black">
-                    Perbedaan Assessment dan roadmap
+                <p className="text-sm font-black">Alur penilaian mahasiswa</p>
+
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                    Mahasiswa mengerjakan Assessment sebelum memulai roadmap.
+                    Hasil Assessment digunakan untuk melihat kemampuan awal dan
+                    menentukan prioritas belajar. Setelah itu, mahasiswa
+                    menyelesaikan tugas praktik pada tahap Amatir, Menengah, dan
+                    Ahli.
                 </p>
 
-                <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
-                    Assessment dikerjakan di awal untuk memetakan kemampuan
-                    mahasiswa. Setelah selesai, mahasiswa mengikuti roadmap yang
-                    terdiri dari Amatir, Menengah, dan Ahli. Materi pada roadmap
-                    dinilai melalui tugas praktik, bukan soal pilihan ganda.
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                    Soal Assessment dinilai secara otomatis. Tugas praktik
+                    roadmap dan proyek diperiksa oleh admin melalui hasil yang
+                    dikumpulkan mahasiswa.
                 </p>
             </div>
 
-            <AdminDetails title="Tambah Assessment tambahan">
+            <AdminDetails
+                title="Tambah Assessment tambahan"
+                meta="Assessment tambahan tidak menggantikan Assessment awal wajib mahasiswa."
+            >
                 <AssessmentForm careers={careers} />
             </AdminDetails>
 
             <div className="grid gap-4">
                 {assessments.map((assessment) => {
                     const isAcademic = Boolean(
-                        getStudyProgramDefinition(
-                            assessment.career?.name ?? '',
-                        ),
+                        assessment.study_program &&
+                        assessment.study_program === assessment.career?.name &&
+                        getStudyProgramDefinition(assessment.study_program),
                     );
 
                     return (
                         <AdminDetails
                             key={assessment.id}
                             title={assessment.title}
-                            meta={`${assessment.questions.length} soal · ${
+                            meta={`${
+                                assessment.career?.name ??
+                                'Jurusan belum tersedia'
+                            } · ${assessment.questions.length} soal · ${
                                 isAcademic
-                                    ? 'Assessment akademik'
+                                    ? 'Assessment wajib'
                                     : 'Assessment tambahan'
-                            }`}
+                            } · ${assessment.is_active ? 'Aktif' : 'Nonaktif'}`}
                         >
-                            <div className="grid gap-6">
+                            <div className="grid min-w-0 gap-6">
                                 <AssessmentForm
                                     assessment={assessment}
                                     careers={careers}
                                 />
 
-                                {isAcademic && (
+                                {isAcademic ? (
                                     <div className="rounded-xl border-2 border-foreground/15 bg-muted/20 p-4">
                                         <p className="text-sm font-black">
-                                            Jumlah soal akademik tetap
+                                            Assessment wajib jurusan
                                         </p>
 
-                                        <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
+                                        <p className="mt-2 text-sm leading-6 text-muted-foreground">
                                             Assessment ini menggunakan 50 soal
-                                            dari sembilan kemampuan jurusan.
-                                            Anda dapat memperbarui isi soal,
-                                            pilihan jawaban, dan penjelasannya,
-                                            tetapi tidak dapat menambah,
-                                            menghapus, atau memindahkan soal ke
-                                            kemampuan lain.
+                                            yang mencakup sembilan kemampuan
+                                            jurusan. Isi soal dapat diperbarui,
+                                            tetapi jumlah dan hubungan
+                                            kemampuannya tetap dijaga.
                                         </p>
 
                                         {assessment.questions.length !== 50 && (
-                                            <p className="mt-3 text-sm font-black text-destructive">
-                                                Perhatian: jumlah soal sekarang
-                                                bukan 50. Periksa data
-                                                Assessment sebelum digunakan
-                                                mahasiswa.
+                                            <p className="mt-3 text-sm font-bold text-destructive">
+                                                Jumlah soal saat ini belum 50.
+                                                Periksa kelengkapan bank soal
+                                                sebelum digunakan.
                                             </p>
                                         )}
                                     </div>
-                                )}
-
-                                {!isAcademic && (
-                                    <AdminDetails title="Tambah soal" subtle>
+                                ) : (
+                                    <AdminDetails
+                                        title="Tambah soal"
+                                        meta="Tambahkan pertanyaan pilihan ganda untuk Assessment ini."
+                                        subtle
+                                    >
                                         <QuestionForm
                                             assessments={assessments}
                                             skills={skills}
@@ -97,32 +107,38 @@ export function AssessmentsSection({ assessments, careers, skills }: Props) {
                                     </AdminDetails>
                                 )}
 
-                                <div className="grid gap-3">
-                                    {assessment.questions.map((question) => (
-                                        <AdminDetails
-                                            key={question.id}
-                                            title={
-                                                question.skill?.name
-                                                    ? `${question.skill.name}: ${question.prompt}`
-                                                    : question.prompt
-                                            }
-                                            subtle
-                                        >
-                                            <div className="grid gap-5">
-                                                <QuestionForm
-                                                    question={question}
-                                                    assessments={assessments}
-                                                    skills={skills}
-                                                />
-
-                                                {!isAcademic && (
-                                                    <DeleteButton
-                                                        action={`/admin/questions/${question.id}`}
+                                <div className="grid min-w-0 gap-3">
+                                    {assessment.questions.map(
+                                        (question, index) => (
+                                            <AdminDetails
+                                                key={question.id}
+                                                title={`Soal ${index + 1}: ${
+                                                    question.prompt
+                                                }`}
+                                                meta={
+                                                    question.skill?.name ??
+                                                    'Kemampuan belum tersedia'
+                                                }
+                                                subtle
+                                            >
+                                                <div className="grid min-w-0 gap-5">
+                                                    <QuestionForm
+                                                        question={question}
+                                                        assessments={
+                                                            assessments
+                                                        }
+                                                        skills={skills}
                                                     />
-                                                )}
-                                            </div>
-                                        </AdminDetails>
-                                    ))}
+
+                                                    {!isAcademic && (
+                                                        <DeleteButton
+                                                            action={`/admin/questions/${question.id}`}
+                                                        />
+                                                    )}
+                                                </div>
+                                            </AdminDetails>
+                                        ),
+                                    )}
                                 </div>
 
                                 {!isAcademic && (

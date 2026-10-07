@@ -46,6 +46,7 @@ export type Question = {
 export type Assessment = {
     id: number;
     career_id: number;
+    study_program: string | null;
     title: string;
     description: string;
     duration_minutes: number;

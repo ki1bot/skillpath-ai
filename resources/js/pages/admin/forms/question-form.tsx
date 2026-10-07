@@ -17,7 +17,7 @@ type Props = {
     defaultAssessmentId?: number;
 };
 
-const stages = ['Amatir', 'Menengah', 'Ahli'] as const;
+const difficulties = ['Amatir', 'Menengah', 'Ahli'] as const;
 
 function normalizeDifficulty(value?: string): string {
     if (value === 'Dasar') {
@@ -28,7 +28,7 @@ function normalizeDifficulty(value?: string): string {
         return 'Ahli';
     }
 
-    if (stages.some((stage) => stage === value)) {
+    if (difficulties.some((stage) => stage === value)) {
         return value ?? 'Menengah';
     }
 
@@ -55,17 +55,29 @@ export function QuestionForm({
 
     const assessment = assessments.find((item) => item.id === assessmentId);
 
-    const program = getStudyProgramDefinition(assessment?.career?.name ?? '');
+    const isAcademicQuestion = Boolean(
+        question &&
+        assessment?.study_program &&
+        assessment.study_program === assessment.career?.name &&
+        getStudyProgramDefinition(assessment.study_program),
+    );
 
-    const allowedSkills = program
+    const program =
+        isAcademicQuestion && assessment?.study_program
+            ? getStudyProgramDefinition(assessment.study_program)
+            : null;
+
+    const allowedSkillNames = program
         ? new Set(program.areas.flatMap((area) => area.skills))
         : null;
 
-    const selectableSkills = allowedSkills
-        ? skills.filter((skill) => allowedSkills.has(skill.name))
+    const selectableSkills = allowedSkillNames
+        ? skills.filter((skill) => allowedSkillNames.has(skill.name))
         : skills;
 
-    const isAcademicQuestion = Boolean(question && program);
+    const selectableAssessments = isAcademicQuestion
+        ? assessments.filter((item) => item.id === question?.assessment_id)
+        : assessments.filter((item) => !item.study_program);
 
     const handleAssessmentChange = (value: string) => {
         setAssessmentId(value ? Number(value) : '');
@@ -91,12 +103,20 @@ export function QuestionForm({
                     <div className="rounded-xl border-2 border-foreground/15 bg-muted/20 p-4">
                         <p className="text-sm font-black">Soal pilihan ganda</p>
 
-                        <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
-                            Assessment mengukur kemampuan awal mahasiswa. Tahap
-                            Amatir, Menengah, dan Ahli pada formulir ini
-                            menunjukkan kompleksitas soal, bukan tahap yang
-                            terbuka di roadmap.
+                        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                            Assessment mengukur kemampuan awal mahasiswa.
+                            Tingkat Amatir, Menengah, dan Ahli pada soal
+                            menunjukkan kompleksitas pertanyaan. Penilaian tugas
+                            pada roadmap dilakukan secara terpisah melalui
+                            pemeriksaan admin.
                         </p>
+
+                        {isAcademicQuestion && (
+                            <p className="mt-3 text-xs font-bold text-muted-foreground">
+                                Soal akademik: Assessment dan kemampuan asal
+                                tidak dapat diubah.
+                            </p>
+                        )}
                     </div>
 
                     <div className="grid min-w-0 gap-4 md:grid-cols-2">
@@ -117,7 +137,7 @@ export function QuestionForm({
                             >
                                 <option value="">Pilih Assessment</option>
 
-                                {assessments.map((item) => (
+                                {selectableAssessments.map((item) => (
                                     <option key={item.id} value={item.id}>
                                         {item.title}
                                     </option>
@@ -168,24 +188,26 @@ export function QuestionForm({
                             )}
                         </div>
 
-                        <SelectField
-                            label="Kompleksitas soal"
-                            name="difficulty"
-                            defaultValue={normalizeDifficulty(
-                                question?.difficulty,
-                            )}
-                            required
-                        >
-                            {stages.map((stage) => (
-                                <option key={stage} value={stage}>
-                                    {stage}
-                                </option>
-                            ))}
-                        </SelectField>
+                        <div className="min-w-0">
+                            <SelectField
+                                label="Kompleksitas soal"
+                                name="difficulty"
+                                defaultValue={normalizeDifficulty(
+                                    question?.difficulty,
+                                )}
+                                required
+                            >
+                                {difficulties.map((difficulty) => (
+                                    <option key={difficulty} value={difficulty}>
+                                        {difficulty}
+                                    </option>
+                                ))}
+                            </SelectField>
+                        </div>
 
                         <div className="flex items-end">
                             <p className="rounded-lg border-2 border-foreground/15 bg-muted/20 px-4 py-3 text-xs leading-5 font-semibold text-muted-foreground">
-                                Jenis evaluasi: pilihan ganda
+                                Jenis evaluasi: Pilihan Ganda
                             </p>
                         </div>
                     </div>
@@ -201,14 +223,17 @@ export function QuestionForm({
 
                     <div className="grid min-w-0 gap-4 md:grid-cols-2">
                         {(['A', 'B', 'C', 'D'] as const).map((letter) => (
-                            <InputField
-                                key={letter}
-                                label={`Pilihan ${letter}`}
-                                name="options[]"
-                                defaultValue={question?.options?.[letter] ?? ''}
-                                maxLength={500}
-                                required
-                            />
+                            <div key={letter} className="min-w-0">
+                                <InputField
+                                    label={`Pilihan ${letter}`}
+                                    name="options[]"
+                                    defaultValue={
+                                        question?.options?.[letter] ?? ''
+                                    }
+                                    maxLength={500}
+                                    required
+                                />
+                            </div>
                         ))}
                     </div>
 
@@ -248,7 +273,11 @@ export function QuestionForm({
                     )}
 
                     <div>
-                        <Button type="submit" disabled={processing}>
+                        <Button
+                            type="submit"
+                            disabled={processing}
+                            className="w-full sm:w-auto"
+                        >
                             {question ? (
                                 <Save className="size-4" />
                             ) : (
@@ -258,7 +287,7 @@ export function QuestionForm({
                             {processing
                                 ? 'Menyimpan...'
                                 : question
-                                  ? 'Simpan soal'
+                                  ? 'Simpan perubahan soal'
                                   : 'Tambah soal'}
                         </Button>
                     </div>
