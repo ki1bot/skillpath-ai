@@ -175,12 +175,6 @@ parameters:
             path: app/Services/AiExplanationService.php
 
         -
-            message: '#^Access to an undefined property App\\Models\\Roadmap\:\:\$completed_items_count\.$#'
-            identifier: property.notFound
-            count: 1
-            path: app/Services/CareerReadinessService.php
-
-        -
             message: '#^Called ''avg'' on Laravel collection, but could have been retrieved as a query\.$#'
             identifier: larastan.noUnnecessaryCollectionCall
             count: 1

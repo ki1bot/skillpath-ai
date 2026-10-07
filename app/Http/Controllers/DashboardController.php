@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Roadmap;
+use App\Models\RoadmapItem;
 use App\Services\AdaptiveRoadmapService;
 use App\Services\CareerReadinessService;
 use App\Services\SkillGapService;
@@ -45,10 +46,18 @@ class DashboardController extends Controller
             ->where('is_active', true)
             ->with([
                 'items:id,roadmap_id,learning_material_id,status,progress_percentage,position',
-                'items.material:id,skill_id,title,slug',
+                'items.material:id,skill_id,title,slug,material_type',
                 'items.material.skill:id,name',
             ])
             ->first();
+
+        $coreItems = $roadmap
+            ?->items
+            ?->filter(
+                fn (RoadmapItem $item): bool => $item
+                    ->material
+                    ->material_type === 'core',
+            );
 
         $analysis = $skillGapService
             ->analyze($user);
@@ -150,13 +159,14 @@ class DashboardController extends Controller
                             ->version,
                         'estimated_weeks' => $roadmap
                             ->estimated_weeks,
-                        'total' => $roadmap
-                            ->items
-                            ->count(),
-                        'completed' => $roadmap
-                            ->items
-                            ->where('status', 'completed')
-                            ->count(),
+                        'total' => $coreItems
+                            ?->count() ?? 0,
+                        'completed' => $coreItems
+                            ?->where(
+                                'status',
+                                'completed',
+                            )
+                            ->count() ?? 0,
                     ]
                     : null,
 

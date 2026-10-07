@@ -31,6 +31,7 @@ class AdminDashboardController extends Controller
                         ->count(),
 
                     'materials' => LearningMaterial::query()
+                        ->where('is_active', true)
                         ->count(),
 
                     'projects' => PortfolioProject::query()
@@ -57,6 +58,20 @@ class AdminDashboardController extends Controller
                         ->whereNotNull(
                             'onboarding_completed_at',
                         )
+                        ->count(),
+
+                    'activeCoreMaterials' => LearningMaterial::query()
+                        ->where('is_active', true)
+                        ->where('material_type', 'core')
+                        ->count(),
+
+                    'activeReinforcementMaterials' => LearningMaterial::query()
+                        ->where('is_active', true)
+                        ->where('material_type', 'reinforcement')
+                        ->count(),
+
+                    'inactiveMaterials' => LearningMaterial::query()
+                        ->where('is_active', false)
                         ->count(),
                 ],
             ],

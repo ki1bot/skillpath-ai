@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\ReadinessSnapshot;
 use App\Models\Roadmap;
+use App\Models\RoadmapItem;
 use App\Models\User;
 
 class CareerReadinessService
@@ -58,32 +59,12 @@ class CareerReadinessService
                 $analysis,
             );
 
+        $roadmap = $loadedRoadmap;
+
         if (
-            $loadedRoadmap !== null
-            && $loadedRoadmap->relationLoaded('items')
+            $roadmap === null
+            || ! $roadmap->relationLoaded('items')
         ) {
-            $roadmapTotal = $loadedRoadmap
-                ->items
-                ->count();
-
-            $roadmapCompleted = $loadedRoadmap
-                ->items
-                ->where(
-                    'status',
-                    'completed',
-                )
-                ->count();
-
-            $roadmapCompletion = $roadmapTotal > 0
-                ? round(
-                    (
-                        $roadmapCompleted
-                        / $roadmapTotal
-                    ) * 100,
-                    1,
-                )
-                : 0;
-        } else {
             $roadmap = Roadmap::query()
                 ->where(
                     'user_id',
@@ -93,29 +74,39 @@ class CareerReadinessService
                     'is_active',
                     true,
                 )
-                ->withCount([
-                    'items',
-                    'items as completed_items_count' => fn ($query) => $query
-                        ->where(
-                            'status',
-                            'completed',
-                        ),
+                ->with([
+                    'items.material:id,material_type',
                 ])
                 ->first();
-
-            $roadmapCompletion = $roadmap
-                && $roadmap->items_count > 0
-                ? round(
-                    (
-                        $roadmap
-                            ->completed_items_count
-                        / $roadmap
-                            ->items_count
-                    ) * 100,
-                    1,
-                )
-                : 0;
         }
+
+        $coreItems = $roadmap
+            ?->items
+            ?->filter(
+                fn (RoadmapItem $item): bool => $item
+                    ->material
+                    ->material_type === 'core',
+            );
+
+        $roadmapTotal = $coreItems
+            ?->count() ?? 0;
+
+        $roadmapCompleted = $coreItems
+            ?->where(
+                'status',
+                'completed',
+            )
+            ->count() ?? 0;
+
+        $roadmapCompletion = $roadmapTotal > 0
+            ? round(
+                (
+                    $roadmapCompleted
+                    / $roadmapTotal
+                ) * 100,
+                1,
+            )
+            : 0;
 
         $projectScore = round(
             (float) $user

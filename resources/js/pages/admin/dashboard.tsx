@@ -20,6 +20,9 @@ type Props = {
         activeCareers: number;
         activeAssessments: number;
         onboardedStudents: number;
+        activeCoreMaterials: number;
+        activeReinforcementMaterials: number;
+        inactiveMaterials: number;
     };
 };
 
@@ -44,14 +47,14 @@ export default function AdminDashboard({ stats, overview }: Props) {
                                 </span>
 
                                 <h1 className="mt-5 text-4xl font-black tracking-[-0.045em] sm:text-5xl">
-                                    Lihat kondisi SkillPath sebelum mengelola
-                                    datanya.
+                                    Pantau kegiatan belajar dan data SkillPath.
                                 </h1>
 
                                 <p className="mt-4 max-w-3xl text-sm leading-7 font-semibold sm:text-base">
-                                    Dashboard menampilkan ringkasan mahasiswa,
-                                    jurusan, kemampuan, Assessment, materi, dan
-                                    proyek yang tersimpan di sistem.
+                                    Lihat jumlah mahasiswa, jurusan, kemampuan,
+                                    materi, Assessment, dan proyek. Data materi
+                                    juga dipisahkan agar materi utama,
+                                    penguatan, dan arsip mudah dibedakan.
                                 </p>
                             </div>
                         </div>
@@ -139,6 +142,70 @@ export default function AdminDashboard({ stats, overview }: Props) {
                     </article>
                 </section>
 
+                <section className="neo-card overflow-hidden">
+                    <div className="border-b-2 border-foreground bg-secondary p-5 text-[#171717] sm:p-6">
+                        <div className="flex items-center justify-between gap-4">
+                            <div>
+                                <p className="text-xs font-black tracking-[0.13em] uppercase">
+                                    Struktur pembelajaran
+                                </p>
+
+                                <h2 className="mt-1 text-2xl font-black">
+                                    Tiga tahap belajar untuk setiap jurusan
+                                </h2>
+                            </div>
+
+                            <BookOpenCheck className="size-7 shrink-0" />
+                        </div>
+                    </div>
+
+                    <div className="grid gap-4 p-5 sm:p-6 md:grid-cols-3">
+                        <div className="rounded-[11px] border-2 border-foreground bg-muted/50 p-4">
+                            <p className="text-sm font-black">
+                                Tahap 1 — Amatir
+                            </p>
+
+                            <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
+                                Mahasiswa mempelajari dasar dari sembilan
+                                kemampuan yang berasal dari tiga bidang
+                                jurusannya.
+                            </p>
+                        </div>
+
+                        <div className="rounded-[11px] border-2 border-foreground bg-muted/50 p-4">
+                            <p className="text-sm font-black">
+                                Tahap 2 — Menengah
+                            </p>
+
+                            <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
+                                Materi dilanjutkan dengan tugas yang lebih
+                                lengkap, pemeriksaan hasil, dan penerapan yang
+                                lebih mandiri.
+                            </p>
+                        </div>
+
+                        <div className="rounded-[11px] border-2 border-foreground bg-muted/50 p-4">
+                            <p className="text-sm font-black">Tahap 3 — Ahli</p>
+
+                            <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
+                                Mahasiswa mengerjakan kasus yang lebih mendekati
+                                pekerjaan nyata, termasuk pengujian dan
+                                pertimbangan keputusan.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="border-t-2 border-foreground px-5 py-4 sm:px-6">
+                        <p className="text-sm leading-6 font-medium text-muted-foreground">
+                            Setiap tahap memiliki sembilan materi utama.
+                            Mahasiswa mengerjakan materi secara berurutan dan
+                            harus mendapat nilai minimal 70 dari admin sebelum
+                            melanjutkan. Materi penguatan digunakan ketika tugas
+                            belum memenuhi nilai kelulusan.
+                        </p>
+                    </div>
+                </section>
+
                 <section className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
                     <article className="neo-card p-6 sm:p-7">
                         <div className="flex items-start gap-4">
@@ -150,13 +217,13 @@ export default function AdminDashboard({ stats, overview }: Props) {
                                 <span className="neo-label">Dashboard</span>
 
                                 <h2 className="mt-4 text-2xl font-black tracking-[-0.035em]">
-                                    Ringkasan kondisi sistem.
+                                    Ringkasan kondisi sistem
                                 </h2>
 
                                 <p className="mt-3 text-sm leading-6 font-semibold text-muted-foreground">
-                                    Halaman ini digunakan untuk melihat jumlah
-                                    mahasiswa, jurusan, kemampuan, materi,
-                                    proyek, Assessment, dan status data aktif.
+                                    Halaman ini menampilkan jumlah mahasiswa,
+                                    jurusan, kemampuan, materi, proyek,
+                                    Assessment, dan status data aktif.
                                 </p>
                             </div>
                         </div>
@@ -181,7 +248,7 @@ export default function AdminDashboard({ stats, overview }: Props) {
                                 </span>
 
                                 <h2 className="mt-4 text-2xl font-black tracking-[-0.035em]">
-                                    Kelola data utama SkillPath.
+                                    Kelola data utama SkillPath
                                 </h2>
 
                                 <p className="mt-3 text-sm leading-6 font-semibold text-muted-foreground">
@@ -210,7 +277,7 @@ export default function AdminDashboard({ stats, overview }: Props) {
                                 </p>
 
                                 <h2 className="mt-1 text-2xl font-black">
-                                    Data yang membentuk rekomendasi SkillPath
+                                    Materi aktif dan data pembelajaran
                                 </h2>
                             </div>
 
@@ -231,7 +298,7 @@ export default function AdminDashboard({ stats, overview }: Props) {
 
                         <div className="rounded-[11px] border-2 border-foreground bg-muted/50 p-4">
                             <p className="text-xs font-black tracking-[0.12em] text-muted-foreground uppercase">
-                                Materi
+                                Materi aktif
                             </p>
 
                             <p className="mt-2 text-3xl font-black">
@@ -250,14 +317,61 @@ export default function AdminDashboard({ stats, overview }: Props) {
                         </div>
                     </div>
 
+                    <div className="grid gap-4 border-t-2 border-foreground px-5 py-5 sm:grid-cols-3 sm:px-6">
+                        <div>
+                            <p className="text-xs font-black text-muted-foreground uppercase">
+                                Materi utama aktif
+                            </p>
+
+                            <p className="mt-1 text-2xl font-black">
+                                {overview.activeCoreMaterials}
+                            </p>
+
+                            <p className="mt-1 text-xs leading-5 font-medium text-muted-foreground">
+                                Materi wajib yang membentuk tiga tahap belajar.
+                            </p>
+                        </div>
+
+                        <div>
+                            <p className="text-xs font-black text-muted-foreground uppercase">
+                                Materi penguatan aktif
+                            </p>
+
+                            <p className="mt-1 text-2xl font-black">
+                                {overview.activeReinforcementMaterials}
+                            </p>
+
+                            <p className="mt-1 text-xs leading-5 font-medium text-muted-foreground">
+                                Tersedia ketika mahasiswa perlu memperbaiki
+                                hasil tugas.
+                            </p>
+                        </div>
+
+                        <div>
+                            <p className="text-xs font-black text-muted-foreground uppercase">
+                                Materi nonaktif
+                            </p>
+
+                            <p className="mt-1 text-2xl font-black">
+                                {overview.inactiveMaterials}
+                            </p>
+
+                            <p className="mt-1 text-xs leading-5 font-medium text-muted-foreground">
+                                Data lama atau materi yang tidak sedang
+                                digunakan pada jalur belajar aktif.
+                            </p>
+                        </div>
+                    </div>
+
                     <div className="border-t-2 border-foreground px-5 py-4 sm:px-6">
                         <p className="text-sm font-semibold text-muted-foreground">
                             Total{' '}
                             <span className="font-black text-foreground">
                                 {contentTotal}
                             </span>{' '}
-                            item kemampuan, materi, dan proyek saat ini tersedia
-                            di database.
+                            item kemampuan, materi aktif, dan proyek tercatat
+                            pada ringkasan ini. Materi nonaktif tidak termasuk
+                            dalam jumlah materi aktif.
                         </p>
                     </div>
                 </section>

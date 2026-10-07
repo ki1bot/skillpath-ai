@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\DashboardController::__invoke
-* @see app/Http/Controllers/DashboardController.php:16
+* @see app/Http/Controllers/DashboardController.php:17
 * @route '/dashboard'
 */
 const DashboardController = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ DashboardController.definition = {
 
 /**
 * @see \App\Http\Controllers\DashboardController::__invoke
-* @see app/Http/Controllers/DashboardController.php:16
+* @see app/Http/Controllers/DashboardController.php:17
 * @route '/dashboard'
 */
 DashboardController.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ DashboardController.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\DashboardController::__invoke
-* @see app/Http/Controllers/DashboardController.php:16
+* @see app/Http/Controllers/DashboardController.php:17
 * @route '/dashboard'
 */
 DashboardController.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ DashboardController.get = (options?: RouteQueryOptions): RouteDefinition<'get'> 
 
 /**
 * @see \App\Http\Controllers\DashboardController::__invoke
-* @see app/Http/Controllers/DashboardController.php:16
+* @see app/Http/Controllers/DashboardController.php:17
 * @route '/dashboard'
 */
 DashboardController.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ DashboardController.head = (options?: RouteQueryOptions): RouteDefinition<'head'
 
 /**
 * @see \App\Http\Controllers\DashboardController::__invoke
-* @see app/Http/Controllers/DashboardController.php:16
+* @see app/Http/Controllers/DashboardController.php:17
 * @route '/dashboard'
 */
 const DashboardControllerForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ const DashboardControllerForm = (options?: RouteQueryOptions): RouteFormDefiniti
 
 /**
 * @see \App\Http\Controllers\DashboardController::__invoke
-* @see app/Http/Controllers/DashboardController.php:16
+* @see app/Http/Controllers/DashboardController.php:17
 * @route '/dashboard'
 */
 DashboardControllerForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +65,7 @@ DashboardControllerForm.get = (options?: RouteQueryOptions): RouteFormDefinition
 
 /**
 * @see \App\Http\Controllers\DashboardController::__invoke
-* @see app/Http/Controllers/DashboardController.php:16
+* @see app/Http/Controllers/DashboardController.php:17
 * @route '/dashboard'
 */
 DashboardControllerForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
