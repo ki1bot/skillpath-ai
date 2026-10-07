@@ -27,12 +27,14 @@ class ProjectReadinessService
 
                     $pivot = $skill->pivot;
 
-                    $required = (float) $pivot
-                        ->required_level;
+                    $required = (float) $pivot->getAttribute(
+                        'required_level',
+                    );
 
                     $weight = max(
-                        (float) $pivot
-                            ->weight,
+                        (float) $pivot->getAttribute(
+                            'weight',
+                        ),
                         0.1,
                     );
 

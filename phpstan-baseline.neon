@@ -73,24 +73,6 @@ parameters:
             path: app/Models/PortfolioProject.php
 
         -
-            message: '#^Method App\\Models\\PortfolioProject\:\:career\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-            identifier: missingType.generics
-            count: 1
-            path: app/Models/PortfolioProject.php
-
-        -
-            message: '#^Method App\\Models\\PortfolioProject\:\:skills\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
-            identifier: missingType.generics
-            count: 1
-            path: app/Models/PortfolioProject.php
-
-        -
-            message: '#^Method App\\Models\\PortfolioProject\:\:userProjects\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
-            identifier: missingType.generics
-            count: 1
-            path: app/Models/PortfolioProject.php
-
-        -
             message: '#^Class App\\Models\\ProgressLog uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
             identifier: missingType.generics
             count: 1
@@ -157,18 +139,6 @@ parameters:
             path: app/Models/UserProject.php
 
         -
-            message: '#^Method App\\Models\\UserProject\:\:project\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-            identifier: missingType.generics
-            count: 1
-            path: app/Models/UserProject.php
-
-        -
-            message: '#^Method App\\Models\\UserProject\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-            identifier: missingType.generics
-            count: 1
-            path: app/Models/UserProject.php
-
-        -
             message: '#^Class App\\Models\\UserSkill uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
             identifier: missingType.generics
             count: 1
@@ -229,38 +199,8 @@ parameters:
             path: app/Services/CareerReadinessService.php
 
         -
-            message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-            identifier: property.notFound
-            count: 2
-            path: app/Services/ProjectReadinessService.php
-
-        -
-            message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
-            identifier: property.notFound
-            count: 1
-            path: app/Services/ProjectReadinessService.php
-
-        -
-            message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$pivot\.$#'
-            identifier: property.notFound
-            count: 1
-            path: app/Services/ProjectReadinessService.php
-
-        -
             message: '#^Method App\\Services\\ProjectReadinessService\:\:calculate\(\) return type has no value type specified in iterable type array\.$#'
             identifier: missingType.iterableValue
-            count: 1
-            path: app/Services/ProjectReadinessService.php
-
-        -
-            message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) contains unresolvable type\.$#'
-            identifier: argument.unresolvableType
-            count: 1
-            path: app/Services/ProjectReadinessService.php
-
-        -
-            message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) contains unresolvable type\.$#'
-            identifier: method.unresolvableReturnType
             count: 1
             path: app/Services/ProjectReadinessService.php
 
