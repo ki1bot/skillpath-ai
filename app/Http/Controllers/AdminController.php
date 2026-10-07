@@ -99,7 +99,10 @@ class AdminController extends Controller
             ),
         ]);
 
-        return back()->with('success', 'Jurusan berhasil ditambahkan.');
+        return back()->with(
+            'success',
+            'Jurusan berhasil ditambahkan.',
+        );
     }
 
     public function updateCareer(
@@ -137,7 +140,10 @@ class AdminController extends Controller
                 ),
         ]);
 
-        return back()->with('success', 'Jurusan berhasil diperbarui.');
+        return back()->with(
+            'success',
+            'Jurusan berhasil diperbarui.',
+        );
     }
 
     public function destroyCareer(Career $career): RedirectResponse
@@ -150,7 +156,10 @@ class AdminController extends Controller
 
         $career->delete();
 
-        return back()->with('success', 'Jurusan dihapus.');
+        return back()->with(
+            'success',
+            'Jurusan dihapus.',
+        );
     }
 
     public function attachCareerSkill(
@@ -164,10 +173,27 @@ class AdminController extends Controller
         }
 
         $data = $request->validate([
-            'skill_id' => ['required', 'integer', 'exists:skills,id'],
-            'target_level' => ['required', 'integer', 'min:1', 'max:100'],
-            'importance_weight' => ['required', 'numeric', 'min:0.1', 'max:3'],
-            'is_required' => ['required', 'boolean'],
+            'skill_id' => [
+                'required',
+                'integer',
+                'exists:skills,id',
+            ],
+            'target_level' => [
+                'required',
+                'integer',
+                'min:1',
+                'max:100',
+            ],
+            'importance_weight' => [
+                'required',
+                'numeric',
+                'min:0.1',
+                'max:3',
+            ],
+            'is_required' => [
+                'required',
+                'boolean',
+            ],
         ]);
 
         $career->skills()->syncWithoutDetaching([
@@ -178,7 +204,10 @@ class AdminController extends Controller
             ],
         ]);
 
-        return back()->with('success', 'Standar skill jurusan disimpan.');
+        return back()->with(
+            'success',
+            'Standar skill jurusan disimpan.',
+        );
     }
 
     public function removeCareerSkill(
@@ -193,7 +222,10 @@ class AdminController extends Controller
 
         $career->skills()->detach($skill->id);
 
-        return back()->with('success', 'Skill dilepas dari jurusan.');
+        return back()->with(
+            'success',
+            'Skill dilepas dari jurusan.',
+        );
     }
 
     public function storeSkill(Request $request): RedirectResponse
@@ -208,7 +240,10 @@ class AdminController extends Controller
             ),
         ]);
 
-        return back()->with('success', 'Skill berhasil ditambahkan.');
+        return back()->with(
+            'success',
+            'Skill berhasil ditambahkan.',
+        );
     }
 
     public function updateSkill(
@@ -237,7 +272,10 @@ class AdminController extends Controller
                 ),
         ]);
 
-        return back()->with('success', 'Skill berhasil diperbarui.');
+        return back()->with(
+            'success',
+            'Skill berhasil diperbarui.',
+        );
     }
 
     public function destroySkill(Skill $skill): RedirectResponse
@@ -256,11 +294,15 @@ class AdminController extends Controller
 
         $skill->delete();
 
-        return back()->with('success', 'Skill dihapus.');
+        return back()->with(
+            'success',
+            'Skill dihapus.',
+        );
     }
 
-    public function storePrerequisite(Request $request): RedirectResponse
-    {
+    public function storePrerequisite(
+        Request $request,
+    ): RedirectResponse {
         $data = $request->validate([
             'skill_id' => [
                 'required',
@@ -293,7 +335,10 @@ class AdminController extends Controller
             ],
         );
 
-        return back()->with('success', 'Relasi prasyarat disimpan.');
+        return back()->with(
+            'success',
+            'Relasi prasyarat disimpan.',
+        );
     }
 
     public function destroyPrerequisite(int $id): RedirectResponse
@@ -302,16 +347,23 @@ class AdminController extends Controller
             ->where('id', $id)
             ->delete();
 
-        return back()->with('success', 'Relasi prasyarat dihapus.');
+        return back()->with(
+            'success',
+            'Relasi prasyarat dihapus.',
+        );
     }
 
-    public function storeAssessment(Request $request): RedirectResponse
-    {
+    public function storeAssessment(
+        Request $request,
+    ): RedirectResponse {
         $data = $this->assessmentData($request);
 
         Assessment::create($data);
 
-        return back()->with('success', 'Assessment berhasil ditambahkan.');
+        return back()->with(
+            'success',
+            'Assessment berhasil ditambahkan.',
+        );
     }
 
     public function updateAssessment(
@@ -322,7 +374,10 @@ class AdminController extends Controller
 
         $assessment->update($data);
 
-        return back()->with('success', 'Assessment berhasil diperbarui.');
+        return back()->with(
+            'success',
+            'Assessment berhasil diperbarui.',
+        );
     }
 
     public function destroyAssessment(
@@ -330,16 +385,23 @@ class AdminController extends Controller
     ): RedirectResponse {
         $assessment->delete();
 
-        return back()->with('success', 'Assessment dihapus.');
+        return back()->with(
+            'success',
+            'Assessment dihapus.',
+        );
     }
 
-    public function storeQuestion(Request $request): RedirectResponse
-    {
+    public function storeQuestion(
+        Request $request,
+    ): RedirectResponse {
         AssessmentQuestion::create(
             $this->questionData($request),
         );
 
-        return back()->with('success', 'Soal Assessment berhasil ditambahkan.');
+        return back()->with(
+            'success',
+            'Soal Assessment berhasil ditambahkan.',
+        );
     }
 
     public function updateQuestion(
@@ -350,7 +412,10 @@ class AdminController extends Controller
             $this->questionData($request),
         );
 
-        return back()->with('success', 'Soal Assessment berhasil diperbarui.');
+        return back()->with(
+            'success',
+            'Soal Assessment berhasil diperbarui.',
+        );
     }
 
     public function destroyQuestion(
@@ -358,14 +423,20 @@ class AdminController extends Controller
     ): RedirectResponse {
         $question->delete();
 
-        return back()->with('success', 'Soal Assessment dihapus.');
+        return back()->with(
+            'success',
+            'Soal Assessment dihapus.',
+        );
     }
 
-    public function storeMaterial(Request $request): RedirectResponse
-    {
+    public function storeMaterial(
+        Request $request,
+    ): RedirectResponse {
         $data = $this->materialData($request);
 
-        $skill = Skill::query()->findOrFail($data['skill_id']);
+        $skill = Skill::query()
+            ->whereKey($data['skill_id'])
+            ->firstOrFail();
 
         if ($this->isAcademicSkill($skill)) {
             throw ValidationException::withMessages([
@@ -393,7 +464,10 @@ class AdminController extends Controller
             'quiz_explanation' => null,
         ]);
 
-        return back()->with('success', 'Materi berhasil ditambahkan.');
+        return back()->with(
+            'success',
+            'Materi berhasil ditambahkan.',
+        );
     }
 
     public function updateMaterial(
@@ -407,13 +481,19 @@ class AdminController extends Controller
         );
 
         if ($isAcademicMaterial) {
-            if ((int) $data['skill_id'] !== (int) $learningMaterial->skill_id) {
+            if (
+                (int) $data['skill_id']
+                !== (int) $learningMaterial->skill_id
+            ) {
                 throw ValidationException::withMessages([
                     'skill_id' => 'Kemampuan materi akademik tidak dapat dipindahkan.',
                 ]);
             }
 
-            if ($data['difficulty'] !== $learningMaterial->difficulty) {
+            if (
+                $data['difficulty']
+                !== $learningMaterial->difficulty
+            ) {
                 throw ValidationException::withMessages([
                     'difficulty' => 'Tahap materi akademik tidak dapat dipindahkan. Silakan edit tugas pada materi dari tahap yang ingin diperbarui.',
                 ]);
@@ -424,8 +504,10 @@ class AdminController extends Controller
             ! $isAcademicMaterial
             && $learningMaterial->roadmapItems()->exists()
             && (
-                (int) $data['skill_id'] !== (int) $learningMaterial->skill_id
-                || $data['difficulty'] !== $learningMaterial->difficulty
+                (int) $data['skill_id']
+                    !== (int) $learningMaterial->skill_id
+                || $data['difficulty']
+                    !== $learningMaterial->difficulty
             )
         ) {
             throw ValidationException::withMessages([
@@ -435,7 +517,10 @@ class AdminController extends Controller
 
         $learningMaterial->update($data);
 
-        return back()->with('success', 'Materi berhasil diperbarui.');
+        return back()->with(
+            'success',
+            'Materi berhasil diperbarui.',
+        );
     }
 
     public function destroyMaterial(
@@ -458,14 +543,20 @@ class AdminController extends Controller
 
         $learningMaterial->delete();
 
-        return back()->with('success', 'Materi dihapus.');
+        return back()->with(
+            'success',
+            'Materi dihapus.',
+        );
     }
 
-    public function storeProject(Request $request): RedirectResponse
-    {
+    public function storeProject(
+        Request $request,
+    ): RedirectResponse {
         $data = $this->projectData($request);
 
-        $career = Career::query()->findOrFail($data['career_id']);
+        $career = Career::query()
+            ->whereKey($data['career_id'])
+            ->firstOrFail();
 
         if ($this->isAcademicCareer($career)) {
             throw ValidationException::withMessages([
@@ -481,7 +572,10 @@ class AdminController extends Controller
             ),
         ]);
 
-        return back()->with('success', 'Proyek berhasil ditambahkan.');
+        return back()->with(
+            'success',
+            'Proyek berhasil ditambahkan.',
+        );
     }
 
     public function updateProject(
@@ -490,11 +584,14 @@ class AdminController extends Controller
     ): RedirectResponse {
         $data = $this->projectData($request);
 
-        $newCareer = Career::query()->findOrFail($data['career_id']);
+        $newCareer = Career::query()
+            ->whereKey($data['career_id'])
+            ->firstOrFail();
 
         if (
             $this->isAcademicProject($portfolioProject)
-            && (int) $data['career_id'] !== (int) $portfolioProject->career_id
+            && (int) $data['career_id']
+                !== (int) $portfolioProject->career_id
         ) {
             throw ValidationException::withMessages([
                 'career_id' => 'Jurusan proyek akademik tidak dapat dipindahkan.',
@@ -515,7 +612,10 @@ class AdminController extends Controller
             'slug' => $portfolioProject->slug,
         ]);
 
-        return back()->with('success', 'Proyek berhasil diperbarui.');
+        return back()->with(
+            'success',
+            'Proyek berhasil diperbarui.',
+        );
     }
 
     public function destroyProject(
@@ -535,7 +635,10 @@ class AdminController extends Controller
 
         $portfolioProject->delete();
 
-        return back()->with('success', 'Proyek dihapus.');
+        return back()->with(
+            'success',
+            'Proyek dihapus.',
+        );
     }
 
     public function attachProjectSkill(
@@ -549,9 +652,23 @@ class AdminController extends Controller
         }
 
         $data = $request->validate([
-            'skill_id' => ['required', 'integer', 'exists:skills,id'],
-            'required_level' => ['required', 'integer', 'min:1', 'max:100'],
-            'weight' => ['required', 'numeric', 'min:0.1', 'max:3'],
+            'skill_id' => [
+                'required',
+                'integer',
+                'exists:skills,id',
+            ],
+            'required_level' => [
+                'required',
+                'integer',
+                'min:1',
+                'max:100',
+            ],
+            'weight' => [
+                'required',
+                'numeric',
+                'min:0.1',
+                'max:3',
+            ],
         ]);
 
         $portfolioProject->skills()->syncWithoutDetaching([
@@ -561,7 +678,10 @@ class AdminController extends Controller
             ],
         ]);
 
-        return back()->with('success', 'Kebutuhan skill proyek disimpan.');
+        return back()->with(
+            'success',
+            'Kebutuhan skill proyek disimpan.',
+        );
     }
 
     public function removeProjectSkill(
@@ -576,7 +696,10 @@ class AdminController extends Controller
 
         $portfolioProject->skills()->detach($skill->id);
 
-        return back()->with('success', 'Kebutuhan skill proyek dihapus.');
+        return back()->with(
+            'success',
+            'Kebutuhan skill proyek dihapus.',
+        );
     }
 
     /**
@@ -588,11 +711,30 @@ class AdminController extends Controller
             'name' => ['required', 'string', 'max:120'],
             'tagline' => ['required', 'string', 'max:180'],
             'description' => ['required', 'string', 'max:4000'],
-            'responsibilities' => ['required', 'array', 'min:1'],
-            'responsibilities.*' => ['required', 'string', 'max:255'],
-            'difficulty' => ['required', 'string', 'max:50'],
-            'accent' => ['required', 'string', 'max:20'],
-            'is_active' => ['required', 'boolean'],
+            'responsibilities' => [
+                'required',
+                'array',
+                'min:1',
+            ],
+            'responsibilities.*' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+            'difficulty' => [
+                'required',
+                'string',
+                'max:50',
+            ],
+            'accent' => [
+                'required',
+                'string',
+                'max:20',
+            ],
+            'is_active' => [
+                'required',
+                'boolean',
+            ],
         ]);
     }
 
@@ -603,9 +745,21 @@ class AdminController extends Controller
     {
         return $request->validate([
             'name' => ['required', 'string', 'max:120'],
-            'category' => ['required', 'string', 'max:120'],
-            'description' => ['required', 'string', 'max:2000'],
-            'difficulty' => ['required', 'string', 'max:50'],
+            'category' => [
+                'required',
+                'string',
+                'max:120',
+            ],
+            'description' => [
+                'required',
+                'string',
+                'max:2000',
+            ],
+            'difficulty' => [
+                'required',
+                'string',
+                'max:50',
+            ],
         ]);
     }
 
@@ -615,25 +769,76 @@ class AdminController extends Controller
     private function assessmentData(Request $request): array
     {
         return $request->validate([
-            'career_id' => ['required', 'integer', 'exists:careers,id'],
-            'title' => ['required', 'string', 'max:180'],
-            'description' => ['required', 'string', 'max:2000'],
-            'duration_minutes' => ['required', 'integer', 'min:5', 'max:180'],
-            'is_active' => ['required', 'boolean'],
+            'career_id' => [
+                'required',
+                'integer',
+                'exists:careers,id',
+            ],
+            'title' => [
+                'required',
+                'string',
+                'max:180',
+            ],
+            'description' => [
+                'required',
+                'string',
+                'max:2000',
+            ],
+            'duration_minutes' => [
+                'required',
+                'integer',
+                'min:5',
+                'max:180',
+            ],
+            'is_active' => [
+                'required',
+                'boolean',
+            ],
         ]);
     }
 
     private function questionData(Request $request): array
     {
         $data = $request->validate([
-            'assessment_id' => ['required', 'integer', 'exists:assessments,id'],
-            'skill_id' => ['required', 'integer', 'exists:skills,id'],
-            'prompt' => ['required', 'string', 'max:2000'],
-            'options' => ['required', 'array', 'size:4'],
-            'options.*' => ['required', 'string', 'max:500'],
-            'correct_answer' => ['required', 'in:A,B,C,D'],
-            'explanation' => ['nullable', 'string', 'max:2000'],
-            'difficulty' => ['required', 'string', 'max:50'],
+            'assessment_id' => [
+                'required',
+                'integer',
+                'exists:assessments,id',
+            ],
+            'skill_id' => [
+                'required',
+                'integer',
+                'exists:skills,id',
+            ],
+            'prompt' => [
+                'required',
+                'string',
+                'max:2000',
+            ],
+            'options' => [
+                'required',
+                'array',
+                'size:4',
+            ],
+            'options.*' => [
+                'required',
+                'string',
+                'max:500',
+            ],
+            'correct_answer' => [
+                'required',
+                'in:A,B,C,D',
+            ],
+            'explanation' => [
+                'nullable',
+                'string',
+                'max:2000',
+            ],
+            'difficulty' => [
+                'required',
+                'string',
+                'max:50',
+            ],
         ]);
 
         $options = array_values($data['options']);
@@ -651,10 +856,26 @@ class AdminController extends Controller
     private function materialData(Request $request): array
     {
         return $request->validate([
-            'skill_id' => ['required', 'integer', 'exists:skills,id'],
-            'title' => ['required', 'string', 'max:180'],
-            'summary' => ['required', 'string', 'max:3000'],
-            'learning_objectives' => ['required', 'array', 'min:1'],
+            'skill_id' => [
+                'required',
+                'integer',
+                'exists:skills,id',
+            ],
+            'title' => [
+                'required',
+                'string',
+                'max:180',
+            ],
+            'summary' => [
+                'required',
+                'string',
+                'max:3000',
+            ],
+            'learning_objectives' => [
+                'required',
+                'array',
+                'min:1',
+            ],
             'learning_objectives.*' => [
                 'required',
                 'string',
@@ -670,9 +891,21 @@ class AdminController extends Controller
                 'min:15',
                 'max:3000',
             ],
-            'resource_title' => ['nullable', 'string', 'max:180'],
-            'resource_url' => ['nullable', 'url', 'max:1000'],
-            'practice_task' => ['required', 'string', 'max:4000'],
+            'resource_title' => [
+                'nullable',
+                'string',
+                'max:180',
+            ],
+            'resource_url' => [
+                'nullable',
+                'url',
+                'max:1000',
+            ],
+            'practice_task' => [
+                'required',
+                'string',
+                'max:4000',
+            ],
         ]);
     }
 
@@ -680,7 +913,10 @@ class AdminController extends Controller
     {
         $stretchFeatures = array_values(
             array_filter(
-                (array) $request->input('stretch_features', []),
+                (array) $request->input(
+                    'stretch_features',
+                    [],
+                ),
                 fn ($value): bool => is_string($value)
                     && trim($value) !== '',
             ),
@@ -691,18 +927,66 @@ class AdminController extends Controller
         ]);
 
         return $request->validate([
-            'career_id' => ['required', 'integer', 'exists:careers,id'],
-            'title' => ['required', 'string', 'max:180'],
-            'summary' => ['required', 'string', 'max:3000'],
-            'problem_statement' => ['required', 'string', 'max:4000'],
-            'difficulty' => ['required', 'string', 'max:50'],
-            'minimum_features' => ['required', 'array', 'min:1'],
-            'minimum_features.*' => ['required', 'string', 'max:500'],
-            'stretch_features' => ['nullable', 'array'],
-            'stretch_features.*' => ['required', 'string', 'max:500'],
-            'completion_criteria' => ['required', 'array', 'min:1'],
-            'completion_criteria.*' => ['required', 'string', 'max:500'],
-            'estimated_hours' => ['required', 'integer', 'min:1', 'max:500'],
+            'career_id' => [
+                'required',
+                'integer',
+                'exists:careers,id',
+            ],
+            'title' => [
+                'required',
+                'string',
+                'max:180',
+            ],
+            'summary' => [
+                'required',
+                'string',
+                'max:3000',
+            ],
+            'problem_statement' => [
+                'required',
+                'string',
+                'max:4000',
+            ],
+            'difficulty' => [
+                'required',
+                'string',
+                'max:50',
+            ],
+            'minimum_features' => [
+                'required',
+                'array',
+                'min:1',
+            ],
+            'minimum_features.*' => [
+                'required',
+                'string',
+                'max:500',
+            ],
+            'stretch_features' => [
+                'nullable',
+                'array',
+            ],
+            'stretch_features.*' => [
+                'required',
+                'string',
+                'max:500',
+            ],
+            'completion_criteria' => [
+                'required',
+                'array',
+                'min:1',
+            ],
+            'completion_criteria.*' => [
+                'required',
+                'string',
+                'max:500',
+            ],
+            'estimated_hours' => [
+                'required',
+                'integer',
+                'min:1',
+                'max:500',
+            ],
         ]);
     }
 
@@ -734,7 +1018,8 @@ class AdminController extends Controller
             return false;
         }
 
-        $skill = Skill::query()->find($material->skill_id);
+        $skill = Skill::query()
+            ->find($material->skill_id);
 
         return $skill !== null
             && $this->isAcademicSkill($skill);
@@ -743,7 +1028,8 @@ class AdminController extends Controller
     private function isAcademicProject(
         PortfolioProject $project,
     ): bool {
-        $career = Career::query()->find($project->career_id);
+        $career = Career::query()
+            ->find($project->career_id);
 
         return $career !== null
             && $this->isAcademicCareer($career);
@@ -755,7 +1041,9 @@ class AdminController extends Controller
         ?int $ignoreId = null,
     ): string {
         $base = Str::slug($value);
+
         $slug = $base;
+
         $counter = 2;
 
         while (
@@ -763,7 +1051,11 @@ class AdminController extends Controller
                 ->where('slug', $slug)
                 ->when(
                     $ignoreId,
-                    fn ($query) => $query->where('id', '!=', $ignoreId),
+                    fn ($query) => $query->where(
+                        'id',
+                        '!=',
+                        $ignoreId,
+                    ),
                 )
                 ->exists()
         ) {
