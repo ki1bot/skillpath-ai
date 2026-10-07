@@ -353,10 +353,6 @@ export default function Skills({ career, skills, averageMastery }: Props) {
                         <p className="text-xs font-black tracking-[0.14em] text-muted-foreground uppercase">
                             Detail setiap kemampuan
                         </p>
-
-                        <h2 className="mt-1 text-2xl font-black">
-                            Mengapa kemampuan ini perlu diprioritaskan?
-                        </h2>
                     </div>
 
                     <div className="space-y-4">

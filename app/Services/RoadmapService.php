@@ -14,6 +14,12 @@ use RuntimeException;
 
 class RoadmapService
 {
+    private const STAGES = [
+        1 => 'Amatir',
+        2 => 'Menengah',
+        3 => 'Ahli',
+    ];
+
     public function __construct(
         private readonly SkillGapService $skillGapService,
     ) {}
@@ -85,7 +91,7 @@ class RoadmapService
                     );
                 }
 
-                $materialsBySkill = LearningMaterial::query()
+                $coreMaterials = LearningMaterial::query()
                     ->whereIn(
                         'skill_id',
                         $skills
@@ -103,7 +109,28 @@ class RoadmapService
                     ->orderBy(
                         'id',
                     )
-                    ->get()
+                    ->get();
+
+                $expectedMaterialCount = count(
+                    $skillSlugs,
+                ) * count(
+                    self::STAGES,
+                );
+
+                if (
+                    $coreMaterials->count()
+                    !== $expectedMaterialCount
+                ) {
+                    throw new RuntimeException(
+                        'Materi roadmap jurusan '
+                        .$studyProgram
+                        .' belum lengkap. Dibutuhkan '
+                        .$expectedMaterialCount
+                        .' materi utama aktif.',
+                    );
+                }
+
+                $materialsBySkill = $coreMaterials
                     ->groupBy(
                         'skill_id',
                     );
@@ -118,7 +145,6 @@ class RoadmapService
                             int $areaIndex,
                         ) use (
                             $skills,
-                            $materialsBySkill,
                             $analysis,
                             $studyProgram,
                         ): array {
@@ -132,7 +158,6 @@ class RoadmapService
                                         int $catalogIndex,
                                     ) use (
                                         $skills,
-                                        $materialsBySkill,
                                         $analysis,
                                         $studyProgram,
                                         $area,
@@ -147,20 +172,13 @@ class RoadmapService
 
                                         if (! $skill) {
                                             throw new RuntimeException(
-                                                'Skill '.$skillSlug.' pada bidang '.$area['name'].' jurusan '.$studyProgram.' belum tersedia.',
-                                            );
-                                        }
-
-                                        $material = $materialsBySkill
-                                            ->get(
-                                                $skill->id,
-                                                collect(),
-                                            )
-                                            ->first();
-
-                                        if (! $material) {
-                                            throw new RuntimeException(
-                                                'Materi utama untuk skill '.$skill->name.' belum tersedia.',
+                                                'Skill '
+                                                .$skillSlug
+                                                .' pada bidang '
+                                                .$area['name']
+                                                .' jurusan '
+                                                .$studyProgram
+                                                .' belum tersedia.',
                                             );
                                         }
 
@@ -169,7 +187,7 @@ class RoadmapService
                                         );
 
                                         return [
-                                            'material' => $material,
+                                            'skill' => $skill,
                                             'priority' => is_array(
                                                 $analysisItem,
                                             )
@@ -268,19 +286,9 @@ class RoadmapService
                         )
                 ) + 1;
 
-                $totalMinutes = (int) $areas
+                $totalMinutes = (int) $coreMaterials
                     ->sum(
-                        fn (array $area): int => (
-                            (int) collect(
-                                $area['items'],
-                            )->sum(
-                                fn (array $item): int => (
-                                    (int) $item[
-                                        'material'
-                                    ]->estimated_minutes
-                                ),
-                            )
-                        ),
+                        'estimated_minutes',
                     );
 
                 $weeklyMinutes = max(
@@ -310,30 +318,49 @@ class RoadmapService
                 $position = 1;
 
                 foreach (
-                    $areas as $stageIndex => $area
+                    self::STAGES as $stage => $stageTitle
                 ) {
-                    $stage = $stageIndex + 1;
+                    foreach ($areas as $area) {
+                        foreach (
+                            $area['items'] as $entry
+                        ) {
+                            $skill = $entry[
+                                'skill'
+                            ];
 
-                    foreach (
-                        $area['items'] as $entry
-                    ) {
-                        $material = $entry[
-                            'material'
-                        ];
+                            $material = $materialsBySkill
+                                ->get(
+                                    $skill->id,
+                                    collect(),
+                                )
+                                ->firstWhere(
+                                    'difficulty',
+                                    $stageTitle,
+                                );
 
-                        $roadmap
-                            ->items()
-                            ->create([
-                                'learning_material_id' => $material->id,
-                                'stage' => $stage,
-                                'stage_title' => $area[
-                                    'title'
-                                ],
-                                'position' => $position++,
-                                'status' => 'locked',
-                                'progress_percentage' => 0,
-                                'unlocked_at' => null,
-                            ]);
+                            if (! $material) {
+                                throw new RuntimeException(
+                                    'Materi tahap '
+                                    .$stageTitle
+                                    .' untuk skill '
+                                    .$skill->name
+                                    .' belum tersedia.',
+                                );
+                            }
+
+                            $roadmap
+                                ->items()
+                                ->create([
+                                    'learning_material_id' => $material
+                                        ->id,
+                                    'stage' => $stage,
+                                    'stage_title' => $stageTitle,
+                                    'position' => $position++,
+                                    'status' => 'locked',
+                                    'progress_percentage' => 0,
+                                    'unlocked_at' => null,
+                                ]);
+                        }
                     }
                 }
 

@@ -281,10 +281,10 @@ class SkillCatalogExpansionTest extends TestCase
         );
     }
 
-    public function test_learning_catalog_contains_fifty_four_core_and_reinforcement_materials(): void
+    public function test_learning_catalog_contains_three_stage_materials_and_reinforcements(): void
     {
         $this->assertSame(
-            54,
+            162,
             LearningMaterial::query()
                 ->where(
                     'material_type',
@@ -298,7 +298,7 @@ class SkillCatalogExpansionTest extends TestCase
         );
 
         $this->assertSame(
-            54,
+            162,
             LearningMaterial::query()
                 ->where(
                     'material_type',
@@ -312,7 +312,7 @@ class SkillCatalogExpansionTest extends TestCase
         );
     }
 
-    public function test_all_academic_skills_have_learning_materials(): void
+    public function test_all_academic_skills_have_amatir_menengah_and_ahli_materials(): void
     {
         $academicSkills = $this->academicSkills();
 
@@ -321,40 +321,83 @@ class SkillCatalogExpansionTest extends TestCase
             $academicSkills,
         );
 
+        $expectedStages = [
+            'Amatir',
+            'Menengah',
+            'Ahli',
+        ];
+
         foreach ($academicSkills as $skill) {
-            $this->assertTrue(
-                $skill
-                    ->materials()
-                    ->where(
-                        'material_type',
-                        'core',
-                    )
-                    ->where(
-                        'is_active',
-                        true,
-                    )
-                    ->exists(),
-                "Skill akademik {$skill->slug} belum memiliki materi utama.",
+            $coreMaterials = $skill
+                ->materials()
+                ->where(
+                    'material_type',
+                    'core',
+                )
+                ->where(
+                    'is_active',
+                    true,
+                )
+                ->get();
+
+            $reinforcementMaterials = $skill
+                ->materials()
+                ->where(
+                    'material_type',
+                    'reinforcement',
+                )
+                ->where(
+                    'is_active',
+                    true,
+                )
+                ->get();
+
+            $this->assertCount(
+                3,
+                $coreMaterials,
+                "Skill {$skill->slug} harus memiliki 3 materi utama.",
             );
 
-            $this->assertTrue(
-                $skill
-                    ->materials()
-                    ->where(
-                        'material_type',
-                        'reinforcement',
+            $this->assertCount(
+                3,
+                $reinforcementMaterials,
+                "Skill {$skill->slug} harus memiliki 3 materi penguatan.",
+            );
+
+            $this->assertEqualsCanonicalizing(
+                $expectedStages,
+                $coreMaterials
+                    ->pluck(
+                        'difficulty',
                     )
-                    ->where(
-                        'is_active',
-                        true,
+                    ->all(),
+                "Materi utama {$skill->slug} harus terdiri dari Amatir, Menengah, dan Ahli.",
+            );
+
+            $this->assertEqualsCanonicalizing(
+                $expectedStages,
+                $reinforcementMaterials
+                    ->pluck(
+                        'difficulty',
                     )
-                    ->exists(),
-                "Skill akademik {$skill->slug} belum memiliki materi penguatan.",
+                    ->all(),
+                "Materi penguatan {$skill->slug} harus terdiri dari Amatir, Menengah, dan Ahli.",
+            );
+
+            $this->assertCount(
+                3,
+                $coreMaterials
+                    ->pluck(
+                        'practice_task',
+                    )
+                    ->unique()
+                    ->values(),
+                "Tugas ketiga tahap {$skill->slug} harus berbeda.",
             );
         }
     }
 
-    public function test_academic_programs_have_three_projects_each(): void
+    public function test_academic_programs_have_three_projects_each_and_each_project_matches_one_area(): void
     {
         $expectedProjects = [
             'Sistem Informasi' => [
@@ -423,8 +466,56 @@ class SkillCatalogExpansionTest extends TestCase
                 "Daftar proyek {$career->name} tidak sesuai katalog proyek.",
             );
 
-            $canonicalSkillSlugs = AcademicProgramCatalog::skillSlugs(
+            $program = AcademicProgramCatalog::program(
                 $career->name,
+            );
+
+            $this->assertNotNull(
+                $program,
+            );
+
+            $expectedAreaSkillSets = collect(
+                $program[
+                    'areas'
+                ],
+            )
+                ->map(
+                    fn (array $area) => collect(
+                        $area[
+                            'skills'
+                        ],
+                    )
+                        ->pluck(
+                            'slug',
+                        )
+                        ->sort()
+                        ->values()
+                        ->implode('|'),
+                )
+                ->sort()
+                ->values()
+                ->all();
+
+            $actualProjectSkillSets = $career
+                ->projects
+                ->map(
+                    fn ($project) => $project
+                        ->skills
+                        ->pluck(
+                            'slug',
+                        )
+                        ->sort()
+                        ->values()
+                        ->implode('|'),
+                )
+                ->sort()
+                ->values()
+                ->all();
+
+            $this->assertSame(
+                $expectedAreaSkillSets,
+                $actualProjectSkillSets,
+                "Setiap proyek {$career->name} harus mewakili tepat satu dari tiga bidang jurusan.",
             );
 
             foreach ($career->projects as $project) {
@@ -433,15 +524,19 @@ class SkillCatalogExpansionTest extends TestCase
                     $project->skills,
                     "Proyek {$project->title} harus terhubung ke tepat 3 skill bidangnya.",
                 );
-
-                foreach ($project->skills as $skill) {
-                    $this->assertContains(
-                        $skill->slug,
-                        $canonicalSkillSlugs,
-                        "Proyek {$project->title} menggunakan skill di luar jurusan {$career->name}.",
-                    );
-                }
             }
+
+            $this->assertCount(
+                3,
+                $career
+                    ->projects
+                    ->pluck(
+                        'problem_statement',
+                    )
+                    ->unique()
+                    ->values(),
+                "Tiga proyek {$career->name} harus mempunyai tugas yang berbeda.",
+            );
         }
     }
 

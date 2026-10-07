@@ -38,6 +38,8 @@ interface Project {
     summary: string;
     difficulty: string;
     estimated_hours: number;
+    project_number: number;
+    area_name: string;
     readiness: {
         score: number;
         ready: boolean;
@@ -101,15 +103,18 @@ export default function Projects({ projects }: { projects: Project[] }) {
                             </p>
 
                             <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
-                                Pilih proyek berdasarkan bidang jurusanmu
+                                Tiga proyek untuk tiga bidang jurusan
                             </h1>
 
                             <p className="mt-3 max-w-2xl text-sm leading-7 font-medium text-muted-foreground">
-                                Setiap proyek menggabungkan tiga kemampuan dari
-                                satu bidang. Setelah selesai, kirim hasil
-                                melalui Google Drive. Admin akan memeriksa
-                                pekerjaan dan proyek dinyatakan lulus jika
-                                mendapat nilai minimal 80.
+                                Setiap jurusan memiliki tiga proyek. Proyek 1,
+                                Proyek 2, dan Proyek 3 masing-masing mewakili
+                                satu bidang dan menggabungkan tiga kemampuan
+                                utama dari bidang tersebut. Setiap proyek
+                                memiliki tugas yang berbeda. Setelah selesai,
+                                kirim hasil melalui Google Drive. Admin akan
+                                memeriksa pekerjaan dan proyek dinyatakan lulus
+                                jika mendapat nilai minimal 80.
                             </p>
                         </div>
 
@@ -121,7 +126,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
                             )}
 
                             <span className="rounded-full border-2 border-foreground bg-card px-3 py-2">
-                                {projects.length} pilihan
+                                {projects.length} proyek
                             </span>
 
                             <span className="rounded-full border-2 border-foreground bg-card px-3 py-2">
@@ -134,18 +139,6 @@ export default function Projects({ projects }: { projects: Project[] }) {
                         </div>
                     </div>
                 </header>
-
-                <section className="mt-6 rounded-[12px] border-2 border-foreground bg-muted/30 p-5">
-                    <p className="text-sm font-black">
-                        Nilai kesiapan bukan nilai proyek
-                    </p>
-
-                    <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
-                        Nilai kesiapan membantu melihat kemampuan sebelum
-                        mengerjakan proyek. Nilai proyek baru diberikan setelah
-                        admin memeriksa hasil yang dikumpulkan.
-                    </p>
-                </section>
 
                 {projects.length === 0 ? (
                     <section className="neo-empty mt-6">
@@ -162,8 +155,9 @@ export default function Projects({ projects }: { projects: Project[] }) {
                     </section>
                 ) : (
                     <section className="mt-6 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
-                        {projects.map((project, index) => {
+                        {projects.map((project) => {
                             const catalog = getCatalog(project);
+
                             const started = Boolean(project.user_project);
 
                             const completed =
@@ -193,11 +187,12 @@ export default function Projects({ projects }: { projects: Project[] }) {
                                         <div className="flex items-start justify-between gap-4">
                                             <div>
                                                 <p className="text-[10px] font-black tracking-[0.14em] text-muted-foreground uppercase">
-                                                    Pilihan {index + 1}
+                                                    Proyek{' '}
+                                                    {project.project_number}
                                                 </p>
 
                                                 <p className="mt-1 text-sm font-black">
-                                                    {catalog.focus}
+                                                    {project.area_name}
                                                 </p>
                                             </div>
 
@@ -234,7 +229,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
 
                                         <div>
                                             <p className="text-xs font-black tracking-wide text-muted-foreground uppercase">
-                                                Kemampuan yang dilatih
+                                                Tiga materi bidang ini
                                             </p>
 
                                             <div className="mt-2 flex flex-wrap gap-2">
@@ -328,6 +323,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
                                             <div>
                                                 <div className="mb-2 flex items-center justify-between text-xs font-black">
                                                     <span>Progres</span>
+
                                                     <span>{progress}%</span>
                                                 </div>
 

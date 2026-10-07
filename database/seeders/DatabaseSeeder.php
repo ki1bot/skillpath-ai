@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             AcademicAssessmentQuestionPoolSeeder::class,
             AcademicAssessmentCleanupSeeder::class,
             AcademicProgramLearningMaterialSeeder::class,
+            AcademicStageLearningMaterialSeeder::class,
             AcademicPortfolioProjectSeeder::class,
         ]);
     }

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\ProjectController::index
-* @see app/Http/Controllers/ProjectController.php:20
+* @see app/Http/Controllers/ProjectController.php:21
 * @route '/projects'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\ProjectController::index
-* @see app/Http/Controllers/ProjectController.php:20
+* @see app/Http/Controllers/ProjectController.php:21
 * @route '/projects'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\ProjectController::index
-* @see app/Http/Controllers/ProjectController.php:20
+* @see app/Http/Controllers/ProjectController.php:21
 * @route '/projects'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\ProjectController::index
-* @see app/Http/Controllers/ProjectController.php:20
+* @see app/Http/Controllers/ProjectController.php:21
 * @route '/projects'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\ProjectController::index
-* @see app/Http/Controllers/ProjectController.php:20
+* @see app/Http/Controllers/ProjectController.php:21
 * @route '/projects'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 
 /**
 * @see \App\Http\Controllers\ProjectController::index
-* @see app/Http/Controllers/ProjectController.php:20
+* @see app/Http/Controllers/ProjectController.php:21
 * @route '/projects'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +65,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\ProjectController::index
-* @see app/Http/Controllers/ProjectController.php:20
+* @see app/Http/Controllers/ProjectController.php:21
 * @route '/projects'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -82,7 +82,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\ProjectController::show
-* @see app/Http/Controllers/ProjectController.php:71
+* @see app/Http/Controllers/ProjectController.php:102
 * @route '/projects/{portfolioProject}'
 */
 export const show = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -97,7 +97,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\ProjectController::show
-* @see app/Http/Controllers/ProjectController.php:71
+* @see app/Http/Controllers/ProjectController.php:102
 * @route '/projects/{portfolioProject}'
 */
 show.url = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions) => {
@@ -130,7 +130,7 @@ show.url = (args: { portfolioProject: string | { slug: string } } | [portfolioPr
 
 /**
 * @see \App\Http\Controllers\ProjectController::show
-* @see app/Http/Controllers/ProjectController.php:71
+* @see app/Http/Controllers/ProjectController.php:102
 * @route '/projects/{portfolioProject}'
 */
 show.get = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -140,7 +140,7 @@ show.get = (args: { portfolioProject: string | { slug: string } } | [portfolioPr
 
 /**
 * @see \App\Http\Controllers\ProjectController::show
-* @see app/Http/Controllers/ProjectController.php:71
+* @see app/Http/Controllers/ProjectController.php:102
 * @route '/projects/{portfolioProject}'
 */
 show.head = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -150,7 +150,7 @@ show.head = (args: { portfolioProject: string | { slug: string } } | [portfolioP
 
 /**
 * @see \App\Http\Controllers\ProjectController::show
-* @see app/Http/Controllers/ProjectController.php:71
+* @see app/Http/Controllers/ProjectController.php:102
 * @route '/projects/{portfolioProject}'
 */
 const showForm = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -160,7 +160,7 @@ const showForm = (args: { portfolioProject: string | { slug: string } } | [portf
 
 /**
 * @see \App\Http\Controllers\ProjectController::show
-* @see app/Http/Controllers/ProjectController.php:71
+* @see app/Http/Controllers/ProjectController.php:102
 * @route '/projects/{portfolioProject}'
 */
 showForm.get = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -170,7 +170,7 @@ showForm.get = (args: { portfolioProject: string | { slug: string } } | [portfol
 
 /**
 * @see \App\Http\Controllers\ProjectController::show
-* @see app/Http/Controllers/ProjectController.php:71
+* @see app/Http/Controllers/ProjectController.php:102
 * @route '/projects/{portfolioProject}'
 */
 showForm.head = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -187,7 +187,7 @@ show.form = showForm
 
 /**
 * @see \App\Http\Controllers\ProjectController::start
-* @see app/Http/Controllers/ProjectController.php:136
+* @see app/Http/Controllers/ProjectController.php:191
 * @route '/projects/{portfolioProject}/start'
 */
 export const start = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -202,7 +202,7 @@ start.definition = {
 
 /**
 * @see \App\Http\Controllers\ProjectController::start
-* @see app/Http/Controllers/ProjectController.php:136
+* @see app/Http/Controllers/ProjectController.php:191
 * @route '/projects/{portfolioProject}/start'
 */
 start.url = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions) => {
@@ -235,7 +235,7 @@ start.url = (args: { portfolioProject: string | { slug: string } } | [portfolioP
 
 /**
 * @see \App\Http\Controllers\ProjectController::start
-* @see app/Http/Controllers/ProjectController.php:136
+* @see app/Http/Controllers/ProjectController.php:191
 * @route '/projects/{portfolioProject}/start'
 */
 start.post = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -245,7 +245,7 @@ start.post = (args: { portfolioProject: string | { slug: string } } | [portfolio
 
 /**
 * @see \App\Http\Controllers\ProjectController::start
-* @see app/Http/Controllers/ProjectController.php:136
+* @see app/Http/Controllers/ProjectController.php:191
 * @route '/projects/{portfolioProject}/start'
 */
 const startForm = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -255,7 +255,7 @@ const startForm = (args: { portfolioProject: string | { slug: string } } | [port
 
 /**
 * @see \App\Http\Controllers\ProjectController::start
-* @see app/Http/Controllers/ProjectController.php:136
+* @see app/Http/Controllers/ProjectController.php:191
 * @route '/projects/{portfolioProject}/start'
 */
 startForm.post = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -267,7 +267,7 @@ start.form = startForm
 
 /**
 * @see \App\Http\Controllers\ProjectController::update
-* @see app/Http/Controllers/ProjectController.php:193
+* @see app/Http/Controllers/ProjectController.php:260
 * @route '/projects/{portfolioProject}'
 */
 export const update = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -282,7 +282,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\ProjectController::update
-* @see app/Http/Controllers/ProjectController.php:193
+* @see app/Http/Controllers/ProjectController.php:260
 * @route '/projects/{portfolioProject}'
 */
 update.url = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions) => {
@@ -315,7 +315,7 @@ update.url = (args: { portfolioProject: string | { slug: string } } | [portfolio
 
 /**
 * @see \App\Http\Controllers\ProjectController::update
-* @see app/Http/Controllers/ProjectController.php:193
+* @see app/Http/Controllers/ProjectController.php:260
 * @route '/projects/{portfolioProject}'
 */
 update.patch = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -325,7 +325,7 @@ update.patch = (args: { portfolioProject: string | { slug: string } } | [portfol
 
 /**
 * @see \App\Http\Controllers\ProjectController::update
-* @see app/Http/Controllers/ProjectController.php:193
+* @see app/Http/Controllers/ProjectController.php:260
 * @route '/projects/{portfolioProject}'
 */
 const updateForm = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -340,7 +340,7 @@ const updateForm = (args: { portfolioProject: string | { slug: string } } | [por
 
 /**
 * @see \App\Http\Controllers\ProjectController::update
-* @see app/Http/Controllers/ProjectController.php:193
+* @see app/Http/Controllers/ProjectController.php:260
 * @route '/projects/{portfolioProject}'
 */
 updateForm.patch = (args: { portfolioProject: string | { slug: string } } | [portfolioProject: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

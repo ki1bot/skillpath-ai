@@ -79,8 +79,7 @@ export default function Onboarding({
                     <p className="mt-4 max-w-3xl text-sm leading-7 font-semibold sm:text-base">
                         Setiap jurusan memiliki tiga bidang utama dan sembilan
                         kemampuan yang akan dinilai. Pilih jurusanmu, isi profil
-                        belajar, lalu kerjakan Assessment awal agar SkillPath
-                        dapat melihat kemampuanmu sekarang.
+                        belajar.
                     </p>
                 </section>
 

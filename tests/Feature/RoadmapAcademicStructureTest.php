@@ -13,14 +13,24 @@ class RoadmapAcademicStructureTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_each_academic_program_generates_three_areas_with_three_core_materials(): void
+    public function test_each_academic_program_generates_three_learning_stages_with_nine_core_materials_each(): void
     {
         $this->seed();
 
-        foreach (array_keys(AcademicProgramCatalog::programs()) as $studyProgram) {
+        foreach (
+            array_keys(
+                AcademicProgramCatalog::programs(),
+            ) as $studyProgram
+        ) {
             $career = Career::query()
-                ->where('name', $studyProgram)
-                ->where('is_active', true)
+                ->where(
+                    'name',
+                    $studyProgram,
+                )
+                ->where(
+                    'is_active',
+                    true,
+                )
                 ->firstOrFail();
 
             $user = User::factory()->create([
@@ -31,11 +41,13 @@ class RoadmapAcademicStructureTest extends TestCase
                 'onboarding_completed_at' => now(),
             ]);
 
-            $roadmap = app(RoadmapService::class)->regenerate(
+            $roadmap = app(
+                RoadmapService::class,
+            )->regenerate(
                 $user->fresh([
                     'targetCareer',
                 ]),
-                'Pengujian struktur akademik roadmap',
+                'Pengujian struktur tiga tahap roadmap',
             );
 
             $roadmap->load(
@@ -45,18 +57,40 @@ class RoadmapAcademicStructureTest extends TestCase
             $coreItems = $roadmap
                 ->items
                 ->filter(
-                    fn ($item) => $item
-                        ->material
-                        ->material_type === 'core',
+                    fn ($item) => (
+                        $item
+                            ->material
+                            ->material_type
+                        === 'core'
+                    ),
                 )
-                ->sortBy('position')
+                ->sortBy(
+                    'position',
+                )
                 ->values();
 
             $this->assertCount(
-                9,
+                27,
                 $coreItems,
-                "Roadmap {$studyProgram} harus memiliki tepat 9 materi utama.",
+                "Roadmap {$studyProgram} harus memiliki tepat 27 materi utama.",
             );
+
+            $stages = $coreItems
+                ->groupBy(
+                    'stage',
+                );
+
+            $this->assertCount(
+                3,
+                $stages,
+                "Roadmap {$studyProgram} harus memiliki tepat 3 tahap.",
+            );
+
+            $expectedStages = [
+                1 => 'Amatir',
+                2 => 'Menengah',
+                3 => 'Ahli',
+            ];
 
             $expectedSkillSlugs = collect(
                 AcademicProgramCatalog::skillSlugs(
@@ -67,59 +101,32 @@ class RoadmapAcademicStructureTest extends TestCase
                 ->values()
                 ->all();
 
-            $actualSkillSlugs = $coreItems
-                ->map(
-                    fn ($item) => $item
-                        ->material
-                        ->skill
-                        ->slug,
-                )
-                ->sort()
-                ->values()
-                ->all();
+            foreach (
+                $expectedStages as $stage => $stageTitle
+            ) {
+                $stageItems = $stages->get(
+                    $stage,
+                );
 
-            $this->assertSame(
-                $expectedSkillSlugs,
-                $actualSkillSlugs,
-                "Roadmap {$studyProgram} harus memuat seluruh 9 skill akademik tanpa skill yang hilang atau salah jurusan.",
-            );
-
-            $stages = $coreItems->groupBy('stage');
-
-            $this->assertCount(
-                3,
-                $stages,
-                "Roadmap {$studyProgram} harus memiliki tepat 3 bidang.",
-            );
-
-            foreach ($stages as $stageItems) {
-                $this->assertCount(
-                    3,
+                $this->assertNotNull(
                     $stageItems,
-                    "Setiap bidang roadmap {$studyProgram} harus berisi tepat 3 materi utama.",
+                    "Tahap {$stageTitle} belum tersedia pada {$studyProgram}.",
                 );
-
-                $stageTitle = (string) $stageItems
-                    ->first()
-                    ->stage_title;
-
-                $expectedAreaSlugs = collect(
-                    AcademicProgramCatalog::areaSkillSlugs(
-                        $studyProgram,
-                        $stageTitle,
-                    ),
-                )
-                    ->sort()
-                    ->values()
-                    ->all();
 
                 $this->assertCount(
-                    3,
-                    $expectedAreaSlugs,
-                    "Bidang {$stageTitle} tidak sesuai dengan katalog jurusan {$studyProgram}.",
+                    9,
+                    $stageItems,
+                    "Tahap {$stageTitle} pada {$studyProgram} harus memiliki tepat 9 materi.",
                 );
 
-                $actualAreaSlugs = $stageItems
+                $this->assertSame(
+                    $stageTitle,
+                    (string) $stageItems
+                        ->first()
+                        ->stage_title,
+                );
+
+                $actualSkillSlugs = $stageItems
                     ->map(
                         fn ($item) => $item
                             ->material
@@ -131,24 +138,82 @@ class RoadmapAcademicStructureTest extends TestCase
                     ->all();
 
                 $this->assertSame(
-                    $expectedAreaSlugs,
-                    $actualAreaSlugs,
-                    "Materi pada bidang {$stageTitle} jurusan {$studyProgram} tidak sesuai katalog akademik.",
+                    $expectedSkillSlugs,
+                    $actualSkillSlugs,
+                    "Tahap {$stageTitle} pada {$studyProgram} harus memuat seluruh 9 skill jurusan.",
                 );
+
+                foreach ($stageItems as $item) {
+                    $this->assertSame(
+                        $stageTitle,
+                        $item
+                            ->material
+                            ->difficulty,
+                        "Materi {$item->material->title} harus mempunyai tingkat {$stageTitle}.",
+                    );
+                }
+
+                $program = AcademicProgramCatalog::program(
+                    $studyProgram,
+                );
+
+                $this->assertNotNull(
+                    $program,
+                );
+
+                foreach (
+                    $program[
+                        'areas'
+                    ] as $area
+                ) {
+                    $areaSkillSlugs = collect(
+                        $area[
+                            'skills'
+                        ],
+                    )
+                        ->pluck(
+                            'slug',
+                        )
+                        ->values();
+
+                    $matchingSkills = $stageItems
+                        ->filter(
+                            fn ($item) => $areaSkillSlugs
+                                ->contains(
+                                    $item
+                                        ->material
+                                        ->skill
+                                        ->slug,
+                                ),
+                        );
+
+                    $this->assertCount(
+                        3,
+                        $matchingSkills,
+                        "Bidang {$area['name']} pada tahap {$stageTitle} jurusan {$studyProgram} harus memiliki tepat 3 materi.",
+                    );
+                }
             }
 
             $positions = $coreItems
-                ->pluck('position')
+                ->pluck(
+                    'position',
+                )
                 ->map(
-                    fn ($position) => (int) $position,
+                    fn ($position) => (
+                        (int) $position
+                    ),
                 )
                 ->values()
                 ->all();
 
             $this->assertSame(
-                range(1, 9),
+                range(
+                    1,
+                    27,
+                ),
                 $positions,
-                "Posisi materi roadmap {$studyProgram} harus berurutan dari 1 sampai 9.",
+                "Posisi materi roadmap {$studyProgram} harus berurutan dari 1 sampai 27.",
             );
 
             $this->assertSame(
@@ -159,11 +224,43 @@ class RoadmapAcademicStructureTest extends TestCase
                 "Materi pertama {$studyProgram} harus tersedia pada awal roadmap.",
             );
 
-            foreach ($coreItems->slice(1) as $item) {
+            foreach (
+                $coreItems->slice(
+                    1,
+                ) as $item
+            ) {
                 $this->assertSame(
                     'locked',
                     $item->status,
-                    "Materi setelah materi pertama pada {$studyProgram} harus terkunci.",
+                    "Hanya materi pertama {$studyProgram} yang boleh tersedia sebelum ada materi yang lulus.",
+                );
+            }
+
+            $tasksBySkill = $coreItems
+                ->groupBy(
+                    fn ($item) => $item
+                        ->material
+                        ->skill
+                        ->slug,
+                );
+
+            foreach (
+                $tasksBySkill as $skillSlug => $skillItems
+            ) {
+                $this->assertCount(
+                    3,
+                    $skillItems,
+                );
+
+                $this->assertCount(
+                    3,
+                    $skillItems
+                        ->pluck(
+                            'material.practice_task',
+                        )
+                        ->unique()
+                        ->values(),
+                    "Tugas Amatir, Menengah, dan Ahli untuk {$skillSlug} harus berbeda.",
                 );
             }
         }

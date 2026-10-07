@@ -508,9 +508,7 @@ export default function AssessmentPage({
                             <p className="mt-3 max-w-2xl text-sm leading-6 font-medium text-muted-foreground">
                                 Assessment ini berisi{' '}
                                 {assessment.question_limit} soal yang dibagi
-                                menjadi {totalSections} bagian. Kerjakan setiap
-                                bagian secara berurutan sebelum lanjut ke bagian
-                                berikutnya.
+                                menjadi {totalSections} bagian.
                             </p>
                         </div>
 
