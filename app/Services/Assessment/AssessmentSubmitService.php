@@ -8,6 +8,9 @@ use App\Services\RoadmapService;
 use App\Support\AcademicAssessmentCatalog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use RuntimeException;
 
 class AssessmentSubmitService
 {
@@ -113,12 +116,60 @@ class AssessmentSubmitService
             $state['question_ids'],
         );
 
-        $this->resultService->store(
-            $user,
-            $assessment,
-            $questions,
-            $answers,
-        );
+        try {
+            DB::transaction(
+                function () use (
+                    $user,
+                    $assessment,
+                    $questions,
+                    $answers,
+                    $studyProgram,
+                ): void {
+                    $this->resultService->store(
+                        $user,
+                        $assessment,
+                        $questions,
+                        $answers,
+                    );
+
+                    /** @var User $freshUser */
+                    $freshUser = $user->fresh([
+                        'targetCareer',
+                    ]) ?? $user;
+
+                    $this->roadmapService->regenerate(
+                        $freshUser,
+                        'Hasil Assessment '
+                            .$studyProgram
+                            .' '
+                            .now()->format('d M Y'),
+                    );
+
+                    $this->readinessService->snapshot(
+                        $freshUser,
+                        'assessment_completed',
+                    );
+                },
+                1,
+            );
+        } catch (RuntimeException $exception) {
+            Log::warning(
+                'Assessment gagal disimpan karena roadmap tidak dapat dibuat.',
+                [
+                    'user_id' => $user->id,
+                    'assessment_id' => $assessment->id,
+                    'study_program' => $studyProgram,
+                    'reason' => $exception->getMessage(),
+                ],
+            );
+
+            return redirect()
+                ->route('assessment.show')
+                ->with(
+                    'error',
+                    'Hasil Assessment belum disimpan karena jalur belajar jurusan sedang bermasalah. Silakan hubungi admin dan coba kirim kembali setelah masalah diperbaiki.',
+                );
+        }
 
         $this->sessionService->clear(
             $request,
@@ -126,27 +177,13 @@ class AssessmentSubmitService
             $user->id,
         );
 
-        /** @var User $freshUser */
-        $freshUser = $user->fresh([
-            'targetCareer',
-        ]) ?? $user;
-
-        $this->roadmapService->regenerate(
-            $freshUser,
-            'Hasil Assessment '.$studyProgram.' '
-                .now()->format('d M Y'),
-        );
-
-        $this->readinessService->snapshot(
-            $freshUser,
-            'assessment_completed',
-        );
-
         return redirect()
             ->route('skills.index')
             ->with(
                 'success',
-                'Assessment '.$studyProgram.' selesai. Hasil kemampuanmu sudah disimpan dan roadmap diperbarui.',
+                'Assessment '
+                    .$studyProgram
+                    .' selesai. Hasil kemampuanmu sudah disimpan dan roadmap diperbarui.',
             );
     }
 }
