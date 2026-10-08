@@ -168,6 +168,10 @@ if [ "${DOCKER_MODE:-production}" = "development" ]; then
         gosu "$RUN_AS" php artisan db:seed \
             --class='Database\Seeders\AcademicProgramLearningMaterialSeeder' \
             --force
+
+        gosu "$RUN_AS" php artisan db:seed \
+            --class='Database\Seeders\AcademicStageLearningMaterialSeeder' \
+            --force
     fi
 
     if [ ! -L public/storage ]; then
@@ -244,6 +248,10 @@ elif [ "${RUN_ASSESSMENT_SEEDER:-false}" = "true" ]; then
 
     php artisan db:seed \
         --class='Database\Seeders\AcademicProgramLearningMaterialSeeder' \
+        --force
+
+    php artisan db:seed \
+        --class='Database\Seeders\AcademicStageLearningMaterialSeeder' \
         --force
 
     echo "Academic assessment and learning data synchronized."

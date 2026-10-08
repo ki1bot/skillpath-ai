@@ -5,6 +5,5 @@ return [
 
     'user_manager_email' => env(
         'USER_MANAGER_EMAIL',
-        'f8goodspoof@gmail.com',
     ),
 ];

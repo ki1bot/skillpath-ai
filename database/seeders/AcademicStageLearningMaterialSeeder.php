@@ -105,7 +105,13 @@ class AcademicStageLearningMaterialSeeder extends Seeder
                     ],
                 );
 
-                LearningMaterial::firstOrCreate(
+                if (! $core->is_active) {
+                    $core->update([
+                        'is_active' => true,
+                    ]);
+                }
+
+                $reinforcement = LearningMaterial::firstOrCreate(
                     [
                         'slug' => $reinforcementSlug,
                     ],
@@ -143,6 +149,12 @@ class AcademicStageLearningMaterialSeeder extends Seeder
                         'quiz_explanation' => $source->quiz_explanation,
                     ],
                 );
+
+                if (! $reinforcement->is_active) {
+                    $reinforcement->update([
+                        'is_active' => true,
+                    ]);
+                }
 
                 $canonicalMaterialSlugs[] = $coreSlug;
                 $canonicalMaterialSlugs[] = $reinforcementSlug;
