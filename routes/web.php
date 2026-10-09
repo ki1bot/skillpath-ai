@@ -45,7 +45,7 @@ Route::get('/karier', [PublicPageController::class, 'careers'])
 Route::get('/karier/{career}', [PublicPageController::class, 'career'])
     ->name('careers.public.show');
 
-Route::middleware(['auth', 'idle'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/session/heartbeat', SessionHeartbeatController::class)
         ->name('session.heartbeat');
 

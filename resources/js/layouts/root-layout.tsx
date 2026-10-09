@@ -1,4 +1,4 @@
-import { IdleSessionGuard } from '@/components/idle-session-guard';
+import { SessionKeepAlive } from '@/components/session-keep-alive';
 import { useFlashToast } from '@/hooks/use-flash-toast';
 
 export default function RootLayout({
@@ -10,7 +10,7 @@ export default function RootLayout({
 
     return (
         <>
-            <IdleSessionGuard />
+            <SessionKeepAlive />
             {children}
         </>
     );

@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Middleware\EnforceIdleTimeout;
 use App\Http\Middleware\EnsureAdmin;
 use App\Http\Middleware\EnsureEmailVerified;
 use App\Http\Middleware\EnsureUserManager;
@@ -34,7 +33,6 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => EnsureAdmin::class,
             'user-manager' => EnsureUserManager::class,
-            'idle' => EnforceIdleTimeout::class,
         ]);
 
         $middleware->web(append: [

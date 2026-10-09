@@ -7,7 +7,6 @@ declare module '@inertiajs/core' {
             name: string;
             auth: Auth;
             sidebarOpen: boolean;
-            idleTimeoutMinutes: number;
             publicChat: {
                 model: string;
             };
