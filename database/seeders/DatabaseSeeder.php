@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             AcademicProgramLearningMaterialSeeder::class,
             AcademicStageLearningMaterialSeeder::class,
             AcademicPortfolioProjectSeeder::class,
+            AcademicTaskRevisionSeeder::class,
         ]);
     }
 }
