@@ -82,6 +82,23 @@ export default function Projects({ projects }: { projects: Project[] }) {
             project.user_project && project.user_project.status !== 'completed',
     ).length;
 
+    const hasEvaluationScores = projects.some(
+        (project) =>
+            project.user_project?.evaluation_score !== null &&
+            project.user_project?.evaluation_score !== undefined,
+    );
+
+    const hasProgress = projects.some((project) =>
+        Boolean(project.user_project),
+    );
+
+    const cardRowSpan =
+        hasEvaluationScores && hasProgress
+            ? 'row-span-8'
+            : hasEvaluationScores || hasProgress
+              ? 'row-span-7'
+              : 'row-span-6';
+
     return (
         <>
             <Head title="Proyek" />
@@ -143,7 +160,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
                         </p>
                     </section>
                 ) : (
-                    <section className="mt-6 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
+                    <section className="mt-6 grid items-stretch gap-x-5 gap-y-3 lg:grid-cols-2 xl:grid-cols-3">
                         {projects.map((project) => {
                             const catalog = getCatalog(project);
 
@@ -170,11 +187,11 @@ export default function Projects({ projects }: { projects: Project[] }) {
                             return (
                                 <Card
                                     key={project.id}
-                                    className="flex h-full flex-col overflow-hidden"
+                                    className={`${cardRowSpan} grid h-full min-w-0 grid-rows-subgrid gap-x-0 gap-y-3 overflow-hidden`}
                                 >
-                                    <CardHeader className="border-b-2 border-foreground p-5">
-                                        <div className="flex items-start justify-between gap-4">
-                                            <div>
+                                    <CardHeader className="contents">
+                                        <div className="flex min-w-0 items-start justify-between gap-4 px-5 pt-5">
+                                            <div className="min-w-0 flex-1">
                                                 <p className="text-[10px] font-black tracking-[0.14em] text-muted-foreground uppercase">
                                                     Proyek{' '}
                                                     {project.project_number}
@@ -186,7 +203,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
                                             </div>
 
                                             <span
-                                                className={`rounded-full border-2 border-[#171717] px-2.5 py-1 text-[10px] font-black text-[#171717] ${
+                                                className={`max-w-[110px] shrink-0 rounded-full border-2 border-[#171717] px-2.5 py-1 text-[10px] font-black text-[#171717] ${
                                                     completed
                                                         ? 'bg-[var(--neo-lime)]'
                                                         : needsRevision
@@ -200,13 +217,13 @@ export default function Projects({ projects }: { projects: Project[] }) {
                                             </span>
                                         </div>
 
-                                        <CardTitle className="mt-4 text-2xl leading-tight font-black tracking-tight">
+                                        <CardTitle className="border-b-2 border-foreground px-5 pt-1 pb-5 text-2xl leading-tight font-black tracking-tight">
                                             {project.title}
                                         </CardTitle>
                                     </CardHeader>
 
-                                    <CardContent className="flex flex-1 flex-col gap-5 pt-5">
-                                        <div>
+                                    <CardContent className="contents">
+                                        <div className="min-w-0 px-5 pt-2">
                                             <p className="text-xs font-black tracking-wide text-muted-foreground uppercase">
                                                 Yang akan dibuat
                                             </p>
@@ -216,7 +233,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
                                             </p>
                                         </div>
 
-                                        <div>
+                                        <div className="min-w-0 px-5 pt-2">
                                             <p className="text-xs font-black tracking-wide text-muted-foreground uppercase">
                                                 Tiga materi bidang ini
                                             </p>
@@ -233,90 +250,110 @@ export default function Projects({ projects }: { projects: Project[] }) {
                                             </div>
                                         </div>
 
-                                        {project.user_project
-                                            ?.evaluation_score !== null &&
-                                            project.user_project
-                                                ?.evaluation_score !==
-                                                undefined && (
-                                                <div className="rounded-[10px] border-2 border-foreground/15 bg-card p-4">
-                                                    <p className="text-xs font-black tracking-wide text-muted-foreground uppercase">
-                                                        Nilai proyek
-                                                    </p>
+                                        {hasEvaluationScores && (
+                                            <div className="min-w-0 px-5 pt-2">
+                                                {project.user_project
+                                                    ?.evaluation_score !==
+                                                    null &&
+                                                    project.user_project
+                                                        ?.evaluation_score !==
+                                                        undefined && (
+                                                        <div className="rounded-[10px] border-2 border-foreground/15 bg-card p-4">
+                                                            <p className="text-xs font-black tracking-wide text-muted-foreground uppercase">
+                                                                Nilai proyek
+                                                            </p>
 
-                                                    <p className="mt-1 text-xl font-black">
-                                                        {
-                                                            project.user_project
-                                                                .evaluation_score
-                                                        }
-                                                        /100
-                                                    </p>
-                                                </div>
-                                            )}
+                                                            <p className="mt-1 text-xl font-black">
+                                                                {
+                                                                    project
+                                                                        .user_project
+                                                                        .evaluation_score
+                                                                }
+                                                                /100
+                                                            </p>
+                                                        </div>
+                                                    )}
+                                            </div>
+                                        )}
 
-                                        <div className="rounded-[10px] border-2 border-foreground/15 bg-muted/20 p-4">
-                                            <div className="flex items-start gap-2">
-                                                {recommendation.level ===
-                                                'recommended' ? (
-                                                    <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
-                                                ) : (
-                                                    <CircleAlert className="mt-0.5 size-4 shrink-0" />
-                                                )}
+                                        <div className="min-w-0 px-5 pt-2">
+                                            <div className="rounded-[10px] border-2 border-foreground/15 bg-muted/20 p-4">
+                                                <div className="flex items-start gap-2">
+                                                    {recommendation.level ===
+                                                    'recommended' ? (
+                                                        <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
+                                                    ) : (
+                                                        <CircleAlert className="mt-0.5 size-4 shrink-0" />
+                                                    )}
 
-                                                <div>
-                                                    <p className="text-sm font-black">
-                                                        {recommendation.label}
-                                                    </p>
+                                                    <div className="min-w-0 flex-1">
+                                                        <p className="text-sm font-black">
+                                                            {
+                                                                recommendation.label
+                                                            }
+                                                        </p>
 
-                                                    <p className="mt-1 text-xs leading-5 font-medium text-muted-foreground">
-                                                        {recommendation.message}
-                                                    </p>
+                                                        <p className="mt-1 text-xs leading-5 font-medium text-muted-foreground">
+                                                            {
+                                                                recommendation.message
+                                                            }
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        {started && (
-                                            <div>
-                                                <div className="mb-2 flex items-center justify-between text-xs font-black">
-                                                    <span>Progres</span>
+                                        {hasProgress && (
+                                            <div className="min-w-0 px-5 pt-2">
+                                                {started && (
+                                                    <div>
+                                                        <div className="mb-2 flex items-center justify-between text-xs font-black">
+                                                            <span>Progres</span>
 
-                                                    <span>{progress}%</span>
-                                                </div>
+                                                            <span>
+                                                                {progress}%
+                                                            </span>
+                                                        </div>
 
-                                                <div className="neo-progress">
-                                                    <span
-                                                        style={{
-                                                            width: `${progress}%`,
-                                                        }}
-                                                    />
-                                                </div>
+                                                        <div className="neo-progress">
+                                                            <span
+                                                                style={{
+                                                                    width: `${progress}%`,
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
 
-                                        <Button
-                                            asChild
-                                            variant={
-                                                completed
-                                                    ? 'outline'
-                                                    : 'secondary'
-                                            }
-                                            className="mt-auto w-full"
-                                        >
-                                            <Link
-                                                href={`/projects/${project.slug}`}
+                                        <div className="flex min-w-0 items-end px-5 pt-2 pb-5">
+                                            <Button
+                                                asChild
+                                                variant={
+                                                    completed
+                                                        ? 'outline'
+                                                        : 'secondary'
+                                                }
+                                                className="w-full"
                                             >
-                                                <FolderKanban className="size-4" />
+                                                <Link
+                                                    href={`/projects/${project.slug}`}
+                                                >
+                                                    <FolderKanban className="size-4" />
 
-                                                {completed
-                                                    ? 'Lihat hasil proyek'
-                                                    : needsRevision
-                                                      ? 'Perbaiki proyek'
-                                                      : started
-                                                        ? 'Lanjutkan proyek'
-                                                        : 'Lihat tugas proyek'}
+                                                    {completed
+                                                        ? 'Lihat hasil proyek'
+                                                        : needsRevision
+                                                          ? 'Perbaiki proyek'
+                                                          : started
+                                                            ? 'Lanjutkan proyek'
+                                                            : 'Lihat tugas proyek'}
 
-                                                <ArrowRight className="size-4" />
-                                            </Link>
-                                        </Button>
+                                                    <ArrowRight className="size-4" />
+                                                </Link>
+                                            </Button>
+                                        </div>
                                     </CardContent>
                                 </Card>
                             );
