@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,11 +12,7 @@ class AdminWorkspaceController extends Controller
 {
     public function dashboard(Request $request): Response
     {
-        if ($request->query('section') === 'manage') {
-            return app(AdminController::class)->index();
-        }
-
-        return app(AdminDashboardController::class)();
+        return app(AdminController::class)->index();
     }
 
     public function submissions(Request $request): Response
@@ -33,9 +28,7 @@ class AdminWorkspaceController extends Controller
 
     public function legacyDashboard(): RedirectResponse
     {
-        return redirect()->route('admin.dashboard', [
-            'section' => 'manage',
-        ]);
+        return redirect()->route('admin.dashboard');
     }
 
     public function legacyProjectSubmissions(

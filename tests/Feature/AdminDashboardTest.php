@@ -12,7 +12,7 @@ class AdminDashboardTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_admin_can_visit_admin_dashboard(): void
+    public function test_admin_can_visit_combined_admin_dashboard(): void
     {
         $admin = User::factory()->create([
             'role' => 'admin',
@@ -27,13 +27,18 @@ class AdminDashboardTest extends TestCase
             ->assertOk()
             ->assertInertia(
                 fn (Assert $page) => $page
-                    ->component('admin/dashboard')
+                    ->component('admin/index')
                     ->has('stats')
-                    ->has('overview'),
+                    ->has('careers')
+                    ->has('skills')
+                    ->has('prerequisites')
+                    ->has('assessments')
+                    ->has('materials')
+                    ->has('projects'),
             );
     }
 
-    public function test_admin_can_open_management_from_dashboard(): void
+    public function test_admin_can_open_legacy_management_query_on_combined_dashboard(): void
     {
         $admin = User::factory()->create([
             'role' => 'admin',
@@ -54,13 +59,14 @@ class AdminDashboardTest extends TestCase
                     ->has('stats')
                     ->has('careers')
                     ->has('skills')
+                    ->has('prerequisites')
                     ->has('assessments')
                     ->has('materials')
                     ->has('projects'),
             );
     }
 
-    public function test_old_admin_url_redirects_to_management_tab(): void
+    public function test_old_admin_url_redirects_to_combined_dashboard(): void
     {
         $admin = User::factory()->create([
             'role' => 'admin',
@@ -72,9 +78,7 @@ class AdminDashboardTest extends TestCase
             ->get(route('admin.index'));
 
         $response->assertRedirect(
-            route('admin.dashboard', [
-                'section' => 'manage',
-            ]),
+            route('admin.dashboard'),
         );
     }
 

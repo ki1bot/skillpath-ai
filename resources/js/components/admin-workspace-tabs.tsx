@@ -1,10 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import {
-    ClipboardList,
-    FolderKanban,
-    LayoutDashboard,
-    Settings2,
-} from 'lucide-react';
+import { ClipboardList, FolderKanban } from 'lucide-react';
 
 export function AdminWorkspaceTabs() {
     const { url } = usePage();
@@ -13,55 +8,32 @@ export function AdminWorkspaceTabs() {
     const normalizedPath = pathname.replace(/\/+$/, '');
     const searchParams = new URLSearchParams(queryString);
 
-    const isDashboard = normalizedPath === '/admin/dashboard';
     const isSubmissions = normalizedPath === '/admin/submissions';
 
-    if (!isDashboard && !isSubmissions) {
+    if (!isSubmissions) {
         return null;
     }
 
-    const isManagement =
-        isDashboard && searchParams.get('section') === 'manage';
+    const isProject = searchParams.get('type') === 'project';
 
-    const isProject = isSubmissions && searchParams.get('type') === 'project';
-
-    const tabs = isDashboard
-        ? [
-              {
-                  title: 'Ringkasan Dashboard',
-                  href: '/admin/dashboard',
-                  active: !isManagement,
-                  icon: LayoutDashboard,
-              },
-              {
-                  title: 'Kelola Sistem',
-                  href: '/admin/dashboard?section=manage',
-                  active: isManagement,
-                  icon: Settings2,
-              },
-          ]
-        : [
-              {
-                  title: 'Tugas Pembelajaran',
-                  href: '/admin/submissions',
-                  active: !isProject,
-                  icon: ClipboardList,
-              },
-              {
-                  title: 'Penilaian Proyek',
-                  href: '/admin/submissions?type=project',
-                  active: isProject,
-                  icon: FolderKanban,
-              },
-          ];
+    const tabs = [
+        {
+            title: 'Tugas Pembelajaran',
+            href: '/admin/submissions',
+            active: !isProject,
+            icon: ClipboardList,
+        },
+        {
+            title: 'Penilaian Proyek',
+            href: '/admin/submissions?type=project',
+            active: isProject,
+            icon: FolderKanban,
+        },
+    ];
 
     return (
         <nav
-            aria-label={
-                isDashboard
-                    ? 'Navigasi Dashboard Administrator'
-                    : 'Navigasi Pengumpulan dan Penilaian'
-            }
+            aria-label="Navigasi Pengumpulan dan Penilaian"
             className="neo-page pt-6"
         >
             <div className="flex flex-wrap gap-3 border-b-2 border-foreground pb-4">
@@ -81,6 +53,7 @@ export function AdminWorkspaceTabs() {
                             }`}
                         >
                             <Icon className="size-4 shrink-0" />
+
                             <span>{tab.title}</span>
                         </Link>
                     );

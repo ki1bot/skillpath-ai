@@ -127,21 +127,73 @@ class RoadmapProgressConsistencyTest extends TestCase
             'email_verified_at' => now(),
         ]);
 
+        $material = LearningMaterial::query()
+            ->where('material_type', 'core')
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        $material->update([
+            'is_active' => false,
+        ]);
+
+        $totalMaterials = LearningMaterial::query()->count();
+
+        $activeMaterials = LearningMaterial::query()
+            ->where('is_active', true)
+            ->count();
+
+        $activeCoreMaterials = LearningMaterial::query()
+            ->where('is_active', true)
+            ->where('material_type', 'core')
+            ->count();
+
+        $activeReinforcementMaterials = LearningMaterial::query()
+            ->where('is_active', true)
+            ->where('material_type', 'reinforcement')
+            ->count();
+
+        $inactiveMaterials = LearningMaterial::query()
+            ->where('is_active', false)
+            ->count();
+
+        $this->assertSame(323, $activeMaterials);
+        $this->assertSame(161, $activeCoreMaterials);
+        $this->assertSame(162, $activeReinforcementMaterials);
+
         $this
             ->actingAs($admin)
             ->get(route('admin.dashboard'))
             ->assertOk()
             ->assertInertia(
                 fn (Assert $page) => $page
-                    ->component('admin/dashboard')
-                    ->where('stats.materials', 324)
-                    ->where('overview.activeCoreMaterials', 162)
-                    ->where('overview.activeReinforcementMaterials', 162)
+                    ->component('admin/index')
+                    ->where('stats.materials', $activeMaterials)
+                    ->has('materials', $totalMaterials)
                     ->where(
-                        'overview.inactiveMaterials',
-                        LearningMaterial::query()
-                            ->where('is_active', false)
-                            ->count(),
+                        'materials',
+                        function ($items) use (
+                            $activeMaterials,
+                            $activeCoreMaterials,
+                            $activeReinforcementMaterials,
+                            $inactiveMaterials,
+                        ): bool {
+                            $materials = collect($items);
+
+                            return $materials
+                                ->where('is_active', true)
+                                ->count() === $activeMaterials
+                                && $materials
+                                    ->where('is_active', true)
+                                    ->where('material_type', 'core')
+                                    ->count() === $activeCoreMaterials
+                                && $materials
+                                    ->where('is_active', true)
+                                    ->where('material_type', 'reinforcement')
+                                    ->count() === $activeReinforcementMaterials
+                                && $materials
+                                    ->where('is_active', false)
+                                    ->count() === $inactiveMaterials;
+                        },
                     ),
             );
     }
