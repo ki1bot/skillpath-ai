@@ -1,4 +1,3 @@
-
 import { Link, usePage } from '@inertiajs/react';
 import {
     ClipboardList,
@@ -24,8 +23,7 @@ export function AdminWorkspaceTabs() {
     const isManagement =
         isDashboard && searchParams.get('section') === 'manage';
 
-    const isProject =
-        isSubmissions && searchParams.get('type') === 'project';
+    const isProject = isSubmissions && searchParams.get('type') === 'project';
 
     const tabs = isDashboard
         ? [
