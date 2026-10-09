@@ -18,6 +18,134 @@ class AcademicTaskRevisionSeeder extends Seeder
         'ahli' => 'Ahli',
     ];
 
+    private const PROJECT_BRIEFS = [
+        'sales-business-intelligence-dashboard' => [
+            'career' => 'Sistem Informasi',
+            'area' => 'Analisis Data',
+            'original' => 'Sebuah perusahaan memiliki data transaksi penjualan',
+            'brief' => 'Sebuah toko memiliki data penjualan, tetapi pemiliknya kesulitan mengetahui produk terlaris dan perkembangan pendapatan setiap bulan. Bantulah toko tersebut menyiapkan laporan yang mudah dipahami. Rapikan data, olah menggunakan SQL dan spreadsheet, lalu tampilkan hasilnya dalam dashboard. Dari hasil analisis, jelaskan apa yang sedang terjadi pada penjualan dan keputusan apa yang bisa dipertimbangkan pemilik toko.',
+        ],
+
+        'build-mini-information-system' => [
+            'career' => 'Sistem Informasi',
+            'area' => 'Pengembangan Sistem',
+            'original' => 'Pilih satu kasus yang cukup sederhana tetapi nyata',
+            'brief' => 'Sebuah organisasi masih mencatat kegiatan sehari-hari secara manual. Pilih satu masalah yang bisa dibantu dengan sistem informasi, misalnya pencatatan inventaris, peminjaman barang, atau penjualan. Cari tahu kebutuhan penggunanya, rancang struktur database, kemudian buat aplikasi sederhana untuk mengelola data tersebut. Pastikan pengguna dapat menjalankan fungsi utama dan jelaskan bagaimana sistem membantu pekerjaan mereka.',
+        ],
+
+        'redesign-digital-product' => [
+            'career' => 'Sistem Informasi',
+            'area' => 'UI/UX',
+            'original' => 'Pilih satu aplikasi atau layanan digital',
+            'brief' => 'Pilih sebuah aplikasi atau website yang menurutmu masih membingungkan saat digunakan. Cari tahu kesulitan yang dialami penggunanya melalui pengamatan atau riset sederhana. Setelah itu, buat rancangan tampilan dan alur penggunaan yang lebih jelas. Uji prototipe dengan beberapa skenario tugas, catat tanggapan pengguna, dan jelaskan perubahan desain yang paling membantu.',
+        ],
+
+        'digital-marketing-campaign' => [
+            'career' => 'Manajemen',
+            'area' => 'Marketing',
+            'original' => 'Pilih produk atau layanan yang jelas',
+            'brief' => 'Bayangkan kamu diminta membantu usaha kecil memperkenalkan produknya melalui media digital. Kenali calon pembelinya, cari tahu kebutuhan mereka, dan pelajari cara pesaing memasarkan produk serupa. Berdasarkan temuan tersebut, susun identitas merek, pesan promosi, serta rencana kampanye digital. Jelaskan alasan pemilihan strategi dan bagaimana hasil kampanye akan diukur.',
+        ],
+
+        'financial-health-analysis' => [
+            'career' => 'Manajemen',
+            'area' => 'Keuangan',
+            'original' => 'Gunakan laporan keuangan sederhana',
+            'brief' => 'Sebuah usaha ingin mengetahui apakah kondisi keuangannya cukup sehat untuk berkembang. Gunakan laporan keuangan sederhana atau data simulasi yang dinyatakan dengan jelas. Analisis pendapatan, pengeluaran, arus kas, dan indikator keuangan yang relevan. Setelah itu, susun rencana perbaikan serta pertimbangan investasi berdasarkan hasil perhitungan, bukan perkiraan semata.',
+        ],
+
+        'recruitment-strategy' => [
+            'career' => 'Manajemen',
+            'area' => 'Human Resources',
+            'original' => 'Bayangkan sebuah perusahaan sedang menambah',
+            'brief' => 'Sebuah perusahaan membutuhkan karyawan baru untuk mendukung perkembangan bisnisnya. Pilih satu posisi yang akan direkrut, lalu tentukan tugas, persyaratan, dan cara menilai kandidatnya. Buat tahapan seleksi yang jelas dan adil. Setelah itu, susun cara menilai kinerja karyawan serta rencana pengembangan kemampuan mereka setelah diterima bekerja.',
+        ],
+
+        'software-development-project' => [
+            'career' => 'Teknik Informatika',
+            'area' => 'Pemrograman dan Rekayasa Perangkat Lunak',
+            'original' => 'Buat aplikasi yang mempunyai masalah jelas',
+            'brief' => 'Buat aplikasi sederhana untuk menyelesaikan satu masalah sehari-hari, seperti pencatatan tugas, peminjaman barang, atau pengelolaan transaksi. Rancang alur program sebelum mulai menulis kode. Gunakan algoritma dan konsep pemrograman berorientasi objek yang sesuai. Setelah aplikasi berjalan, uji fungsi utamanya, tangani kesalahan yang mungkin terjadi, dan dokumentasikan hasil pengujiannya.',
+        ],
+
+        'company-network-security-simulation' => [
+            'career' => 'Teknik Informatika',
+            'area' => 'Jaringan dan Sistem Komputer',
+            'original' => 'Sebuah kantor kecil memiliki beberapa divisi',
+            'brief' => 'Sebuah kantor kecil memiliki beberapa divisi yang membutuhkan akses jaringan berbeda. Rancang jaringan yang memungkinkan setiap divisi bekerja dengan lancar tanpa mengabaikan keamanan. Tentukan topologi, pembagian alamat IP, layanan jaringan, serta aturan akses. Gunakan simulasi untuk membuktikan konektivitas dan menunjukkan bagaimana jaringan menangani akses yang tidak diizinkan.',
+        ],
+
+        'ai-predictive-project' => [
+            'career' => 'Teknik Informatika',
+            'area' => 'Artificial Intelligence',
+            'original' => 'Gunakan dataset gambar yang legal digunakan',
+            'brief' => 'Pilih masalah sederhana yang dapat diselesaikan menggunakan pengenalan gambar, misalnya membedakan beberapa jenis objek. Siapkan dataset yang boleh digunakan, periksa kualitas datanya, lalu bagi data untuk pelatihan dan pengujian. Bangun model machine learning, evaluasi hasilnya, dan jelaskan contoh prediksi yang benar maupun salah. Berikan alasan mengapa model tersebut sesuai untuk kasus yang dipilih.',
+        ],
+
+        'mini-computer-architecture-design' => [
+            'career' => 'Sistem Komputer',
+            'area' => 'Arsitektur dan Organisasi Komputer',
+            'original' => 'Rancang sebuah sistem komputer sederhana',
+            'brief' => 'Rancang sistem komputer sederhana yang menerima masukan, memprosesnya, lalu menghasilkan keluaran. Kamu dapat memilih contoh seperti penghitung otomatis atau pengendali akses ruangan. Buat diagram kerja sistem, tentukan komponen yang diperlukan, serta jelaskan hubungan antara logika digital dan mikrokontroler. Tunjukkan cara kerja rancangan melalui simulasi atau prototipe.',
+        ],
+
+        'smart-iot-system' => [
+            'career' => 'Sistem Komputer',
+            'area' => 'Embedded System dan Internet of Things',
+            'original' => 'Buat prototipe Smart Home atau Smart Office',
+            'brief' => 'Buat sistem sederhana untuk membantu pekerjaan di rumah atau kantor menggunakan sensor dan aktuator. Contohnya, lampu yang menyala berdasarkan kondisi ruangan atau alat pemantau suhu. Tentukan data yang dibaca sensor, aturan kerja perangkat, dan tindakan yang harus dilakukan sistem. Tampilkan hasil pembacaan dan uji respons perangkat pada beberapa kondisi.',
+        ],
+
+        'secure-network-design' => [
+            'career' => 'Sistem Komputer',
+            'area' => 'Jaringan dan Keamanan Komputer',
+            'original' => 'Buat rancangan jaringan untuk organisasi kecil',
+            'brief' => 'Sebuah organisasi membutuhkan jaringan yang mudah dikelola sekaligus aman. Rancang jaringan untuk beberapa kelompok pengguna dengan kebutuhan akses berbeda. Tentukan perangkat, pembagian jaringan, layanan, dan aturan keamanan yang diperlukan. Peragakan cara administrator memantau atau mengatur jaringan, kemudian uji apakah aturan akses bekerja sesuai rancangan.',
+        ],
+
+        'employee-organizational-assessment' => [
+            'career' => 'Psikologi',
+            'area' => 'Psikologi Industri dan Organisasi',
+            'original' => 'Gunakan kasus organisasi fiktif',
+            'brief' => 'Sebuah perusahaan mengalami penurunan semangat kerja dan meningkatnya konflik antaranggota tim. Gunakan kasus tersebut sebagai bahan analisis psikologi organisasi. Identifikasi kemungkinan faktor yang memengaruhi perilaku karyawan, tentukan informasi tambahan yang perlu dikumpulkan, dan susun rekomendasi perbaikan. Jelaskan batasan analisis agar kesimpulan tidak dianggap sebagai diagnosis psikologis terhadap individu.',
+        ],
+
+        'counseling-case-simulation' => [
+            'career' => 'Psikologi',
+            'area' => 'Konseling',
+            'original' => 'Gunakan kasus fiktif non-darurat',
+            'brief' => 'Seorang mahasiswa fiktif merasa kesulitan mengatur kegiatan kuliah dan berkomunikasi dengan teman kelompoknya. Buat simulasi percakapan konseling yang membantu mahasiswa tersebut menjelaskan masalahnya. Tunjukkan penggunaan pertanyaan terbuka, mendengarkan aktif, refleksi perasaan, dan komunikasi yang tidak menghakimi. Setelah simulasi, evaluasi cara konselor merespons tanpa memberikan diagnosis atau memaksakan keputusan.',
+        ],
+
+        'mini-psychological-research' => [
+            'career' => 'Psikologi',
+            'area' => 'Penelitian Psikologi',
+            'original' => 'Pilih topik psikologi nonklinis',
+            'brief' => 'Lakukan penelitian sederhana mengenai perilaku atau pengalaman manusia dalam kehidupan sehari-hari, misalnya kebiasaan belajar mahasiswa. Tentukan pertanyaan penelitian, pilih metode yang sesuai, dan buat instrumen pengumpulan data. Gunakan responden yang bersedia atau data simulasi yang diberi keterangan jelas. Analisis hasilnya dan tuliskan kesimpulan berdasarkan data sambil menjaga privasi partisipan.',
+        ],
+
+        'crisis-communication-simulation' => [
+            'career' => 'Ilmu Komunikasi',
+            'area' => 'Public Relations',
+            'original' => 'Gunakan kasus perusahaan fiktif',
+            'brief' => 'Sebuah perusahaan fiktif mendapat keluhan publik setelah layanannya mengalami gangguan. Kamu diminta membantu tim hubungan masyarakat menyusun respons awal. Tentukan informasi yang sudah terverifikasi, pihak yang perlu diberi penjelasan, dan pesan utama yang akan disampaikan. Buat pernyataan resmi serta rencana komunikasi melalui media yang sesuai. Pastikan informasi tidak menyesatkan dan tidak menyalahkan pihak lain tanpa bukti.',
+        ],
+
+        'news-reporting-project' => [
+            'career' => 'Ilmu Komunikasi',
+            'area' => 'Jurnalistik',
+            'original' => 'Pilih topik yang dapat diliput',
+            'brief' => 'Pilih peristiwa atau kegiatan yang layak dijadikan berita, misalnya kegiatan kampus atau masyarakat. Tentukan informasi yang dibutuhkan, cari narasumber yang relevan, dan lakukan wawancara dengan persetujuan mereka. Periksa kebenaran informasi sebelum menulis berita. Susun laporan yang jelas, lengkap, dan membedakan fakta dari pendapat. Cantumkan sumber yang digunakan.',
+        ],
+
+        'digital-content-campaign' => [
+            'career' => 'Ilmu Komunikasi',
+            'area' => 'Digital Media',
+            'original' => 'Pilih brand, organisasi, atau kampanye fiktif',
+            'brief' => 'Sebuah organisasi ingin memperkenalkan programnya kepada mahasiswa melalui media sosial. Tentukan sasaran audiens, pesan utama, dan bentuk konten yang paling sesuai. Buat rencana unggahan, beberapa materi visual, serta video pendek yang saling mendukung. Jelaskan alasan pemilihan format dan cara menilai apakah pesan berhasil menjangkau audiens.',
+        ],
+    ];
+
     public function run(): void
     {
         DB::transaction(function (): void {
@@ -111,6 +239,9 @@ class AcademicTaskRevisionSeeder extends Seeder
                             'amatir' => 'Kerjakan tugas dasar '.$skill->name.' berikut.',
                             'menengah' => 'Pada tahap Menengah, gunakan kemampuan '.$skill->name,
                             'ahli' => 'Pada tahap Ahli, kerjakan '.$skill->name,
+                            default => throw new RuntimeException(
+                                'Tahap tugas tidak dikenali: '.$stage,
+                            ),
                         };
 
                         if (str_starts_with(
@@ -179,6 +310,10 @@ class AcademicTaskRevisionSeeder extends Seeder
                 '4. Dokumentasikan hasil pemeriksaan serta perbaikan yang dilakukan.',
                 '5. Jelaskan kelebihan, keterbatasan, dan pengembangan yang masih mungkin dilakukan.',
             ]),
+
+            default => throw new RuntimeException(
+                'Tahap tugas tidak dikenali: '.$stage,
+            ),
         };
 
         return implode("\n\n", [
@@ -212,7 +347,7 @@ class AcademicTaskRevisionSeeder extends Seeder
 
     private function reviseProjects(): void
     {
-        foreach ($this->projectBriefs() as $slug => $definition) {
+        foreach (self::PROJECT_BRIEFS as $slug => $definition) {
             $project = PortfolioProject::query()
                 ->where('slug', $slug)
                 ->with([
@@ -262,136 +397,5 @@ class AcademicTaskRevisionSeeder extends Seeder
                 ]);
             }
         }
-    }
-
-    private function projectBriefs(): array
-    {
-        return [
-            'sales-business-intelligence-dashboard' => [
-                'career' => 'Sistem Informasi',
-                'area' => 'Analisis Data',
-                'original' => 'Sebuah perusahaan memiliki data transaksi penjualan',
-                'brief' => 'Sebuah toko memiliki data penjualan, tetapi pemiliknya kesulitan mengetahui produk terlaris dan perkembangan pendapatan setiap bulan. Bantulah toko tersebut menyiapkan laporan yang mudah dipahami. Rapikan data, olah menggunakan SQL dan spreadsheet, lalu tampilkan hasilnya dalam dashboard. Dari hasil analisis, jelaskan apa yang sedang terjadi pada penjualan dan keputusan apa yang bisa dipertimbangkan pemilik toko.',
-            ],
-
-            'build-mini-information-system' => [
-                'career' => 'Sistem Informasi',
-                'area' => 'Pengembangan Sistem',
-                'original' => 'Pilih satu kasus yang cukup sederhana tetapi nyata',
-                'brief' => 'Sebuah organisasi masih mencatat kegiatan sehari-hari secara manual. Pilih satu masalah yang bisa dibantu dengan sistem informasi, misalnya pencatatan inventaris, peminjaman barang, atau penjualan. Cari tahu kebutuhan penggunanya, rancang struktur database, kemudian buat aplikasi sederhana untuk mengelola data tersebut. Pastikan pengguna dapat menjalankan fungsi utama dan jelaskan bagaimana sistem membantu pekerjaan mereka.',
-            ],
-
-            'redesign-digital-product' => [
-                'career' => 'Sistem Informasi',
-                'area' => 'UI/UX',
-                'original' => 'Pilih satu aplikasi atau layanan digital',
-                'brief' => 'Pilih sebuah aplikasi atau website yang menurutmu masih membingungkan saat digunakan. Cari tahu kesulitan yang dialami penggunanya melalui pengamatan atau riset sederhana. Setelah itu, buat rancangan tampilan dan alur penggunaan yang lebih jelas. Uji prototipe dengan beberapa skenario tugas, catat tanggapan pengguna, dan jelaskan perubahan desain yang paling membantu.',
-            ],
-
-            'digital-marketing-campaign' => [
-                'career' => 'Manajemen',
-                'area' => 'Marketing',
-                'original' => 'Pilih produk atau layanan yang jelas',
-                'brief' => 'Bayangkan kamu diminta membantu usaha kecil memperkenalkan produknya melalui media digital. Kenali calon pembelinya, cari tahu kebutuhan mereka, dan pelajari cara pesaing memasarkan produk serupa. Berdasarkan temuan tersebut, susun identitas merek, pesan promosi, serta rencana kampanye digital. Jelaskan alasan pemilihan strategi dan bagaimana hasil kampanye akan diukur.',
-            ],
-
-            'financial-health-analysis' => [
-                'career' => 'Manajemen',
-                'area' => 'Keuangan',
-                'original' => 'Gunakan laporan keuangan sederhana',
-                'brief' => 'Sebuah usaha ingin mengetahui apakah kondisi keuangannya cukup sehat untuk berkembang. Gunakan laporan keuangan sederhana atau data simulasi yang dinyatakan dengan jelas. Analisis pendapatan, pengeluaran, arus kas, dan indikator keuangan yang relevan. Setelah itu, susun rencana perbaikan serta pertimbangan investasi berdasarkan hasil perhitungan, bukan perkiraan semata.',
-            ],
-
-            'recruitment-strategy' => [
-                'career' => 'Manajemen',
-                'area' => 'Human Resources',
-                'original' => 'Bayangkan sebuah perusahaan sedang menambah',
-                'brief' => 'Sebuah perusahaan membutuhkan karyawan baru untuk mendukung perkembangan bisnisnya. Pilih satu posisi yang akan direkrut, lalu tentukan tugas, persyaratan, dan cara menilai kandidatnya. Buat tahapan seleksi yang jelas dan adil. Setelah itu, susun cara menilai kinerja karyawan serta rencana pengembangan kemampuan mereka setelah diterima bekerja.',
-            ],
-
-            'software-development-project' => [
-                'career' => 'Teknik Informatika',
-                'area' => 'Pemrograman dan Rekayasa Perangkat Lunak',
-                'original' => 'Buat aplikasi yang mempunyai masalah jelas',
-                'brief' => 'Buat aplikasi sederhana untuk menyelesaikan satu masalah sehari-hari, seperti pencatatan tugas, peminjaman barang, atau pengelolaan transaksi. Rancang alur program sebelum mulai menulis kode. Gunakan algoritma dan konsep pemrograman berorientasi objek yang sesuai. Setelah aplikasi berjalan, uji fungsi utamanya, tangani kesalahan yang mungkin terjadi, dan dokumentasikan hasil pengujiannya.',
-            ],
-
-            'company-network-security-simulation' => [
-                'career' => 'Teknik Informatika',
-                'area' => 'Jaringan dan Sistem Komputer',
-                'original' => 'Sebuah kantor kecil memiliki beberapa divisi',
-                'brief' => 'Sebuah kantor kecil memiliki beberapa divisi yang membutuhkan akses jaringan berbeda. Rancang jaringan yang memungkinkan setiap divisi bekerja dengan lancar tanpa mengabaikan keamanan. Tentukan topologi, pembagian alamat IP, layanan jaringan, serta aturan akses. Gunakan simulasi untuk membuktikan konektivitas dan menunjukkan bagaimana jaringan menangani akses yang tidak diizinkan.',
-            ],
-
-            'ai-predictive-project' => [
-                'career' => 'Teknik Informatika',
-                'area' => 'Artificial Intelligence',
-                'original' => 'Gunakan dataset gambar yang legal digunakan',
-                'brief' => 'Pilih masalah sederhana yang dapat diselesaikan menggunakan pengenalan gambar, misalnya membedakan beberapa jenis objek. Siapkan dataset yang boleh digunakan, periksa kualitas datanya, lalu bagi data untuk pelatihan dan pengujian. Bangun model machine learning, evaluasi hasilnya, dan jelaskan contoh prediksi yang benar maupun salah. Berikan alasan mengapa model tersebut sesuai untuk kasus yang dipilih.',
-            ],
-
-            'mini-computer-architecture-design' => [
-                'career' => 'Sistem Komputer',
-                'area' => 'Arsitektur dan Organisasi Komputer',
-                'original' => 'Rancang sebuah sistem komputer sederhana',
-                'brief' => 'Rancang sistem komputer sederhana yang menerima masukan, memprosesnya, lalu menghasilkan keluaran. Kamu dapat memilih contoh seperti penghitung otomatis atau pengendali akses ruangan. Buat diagram kerja sistem, tentukan komponen yang diperlukan, serta jelaskan hubungan antara logika digital dan mikrokontroler. Tunjukkan cara kerja rancangan melalui simulasi atau prototipe.',
-            ],
-
-            'smart-iot-system' => [
-                'career' => 'Sistem Komputer',
-                'area' => 'Embedded System dan Internet of Things',
-                'original' => 'Buat prototipe Smart Home atau Smart Office',
-                'brief' => 'Buat sistem sederhana untuk membantu pekerjaan di rumah atau kantor menggunakan sensor dan aktuator. Contohnya, lampu yang menyala berdasarkan kondisi ruangan atau alat pemantau suhu. Tentukan data yang dibaca sensor, aturan kerja perangkat, dan tindakan yang harus dilakukan sistem. Tampilkan hasil pembacaan dan uji respons perangkat pada beberapa kondisi.',
-            ],
-
-            'secure-network-design' => [
-                'career' => 'Sistem Komputer',
-                'area' => 'Jaringan dan Keamanan Komputer',
-                'original' => 'Buat rancangan jaringan untuk organisasi kecil',
-                'brief' => 'Sebuah organisasi membutuhkan jaringan yang mudah dikelola sekaligus aman. Rancang jaringan untuk beberapa kelompok pengguna dengan kebutuhan akses berbeda. Tentukan perangkat, pembagian jaringan, layanan, dan aturan keamanan yang diperlukan. Peragakan cara administrator memantau atau mengatur jaringan, kemudian uji apakah aturan akses bekerja sesuai rancangan.',
-            ],
-
-            'employee-organizational-assessment' => [
-                'career' => 'Psikologi',
-                'area' => 'Psikologi Industri dan Organisasi',
-                'original' => 'Gunakan kasus organisasi fiktif',
-                'brief' => 'Sebuah perusahaan mengalami penurunan semangat kerja dan meningkatnya konflik antaranggota tim. Gunakan kasus tersebut sebagai bahan analisis psikologi organisasi. Identifikasi kemungkinan faktor yang memengaruhi perilaku karyawan, tentukan informasi tambahan yang perlu dikumpulkan, dan susun rekomendasi perbaikan. Jelaskan batasan analisis agar kesimpulan tidak dianggap sebagai diagnosis psikologis terhadap individu.',
-            ],
-
-            'counseling-case-simulation' => [
-                'career' => 'Psikologi',
-                'area' => 'Konseling',
-                'original' => 'Gunakan kasus fiktif non-darurat',
-                'brief' => 'Seorang mahasiswa fiktif merasa kesulitan mengatur kegiatan kuliah dan berkomunikasi dengan teman kelompoknya. Buat simulasi percakapan konseling yang membantu mahasiswa tersebut menjelaskan masalahnya. Tunjukkan penggunaan pertanyaan terbuka, mendengarkan aktif, refleksi perasaan, dan komunikasi yang tidak menghakimi. Setelah simulasi, evaluasi cara konselor merespons tanpa memberikan diagnosis atau memaksakan keputusan.',
-            ],
-
-            'mini-psychological-research' => [
-                'career' => 'Psikologi',
-                'area' => 'Penelitian Psikologi',
-                'original' => 'Pilih topik psikologi nonklinis',
-                'brief' => 'Lakukan penelitian sederhana mengenai perilaku atau pengalaman manusia dalam kehidupan sehari-hari, misalnya kebiasaan belajar mahasiswa. Tentukan pertanyaan penelitian, pilih metode yang sesuai, dan buat instrumen pengumpulan data. Gunakan responden yang bersedia atau data simulasi yang diberi keterangan jelas. Analisis hasilnya dan tuliskan kesimpulan berdasarkan data sambil menjaga privasi partisipan.',
-            ],
-
-            'crisis-communication-simulation' => [
-                'career' => 'Ilmu Komunikasi',
-                'area' => 'Public Relations',
-                'original' => 'Gunakan kasus perusahaan fiktif',
-                'brief' => 'Sebuah perusahaan fiktif mendapat keluhan publik setelah layanannya mengalami gangguan. Kamu diminta membantu tim hubungan masyarakat menyusun respons awal. Tentukan informasi yang sudah terverifikasi, pihak yang perlu diberi penjelasan, dan pesan utama yang akan disampaikan. Buat pernyataan resmi serta rencana komunikasi melalui media yang sesuai. Pastikan informasi tidak menyesatkan dan tidak menyalahkan pihak lain tanpa bukti.',
-            ],
-
-            'news-reporting-project' => [
-                'career' => 'Ilmu Komunikasi',
-                'area' => 'Jurnalistik',
-                'original' => 'Pilih topik yang dapat diliput',
-                'brief' => 'Pilih peristiwa atau kegiatan yang layak dijadikan berita, misalnya kegiatan kampus atau masyarakat. Tentukan informasi yang dibutuhkan, cari narasumber yang relevan, dan lakukan wawancara dengan persetujuan mereka. Periksa kebenaran informasi sebelum menulis berita. Susun laporan yang jelas, lengkap, dan membedakan fakta dari pendapat. Cantumkan sumber yang digunakan.',
-            ],
-
-            'digital-content-campaign' => [
-                'career' => 'Ilmu Komunikasi',
-                'area' => 'Digital Media',
-                'original' => 'Pilih brand, organisasi, atau kampanye fiktif',
-                'brief' => 'Sebuah organisasi ingin memperkenalkan programnya kepada mahasiswa melalui media sosial. Tentukan sasaran audiens, pesan utama, dan bentuk konten yang paling sesuai. Buat rencana unggahan, beberapa materi visual, serta video pendek yang saling mendukung. Jelaskan alasan pemilihan format dan cara menilai apakah pesan berhasil menjangkau audiens.',
-            ],
-        ];
     }
 }

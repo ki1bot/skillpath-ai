@@ -122,11 +122,11 @@ export default function Welcome({ careers, stats }: Props) {
         },
         {
             value: stats.skills,
-            label: 'Kemampuan',
+            label: 'Bidang',
         },
         {
             value: stats.materials,
-            label: 'Materi belajar',
+            label: 'Materi',
         },
     ];
 
