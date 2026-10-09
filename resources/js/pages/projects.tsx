@@ -3,9 +3,7 @@ import {
     ArrowRight,
     CheckCircle2,
     CircleAlert,
-    Clock3,
     FolderKanban,
-    Gauge,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -56,12 +54,6 @@ interface Project {
     } | null;
 }
 
-const recommendationClasses: Record<RecommendationLevel, string> = {
-    recommended: 'bg-[var(--neo-lime)]',
-    strengthen: 'bg-[var(--neo-yellow)]',
-    challenge: 'bg-[var(--neo-orange)]',
-};
-
 const statusLabels: Record<string, string> = {
     planned: 'Belum dimulai',
     in_progress: 'Sedang dikerjakan',
@@ -107,14 +99,11 @@ export default function Projects({ projects }: { projects: Project[] }) {
                             </h1>
 
                             <p className="mt-3 max-w-2xl text-sm leading-7 font-medium text-muted-foreground">
-                                Setiap jurusan memiliki tiga proyek. Proyek 1,
-                                Proyek 2, dan Proyek 3 masing-masing mewakili
-                                satu bidang dan menggabungkan tiga kemampuan
-                                utama dari bidang tersebut. Setiap proyek
-                                memiliki tugas yang berbeda. Setelah selesai,
-                                kirim hasil melalui Google Drive. Admin akan
-                                memeriksa pekerjaan dan proyek dinyatakan lulus
-                                jika mendapat nilai minimal 80.
+                                Setiap jurusan memiliki tiga proyek.
+                                Masing-masing proyek mewakili satu bidang dan
+                                menggunakan tiga materi utama dari bidang
+                                tersebut. Tugas setiap proyek berbeda sesuai
+                                dengan bidangnya.
                             </p>
                         </div>
 
@@ -241,40 +230,6 @@ export default function Projects({ projects }: { projects: Project[] }) {
                                                         {skill}
                                                     </span>
                                                 ))}
-                                            </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <div className="rounded-[10px] border-2 border-foreground/15 bg-muted/30 p-3">
-                                                <div className="flex items-center gap-2 text-xs font-black">
-                                                    <Clock3 className="size-4" />
-                                                    Estimasi
-                                                </div>
-
-                                                <p className="mt-2 text-lg font-black">
-                                                    ± {project.estimated_hours}{' '}
-                                                    jam
-                                                </p>
-                                            </div>
-
-                                            <div
-                                                className={`rounded-[10px] border-2 border-[#171717] p-3 text-[#171717] ${
-                                                    recommendationClasses[
-                                                        recommendation.level
-                                                    ]
-                                                }`}
-                                            >
-                                                <div className="flex items-center gap-2 text-xs font-black">
-                                                    <Gauge className="size-4" />
-                                                    Kesiapan
-                                                </div>
-
-                                                <p className="mt-2 text-lg font-black">
-                                                    {Math.round(
-                                                        project.readiness.score,
-                                                    )}
-                                                    %
-                                                </p>
                                             </div>
                                         </div>
 

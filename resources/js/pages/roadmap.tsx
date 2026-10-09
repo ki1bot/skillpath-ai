@@ -102,28 +102,17 @@ export default function RoadmapPage({ roadmap }: { roadmap: Roadmap }) {
                 <section className="neo-card overflow-hidden">
                     <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-end">
                         <div>
-                            <span className="neo-label">
-                                Jalur belajar v{roadmap.version}
-                            </span>
+                            <span className="neo-label">Jalur belajar</span>
 
                             <h1 className="neo-heading mt-5 text-4xl sm:text-5xl">
                                 {roadmap.career.name}
                             </h1>
 
                             <p className="mt-4 max-w-3xl text-sm leading-relaxed font-medium text-muted-foreground">
-                                Jalur belajar terdiri dari tiga tahap: Amatir,
-                                Menengah, dan Ahli. Setiap tahap memiliki
-                                sembilan materi dari tiga bidang jurusan. Materi
-                                dikerjakan satu per satu. Materi berikutnya baru
-                                terbuka setelah tugas sebelumnya diperiksa admin
-                                dan mendapat nilai minimal 70. Tahap berikutnya
-                                baru dapat dimulai setelah seluruh sembilan
-                                materi pada tahap sebelumnya selesai.
-                            </p>
-
-                            <p className="mt-3 text-sm font-bold text-muted-foreground">
-                                Estimasi penyelesaian sekitar{' '}
-                                {roadmap.estimated_weeks} minggu.
+                                Jalur belajarmu terbagi menjadi tiga tahap:
+                                Amatir, Menengah, dan Ahli. Setiap tahap berisi
+                                sembilan materi dari tiga bidang di jurusanmu.
+                                Kamu mempelajari materi secara berurutan.
                             </p>
                         </div>
 
