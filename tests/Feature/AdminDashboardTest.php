@@ -19,22 +19,53 @@ class AdminDashboardTest extends TestCase
             'email_verified_at' => now(),
         ]);
 
-        $response = $this
+        $this
             ->actingAs($admin)
-            ->get(route('admin.dashboard'));
-
-        $response
+            ->get(route('admin.dashboard'))
             ->assertOk()
             ->assertInertia(
                 fn (Assert $page) => $page
                     ->component('admin/index')
                     ->has('stats')
-                    ->has('careers')
-                    ->has('skills')
-                    ->has('prerequisites')
-                    ->has('assessments')
-                    ->has('materials')
-                    ->has('projects'),
+                    ->has('stats.users')
+                    ->has('stats.careers')
+                    ->has('stats.skills')
+                    ->has('stats.materials')
+                    ->has('stats.projects')
+                    ->missing('careers')
+                    ->missing('skills')
+                    ->missing('prerequisites')
+                    ->missing('assessments')
+                    ->missing('materials')
+                    ->missing('projects'),
+            );
+    }
+
+    public function test_admin_can_load_management_data_in_background(): void
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+            'email_verified_at' => now(),
+        ]);
+
+        $this
+            ->actingAs($admin)
+            ->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertInertia(
+                fn (Assert $page) => $page
+                    ->component('admin/index')
+                    ->has('stats')
+                    ->loadDeferredProps(
+                        'management',
+                        fn (Assert $loaded) => $loaded
+                            ->has('careers')
+                            ->has('skills')
+                            ->has('prerequisites')
+                            ->has('assessments')
+                            ->has('materials')
+                            ->has('projects'),
+                    ),
             );
     }
 
@@ -45,24 +76,16 @@ class AdminDashboardTest extends TestCase
             'email_verified_at' => now(),
         ]);
 
-        $response = $this
+        $this
             ->actingAs($admin)
             ->get(route('admin.dashboard', [
                 'section' => 'manage',
-            ]));
-
-        $response
+            ]))
             ->assertOk()
             ->assertInertia(
                 fn (Assert $page) => $page
                     ->component('admin/index')
-                    ->has('stats')
-                    ->has('careers')
-                    ->has('skills')
-                    ->has('prerequisites')
-                    ->has('assessments')
-                    ->has('materials')
-                    ->has('projects'),
+                    ->has('stats'),
             );
     }
 
@@ -73,13 +96,12 @@ class AdminDashboardTest extends TestCase
             'email_verified_at' => now(),
         ]);
 
-        $response = $this
+        $this
             ->actingAs($admin)
-            ->get(route('admin.index'));
-
-        $response->assertRedirect(
-            route('admin.dashboard'),
-        );
+            ->get(route('admin.index'))
+            ->assertRedirect(
+                route('admin.dashboard'),
+            );
     }
 
     public function test_student_cannot_visit_admin_dashboard(): void
@@ -89,11 +111,10 @@ class AdminDashboardTest extends TestCase
             'email_verified_at' => now(),
         ]);
 
-        $response = $this
+        $this
             ->actingAs($student)
-            ->get(route('admin.dashboard'));
-
-        $response->assertForbidden();
+            ->get(route('admin.dashboard'))
+            ->assertForbidden();
     }
 
     public function test_student_cannot_open_management_tab(): void
@@ -103,13 +124,12 @@ class AdminDashboardTest extends TestCase
             'email_verified_at' => now(),
         ]);
 
-        $response = $this
+        $this
             ->actingAs($student)
             ->get(route('admin.dashboard', [
                 'section' => 'manage',
-            ]));
-
-        $response->assertForbidden();
+            ]))
+            ->assertForbidden();
     }
 
     public function test_admin_without_learning_profile_is_sent_to_onboarding(): void
@@ -119,13 +139,12 @@ class AdminDashboardTest extends TestCase
             'email_verified_at' => now(),
         ]);
 
-        $response = $this
+        $this
             ->actingAs($admin)
-            ->get(route('dashboard'));
-
-        $response->assertRedirect(
-            route('onboarding.show'),
-        );
+            ->get(route('dashboard'))
+            ->assertRedirect(
+                route('onboarding.show'),
+            );
     }
 
     public function test_admin_with_learning_profile_can_visit_student_dashboard(): void
@@ -157,11 +176,9 @@ class AdminDashboardTest extends TestCase
             'onboarding_completed_at' => now(),
         ]);
 
-        $response = $this
+        $this
             ->actingAs($admin)
-            ->get(route('dashboard'));
-
-        $response
+            ->get(route('dashboard'))
             ->assertOk()
             ->assertInertia(
                 fn (Assert $page) => $page

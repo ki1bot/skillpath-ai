@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureAcademicContentScope;
 use App\Http\Middleware\EnsureAdmin;
 use App\Http\Middleware\EnsureEmailVerified;
 use App\Http\Middleware\EnsureUserManager;
@@ -38,6 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             HandleAppearance::class,
             EnsureEmailVerified::class,
+            EnsureAcademicContentScope::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);

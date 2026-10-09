@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Deferred, Head } from '@inertiajs/react';
 import { LayoutDashboard, ShieldCheck } from 'lucide-react';
 import { AssessmentsSection } from './sections/assessments-section';
 import { CareersSection } from './sections/careers-section';
@@ -8,6 +8,9 @@ import { SkillsSection } from './sections/skills-section';
 import { StatsSection } from './sections/stats-section';
 import type { AdminPageProps } from './types';
 
+type Props = Pick<AdminPageProps, 'stats'> &
+    Partial<Omit<AdminPageProps, 'stats'>>;
+
 export default function AdminIndex({
     stats,
     careers,
@@ -16,7 +19,15 @@ export default function AdminIndex({
     assessments,
     materials,
     projects,
-}: AdminPageProps) {
+}: Props) {
+    const managementReady =
+        careers !== undefined &&
+        skills !== undefined &&
+        prerequisites !== undefined &&
+        assessments !== undefined &&
+        materials !== undefined &&
+        projects !== undefined;
+
     return (
         <>
             <Head title="Dashboard Administrator" />
@@ -80,23 +91,71 @@ export default function AdminIndex({
                     </div>
                 </section>
 
-                <CareersSection careers={careers} skills={skills} />
+                <Deferred
+                    data={[
+                        'careers',
+                        'skills',
+                        'prerequisites',
+                        'assessments',
+                        'materials',
+                        'projects',
+                    ]}
+                    fallback={
+                        <section
+                            role="status"
+                            aria-live="polite"
+                            className="neo-card p-6 sm:p-8"
+                        >
+                            <div className="flex items-center gap-3">
+                                <span className="size-5 animate-spin rounded-full border-[3px] border-foreground/20 border-t-foreground" />
 
-                <SkillsSection skills={skills} prerequisites={prerequisites} />
+                                <p className="text-sm font-black">
+                                    Memuat data pengelolaan sistem...
+                                </p>
+                            </div>
 
-                <AssessmentsSection
-                    assessments={assessments}
-                    careers={careers}
-                    skills={skills}
-                />
+                            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                                Statistik dashboard sudah tersedia. Data
+                                jurusan, kemampuan, Assessment, materi, dan
+                                proyek sedang disiapkan.
+                            </p>
 
-                <MaterialsSection materials={materials} skills={skills} />
+                            <div className="mt-6 grid gap-3">
+                                <div className="h-12 animate-pulse rounded-[10px] bg-muted" />
+                                <div className="h-12 animate-pulse rounded-[10px] bg-muted" />
+                                <div className="h-12 animate-pulse rounded-[10px] bg-muted" />
+                            </div>
+                        </section>
+                    }
+                >
+                    {managementReady && (
+                        <div className="flex flex-col gap-7">
+                            <CareersSection careers={careers} skills={skills} />
 
-                <ProjectsSection
-                    projects={projects}
-                    careers={careers}
-                    skills={skills}
-                />
+                            <SkillsSection
+                                skills={skills}
+                                prerequisites={prerequisites}
+                            />
+
+                            <AssessmentsSection
+                                assessments={assessments}
+                                careers={careers}
+                                skills={skills}
+                            />
+
+                            <MaterialsSection
+                                materials={materials}
+                                skills={skills}
+                            />
+
+                            <ProjectsSection
+                                projects={projects}
+                                careers={careers}
+                                skills={skills}
+                            />
+                        </div>
+                    )}
+                </Deferred>
             </div>
         </>
     );
