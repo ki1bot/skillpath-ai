@@ -1,86 +1,5 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
-* @see \App\Http\Controllers\Admin\EvaluationSubmissionController::index
-* @see app/Http/Controllers/Admin/EvaluationSubmissionController.php:24
-* @route '/admin/submissions'
-*/
-export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: index.url(options),
-    method: 'get',
-})
-
-index.definition = {
-    methods: ["get","head"],
-    url: '/admin/submissions',
-} satisfies RouteDefinition<["get","head"]>
-
-/**
-* @see \App\Http\Controllers\Admin\EvaluationSubmissionController::index
-* @see app/Http/Controllers/Admin/EvaluationSubmissionController.php:24
-* @route '/admin/submissions'
-*/
-index.url = (options?: RouteQueryOptions) => {
-    return index.definition.url + queryParams(options)
-}
-
-/**
-* @see \App\Http\Controllers\Admin\EvaluationSubmissionController::index
-* @see app/Http/Controllers/Admin/EvaluationSubmissionController.php:24
-* @route '/admin/submissions'
-*/
-index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Admin\EvaluationSubmissionController::index
-* @see app/Http/Controllers/Admin/EvaluationSubmissionController.php:24
-* @route '/admin/submissions'
-*/
-index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: index.url(options),
-    method: 'head',
-})
-
-/**
-* @see \App\Http\Controllers\Admin\EvaluationSubmissionController::index
-* @see app/Http/Controllers/Admin/EvaluationSubmissionController.php:24
-* @route '/admin/submissions'
-*/
-const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Admin\EvaluationSubmissionController::index
-* @see app/Http/Controllers/Admin/EvaluationSubmissionController.php:24
-* @route '/admin/submissions'
-*/
-indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Admin\EvaluationSubmissionController::index
-* @see app/Http/Controllers/Admin/EvaluationSubmissionController.php:24
-* @route '/admin/submissions'
-*/
-indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-index.form = indexForm
-
-/**
 * @see \App\Http\Controllers\Admin\EvaluationSubmissionController::update
 * @see app/Http/Controllers/Admin/EvaluationSubmissionController.php:194
 * @route '/admin/submissions/{evaluation}'
@@ -170,6 +89,6 @@ updateForm.patch = (args: { evaluation: number | { id: number } } | [evaluation:
 
 update.form = updateForm
 
-const EvaluationSubmissionController = { index, update }
+const EvaluationSubmissionController = { update }
 
 export default EvaluationSubmissionController

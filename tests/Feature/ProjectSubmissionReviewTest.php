@@ -27,10 +27,7 @@ class ProjectSubmissionReviewTest extends TestCase
         $this->seed();
 
         $career = Career::query()
-            ->where(
-                'slug',
-                'sistem-informasi',
-            )
+            ->where('slug', 'sistem-informasi')
             ->firstOrFail();
 
         $this->user = User::factory()->create([
@@ -48,10 +45,7 @@ class ProjectSubmissionReviewTest extends TestCase
         ]);
 
         $this->project = PortfolioProject::query()
-            ->where(
-                'slug',
-                'build-mini-information-system',
-            )
+            ->where('slug', 'build-mini-information-system')
             ->firstOrFail();
 
         $this->startProject();
@@ -63,28 +57,16 @@ class ProjectSubmissionReviewTest extends TestCase
 
         $userProject = $this->userProject();
 
-        $this->assertSame(
-            'submitted',
-            $userProject->status,
-        );
-
-        $this->assertSame(
-            'pending',
-            $userProject->review_status,
-        );
+        $this->assertSame('submitted', $userProject->status);
+        $this->assertSame('pending', $userProject->review_status);
 
         $this->assertSame(
             95,
             (int) $userProject->progress_percentage,
         );
 
-        $this->assertNull(
-            $userProject->evaluation_score,
-        );
-
-        $this->assertNull(
-            $userProject->completed_at,
-        );
+        $this->assertNull($userProject->evaluation_score);
+        $this->assertNull($userProject->completed_at);
 
         $this->assertSame(
             self::DRIVE_URL,
@@ -96,14 +78,9 @@ class ProjectSubmissionReviewTest extends TestCase
     {
         $this->submitProject();
 
-        $this->actingAs(
-            $this->user,
-        )
+        $this->actingAs($this->user)
             ->patch(
-                route(
-                    'projects.update',
-                    $this->project,
-                ),
+                route('projects.update', $this->project),
                 [
                     'repository_url' => 'https://drive.google.com/drive/folders/second-project-evidence',
                 ],
@@ -113,24 +90,49 @@ class ProjectSubmissionReviewTest extends TestCase
             ]);
     }
 
+    public function test_old_project_submission_url_redirects(): void
+    {
+        $admin = $this->admin();
+
+        $this->actingAs($admin)
+            ->get(route('admin.project-submissions.index'))
+            ->assertRedirect(
+                route('admin.submissions.index', [
+                    'type' => 'project',
+                ]),
+            );
+    }
+
+    public function test_project_submission_redirect_preserves_status(): void
+    {
+        $admin = $this->admin();
+
+        $this->actingAs($admin)
+            ->get(route('admin.project-submissions.index', [
+                'status' => 'reviewed',
+            ]))
+            ->assertRedirect(
+                route('admin.submissions.index', [
+                    'type' => 'project',
+                    'status' => 'reviewed',
+                ]),
+            );
+    }
+
     public function test_admin_can_see_project_submission(): void
     {
         $this->submitProject();
 
-        $this->actingAs(
-            $this->admin(),
-        )
-            ->get(
-                route(
-                    'admin.project-submissions.index',
-                ),
-            )
+        $admin = $this->admin();
+
+        $this->actingAs($admin)
+            ->get(route('admin.submissions.index', [
+                'type' => 'project',
+            ]))
             ->assertOk()
             ->assertInertia(
                 fn (Assert $page) => $page
-                    ->component(
-                        'admin/project-submissions',
-                    )
+                    ->component('admin/project-submissions')
                     ->where(
                         'submissions.data.0.project.title',
                         $this->project->title,
@@ -148,14 +150,14 @@ class ProjectSubmissionReviewTest extends TestCase
 
     public function test_student_cannot_open_project_submission_management(): void
     {
-        $this->actingAs(
-            $this->user,
-        )
-            ->get(
-                route(
-                    'admin.project-submissions.index',
-                ),
-            )
+        $this->actingAs($this->user)
+            ->get(route('admin.project-submissions.index'))
+            ->assertForbidden();
+
+        $this->actingAs($this->user)
+            ->get(route('admin.submissions.index', [
+                'type' => 'project',
+            ]))
             ->assertForbidden();
     }
 
@@ -165,9 +167,7 @@ class ProjectSubmissionReviewTest extends TestCase
 
         $userProject = $this->userProject();
 
-        $this->actingAs(
-            $this->admin(),
-        )
+        $this->actingAs($this->admin())
             ->patch(
                 route(
                     'admin.project-submissions.update',
@@ -203,13 +203,8 @@ class ProjectSubmissionReviewTest extends TestCase
             (int) $userProject->progress_percentage,
         );
 
-        $this->assertNotNull(
-            $userProject->completed_at,
-        );
-
-        $this->assertNotNull(
-            $userProject->reviewed_at,
-        );
+        $this->assertNotNull($userProject->completed_at);
+        $this->assertNotNull($userProject->reviewed_at);
     }
 
     public function test_admin_score_79_requires_revision(): void
@@ -218,9 +213,7 @@ class ProjectSubmissionReviewTest extends TestCase
 
         $userProject = $this->userProject();
 
-        $this->actingAs(
-            $this->admin(),
-        )
+        $this->actingAs($this->admin())
             ->patch(
                 route(
                     'admin.project-submissions.update',
@@ -256,9 +249,7 @@ class ProjectSubmissionReviewTest extends TestCase
             (int) $userProject->progress_percentage,
         );
 
-        $this->assertNull(
-            $userProject->completed_at,
-        );
+        $this->assertNull($userProject->completed_at);
     }
 
     public function test_failed_project_can_be_submitted_again(): void
@@ -267,9 +258,7 @@ class ProjectSubmissionReviewTest extends TestCase
 
         $userProject = $this->userProject();
 
-        $this->actingAs(
-            $this->admin(),
-        )
+        $this->actingAs($this->admin())
             ->patch(
                 route(
                     'admin.project-submissions.update',
@@ -281,9 +270,7 @@ class ProjectSubmissionReviewTest extends TestCase
             )
             ->assertSessionHasNoErrors();
 
-        $this->actingAs(
-            $this->user,
-        )
+        $this->actingAs($this->user)
             ->patch(
                 route(
                     'projects.update',
@@ -357,9 +344,7 @@ class ProjectSubmissionReviewTest extends TestCase
 
     private function startProject(): void
     {
-        $this->actingAs(
-            $this->user,
-        )
+        $this->actingAs($this->user)
             ->post(
                 route(
                     'projects.start',
@@ -371,9 +356,7 @@ class ProjectSubmissionReviewTest extends TestCase
 
     private function submitProject(): void
     {
-        $this->actingAs(
-            $this->user,
-        )
+        $this->actingAs($this->user)
             ->patch(
                 route(
                     'projects.update',

@@ -11,8 +11,8 @@ import questions from './questions'
 import materials from './materials'
 import projects from './projects'
 /**
-* @see \App\Http\Controllers\AdminDashboardController::__invoke
-* @see app/Http/Controllers/AdminDashboardController.php:17
+* @see \App\Http\Controllers\Admin\AdminWorkspaceController::dashboard
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:14
 * @route '/admin/dashboard'
 */
 export const dashboard = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -26,8 +26,8 @@ dashboard.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see \App\Http\Controllers\AdminDashboardController::__invoke
-* @see app/Http/Controllers/AdminDashboardController.php:17
+* @see \App\Http\Controllers\Admin\AdminWorkspaceController::dashboard
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:14
 * @route '/admin/dashboard'
 */
 dashboard.url = (options?: RouteQueryOptions) => {
@@ -35,8 +35,8 @@ dashboard.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see \App\Http\Controllers\AdminDashboardController::__invoke
-* @see app/Http/Controllers/AdminDashboardController.php:17
+* @see \App\Http\Controllers\Admin\AdminWorkspaceController::dashboard
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:14
 * @route '/admin/dashboard'
 */
 dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -45,8 +45,8 @@ dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\AdminDashboardController::__invoke
-* @see app/Http/Controllers/AdminDashboardController.php:17
+* @see \App\Http\Controllers\Admin\AdminWorkspaceController::dashboard
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:14
 * @route '/admin/dashboard'
 */
 dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -55,8 +55,8 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\AdminDashboardController::__invoke
-* @see app/Http/Controllers/AdminDashboardController.php:17
+* @see \App\Http\Controllers\Admin\AdminWorkspaceController::dashboard
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:14
 * @route '/admin/dashboard'
 */
 const dashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,8 +65,8 @@ const dashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> 
 })
 
 /**
-* @see \App\Http\Controllers\AdminDashboardController::__invoke
-* @see app/Http/Controllers/AdminDashboardController.php:17
+* @see \App\Http\Controllers\Admin\AdminWorkspaceController::dashboard
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:14
 * @route '/admin/dashboard'
 */
 dashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -75,8 +75,8 @@ dashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =>
 })
 
 /**
-* @see \App\Http\Controllers\AdminDashboardController::__invoke
-* @see app/Http/Controllers/AdminDashboardController.php:17
+* @see \App\Http\Controllers\Admin\AdminWorkspaceController::dashboard
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:14
 * @route '/admin/dashboard'
 */
 dashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -92,8 +92,8 @@ dashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =
 dashboard.form = dashboardForm
 
 /**
-* @see \App\Http\Controllers\AdminController::index
-* @see app/Http/Controllers/AdminController.php:23
+* @see \App\Http\Controllers\Admin\AdminWorkspaceController::index
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:34
 * @route '/admin'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -107,8 +107,8 @@ index.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see \App\Http\Controllers\AdminController::index
-* @see app/Http/Controllers/AdminController.php:23
+* @see \App\Http\Controllers\Admin\AdminWorkspaceController::index
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:34
 * @route '/admin'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -116,8 +116,8 @@ index.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see \App\Http\Controllers\AdminController::index
-* @see app/Http/Controllers/AdminController.php:23
+* @see \App\Http\Controllers\Admin\AdminWorkspaceController::index
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:34
 * @route '/admin'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -126,8 +126,8 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\AdminController::index
-* @see app/Http/Controllers/AdminController.php:23
+* @see \App\Http\Controllers\Admin\AdminWorkspaceController::index
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:34
 * @route '/admin'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -136,8 +136,8 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\AdminController::index
-* @see app/Http/Controllers/AdminController.php:23
+* @see \App\Http\Controllers\Admin\AdminWorkspaceController::index
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:34
 * @route '/admin'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -146,8 +146,8 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 })
 
 /**
-* @see \App\Http\Controllers\AdminController::index
-* @see app/Http/Controllers/AdminController.php:23
+* @see \App\Http\Controllers\Admin\AdminWorkspaceController::index
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:34
 * @route '/admin'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -156,8 +156,8 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\AdminController::index
-* @see app/Http/Controllers/AdminController.php:23
+* @see \App\Http\Controllers\Admin\AdminWorkspaceController::index
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:34
 * @route '/admin'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

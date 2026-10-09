@@ -1,86 +1,5 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
-* @see \App\Http\Controllers\Admin\ProjectSubmissionController::index
-* @see app/Http/Controllers/Admin/ProjectSubmissionController.php:20
-* @route '/admin/project-submissions'
-*/
-export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: index.url(options),
-    method: 'get',
-})
-
-index.definition = {
-    methods: ["get","head"],
-    url: '/admin/project-submissions',
-} satisfies RouteDefinition<["get","head"]>
-
-/**
-* @see \App\Http\Controllers\Admin\ProjectSubmissionController::index
-* @see app/Http/Controllers/Admin/ProjectSubmissionController.php:20
-* @route '/admin/project-submissions'
-*/
-index.url = (options?: RouteQueryOptions) => {
-    return index.definition.url + queryParams(options)
-}
-
-/**
-* @see \App\Http\Controllers\Admin\ProjectSubmissionController::index
-* @see app/Http/Controllers/Admin/ProjectSubmissionController.php:20
-* @route '/admin/project-submissions'
-*/
-index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Admin\ProjectSubmissionController::index
-* @see app/Http/Controllers/Admin/ProjectSubmissionController.php:20
-* @route '/admin/project-submissions'
-*/
-index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: index.url(options),
-    method: 'head',
-})
-
-/**
-* @see \App\Http\Controllers\Admin\ProjectSubmissionController::index
-* @see app/Http/Controllers/Admin/ProjectSubmissionController.php:20
-* @route '/admin/project-submissions'
-*/
-const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Admin\ProjectSubmissionController::index
-* @see app/Http/Controllers/Admin/ProjectSubmissionController.php:20
-* @route '/admin/project-submissions'
-*/
-indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Admin\ProjectSubmissionController::index
-* @see app/Http/Controllers/Admin/ProjectSubmissionController.php:20
-* @route '/admin/project-submissions'
-*/
-indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-index.form = indexForm
-
-/**
 * @see \App\Http\Controllers\Admin\ProjectSubmissionController::update
 * @see app/Http/Controllers/Admin/ProjectSubmissionController.php:198
 * @route '/admin/project-submissions/{userProject}'
@@ -170,6 +89,6 @@ updateForm.patch = (args: { userProject: number | { id: number } } | [userProjec
 
 update.form = updateForm
 
-const ProjectSubmissionController = { index, update }
+const ProjectSubmissionController = { update }
 
 export default ProjectSubmissionController

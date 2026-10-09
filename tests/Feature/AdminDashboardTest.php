@@ -27,15 +27,40 @@ class AdminDashboardTest extends TestCase
             ->assertOk()
             ->assertInertia(
                 fn (Assert $page) => $page
-                    ->component(
-                        'admin/dashboard',
-                    )
+                    ->component('admin/dashboard')
                     ->has('stats')
                     ->has('overview'),
             );
     }
 
-    public function test_admin_can_visit_management_page_separately(): void
+    public function test_admin_can_open_management_from_dashboard(): void
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+            'email_verified_at' => now(),
+        ]);
+
+        $response = $this
+            ->actingAs($admin)
+            ->get(route('admin.dashboard', [
+                'section' => 'manage',
+            ]));
+
+        $response
+            ->assertOk()
+            ->assertInertia(
+                fn (Assert $page) => $page
+                    ->component('admin/index')
+                    ->has('stats')
+                    ->has('careers')
+                    ->has('skills')
+                    ->has('assessments')
+                    ->has('materials')
+                    ->has('projects'),
+            );
+    }
+
+    public function test_old_admin_url_redirects_to_management_tab(): void
     {
         $admin = User::factory()->create([
             'role' => 'admin',
@@ -46,14 +71,11 @@ class AdminDashboardTest extends TestCase
             ->actingAs($admin)
             ->get(route('admin.index'));
 
-        $response
-            ->assertOk()
-            ->assertInertia(
-                fn (Assert $page) => $page
-                    ->component(
-                        'admin/index',
-                    ),
-            );
+        $response->assertRedirect(
+            route('admin.dashboard', [
+                'section' => 'manage',
+            ]),
+        );
     }
 
     public function test_student_cannot_visit_admin_dashboard(): void
@@ -66,6 +88,22 @@ class AdminDashboardTest extends TestCase
         $response = $this
             ->actingAs($student)
             ->get(route('admin.dashboard'));
+
+        $response->assertForbidden();
+    }
+
+    public function test_student_cannot_open_management_tab(): void
+    {
+        $student = User::factory()->create([
+            'role' => 'student',
+            'email_verified_at' => now(),
+        ]);
+
+        $response = $this
+            ->actingAs($student)
+            ->get(route('admin.dashboard', [
+                'section' => 'manage',
+            ]));
 
         $response->assertForbidden();
     }

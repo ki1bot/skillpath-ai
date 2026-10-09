@@ -11,7 +11,6 @@ import ProjectController from './ProjectController'
 import ProgressController from './ProgressController'
 import FeedbackController from './FeedbackController'
 import Admin from './Admin'
-import AdminDashboardController from './AdminDashboardController'
 import AdminController from './AdminController'
 import Settings from './Settings'
 
@@ -29,7 +28,6 @@ const Controllers = {
     ProgressController: Object.assign(ProgressController, ProgressController),
     FeedbackController: Object.assign(FeedbackController, FeedbackController),
     Admin: Object.assign(Admin, Admin),
-    AdminDashboardController: Object.assign(AdminDashboardController, AdminDashboardController),
     AdminController: Object.assign(AdminController, AdminController),
     Settings: Object.assign(Settings, Settings),
 }

@@ -1,12 +1,13 @@
+
 <?php
 
 use App\Http\Controllers\Admin\AssessmentQuestionController as AdminAssessmentQuestionController;
 use App\Http\Controllers\Admin\EvaluationSubmissionController as AdminEvaluationSubmissionController;
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Admin\ProjectSubmissionController as AdminProjectSubmissionController;
+use App\Http\Controllers\Admin\AdminWorkspaceController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FeedbackController;
@@ -20,524 +21,311 @@ use App\Http\Controllers\SessionHeartbeatController;
 use App\Http\Controllers\SkillGapController;
 use Illuminate\Support\Facades\Route;
 
-Route::get(
-    '/',
-    [PublicPageController::class, 'home'],
-)->name('home');
+Route::get('/', [PublicPageController::class, 'home'])
+    ->name('home');
 
-Route::post(
-    '/bantuan/chat',
-    PublicChatController::class,
-)
+Route::post('/bantuan/chat', PublicChatController::class)
     ->middleware('throttle:6,1')
     ->name('public-chat.store');
 
-Route::get(
-    '/tentang',
-    [PublicPageController::class, 'about'],
-)->name('about');
+Route::get('/tentang', [PublicPageController::class, 'about'])
+    ->name('about');
 
-Route::inertia(
-    '/privacy-policy',
-    'public/privacy-policy',
-)->name('privacy-policy');
+Route::inertia('/privacy-policy', 'public/privacy-policy')
+    ->name('privacy-policy');
 
-Route::inertia(
-    '/terms',
-    'public/terms',
-)->name('terms');
+Route::inertia('/terms', 'public/terms')
+    ->name('terms');
 
-Route::inertia(
-    '/data-deletion',
-    'public/data-deletion',
-)->name('data-deletion');
+Route::inertia('/data-deletion', 'public/data-deletion')
+    ->name('data-deletion');
 
-Route::get(
-    '/karier',
-    [PublicPageController::class, 'careers'],
-)->name('careers.public');
+Route::get('/karier', [PublicPageController::class, 'careers'])
+    ->name('careers.public');
 
-Route::get(
-    '/karier/{career}',
-    [PublicPageController::class, 'career'],
-)->name('careers.public.show');
+Route::get('/karier/{career}', [PublicPageController::class, 'career'])
+    ->name('careers.public.show');
 
-Route::middleware([
-    'auth',
-    'idle',
-])->group(function () {
-    Route::get(
-        '/session/heartbeat',
-        SessionHeartbeatController::class,
-    )->name('session.heartbeat');
-});
+Route::middleware(['auth', 'idle'])->group(function () {
+    Route::get('/session/heartbeat', SessionHeartbeatController::class)
+        ->name('session.heartbeat');
 
-Route::middleware([
-    'auth',
-    'idle',
-])->group(function () {
-    Route::get(
-        '/dashboard',
-        DashboardController::class,
-    )->name('dashboard');
+    Route::get('/dashboard', DashboardController::class)
+        ->name('dashboard');
 
-    Route::get(
-        '/onboarding',
-        [
-            OnboardingController::class,
-            'show',
-        ],
-    )->name('onboarding.show');
+    Route::get('/onboarding', [
+        OnboardingController::class,
+        'show',
+    ])->name('onboarding.show');
 
-    Route::put(
-        '/onboarding',
-        [
-            OnboardingController::class,
-            'update',
-        ],
-    )->name('onboarding.update');
+    Route::put('/onboarding', [
+        OnboardingController::class,
+        'update',
+    ])->name('onboarding.update');
 
-    Route::get(
-        '/assessment',
-        [
-            AssessmentController::class,
-            'show',
-        ],
-    )->name('assessment.show');
+    Route::get('/assessment', [
+        AssessmentController::class,
+        'show',
+    ])->name('assessment.show');
 
-    Route::post(
-        '/assessment/start',
-        [
-            AssessmentController::class,
-            'start',
-        ],
-    )->name('assessment.start');
+    Route::post('/assessment/start', [
+        AssessmentController::class,
+        'start',
+    ])->name('assessment.start');
 
-    Route::post(
-        '/assessment/abandon',
-        [
-            AssessmentController::class,
-            'abandon',
-        ],
-    )->name('assessment.abandon');
+    Route::post('/assessment/abandon', [
+        AssessmentController::class,
+        'abandon',
+    ])->name('assessment.abandon');
 
-    Route::post(
-        '/assessment',
-        [
-            AssessmentController::class,
-            'submit',
-        ],
-    )->name('assessment.submit');
+    Route::post('/assessment', [
+        AssessmentController::class,
+        'submit',
+    ])->name('assessment.submit');
 
-    Route::get(
-        '/skills',
-        [
-            SkillGapController::class,
-            'index',
-        ],
-    )->name('skills.index');
+    Route::get('/skills', [
+        SkillGapController::class,
+        'index',
+    ])->name('skills.index');
 
-    Route::get(
-        '/roadmap',
-        [
-            RoadmapController::class,
-            'index',
-        ],
-    )->name('roadmap.index');
+    Route::get('/roadmap', [
+        RoadmapController::class,
+        'index',
+    ])->name('roadmap.index');
 
-    Route::get(
-        '/roadmap/materials/{material}',
-        [
-            RoadmapController::class,
-            'material',
-        ],
-    )->name('roadmap.material');
+    Route::get('/roadmap/materials/{material}', [
+        RoadmapController::class,
+        'material',
+    ])->name('roadmap.material');
 
-    Route::patch(
-        '/roadmap/items/{roadmapItem}/progress',
-        [
-            RoadmapController::class,
-            'logProgress',
-        ],
-    )->name('roadmap.progress');
+    Route::patch('/roadmap/items/{roadmapItem}/progress', [
+        RoadmapController::class,
+        'logProgress',
+    ])->name('roadmap.progress');
 
-    Route::post(
-        '/roadmap/items/{roadmapItem}/evaluate',
-        [
-            RoadmapController::class,
-            'evaluate',
-        ],
-    )->name('roadmap.evaluate');
+    Route::post('/roadmap/items/{roadmapItem}/evaluate', [
+        RoadmapController::class,
+        'evaluate',
+    ])->name('roadmap.evaluate');
 
-    Route::get(
-        '/projects',
-        [
-            ProjectController::class,
-            'index',
-        ],
-    )->name('projects.index');
+    Route::get('/projects', [
+        ProjectController::class,
+        'index',
+    ])->name('projects.index');
 
-    Route::get(
-        '/projects/{portfolioProject}',
-        [
-            ProjectController::class,
-            'show',
-        ],
-    )->name('projects.show');
+    Route::get('/projects/{portfolioProject}', [
+        ProjectController::class,
+        'show',
+    ])->name('projects.show');
 
-    Route::post(
-        '/projects/{portfolioProject}/start',
-        [
-            ProjectController::class,
-            'start',
-        ],
-    )->name('projects.start');
+    Route::post('/projects/{portfolioProject}/start', [
+        ProjectController::class,
+        'start',
+    ])->name('projects.start');
 
-    Route::patch(
-        '/projects/{portfolioProject}',
-        [
-            ProjectController::class,
-            'update',
-        ],
-    )->name('projects.update');
+    Route::patch('/projects/{portfolioProject}', [
+        ProjectController::class,
+        'update',
+    ])->name('projects.update');
 
-    Route::get(
-        '/progress',
-        [
-            ProgressController::class,
-            'index',
-        ],
-    )->name('progress.index');
+    Route::get('/progress', [
+        ProgressController::class,
+        'index',
+    ])->name('progress.index');
 
-    Route::get(
-        '/feedback',
-        [
-            FeedbackController::class,
-            'index',
-        ],
-    )->name('feedback.index');
+    Route::get('/feedback', [
+        FeedbackController::class,
+        'index',
+    ])->name('feedback.index');
 
-    Route::post(
-        '/feedback',
-        [
-            FeedbackController::class,
-            'store',
-        ],
-    )->name('feedback.store');
+    Route::post('/feedback', [
+        FeedbackController::class,
+        'store',
+    ])->name('feedback.store');
 
     Route::prefix('admin')
         ->middleware('user-manager')
         ->name('admin.')
         ->group(function () {
-            Route::get(
-                '/users',
-                [
-                    UserManagementController::class,
-                    'index',
-                ],
-            )->name('users.index');
+            Route::get('/users', [
+                UserManagementController::class,
+                'index',
+            ])->name('users.index');
 
-            Route::patch(
-                '/users/{user}/role',
-                [
-                    UserManagementController::class,
-                    'updateRole',
-                ],
-            )->name('users.role.update');
+            Route::patch('/users/{user}/role', [
+                UserManagementController::class,
+                'updateRole',
+            ])->name('users.role.update');
 
-            Route::delete(
-                '/users/{user}',
-                [
-                    UserManagementController::class,
-                    'destroy',
-                ],
-            )->name('users.destroy');
+            Route::delete('/users/{user}', [
+                UserManagementController::class,
+                'destroy',
+            ])->name('users.destroy');
         });
 
     Route::prefix('admin')
         ->middleware('admin')
         ->name('admin.')
         ->group(function () {
-            Route::get(
-                '/dashboard',
-                AdminDashboardController::class,
-            )->name('dashboard');
+            Route::get('/dashboard', [
+                AdminWorkspaceController::class,
+                'dashboard',
+            ])->name('dashboard');
 
-            Route::get(
-                '/',
-                [
-                    AdminController::class,
-                    'index',
-                ],
-            )->name('index');
+            Route::get('/', [
+                AdminWorkspaceController::class,
+                'legacyDashboard',
+            ])->name('index');
 
-            Route::get(
-                '/submissions',
-                [
-                    AdminEvaluationSubmissionController::class,
-                    'index',
-                ],
-            )->name('submissions.index');
+            Route::get('/submissions', [
+                AdminWorkspaceController::class,
+                'submissions',
+            ])->name('submissions.index');
 
-            Route::patch(
-                '/submissions/{evaluation}',
-                [
-                    AdminEvaluationSubmissionController::class,
-                    'update',
-                ],
-            )->name('submissions.update');
+            Route::patch('/submissions/{evaluation}', [
+                AdminEvaluationSubmissionController::class,
+                'update',
+            ])->name('submissions.update');
 
-            Route::get(
-                '/project-submissions',
-                [
-                    AdminProjectSubmissionController::class,
-                    'index',
-                ],
-            )->name('project-submissions.index');
+            Route::get('/project-submissions', [
+                AdminWorkspaceController::class,
+                'legacyProjectSubmissions',
+            ])->name('project-submissions.index');
 
-            Route::patch(
-                '/project-submissions/{userProject}',
-                [
-                    AdminProjectSubmissionController::class,
-                    'update',
-                ],
-            )->name('project-submissions.update');
+            Route::patch('/project-submissions/{userProject}', [
+                AdminProjectSubmissionController::class,
+                'update',
+            ])->name('project-submissions.update');
 
-            Route::get(
-                '/feedback',
-                [
-                    AdminFeedbackController::class,
-                    'index',
-                ],
-            )->name('feedback.index');
+            Route::get('/feedback', [
+                AdminFeedbackController::class,
+                'index',
+            ])->name('feedback.index');
 
-            Route::patch(
-                '/feedback/{feedback}',
-                [
-                    AdminFeedbackController::class,
-                    'update',
-                ],
-            )->name('feedback.update');
+            Route::patch('/feedback/{feedback}', [
+                AdminFeedbackController::class,
+                'update',
+            ])->name('feedback.update');
 
-            Route::post(
-                '/careers',
-                [
-                    AdminController::class,
-                    'storeCareer',
-                ],
-            )->name('careers.store');
+            Route::post('/careers', [
+                AdminController::class,
+                'storeCareer',
+            ])->name('careers.store');
 
-            Route::put(
-                '/careers/{career}',
-                [
-                    AdminController::class,
-                    'updateCareer',
-                ],
-            )->name('careers.update');
+            Route::put('/careers/{career}', [
+                AdminController::class,
+                'updateCareer',
+            ])->name('careers.update');
 
-            Route::delete(
-                '/careers/{career}',
-                [
-                    AdminController::class,
-                    'destroyCareer',
-                ],
-            )->name('careers.destroy');
+            Route::delete('/careers/{career}', [
+                AdminController::class,
+                'destroyCareer',
+            ])->name('careers.destroy');
 
-            Route::post(
-                '/careers/{career}/skills',
-                [
-                    AdminController::class,
-                    'attachCareerSkill',
-                ],
-            )->name(
-                'careers.skills.store',
-            );
+            Route::post('/careers/{career}/skills', [
+                AdminController::class,
+                'attachCareerSkill',
+            ])->name('careers.skills.store');
 
-            Route::delete(
-                '/careers/{career}/skills/{skill}',
-                [
-                    AdminController::class,
-                    'removeCareerSkill',
-                ],
-            )->name(
-                'careers.skills.destroy',
-            );
+            Route::delete('/careers/{career}/skills/{skill}', [
+                AdminController::class,
+                'removeCareerSkill',
+            ])->name('careers.skills.destroy');
 
-            Route::post(
-                '/skills',
-                [
-                    AdminController::class,
-                    'storeSkill',
-                ],
-            )->name('skills.store');
+            Route::post('/skills', [
+                AdminController::class,
+                'storeSkill',
+            ])->name('skills.store');
 
-            Route::put(
-                '/skills/{skill}',
-                [
-                    AdminController::class,
-                    'updateSkill',
-                ],
-            )->name('skills.update');
+            Route::put('/skills/{skill}', [
+                AdminController::class,
+                'updateSkill',
+            ])->name('skills.update');
 
-            Route::delete(
-                '/skills/{skill}',
-                [
-                    AdminController::class,
-                    'destroySkill',
-                ],
-            )->name('skills.destroy');
+            Route::delete('/skills/{skill}', [
+                AdminController::class,
+                'destroySkill',
+            ])->name('skills.destroy');
 
-            Route::post(
-                '/prerequisites',
-                [
-                    AdminController::class,
-                    'storePrerequisite',
-                ],
-            )->name(
-                'prerequisites.store',
-            );
+            Route::post('/prerequisites', [
+                AdminController::class,
+                'storePrerequisite',
+            ])->name('prerequisites.store');
 
-            Route::delete(
-                '/prerequisites/{id}',
-                [
-                    AdminController::class,
-                    'destroyPrerequisite',
-                ],
-            )->name(
-                'prerequisites.destroy',
-            );
+            Route::delete('/prerequisites/{id}', [
+                AdminController::class,
+                'destroyPrerequisite',
+            ])->name('prerequisites.destroy');
 
-            Route::post(
-                '/assessments',
-                [
-                    AdminController::class,
-                    'storeAssessment',
-                ],
-            )->name(
-                'assessments.store',
-            );
+            Route::post('/assessments', [
+                AdminController::class,
+                'storeAssessment',
+            ])->name('assessments.store');
 
-            Route::put(
-                '/assessments/{assessment}',
-                [
-                    AdminController::class,
-                    'updateAssessment',
-                ],
-            )->name(
-                'assessments.update',
-            );
+            Route::put('/assessments/{assessment}', [
+                AdminController::class,
+                'updateAssessment',
+            ])->name('assessments.update');
 
-            Route::delete(
-                '/assessments/{assessment}',
-                [
-                    AdminController::class,
-                    'destroyAssessment',
-                ],
-            )->name(
-                'assessments.destroy',
-            );
+            Route::delete('/assessments/{assessment}', [
+                AdminController::class,
+                'destroyAssessment',
+            ])->name('assessments.destroy');
 
-            Route::post(
-                '/questions',
-                [
-                    AdminAssessmentQuestionController::class,
-                    'store',
-                ],
-            )->name('questions.store');
+            Route::post('/questions', [
+                AdminAssessmentQuestionController::class,
+                'store',
+            ])->name('questions.store');
 
-            Route::put(
-                '/questions/{question}',
-                [
-                    AdminAssessmentQuestionController::class,
-                    'update',
-                ],
-            )->name('questions.update');
+            Route::put('/questions/{question}', [
+                AdminAssessmentQuestionController::class,
+                'update',
+            ])->name('questions.update');
 
-            Route::delete(
-                '/questions/{question}',
-                [
-                    AdminAssessmentQuestionController::class,
-                    'destroy',
-                ],
-            )->name(
-                'questions.destroy',
-            );
+            Route::delete('/questions/{question}', [
+                AdminAssessmentQuestionController::class,
+                'destroy',
+            ])->name('questions.destroy');
 
-            Route::post(
-                '/materials',
-                [
-                    AdminController::class,
-                    'storeMaterial',
-                ],
-            )->name('materials.store');
+            Route::post('/materials', [
+                AdminController::class,
+                'storeMaterial',
+            ])->name('materials.store');
 
-            Route::put(
-                '/materials/{learningMaterial}',
-                [
-                    AdminController::class,
-                    'updateMaterial',
-                ],
-            )->name(
-                'materials.update',
-            );
+            Route::put('/materials/{learningMaterial}', [
+                AdminController::class,
+                'updateMaterial',
+            ])->name('materials.update');
 
-            Route::delete(
-                '/materials/{learningMaterial}',
-                [
-                    AdminController::class,
-                    'destroyMaterial',
-                ],
-            )->name(
-                'materials.destroy',
-            );
+            Route::delete('/materials/{learningMaterial}', [
+                AdminController::class,
+                'destroyMaterial',
+            ])->name('materials.destroy');
 
-            Route::post(
-                '/projects',
-                [
-                    AdminController::class,
-                    'storeProject',
-                ],
-            )->name('projects.store');
+            Route::post('/projects', [
+                AdminController::class,
+                'storeProject',
+            ])->name('projects.store');
 
-            Route::put(
-                '/projects/{portfolioProject}',
-                [
-                    AdminController::class,
-                    'updateProject',
-                ],
-            )->name(
-                'projects.update',
-            );
+            Route::put('/projects/{portfolioProject}', [
+                AdminController::class,
+                'updateProject',
+            ])->name('projects.update');
 
-            Route::delete(
-                '/projects/{portfolioProject}',
-                [
-                    AdminController::class,
-                    'destroyProject',
-                ],
-            )->name(
-                'projects.destroy',
-            );
+            Route::delete('/projects/{portfolioProject}', [
+                AdminController::class,
+                'destroyProject',
+            ])->name('projects.destroy');
 
-            Route::post(
-                '/projects/{portfolioProject}/skills',
-                [
-                    AdminController::class,
-                    'attachProjectSkill',
-                ],
-            )->name(
-                'projects.skills.store',
-            );
+            Route::post('/projects/{portfolioProject}/skills', [
+                AdminController::class,
+                'attachProjectSkill',
+            ])->name('projects.skills.store');
 
-            Route::delete(
-                '/projects/{portfolioProject}/skills/{skill}',
-                [
-                    AdminController::class,
-                    'removeProjectSkill',
-                ],
-            )->name(
-                'projects.skills.destroy',
-            );
+            Route::delete('/projects/{portfolioProject}/skills/{skill}', [
+                AdminController::class,
+                'removeProjectSkill',
+            ])->name('projects.skills.destroy');
         });
 });
 

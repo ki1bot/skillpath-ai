@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
-* @see \App\Http\Controllers\Admin\EvaluationSubmissionController::index
-* @see app/Http/Controllers/Admin/EvaluationSubmissionController.php:24
+* @see \App\Http\Controllers\Admin\AdminWorkspaceController::index
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:23
 * @route '/admin/submissions'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -15,8 +15,8 @@ index.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see \App\Http\Controllers\Admin\EvaluationSubmissionController::index
-* @see app/Http/Controllers/Admin/EvaluationSubmissionController.php:24
+* @see \App\Http\Controllers\Admin\AdminWorkspaceController::index
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:23
 * @route '/admin/submissions'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -24,8 +24,8 @@ index.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see \App\Http\Controllers\Admin\EvaluationSubmissionController::index
-* @see app/Http/Controllers/Admin/EvaluationSubmissionController.php:24
+* @see \App\Http\Controllers\Admin\AdminWorkspaceController::index
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:23
 * @route '/admin/submissions'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,8 +34,8 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\Admin\EvaluationSubmissionController::index
-* @see app/Http/Controllers/Admin/EvaluationSubmissionController.php:24
+* @see \App\Http\Controllers\Admin\AdminWorkspaceController::index
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:23
 * @route '/admin/submissions'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,8 +44,8 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\Admin\EvaluationSubmissionController::index
-* @see app/Http/Controllers/Admin/EvaluationSubmissionController.php:24
+* @see \App\Http\Controllers\Admin\AdminWorkspaceController::index
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:23
 * @route '/admin/submissions'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,8 +54,8 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 })
 
 /**
-* @see \App\Http\Controllers\Admin\EvaluationSubmissionController::index
-* @see app/Http/Controllers/Admin/EvaluationSubmissionController.php:24
+* @see \App\Http\Controllers\Admin\AdminWorkspaceController::index
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:23
 * @route '/admin/submissions'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -64,8 +64,8 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\Admin\EvaluationSubmissionController::index
-* @see app/Http/Controllers/Admin/EvaluationSubmissionController.php:24
+* @see \App\Http\Controllers\Admin\AdminWorkspaceController::index
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:23
 * @route '/admin/submissions'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

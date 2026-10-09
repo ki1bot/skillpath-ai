@@ -3,12 +3,10 @@ import {
     Activity,
     ClipboardCheck,
     ClipboardList,
-    FileCheck2,
     FolderKanban,
     LayoutDashboard,
     Map,
     MessageSquareText,
-    ShieldCheck,
     Target,
     UserRound,
     UsersRound,
@@ -95,19 +93,9 @@ export function AppSidebar() {
             icon: LayoutDashboard,
         },
         {
-            title: 'Pengumpulan Tugas',
+            title: 'Pengumpulan & Penilaian',
             href: '/admin/submissions',
             icon: ClipboardList,
-        },
-        {
-            title: 'Penilaian Proyek',
-            href: '/admin/project-submissions',
-            icon: FileCheck2,
-        },
-        {
-            title: 'Kelola Sistem',
-            href: '/admin',
-            icon: ShieldCheck,
         },
         {
             title: 'Masukan Pengguna',
