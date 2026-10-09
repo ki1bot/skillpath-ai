@@ -235,14 +235,11 @@ class AcademicTaskRevisionSeeder extends Seeder
                             $baseTask,
                         );
 
-                        $oldCorePrefix = match ($stage) {
+                        $oldCorePrefix = [
                             'amatir' => 'Kerjakan tugas dasar '.$skill->name.' berikut.',
                             'menengah' => 'Pada tahap Menengah, gunakan kemampuan '.$skill->name,
                             'ahli' => 'Pada tahap Ahli, kerjakan '.$skill->name,
-                            default => throw new RuntimeException(
-                                'Tahap tugas tidak dikenali: '.$stage,
-                            ),
-                        };
+                        ][$stage];
 
                         if (str_starts_with(
                             trim((string) $core->practice_task),
