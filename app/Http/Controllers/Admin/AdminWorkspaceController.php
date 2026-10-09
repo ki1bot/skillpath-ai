@@ -12,16 +12,35 @@ use App\Models\User;
 use App\Services\AcademicStatisticsService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class AdminWorkspaceController extends Controller
 {
-    public function dashboard(
-        Request $request,
-        AcademicStatisticsService $statistics,
-    ): Response {
+    public const CACHE_KEY = 'admin.workspace.dashboard.v2';
+
+    public function dashboard(): Response
+    {
+        $data = app()->environment('testing')
+            ? $this->buildDashboardData()
+            : Cache::remember(
+                self::CACHE_KEY,
+                now()->addMinutes(10),
+                fn (): array => $this->buildDashboardData(),
+            );
+
+        return Inertia::render('admin/index', $data);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildDashboardData(): array
+    {
+        $statistics = app(AcademicStatisticsService::class);
+
         $stats = [
             'users' => User::query()
                 ->where('role', 'student')
@@ -52,12 +71,14 @@ class AdminWorkspaceController extends Controller
         $careers = Career::query()
             ->with('skills')
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->toArray();
 
         $skills = Skill::query()
             ->with('prerequisites')
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->toArray();
 
         $prerequisites = DB::table('skill_prerequisites')
             ->join(
@@ -79,30 +100,37 @@ class AdminWorkspaceController extends Controller
                 'prerequisite.name as prerequisite_name',
             ])
             ->orderBy('skill.name')
-            ->get();
+            ->get()
+            ->map(
+                fn (object $prerequisite): array => (array) $prerequisite,
+            )
+            ->all();
 
         $assessments = Assessment::query()
             ->with([
-                'career',
-                'questions.skill',
+                'career:id,name',
+                'questions.skill:id,name',
             ])
             ->orderBy('title')
-            ->get();
+            ->get()
+            ->toArray();
 
         $materials = LearningMaterial::query()
-            ->with('skill')
+            ->with('skill:id,name')
             ->orderBy('title')
-            ->get();
+            ->get()
+            ->toArray();
 
         $projects = PortfolioProject::query()
             ->with([
-                'career',
+                'career:id,name',
                 'skills',
             ])
             ->orderBy('title')
-            ->get();
+            ->get()
+            ->toArray();
 
-        return Inertia::render('admin/index', [
+        return [
             'stats' => $stats,
             'careers' => $careers,
             'skills' => $skills,
@@ -110,7 +138,7 @@ class AdminWorkspaceController extends Controller
             'assessments' => $assessments,
             'materials' => $materials,
             'projects' => $projects,
-        ]);
+        ];
     }
 
     public function submissions(Request $request): Response

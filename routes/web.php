@@ -18,6 +18,7 @@ use App\Http\Controllers\PublicPageController;
 use App\Http\Controllers\RoadmapController;
 use App\Http\Controllers\SessionHeartbeatController;
 use App\Http\Controllers\SkillGapController;
+use App\Http\Middleware\InvalidateAdminDashboardCache;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PublicPageController::class, 'home'])
@@ -163,7 +164,10 @@ Route::middleware(['auth'])->group(function () {
         });
 
     Route::prefix('admin')
-        ->middleware('admin')
+        ->middleware([
+            'admin',
+            InvalidateAdminDashboardCache::class,
+        ])
         ->name('admin.')
         ->group(function () {
             Route::get('/dashboard', [
