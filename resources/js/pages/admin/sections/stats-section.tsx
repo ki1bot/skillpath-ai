@@ -1,12 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import {
-    BookOpenCheck,
-    Database,
-    GraduationCap,
-    Layers3,
-    UsersRound,
-    Wrench,
-} from 'lucide-react';
+import { BookOpenCheck, GraduationCap, Layers3, Wrench } from 'lucide-react';
 import type { AdminStats } from '../types';
 
 export function StatsSection({ stats }: { stats: AdminStats }) {
@@ -17,25 +10,19 @@ export function StatsSection({ stats }: { stats: AdminStats }) {
         accent: string;
     }> = [
         {
-            label: 'Mahasiswa',
-            value: stats.users,
-            icon: UsersRound,
-            accent: 'bg-[var(--neo-lime)]',
-        },
-        {
             label: 'Jurusan',
             value: stats.careers,
             icon: GraduationCap,
             accent: 'bg-[var(--neo-blue)]',
         },
         {
-            label: 'Kemampuan',
+            label: 'Materi',
             value: stats.skills,
             icon: Layers3,
             accent: 'bg-[var(--neo-yellow)]',
         },
         {
-            label: 'Materi',
+            label: 'Soal',
             value: stats.materials,
             icon: BookOpenCheck,
             accent: 'bg-[var(--neo-orange)]',
@@ -45,12 +32,6 @@ export function StatsSection({ stats }: { stats: AdminStats }) {
             value: stats.projects,
             icon: Wrench,
             accent: 'bg-[var(--neo-pink)]',
-        },
-        {
-            label: 'Percobaan Assessment',
-            value: stats.assessmentAttempts,
-            icon: Database,
-            accent: 'bg-[#fffdf7]',
         },
     ];
 
