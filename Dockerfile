@@ -1,8 +1,13 @@
-FROM composer:2 AS composer
+ARG COMPOSER_IMAGE=public.ecr.aws/composer/composer:2
+ARG NODE_IMAGE=public.ecr.aws/docker/library/node:22-bookworm-slim
+ARG PHP_CLI_IMAGE=public.ecr.aws/docker/library/php:8.4-cli-bookworm
+ARG PHP_APACHE_IMAGE=public.ecr.aws/docker/library/php:8.4-apache-bookworm
 
-FROM node:22-bookworm-slim AS node
+FROM ${COMPOSER_IMAGE} AS composer
 
-FROM php:8.4-cli-bookworm AS php-base
+FROM ${NODE_IMAGE} AS node
+
+FROM ${PHP_CLI_IMAGE} AS php-base
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -82,7 +87,7 @@ RUN composer dump-autoload \
 RUN npm run build \
     && rm -rf node_modules
 
-FROM php:8.4-apache-bookworm AS runtime
+FROM ${PHP_APACHE_IMAGE} AS runtime
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
