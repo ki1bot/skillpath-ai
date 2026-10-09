@@ -31,17 +31,19 @@ class AdminDashboardTest extends TestCase
                     ->has('stats.careers')
                     ->has('stats.skills')
                     ->has('stats.materials')
+                    ->has('stats.learningTopics')
+                    ->has('stats.assessmentQuestions')
                     ->has('stats.projects')
-                    ->missing('careers')
-                    ->missing('skills')
-                    ->missing('prerequisites')
-                    ->missing('assessments')
-                    ->missing('materials')
-                    ->missing('projects'),
+                    ->has('careers')
+                    ->has('skills')
+                    ->has('prerequisites')
+                    ->has('assessments')
+                    ->has('materials')
+                    ->has('projects'),
             );
     }
 
-    public function test_admin_can_load_management_data_in_background(): void
+    public function test_admin_management_data_is_available_on_initial_response(): void
     {
         $admin = User::factory()->create([
             'role' => 'admin',
@@ -56,16 +58,12 @@ class AdminDashboardTest extends TestCase
                 fn (Assert $page) => $page
                     ->component('admin/index')
                     ->has('stats')
-                    ->loadDeferredProps(
-                        'management',
-                        fn (Assert $loaded) => $loaded
-                            ->has('careers')
-                            ->has('skills')
-                            ->has('prerequisites')
-                            ->has('assessments')
-                            ->has('materials')
-                            ->has('projects'),
-                    ),
+                    ->has('careers')
+                    ->has('skills')
+                    ->has('prerequisites')
+                    ->has('assessments')
+                    ->has('materials')
+                    ->has('projects'),
             );
     }
 
@@ -85,7 +83,13 @@ class AdminDashboardTest extends TestCase
             ->assertInertia(
                 fn (Assert $page) => $page
                     ->component('admin/index')
-                    ->has('stats'),
+                    ->has('stats')
+                    ->has('careers')
+                    ->has('skills')
+                    ->has('prerequisites')
+                    ->has('assessments')
+                    ->has('materials')
+                    ->has('projects'),
             );
     }
 

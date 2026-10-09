@@ -105,6 +105,8 @@ export type AdminStats = {
     careers: number;
     skills: number;
     materials: number;
+    learningTopics: number;
+    assessmentQuestions: number;
     projects: number;
     assessmentAttempts: number;
 };

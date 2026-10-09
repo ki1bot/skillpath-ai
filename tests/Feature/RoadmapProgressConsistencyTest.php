@@ -168,36 +168,32 @@ class RoadmapProgressConsistencyTest extends TestCase
                 fn (Assert $page) => $page
                     ->component('admin/index')
                     ->where('stats.materials', $activeMaterials)
-                    ->loadDeferredProps(
-                        'management',
-                        fn (Assert $loaded) => $loaded
-                            ->has('materials', $totalMaterials)
-                            ->where(
-                                'materials',
-                                function ($items) use (
-                                    $activeMaterials,
-                                    $activeCoreMaterials,
-                                    $activeReinforcementMaterials,
-                                    $inactiveMaterials,
-                                ): bool {
-                                    $materials = collect($items);
+                    ->has('materials', $totalMaterials)
+                    ->where(
+                        'materials',
+                        function ($items) use (
+                            $activeMaterials,
+                            $activeCoreMaterials,
+                            $activeReinforcementMaterials,
+                            $inactiveMaterials,
+                        ): bool {
+                            $materials = collect($items);
 
-                                    return $materials
-                                        ->where('is_active', true)
-                                        ->count() === $activeMaterials
-                                        && $materials
-                                            ->where('is_active', true)
-                                            ->where('material_type', 'core')
-                                            ->count() === $activeCoreMaterials
-                                        && $materials
-                                            ->where('is_active', true)
-                                            ->where('material_type', 'reinforcement')
-                                            ->count() === $activeReinforcementMaterials
-                                        && $materials
-                                            ->where('is_active', false)
-                                            ->count() === $inactiveMaterials;
-                                },
-                            ),
+                            return $materials
+                                ->where('is_active', true)
+                                ->count() === $activeMaterials
+                                && $materials
+                                    ->where('is_active', true)
+                                    ->where('material_type', 'core')
+                                    ->count() === $activeCoreMaterials
+                                && $materials
+                                    ->where('is_active', true)
+                                    ->where('material_type', 'reinforcement')
+                                    ->count() === $activeReinforcementMaterials
+                                && $materials
+                                    ->where('is_active', false)
+                                    ->count() === $inactiveMaterials;
+                        },
                     ),
             );
     }

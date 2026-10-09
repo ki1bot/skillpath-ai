@@ -3,43 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Career;
+use App\Services\AcademicStatisticsService;
 use App\Services\CareerCompatibilityService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class PublicPageController extends Controller
 {
-    public function home(): Response
-    {
-        $stats = (array) DB::selectOne(
-            'SELECT
-                (
-                    SELECT COUNT(*)
-                    FROM careers
-                    WHERE is_active = TRUE
-                ) AS careers,
-                (
-                    SELECT COUNT(DISTINCT cs.skill_id)
-                    FROM career_skill cs
-                    INNER JOIN careers c
-                        ON c.id = cs.career_id
-                    WHERE c.is_active = TRUE
-                ) AS skills,
-                (
-                    SELECT COUNT(DISTINCT lm.id)
-                    FROM learning_materials lm
-                    INNER JOIN career_skill cs
-                        ON cs.skill_id = lm.skill_id
-                    INNER JOIN careers c
-                        ON c.id = cs.career_id
-                    WHERE lm.material_type = \'core\'
-                        AND lm.is_active = TRUE
-                        AND c.is_active = TRUE
-                ) AS materials',
-        );
-
+    public function home(
+        AcademicStatisticsService $statistics,
+    ): Response {
         return Inertia::render(
             'welcome',
             [
@@ -61,9 +35,9 @@ class PublicPageController extends Controller
                     ->get(),
 
                 'stats' => [
-                    'careers' => (int) ($stats['careers'] ?? 0),
-                    'skills' => (int) ($stats['skills'] ?? 0),
-                    'materials' => (int) ($stats['materials'] ?? 0),
+                    'careers' => $statistics->careers,
+                    'skills' => $statistics->areas,
+                    'materials' => $statistics->topics,
                 ],
             ],
         );

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::dashboard
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:20
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:21
 * @route '/admin/dashboard'
 */
 export const dashboard = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ dashboard.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::dashboard
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:20
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:21
 * @route '/admin/dashboard'
 */
 dashboard.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ dashboard.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::dashboard
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:20
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:21
 * @route '/admin/dashboard'
 */
 dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::dashboard
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:20
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:21
 * @route '/admin/dashboard'
 */
 dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::dashboard
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:20
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:21
 * @route '/admin/dashboard'
 */
 const dashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ const dashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> 
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::dashboard
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:20
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:21
 * @route '/admin/dashboard'
 */
 dashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +65,7 @@ dashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =>
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::dashboard
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:20
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:21
 * @route '/admin/dashboard'
 */
 dashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -82,7 +82,7 @@ dashboard.form = dashboardForm
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::legacyDashboard
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:132
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:127
 * @route '/admin'
 */
 export const legacyDashboard = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -97,7 +97,7 @@ legacyDashboard.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::legacyDashboard
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:132
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:127
 * @route '/admin'
 */
 legacyDashboard.url = (options?: RouteQueryOptions) => {
@@ -106,7 +106,7 @@ legacyDashboard.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::legacyDashboard
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:132
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:127
 * @route '/admin'
 */
 legacyDashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -116,7 +116,7 @@ legacyDashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => (
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::legacyDashboard
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:132
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:127
 * @route '/admin'
 */
 legacyDashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -126,7 +126,7 @@ legacyDashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =>
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::legacyDashboard
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:132
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:127
 * @route '/admin'
 */
 const legacyDashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -136,7 +136,7 @@ const legacyDashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::legacyDashboard
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:132
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:127
 * @route '/admin'
 */
 legacyDashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -146,7 +146,7 @@ legacyDashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'ge
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::legacyDashboard
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:132
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:127
 * @route '/admin'
 */
 legacyDashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -163,7 +163,7 @@ legacyDashboard.form = legacyDashboardForm
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::submissions
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:121
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:116
 * @route '/admin/submissions'
 */
 export const submissions = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -178,7 +178,7 @@ submissions.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::submissions
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:121
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:116
 * @route '/admin/submissions'
 */
 submissions.url = (options?: RouteQueryOptions) => {
@@ -187,7 +187,7 @@ submissions.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::submissions
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:121
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:116
 * @route '/admin/submissions'
 */
 submissions.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -197,7 +197,7 @@ submissions.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::submissions
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:121
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:116
 * @route '/admin/submissions'
 */
 submissions.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -207,7 +207,7 @@ submissions.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::submissions
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:121
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:116
 * @route '/admin/submissions'
 */
 const submissionsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -217,7 +217,7 @@ const submissionsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::submissions
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:121
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:116
 * @route '/admin/submissions'
 */
 submissionsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -227,7 +227,7 @@ submissionsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> 
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::submissions
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:121
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:116
 * @route '/admin/submissions'
 */
 submissionsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -244,7 +244,7 @@ submissions.form = submissionsForm
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::legacyProjectSubmissions
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:137
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:132
 * @route '/admin/project-submissions'
 */
 export const legacyProjectSubmissions = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -259,7 +259,7 @@ legacyProjectSubmissions.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::legacyProjectSubmissions
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:137
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:132
 * @route '/admin/project-submissions'
 */
 legacyProjectSubmissions.url = (options?: RouteQueryOptions) => {
@@ -268,7 +268,7 @@ legacyProjectSubmissions.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::legacyProjectSubmissions
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:137
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:132
 * @route '/admin/project-submissions'
 */
 legacyProjectSubmissions.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -278,7 +278,7 @@ legacyProjectSubmissions.get = (options?: RouteQueryOptions): RouteDefinition<'g
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::legacyProjectSubmissions
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:137
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:132
 * @route '/admin/project-submissions'
 */
 legacyProjectSubmissions.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -288,7 +288,7 @@ legacyProjectSubmissions.head = (options?: RouteQueryOptions): RouteDefinition<'
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::legacyProjectSubmissions
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:137
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:132
 * @route '/admin/project-submissions'
 */
 const legacyProjectSubmissionsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -298,7 +298,7 @@ const legacyProjectSubmissionsForm = (options?: RouteQueryOptions): RouteFormDef
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::legacyProjectSubmissions
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:137
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:132
 * @route '/admin/project-submissions'
 */
 legacyProjectSubmissionsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -308,7 +308,7 @@ legacyProjectSubmissionsForm.get = (options?: RouteQueryOptions): RouteFormDefin
 
 /**
 * @see \App\Http\Controllers\Admin\AdminWorkspaceController::legacyProjectSubmissions
-* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:137
+* @see app/Http/Controllers/Admin/AdminWorkspaceController.php:132
 * @route '/admin/project-submissions'
 */
 legacyProjectSubmissionsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

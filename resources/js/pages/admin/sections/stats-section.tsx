@@ -17,13 +17,13 @@ export function StatsSection({ stats }: { stats: AdminStats }) {
         },
         {
             label: 'Materi',
-            value: stats.skills,
+            value: stats.learningTopics,
             icon: Layers3,
             accent: 'bg-[var(--neo-yellow)]',
         },
         {
             label: 'Soal',
-            value: stats.materials,
+            value: stats.assessmentQuestions,
             icon: BookOpenCheck,
             accent: 'bg-[var(--neo-orange)]',
         },
