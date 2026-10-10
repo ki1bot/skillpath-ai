@@ -66,42 +66,42 @@ export function CareerForm({ career }: Props) {
                         value="Lintas tahap"
                     />
 
+                    {isAcademicCareer && career && (
+                        <input type="hidden" name="name" value={career.name} />
+                    )}
+
                     <div className="grid min-w-0 gap-4 md:grid-cols-2">
-                        <div>
+                        <div className="min-w-0">
                             <InputField
-                                label={
-                                    isAcademicCareer
-                                        ? 'Nama jurusan (identitas akademik)'
-                                        : 'Nama jurusan'
+                                label="Nama jurusan"
+                                name={
+                                    isAcademicCareer ? 'display_name' : 'name'
                                 }
-                                name={isAcademicCareer ? undefined : 'name'}
-                                defaultValue={career?.name ?? ''}
-                                disabled={isAcademicCareer}
+                                defaultValue={
+                                    career
+                                        ? career.display_name?.trim() ||
+                                          career.name
+                                        : ''
+                                }
                                 maxLength={120}
                                 required
                             />
-
-                            {isAcademicCareer && (
-                                <input
-                                    type="hidden"
-                                    name="name"
-                                    value={career?.name ?? ''}
-                                />
-                            )}
                         </div>
 
-                        <InputField
-                            label="Warna aksen"
-                            name="accent"
-                            type="color"
-                            defaultValue={career?.accent ?? '#C7FF5E'}
-                            required
-                        />
+                        <div className="min-w-0">
+                            <InputField
+                                label="Warna aksen"
+                                name="accent"
+                                type="color"
+                                defaultValue={career?.accent ?? '#C7FF5E'}
+                                required
+                            />
+                        </div>
                     </div>
 
-                    {career && (
+                    {!isAcademicCareer && career && (
                         <InputField
-                            label="Nama jurusan yang ditampilkan"
+                            label="Nama tampilan alternatif (opsional)"
                             name="display_name"
                             defaultValue={career.display_name ?? ''}
                             placeholder={career.name}
@@ -126,8 +126,8 @@ export function CareerForm({ career }: Props) {
 
                             <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
                                 {isAcademicCareer
-                                    ? 'Nama ketiga bidang dapat diperbarui.'
-                                    : 'Tambahkan, ubah, atau hapus nama bidang sesuai kebutuhan jurusan tambahan.'}
+                                    ? 'Anda dapat mengedit nama ketiga bidang jurusan.'
+                                    : 'Anda dapat menambahkan, mengedit, atau menghapus nama bidang sesuai kebutuhan jurusan.'}
                             </p>
                         </div>
 
@@ -135,7 +135,7 @@ export function CareerForm({ career }: Props) {
                             {areaNames.map((areaName, index) => (
                                 <div
                                     key={`${career?.id ?? 'new'}-${index}`}
-                                    className="rounded-xl border-2 border-foreground/15 bg-muted/20 p-4"
+                                    className="min-w-0 rounded-xl border-2 border-foreground/15 bg-muted/20 p-4"
                                 >
                                     <p className="mb-3 text-xs font-black tracking-wide text-muted-foreground uppercase">
                                         Bidang {index + 1}
@@ -156,10 +156,27 @@ export function CareerForm({ career }: Props) {
                                     />
 
                                     {program?.areas[index] && (
-                                        <p className="mt-3 text-xs leading-5 font-semibold text-muted-foreground">
-                                            3 kemampuan akademik tetap terhubung
-                                            ke bidang ini.
-                                        </p>
+                                        <div className="mt-4 rounded-lg border border-foreground/15 bg-card p-3">
+                                            <p className="text-xs font-black">
+                                                Kemampuan yang terhubung
+                                            </p>
+
+                                            <div className="mt-2 grid gap-2">
+                                                {program.areas[
+                                                    index
+                                                ].skills.map(
+                                                    (skillName, skillIndex) => (
+                                                        <p
+                                                            key={skillName}
+                                                            className="text-xs leading-5 font-medium text-muted-foreground"
+                                                        >
+                                                            {skillIndex + 1}.{' '}
+                                                            {skillName}
+                                                        </p>
+                                                    ),
+                                                )}
+                                            </div>
+                                        </div>
                                     )}
 
                                     {!isAcademicCareer &&
@@ -199,9 +216,15 @@ export function CareerForm({ career }: Props) {
                         <>
                             <input type="hidden" name="is_active" value="1" />
 
-                            <p className="text-sm font-semibold text-muted-foreground">
-                                Status jurusan: Aktif.
-                            </p>
+                            <div className="rounded-xl border-2 border-foreground/15 bg-muted/20 p-4">
+                                <p className="text-sm font-black">
+                                    Status jurusan
+                                </p>
+
+                                <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
+                                    Aktif.
+                                </p>
+                            </div>
                         </>
                     ) : (
                         <SelectField
@@ -219,18 +242,26 @@ export function CareerForm({ career }: Props) {
 
                     {Object.keys(errors).length > 0 && (
                         <div className="rounded-xl border-2 border-destructive/30 p-4">
-                            {Object.entries(errors).map(([field, message]) => (
-                                <p
-                                    key={field}
-                                    className="text-xs leading-5 font-bold text-destructive"
-                                >
-                                    {message}
-                                </p>
-                            ))}
+                            <p className="mb-2 text-sm font-black text-destructive">
+                                Perubahan belum dapat disimpan
+                            </p>
+
+                            <div className="grid gap-2">
+                                {Object.entries(errors).map(
+                                    ([field, message]) => (
+                                        <p
+                                            key={field}
+                                            className="text-xs leading-5 font-bold text-destructive"
+                                        >
+                                            {message}
+                                        </p>
+                                    ),
+                                )}
+                            </div>
                         </div>
                     )}
 
-                    <div>
+                    <div className="flex flex-wrap items-center gap-3">
                         <Button
                             type="submit"
                             disabled={processing}
