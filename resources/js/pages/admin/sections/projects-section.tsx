@@ -88,18 +88,6 @@ export function ProjectsSection({ projects, careers, skills }: Props) {
             description="Setiap jurusan akademik memiliki tiga proyek. Masing-masing proyek menggunakan tiga kemampuan dari satu bidang."
             accentClass="bg-[var(--neo-lime)] text-[#171717]"
         >
-            <div className="rounded-[10px] border-2 border-foreground/15 bg-muted/30 p-4">
-                <p className="text-sm font-black">Ketentuan proyek akademik</p>
-
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                    Proyek 1, 2, dan 3 mewakili bidang yang berbeda dalam satu
-                    jurusan. Admin dapat memperbarui tugas, fitur wajib, dan
-                    kriteria penilaian. Susunan bidang dan kemampuan tetap
-                    dipertahankan agar tidak berbeda dari katalog akademik.
-                    Nilai kelulusan proyek minimal 80.
-                </p>
-            </div>
-
             {customCareers.length > 0 && (
                 <AdminDetails title="Tambah proyek untuk jurusan nonakademik">
                     <ProjectForm careers={customCareers} />
@@ -161,14 +149,6 @@ export function ProjectsSection({ projects, careers, skills }: Props) {
 
                                     {isAcademicProject ? (
                                         <div className="mt-4">
-                                            <p className="text-sm leading-6 text-muted-foreground">
-                                                Ketiga kemampuan berikut
-                                                menentukan bidang proyek.
-                                                Hubungan ini tidak dapat diubah
-                                                melalui pengelolaan proyek
-                                                akademik.
-                                            </p>
-
                                             <div className="mt-4 grid gap-3 md:grid-cols-3">
                                                 {project.skills.map((skill) => (
                                                     <div

@@ -131,18 +131,6 @@ export function MaterialsSection({ materials, skills }: Props) {
                 </div>
             </div>
 
-            <div className="rounded-[11px] border-2 border-foreground/15 bg-muted/20 p-4">
-                <p className="text-sm font-black">Struktur materi akademik</p>
-
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                    Setiap jurusan mempunyai 27 materi utama: sembilan Amatir,
-                    sembilan Menengah, dan sembilan Ahli. Materi penguatan
-                    disediakan terpisah untuk mahasiswa yang belum lulus. Admin
-                    dapat memperbaiki tugas tanpa mengubah hubungan materi
-                    dengan tahapnya.
-                </p>
-            </div>
-
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <label className="block">
                     <span className="mb-2 block text-sm font-black">Tahap</span>
@@ -248,13 +236,6 @@ export function MaterialsSection({ materials, skills }: Props) {
                                     material={material}
                                     skills={skills}
                                 />
-
-                                <p className="text-xs leading-5 text-muted-foreground">
-                                    Materi yang menjadi bagian dari katalog
-                                    akademik tidak dapat dihapus melalui halaman
-                                    ini. Perbarui isi tugas atau penjelasannya
-                                    sesuai kebutuhan.
-                                </p>
                             </div>
                         ) : (
                             <div className="rounded-[10px] border-2 border-foreground/15 p-4">

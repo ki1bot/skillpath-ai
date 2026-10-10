@@ -78,13 +78,6 @@ export function SkillsSection({ skills, prerequisites }: Props) {
                     Cara kerja kemampuan di SkillPath
                 </p>
 
-                <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
-                    Assessment digunakan untuk melihat kemampuan awal. Roadmap
-                    kemudian menyediakan tiga materi berbeda untuk setiap
-                    kemampuan. Nilai tugas menentukan kapan mahasiswa dapat
-                    melanjutkan ke materi berikutnya.
-                </p>
-
                 <div className="mt-4 grid gap-3 sm:grid-cols-3">
                     {[
                         ['Tahap 1', 'Amatir'],
@@ -301,12 +294,6 @@ export function SkillsSection({ skills, prerequisites }: Props) {
                 meta="Pengaturan hubungan antarkemampuan untuk analisis gap dan prioritas belajar."
             >
                 <div className="grid gap-5">
-                    <p className="text-sm leading-6 font-medium text-muted-foreground">
-                        Prasyarat digunakan untuk membantu menentukan prioritas
-                        belajar. Urutan materi pada roadmap tetap mengikuti
-                        tahap Amatir, Menengah, dan Ahli.
-                    </p>
-
                     <Form
                         action="/admin/prerequisites"
                         method="post"

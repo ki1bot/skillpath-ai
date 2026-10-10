@@ -13,6 +13,7 @@ class Career extends Model
 
     protected $fillable = [
         'name',
+        'display_name',
         'slug',
         'tagline',
         'description',

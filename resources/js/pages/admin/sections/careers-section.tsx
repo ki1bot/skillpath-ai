@@ -18,7 +18,7 @@ export function CareersSection({ careers, skills }: Props) {
     return (
         <AdminPanel
             title="Jurusan dan standar kemampuan"
-            description="Setiap jurusan akademik menggunakan tiga bidang dan sembilan kemampuan. Hubungan kemampuan yang sudah menjadi bagian katalog tetap dipertahankan."
+            description="Admin dapat mengubah nama tampilan, deskripsi, dan teks bidang jurusan. Struktur kemampuan akademik tetap dipertahankan agar Assessment, roadmap, dan proyek tidak terganggu."
             accentClass="bg-[var(--neo-lime)] text-[#171717]"
         >
             <AdminDetails title="Tambah jurusan nonakademik">
@@ -27,16 +27,17 @@ export function CareersSection({ careers, skills }: Props) {
 
             <div className="grid gap-4">
                 {careers.map((career) => {
-                    const isAcademicCareer = Boolean(
-                        getStudyProgramDefinition(career.name),
-                    );
-
                     const program = getStudyProgramDefinition(career.name);
+
+                    const isAcademicCareer = Boolean(program);
+
+                    const displayName =
+                        career.display_name?.trim() || career.name;
 
                     return (
                         <AdminDetails
                             key={career.id}
-                            title={career.name}
+                            title={displayName}
                             meta={`${career.skills.length} kemampuan · ${
                                 isAcademicCareer
                                     ? 'Katalog akademik'
@@ -53,66 +54,67 @@ export function CareersSection({ careers, skills }: Props) {
 
                                     {isAcademicCareer && program ? (
                                         <>
-                                            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                                                Jurusan ini menggunakan tiga
-                                                bidang, masing-masing dengan
-                                                tiga kemampuan. Kesembilan
-                                                kemampuan tersebut digunakan
-                                                dalam Assessment dan diulang
-                                                pada tahap Amatir, Menengah,
-                                                serta Ahli.
-                                            </p>
-
                                             <div className="mt-5 grid gap-4 lg:grid-cols-3">
-                                                {program.areas.map((area) => (
-                                                    <div
-                                                        key={area.name}
-                                                        className="rounded-[10px] border-2 border-foreground/15 bg-muted/20 p-4"
-                                                    >
-                                                        <p className="text-sm font-black">
-                                                            {area.name}
-                                                        </p>
+                                                {program.areas.map(
+                                                    (area, areaIndex) => {
+                                                        const areaName =
+                                                            career
+                                                                .responsibilities?.[
+                                                                areaIndex
+                                                            ] || area.name;
 
-                                                        <div className="mt-3 grid gap-2">
-                                                            {area.skills.map(
-                                                                (
-                                                                    name,
-                                                                    index,
-                                                                ) => {
-                                                                    const skill =
-                                                                        career.skills.find(
-                                                                            (
-                                                                                item,
-                                                                            ) =>
-                                                                                item.name ===
-                                                                                name,
-                                                                        );
+                                                        return (
+                                                            <div
+                                                                key={area.name}
+                                                                className="rounded-[10px] border-2 border-foreground/15 bg-muted/20 p-4"
+                                                            >
+                                                                <p className="text-sm font-black">
+                                                                    {areaName}
+                                                                </p>
 
-                                                                    return (
-                                                                        <p
-                                                                            key={
-                                                                                name
-                                                                            }
-                                                                            className="text-xs leading-5 font-semibold"
-                                                                        >
-                                                                            {index +
-                                                                                1}
-                                                                            .{' '}
-                                                                            {
-                                                                                name
-                                                                            }
-                                                                            {skill
-                                                                                ?.pivot
-                                                                                ?.target_level !==
-                                                                                undefined &&
-                                                                                ` · Target ${skill.pivot.target_level}`}
-                                                                        </p>
-                                                                    );
-                                                                },
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                ))}
+                                                                <div className="mt-3 grid gap-2">
+                                                                    {area.skills.map(
+                                                                        (
+                                                                            name,
+                                                                            index,
+                                                                        ) => {
+                                                                            const skill =
+                                                                                career.skills.find(
+                                                                                    (
+                                                                                        item,
+                                                                                    ) =>
+                                                                                        item.name ===
+                                                                                        name,
+                                                                                );
+
+                                                                            return (
+                                                                                <p
+                                                                                    key={
+                                                                                        name
+                                                                                    }
+                                                                                    className="text-xs leading-5 font-semibold"
+                                                                                >
+                                                                                    {index +
+                                                                                        1}
+
+                                                                                    .{' '}
+                                                                                    {
+                                                                                        name
+                                                                                    }
+                                                                                    {skill
+                                                                                        ?.pivot
+                                                                                        ?.target_level !==
+                                                                                        undefined &&
+                                                                                        ` · Target ${skill.pivot.target_level}`}
+                                                                                </p>
+                                                                            );
+                                                                        },
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    },
+                                                )}
                                             </div>
                                         </>
                                     ) : (
@@ -234,6 +236,13 @@ export function CareersSection({ careers, skills }: Props) {
 
                                 {!isAcademicCareer && (
                                     <div className="border-t-2 border-foreground/15 pt-5">
+                                        <p className="mb-3 text-sm leading-6 font-medium text-muted-foreground">
+                                            Penghapusan jurusan tambahan hanya
+                                            diperbolehkan apabila tidak ada
+                                            mahasiswa, Assessment, proyek, atau
+                                            roadmap yang menggunakannya.
+                                        </p>
+
                                         <DeleteButton
                                             action={`/admin/careers/${career.slug}`}
                                         />

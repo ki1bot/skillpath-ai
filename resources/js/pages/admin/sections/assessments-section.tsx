@@ -19,24 +19,6 @@ export function AssessmentsSection({ assessments, careers, skills }: Props) {
             description="Kelola 50 soal pilihan ganda untuk Assessment awal setiap jurusan, serta Assessment tambahan jika diperlukan."
             accentClass="bg-[var(--neo-orange)] text-[#171717]"
         >
-            <div className="rounded-xl border-2 border-foreground/15 bg-muted/20 p-4">
-                <p className="text-sm font-black">Alur penilaian mahasiswa</p>
-
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                    Mahasiswa mengerjakan Assessment sebelum memulai roadmap.
-                    Hasil Assessment digunakan untuk melihat kemampuan awal dan
-                    menentukan prioritas belajar. Setelah itu, mahasiswa
-                    menyelesaikan tugas praktik pada tahap Amatir, Menengah, dan
-                    Ahli.
-                </p>
-
-                <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                    Soal Assessment dinilai secara otomatis. Tugas praktik
-                    roadmap dan proyek diperiksa oleh admin melalui hasil yang
-                    dikumpulkan mahasiswa.
-                </p>
-            </div>
-
             <AdminDetails
                 title="Tambah Assessment tambahan"
                 meta="Assessment tambahan tidak menggantikan Assessment awal wajib mahasiswa."
@@ -80,9 +62,7 @@ export function AssessmentsSection({ assessments, careers, skills }: Props) {
                                         <p className="mt-2 text-sm leading-6 text-muted-foreground">
                                             Assessment ini menggunakan 50 soal
                                             yang mencakup sembilan kemampuan
-                                            jurusan. Isi soal dapat diperbarui,
-                                            tetapi jumlah dan hubungan
-                                            kemampuannya tetap dijaga.
+                                            jurusan.
                                         </p>
 
                                         {assessment.questions.length !== 50 && (

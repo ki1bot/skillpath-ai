@@ -122,21 +122,6 @@ export function MaterialForm({ material, skills }: Props) {
                         </div>
                     </div>
 
-                    {isAcademicMaterial && (
-                        <div className="rounded-[10px] border-2 border-foreground/15 bg-muted/30 p-4">
-                            <p className="text-sm font-black">
-                                Materi ini sudah menjadi bagian dari roadmap.
-                            </p>
-
-                            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                                Kemampuan dan tahapnya tetap agar susunan
-                                Amatir, Menengah, dan Ahli tidak berubah. Anda
-                                tetap dapat memperbarui tugas, penjelasan,
-                                referensi, dan waktu pengerjaan.
-                            </p>
-                        </div>
-                    )}
-
                     <div>
                         <InputField
                             label="Judul materi"
@@ -226,13 +211,6 @@ export function MaterialForm({ material, skills }: Props) {
                             defaultValue={material?.practice_task}
                             required
                         />
-
-                        <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                            Jelaskan pekerjaan yang harus dibuat, hasil yang
-                            dikumpulkan, dan hal yang akan diperiksa admin.
-                            Mahasiswa mengirim hasil melalui folder Google
-                            Drive. Nilai minimal kelulusan adalah 70.
-                        </p>
 
                         {errors.practice_task && (
                             <p className="mt-2 text-xs font-bold text-destructive">

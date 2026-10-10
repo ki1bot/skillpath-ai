@@ -1,9 +1,9 @@
 import { Form } from '@inertiajs/react';
-import { Plus, Save } from 'lucide-react';
+import { Plus, Save, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { getStudyProgramDefinition } from '@/lib/academic-programs';
 import {
-    ArrayFields,
     InputField,
     SelectField,
     TextareaField,
@@ -20,6 +20,37 @@ export function CareerForm({ career }: Props) {
     const program = getStudyProgramDefinition(career?.name ?? '');
 
     const isAcademicCareer = Boolean(program);
+
+    const initialAreas =
+        career?.responsibilities && career.responsibilities.length > 0
+            ? career.responsibilities
+            : program
+              ? program.areas.map((area) => area.name)
+              : [''];
+
+    const [areaNames, setAreaNames] = useState<string[]>(initialAreas);
+
+    const updateArea = (index: number, value: string) => {
+        setAreaNames((previous) =>
+            previous.map((item, itemIndex) =>
+                itemIndex === index ? value : item,
+            ),
+        );
+    };
+
+    const addArea = () => {
+        setAreaNames((previous) =>
+            previous.length < 12 ? [...previous, ''] : previous,
+        );
+    };
+
+    const removeArea = (index: number) => {
+        setAreaNames((previous) =>
+            previous.length > 1
+                ? previous.filter((_, itemIndex) => itemIndex !== index)
+                : previous,
+        );
+    };
 
     return (
         <Form
@@ -38,7 +69,11 @@ export function CareerForm({ career }: Props) {
                     <div className="grid min-w-0 gap-4 md:grid-cols-2">
                         <div>
                             <InputField
-                                label="Nama jurusan"
+                                label={
+                                    isAcademicCareer
+                                        ? 'Nama jurusan (identitas akademik)'
+                                        : 'Nama jurusan'
+                                }
                                 name={isAcademicCareer ? undefined : 'name'}
                                 defaultValue={career?.name ?? ''}
                                 disabled={isAcademicCareer}
@@ -64,13 +99,15 @@ export function CareerForm({ career }: Props) {
                         />
                     </div>
 
-                    <InputField
-                        label="Ringkasan singkat"
-                        name="tagline"
-                        defaultValue={career?.tagline ?? ''}
-                        maxLength={180}
-                        required
-                    />
+                    {career && (
+                        <InputField
+                            label="Nama jurusan yang ditampilkan"
+                            name="display_name"
+                            defaultValue={career.display_name ?? ''}
+                            placeholder={career.name}
+                            maxLength={120}
+                        />
+                    )}
 
                     <TextareaField
                         label="Deskripsi jurusan"
@@ -81,63 +118,104 @@ export function CareerForm({ career }: Props) {
                         required
                     />
 
-                    {program ? (
-                        <div className="grid gap-4">
-                            <p className="text-sm font-black">
-                                Tiga bidang utama jurusan
-                            </p>
+                    <div className="grid gap-4">
+                        <div>
+                            <h3 className="text-sm font-black">
+                                Bidang utama jurusan
+                            </h3>
 
-                            <div className="grid gap-3 lg:grid-cols-3">
-                                {program.areas.map((area, index) => (
-                                    <div
-                                        key={area.name}
-                                        className="rounded-xl border-2 border-foreground/15 bg-muted/20 p-4"
-                                    >
-                                        <p className="text-xs font-black text-muted-foreground">
-                                            Bidang {index + 1}
-                                        </p>
-
-                                        <p className="mt-2 text-sm font-black">
-                                            {area.name}
-                                        </p>
-
-                                        <p className="mt-2 text-xs font-semibold text-muted-foreground">
-                                            3 kemampuan · 9 materi
-                                        </p>
-
-                                        <input
-                                            type="hidden"
-                                            name="responsibilities[]"
-                                            value={area.name}
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-
-                            <p className="text-sm leading-6 font-medium text-muted-foreground">
-                                Setiap bidang menjadi dasar satu proyek
-                                portofolio. Kesembilan kemampuan jurusan
-                                digunakan kembali pada tahap Amatir, Menengah,
-                                dan Ahli.
+                            <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
+                                {isAcademicCareer
+                                    ? 'Nama ketiga bidang dapat diperbarui.'
+                                    : 'Tambahkan, ubah, atau hapus nama bidang sesuai kebutuhan jurusan tambahan.'}
                             </p>
                         </div>
-                    ) : (
-                        <ArrayFields
-                            name="responsibilities"
-                            label="Bidang utama jurusan"
-                            values={career?.responsibilities}
-                        />
-                    )}
 
-                    <SelectField
-                        label="Status jurusan"
-                        name="is_active"
-                        defaultValue={career?.is_active === false ? '0' : '1'}
-                        required
-                    >
-                        <option value="1">Aktif</option>
-                        <option value="0">Nonaktif</option>
-                    </SelectField>
+                        <div className="grid gap-3 lg:grid-cols-3">
+                            {areaNames.map((areaName, index) => (
+                                <div
+                                    key={`${career?.id ?? 'new'}-${index}`}
+                                    className="rounded-xl border-2 border-foreground/15 bg-muted/20 p-4"
+                                >
+                                    <p className="mb-3 text-xs font-black tracking-wide text-muted-foreground uppercase">
+                                        Bidang {index + 1}
+                                    </p>
+
+                                    <InputField
+                                        label="Nama bidang"
+                                        name="responsibilities[]"
+                                        value={areaName}
+                                        onChange={(event) =>
+                                            updateArea(
+                                                index,
+                                                event.target.value,
+                                            )
+                                        }
+                                        maxLength={255}
+                                        required
+                                    />
+
+                                    {program?.areas[index] && (
+                                        <p className="mt-3 text-xs leading-5 font-semibold text-muted-foreground">
+                                            3 kemampuan akademik tetap terhubung
+                                            ke bidang ini.
+                                        </p>
+                                    )}
+
+                                    {!isAcademicCareer &&
+                                        areaNames.length > 1 && (
+                                            <Button
+                                                type="button"
+                                                variant="destructive"
+                                                size="sm"
+                                                className="mt-4"
+                                                onClick={() =>
+                                                    removeArea(index)
+                                                }
+                                            >
+                                                <Trash2 className="size-4" />
+                                                Hapus bidang
+                                            </Button>
+                                        )}
+                                </div>
+                            ))}
+                        </div>
+
+                        {!isAcademicCareer && areaNames.length < 12 && (
+                            <div>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={addArea}
+                                >
+                                    <Plus className="size-4" />
+                                    Tambah bidang
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+
+                    {isAcademicCareer ? (
+                        <>
+                            <input type="hidden" name="is_active" value="1" />
+
+                            <p className="text-sm font-semibold text-muted-foreground">
+                                Status jurusan: Aktif.
+                            </p>
+                        </>
+                    ) : (
+                        <SelectField
+                            label="Status jurusan"
+                            name="is_active"
+                            defaultValue={
+                                career?.is_active === false ? '0' : '1'
+                            }
+                            required
+                        >
+                            <option value="1">Aktif</option>
+                            <option value="0">Nonaktif</option>
+                        </SelectField>
+                    )}
 
                     {Object.keys(errors).length > 0 && (
                         <div className="rounded-xl border-2 border-destructive/30 p-4">

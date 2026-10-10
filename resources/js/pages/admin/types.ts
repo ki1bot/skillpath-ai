@@ -18,6 +18,7 @@ export type Skill = {
 export type Career = {
     id: number;
     name: string;
+    display_name?: string | null;
     slug: string;
     tagline: string;
     description: string;

@@ -99,13 +99,6 @@ export function SkillForm({ skill }: Props) {
                                 </div>
                             ))}
                         </div>
-
-                        <p className="mt-4 text-sm leading-6 font-medium text-muted-foreground">
-                            Satu kemampuan dipelajari pada ketiga tahap. Materi
-                            dan tugasnya berbeda untuk setiap tahap. Pilihan
-                            tahap berada pada pengelolaan materi, bukan pada
-                            data kemampuan.
-                        </p>
                     </div>
 
                     <div className="min-w-0">
@@ -124,15 +117,6 @@ export function SkillForm({ skill }: Props) {
                             </p>
                         )}
                     </div>
-
-                    {isAcademicSkill && (
-                        <p className="rounded-lg border border-foreground/15 bg-muted/20 p-3 text-sm leading-6 font-medium text-muted-foreground">
-                            Nama kemampuan akademik tidak dapat diubah karena
-                            terhubung dengan jurusan, Assessment, roadmap, dan
-                            proyek. Deskripsi serta bidang kemampuannya tetap
-                            dapat diperbarui.
-                        </p>
-                    )}
 
                     {Object.keys(errors).length > 0 && (
                         <div className="rounded-lg border-2 border-destructive/30 p-3">

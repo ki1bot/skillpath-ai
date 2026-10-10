@@ -33,21 +33,6 @@ export function AssessmentForm({ assessment, careers }: Props) {
         >
             {({ processing, errors }) => (
                 <>
-                    {isAcademic && (
-                        <div className="rounded-xl border-2 border-foreground/15 bg-muted/20 p-4">
-                            <p className="text-sm font-black">
-                                Assessment wajib jurusan
-                            </p>
-
-                            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                                Assessment ini digunakan mahasiswa sebelum
-                                memulai jalur belajar. Jurusan, status aktif,
-                                dan jumlah 50 soal dipertahankan. Judul,
-                                penjelasan, serta durasi masih dapat diperbarui.
-                            </p>
-                        </div>
-                    )}
-
                     <div className="grid min-w-0 gap-4 md:grid-cols-2">
                         <div className="min-w-0">
                             <SelectField
@@ -108,11 +93,6 @@ export function AssessmentForm({ assessment, careers }: Props) {
                             <input type="hidden" name="is_active" value="1" />
 
                             <p className="text-sm font-black">Status: Aktif</p>
-
-                            <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                                Assessment wajib selalu tersedia untuk mahasiswa
-                                dari jurusan ini.
-                            </p>
                         </div>
                     ) : (
                         <SelectField

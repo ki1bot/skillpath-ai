@@ -114,12 +114,6 @@ export function ProjectForm({ project, careers }: Props) {
                                       } dan tiga kemampuan di dalamnya.`
                                     : 'Hubungan kemampuan proyek ini perlu diperiksa karena belum cocok dengan salah satu bidang akademik.'}
                             </p>
-
-                            <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
-                                Admin dapat memperbarui tugas dan kriteria
-                                pemeriksaan, tetapi tidak memindahkan proyek ke
-                                jurusan lain.
-                            </p>
                         </div>
                     )}
 
@@ -167,19 +161,6 @@ export function ProjectForm({ project, careers }: Props) {
                         label="Kriteria pemeriksaan admin"
                         values={project?.completion_criteria}
                     />
-
-                    <div className="rounded-xl border-2 border-foreground/15 p-4">
-                        <p className="text-sm font-black">
-                            Pengumpulan dan penilaian proyek
-                        </p>
-
-                        <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
-                            Mahasiswa mengumpulkan hasil pekerjaan melalui
-                            folder Google Drive. Admin memeriksa fitur wajib,
-                            dokumentasi, pengujian, dan kriteria penyelesaian.
-                            Proyek dinyatakan lulus dengan nilai minimal 80.
-                        </p>
-                    </div>
 
                     {Object.keys(errors).length > 0 && (
                         <div className="rounded-xl border-2 border-destructive/30 p-4">

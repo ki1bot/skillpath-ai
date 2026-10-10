@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminWorkspaceController;
 use App\Http\Controllers\Admin\AssessmentQuestionController as AdminAssessmentQuestionController;
+use App\Http\Controllers\Admin\CareerContentController;
 use App\Http\Controllers\Admin\EvaluationSubmissionController as AdminEvaluationSubmissionController;
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Admin\ProjectSubmissionController as AdminProjectSubmissionController;
@@ -216,13 +217,13 @@ Route::middleware(['auth'])->group(function () {
             ])->name('careers.store');
 
             Route::put('/careers/{career}', [
-                AdminController::class,
-                'updateCareer',
+                CareerContentController::class,
+                'update',
             ])->name('careers.update');
 
             Route::delete('/careers/{career}', [
-                AdminController::class,
-                'destroyCareer',
+                CareerContentController::class,
+                'destroy',
             ])->name('careers.destroy');
 
             Route::post('/careers/{career}/skills', [

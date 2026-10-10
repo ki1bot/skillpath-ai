@@ -100,25 +100,6 @@ export function QuestionForm({
 
                     <input type="hidden" name="evidence_required" value="0" />
 
-                    <div className="rounded-xl border-2 border-foreground/15 bg-muted/20 p-4">
-                        <p className="text-sm font-black">Soal pilihan ganda</p>
-
-                        <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                            Assessment mengukur kemampuan awal mahasiswa.
-                            Tingkat Amatir, Menengah, dan Ahli pada soal
-                            menunjukkan kompleksitas pertanyaan. Penilaian tugas
-                            pada roadmap dilakukan secara terpisah melalui
-                            pemeriksaan admin.
-                        </p>
-
-                        {isAcademicQuestion && (
-                            <p className="mt-3 text-xs font-bold text-muted-foreground">
-                                Soal akademik: Assessment dan kemampuan asal
-                                tidak dapat diubah.
-                            </p>
-                        )}
-                    </div>
-
                     <div className="grid min-w-0 gap-4 md:grid-cols-2">
                         <div className="min-w-0">
                             <SelectField

@@ -1,61 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
-import skills from './skills'
-/**
-* @see \App\Http\Controllers\AdminController::store
-* @see app/Http/Controllers/AdminController.php:84
-* @route '/admin/careers'
-*/
-export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: store.url(options),
-    method: 'post',
-})
-
-store.definition = {
-    methods: ["post"],
-    url: '/admin/careers',
-} satisfies RouteDefinition<["post"]>
-
-/**
-* @see \App\Http\Controllers\AdminController::store
-* @see app/Http/Controllers/AdminController.php:84
-* @route '/admin/careers'
-*/
-store.url = (options?: RouteQueryOptions) => {
-    return store.definition.url + queryParams(options)
-}
-
-/**
-* @see \App\Http\Controllers\AdminController::store
-* @see app/Http/Controllers/AdminController.php:84
-* @route '/admin/careers'
-*/
-store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: store.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\AdminController::store
-* @see app/Http/Controllers/AdminController.php:84
-* @route '/admin/careers'
-*/
-const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\AdminController::store
-* @see app/Http/Controllers/AdminController.php:84
-* @route '/admin/careers'
-*/
-storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(options),
-    method: 'post',
-})
-
-store.form = storeForm
-
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Admin\CareerContentController::update
 * @see app/Http/Controllers/Admin/CareerContentController.php:15
@@ -236,11 +179,6 @@ destroyForm.delete = (args: { career: string | { slug: string } } | [career: str
 
 destroy.form = destroyForm
 
-const careers = {
-    store: Object.assign(store, store),
-    update: Object.assign(update, update),
-    destroy: Object.assign(destroy, destroy),
-    skills: Object.assign(skills, skills),
-}
+const CareerContentController = { update, destroy }
 
-export default careers
+export default CareerContentController
