@@ -1,7 +1,6 @@
 import { Form } from '@inertiajs/react';
 import { Plus, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { academicPrograms } from '@/lib/academic-programs';
 import { InputField, TextareaField } from '../components/form-controls';
 import type { Skill } from '../types';
 
@@ -13,13 +12,6 @@ const learningStages = ['Amatir', 'Menengah', 'Ahli'] as const;
 
 export function SkillForm({ skill }: Props) {
     const action = skill ? `/admin/skills/${skill.slug}` : '/admin/skills';
-
-    const isAcademicSkill = Boolean(
-        skill &&
-        academicPrograms.some((program) =>
-            program.areas.some((area) => area.skills.includes(skill.name)),
-        ),
-    );
 
     const displayedName = skill?.display_name?.trim() || skill?.name || '';
 
