@@ -336,11 +336,11 @@ export default function AdminSubmissionsPage({
                         </p>
 
                         <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
-                            Pengumpulan tugas
+                            Penilaian roadmap
                         </h1>
 
                         <p className="mt-3 max-w-2xl text-sm leading-7 font-medium text-muted-foreground">
-                            Periksa instruksi tugas dan hasil pekerjaan di
+                            Periksa instruksi roadmap dan hasil pekerjaan di
                             Google Drive. Setelah pekerjaan benar-benar
                             ditinjau, berikan nilai dan catatan sesuai hasil
                             mahasiswa.

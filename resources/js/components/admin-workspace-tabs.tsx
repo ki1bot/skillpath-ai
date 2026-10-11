@@ -18,7 +18,7 @@ export function AdminWorkspaceTabs() {
 
     const tabs = [
         {
-            title: 'Tugas Pembelajaran',
+            title: 'Penilaian Roadmap',
             href: '/admin/submissions',
             active: !isProject,
             icon: ClipboardList,

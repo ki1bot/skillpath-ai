@@ -187,13 +187,13 @@ function SubmissionCard({ submission }: { submission: ProjectSubmission }) {
                                 (feature, index) => (
                                     <div
                                         key={feature}
-                                        className="flex gap-3 rounded-[10px] border-2 border-foreground/15 bg-muted/20 p-3"
+                                        className="grid grid-cols-[2.25rem_minmax(0,1fr)] items-center gap-3 rounded-[10px] border-2 border-foreground/15 bg-muted/20 p-3"
                                     >
-                                        <span className="font-mono text-xs font-black">
+                                        <span className="flex h-full w-full items-center justify-center font-mono text-xs leading-none font-black tabular-nums">
                                             {String(index + 1).padStart(2, '0')}
                                         </span>
 
-                                        <p className="text-sm leading-6 font-medium">
+                                        <p className="min-w-0 text-sm leading-6 font-medium">
                                             {feature}
                                         </p>
                                     </div>
@@ -285,9 +285,7 @@ function SubmissionCard({ submission }: { submission: ProjectSubmission }) {
                         <p className="text-lg font-black">Beri nilai proyek</p>
 
                         <p className="mt-2 text-sm leading-6 font-medium text-muted-foreground">
-                            Periksa folder dan seluruh bagian wajib. Nilai 80
-                            sampai 100 dinyatakan lulus. Nilai 0 sampai 79 harus
-                            diperbaiki dan dikumpulkan ulang.
+                            Periksa folder dan seluruh bagian wajib.
                         </p>
 
                         <label className="mt-5 block">

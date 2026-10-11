@@ -29,6 +29,7 @@ type Props = {
         careers: number;
         skills: number;
         materials: number;
+        assessmentQuestions: number;
     };
 };
 
@@ -121,12 +122,12 @@ export default function Welcome({ careers, stats }: Props) {
             label: 'Jurusan',
         },
         {
-            value: stats.skills,
+            value: stats.materials,
             label: 'Bidang',
         },
         {
-            value: stats.materials,
-            label: 'Materi',
+            value: stats.assessmentQuestions,
+            label: 'Kemampuan',
         },
     ];
 
