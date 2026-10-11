@@ -56,8 +56,8 @@ storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => (
 store.form = storeForm
 
 /**
-* @see \App\Http\Controllers\AdminController::update
-* @see app/Http/Controllers/AdminController.php:249
+* @see \App\Http\Controllers\Admin\SkillContentController::update
+* @see app/Http/Controllers/Admin/SkillContentController.php:13
 * @route '/admin/skills/{skill}'
 */
 export const update = (args: { skill: string | { slug: string } } | [skill: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -71,8 +71,8 @@ update.definition = {
 } satisfies RouteDefinition<["put"]>
 
 /**
-* @see \App\Http\Controllers\AdminController::update
-* @see app/Http/Controllers/AdminController.php:249
+* @see \App\Http\Controllers\Admin\SkillContentController::update
+* @see app/Http/Controllers/Admin/SkillContentController.php:13
 * @route '/admin/skills/{skill}'
 */
 update.url = (args: { skill: string | { slug: string } } | [skill: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions) => {
@@ -104,8 +104,8 @@ update.url = (args: { skill: string | { slug: string } } | [skill: string | { sl
 }
 
 /**
-* @see \App\Http\Controllers\AdminController::update
-* @see app/Http/Controllers/AdminController.php:249
+* @see \App\Http\Controllers\Admin\SkillContentController::update
+* @see app/Http/Controllers/Admin/SkillContentController.php:13
 * @route '/admin/skills/{skill}'
 */
 update.put = (args: { skill: string | { slug: string } } | [skill: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -114,8 +114,8 @@ update.put = (args: { skill: string | { slug: string } } | [skill: string | { sl
 })
 
 /**
-* @see \App\Http\Controllers\AdminController::update
-* @see app/Http/Controllers/AdminController.php:249
+* @see \App\Http\Controllers\Admin\SkillContentController::update
+* @see app/Http/Controllers/Admin/SkillContentController.php:13
 * @route '/admin/skills/{skill}'
 */
 const updateForm = (args: { skill: string | { slug: string } } | [skill: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -129,8 +129,8 @@ const updateForm = (args: { skill: string | { slug: string } } | [skill: string 
 })
 
 /**
-* @see \App\Http\Controllers\AdminController::update
-* @see app/Http/Controllers/AdminController.php:249
+* @see \App\Http\Controllers\Admin\SkillContentController::update
+* @see app/Http/Controllers/Admin/SkillContentController.php:13
 * @route '/admin/skills/{skill}'
 */
 updateForm.put = (args: { skill: string | { slug: string } } | [skill: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

@@ -1,6 +1,7 @@
 export type Skill = {
     id: number;
     name: string;
+    display_name?: string | null;
     slug: string;
     category: string;
     description: string;

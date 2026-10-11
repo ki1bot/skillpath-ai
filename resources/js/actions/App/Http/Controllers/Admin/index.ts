@@ -4,6 +4,7 @@ import EvaluationSubmissionController from './EvaluationSubmissionController'
 import ProjectSubmissionController from './ProjectSubmissionController'
 import FeedbackController from './FeedbackController'
 import CareerContentController from './CareerContentController'
+import SkillContentController from './SkillContentController'
 import AssessmentQuestionController from './AssessmentQuestionController'
 
 const Admin = {
@@ -13,6 +14,7 @@ const Admin = {
     ProjectSubmissionController: Object.assign(ProjectSubmissionController, ProjectSubmissionController),
     FeedbackController: Object.assign(FeedbackController, FeedbackController),
     CareerContentController: Object.assign(CareerContentController, CareerContentController),
+    SkillContentController: Object.assign(SkillContentController, SkillContentController),
     AssessmentQuestionController: Object.assign(AssessmentQuestionController, AssessmentQuestionController),
 }
 

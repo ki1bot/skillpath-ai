@@ -16,13 +16,13 @@ export function StatsSection({ stats }: { stats: AdminStats }) {
             accent: 'bg-[var(--neo-blue)]',
         },
         {
-            label: 'Materi',
+            label: 'Bidang',
             value: stats.learningTopics,
             icon: Layers3,
             accent: 'bg-[var(--neo-yellow)]',
         },
         {
-            label: 'Soal',
+            label: 'Kemampuan',
             value: stats.assessmentQuestions,
             icon: BookOpenCheck,
             accent: 'bg-[var(--neo-orange)]',

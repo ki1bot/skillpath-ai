@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CareerContentController;
 use App\Http\Controllers\Admin\EvaluationSubmissionController as AdminEvaluationSubmissionController;
 use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Admin\ProjectSubmissionController as AdminProjectSubmissionController;
+use App\Http\Controllers\Admin\SkillContentController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AssessmentController;
@@ -242,8 +243,8 @@ Route::middleware(['auth'])->group(function () {
             ])->name('skills.store');
 
             Route::put('/skills/{skill}', [
-                AdminController::class,
-                'updateSkill',
+                SkillContentController::class,
+                'update',
             ])->name('skills.update');
 
             Route::delete('/skills/{skill}', [

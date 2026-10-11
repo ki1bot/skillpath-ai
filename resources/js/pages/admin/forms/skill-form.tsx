@@ -21,6 +21,8 @@ export function SkillForm({ skill }: Props) {
         ),
     );
 
+    const displayedName = skill?.display_name?.trim() || skill?.name || '';
+
     return (
         <Form
             action={action}
@@ -39,26 +41,11 @@ export function SkillForm({ skill }: Props) {
                         <div className="min-w-0">
                             <InputField
                                 label="Nama kemampuan"
-                                name={isAcademicSkill ? undefined : 'name'}
-                                defaultValue={skill?.name ?? ''}
-                                disabled={isAcademicSkill}
+                                name="name"
+                                defaultValue={displayedName}
                                 maxLength={120}
                                 required
                             />
-
-                            {isAcademicSkill && (
-                                <input
-                                    type="hidden"
-                                    name="name"
-                                    value={skill?.name ?? ''}
-                                />
-                            )}
-
-                            {errors.name && (
-                                <p className="mt-2 text-xs font-bold text-destructive">
-                                    {errors.name}
-                                </p>
-                            )}
                         </div>
 
                         <div className="min-w-0">
@@ -69,12 +56,6 @@ export function SkillForm({ skill }: Props) {
                                 maxLength={120}
                                 required
                             />
-
-                            {errors.category && (
-                                <p className="mt-2 text-xs font-bold text-destructive">
-                                    {errors.category}
-                                </p>
-                            )}
                         </div>
                     </div>
 
@@ -110,16 +91,14 @@ export function SkillForm({ skill }: Props) {
                             defaultValue={skill?.description ?? ''}
                             required
                         />
-
-                        {errors.description && (
-                            <p className="mt-2 text-xs font-bold text-destructive">
-                                {errors.description}
-                            </p>
-                        )}
                     </div>
 
                     {Object.keys(errors).length > 0 && (
                         <div className="rounded-lg border-2 border-destructive/30 p-3">
+                            <p className="mb-2 text-sm font-black text-destructive">
+                                Perubahan belum dapat disimpan
+                            </p>
+
                             {Object.entries(errors).map(([field, message]) => (
                                 <p
                                     key={field}

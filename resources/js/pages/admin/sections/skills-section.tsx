@@ -26,6 +26,10 @@ const academicSkillNames = new Set(
     ),
 );
 
+function displayedSkillName(skill: Skill): string {
+    return skill.display_name?.trim() || skill.name;
+}
+
 export function SkillsSection({ skills, prerequisites }: Props) {
     const [selectedProgram, setSelectedProgram] = useState(
         academicPrograms[0]?.name ?? EXTRA_TAB,
@@ -40,14 +44,25 @@ export function SkillsSection({ skills, prerequisites }: Props) {
 
     const additionalSkills = skills
         .filter((skill) => !academicSkillNames.has(skill.name))
-        .filter(
-            (skill) =>
+        .filter((skill) => {
+            const displayedName = displayedSkillName(skill);
+
+            return (
+                displayedName
+                    .toLocaleLowerCase('id')
+                    .includes(normalizedSearch) ||
                 skill.name.toLocaleLowerCase('id').includes(normalizedSearch) ||
                 skill.category
                     .toLocaleLowerCase('id')
-                    .includes(normalizedSearch),
-        )
-        .sort((first, second) => first.name.localeCompare(second.name, 'id'));
+                    .includes(normalizedSearch)
+            );
+        })
+        .sort((first, second) =>
+            displayedSkillName(first).localeCompare(
+                displayedSkillName(second),
+                'id',
+            ),
+        );
 
     const additionalPageCount = Math.max(
         1,
@@ -168,8 +183,13 @@ export function SkillsSection({ skills, prerequisites }: Props) {
                             .filter(
                                 (skill): skill is Skill => skill !== undefined,
                             )
-                            .filter(
-                                (skill) =>
+                            .filter((skill) => {
+                                const displayedName = displayedSkillName(skill);
+
+                                return (
+                                    displayedName
+                                        .toLocaleLowerCase('id')
+                                        .includes(normalizedSearch) ||
                                     skill.name
                                         .toLocaleLowerCase('id')
                                         .includes(normalizedSearch) ||
@@ -178,8 +198,9 @@ export function SkillsSection({ skills, prerequisites }: Props) {
                                         .includes(normalizedSearch) ||
                                     area.name
                                         .toLocaleLowerCase('id')
-                                        .includes(normalizedSearch),
-                            );
+                                        .includes(normalizedSearch)
+                                );
+                            });
 
                         if (normalizedSearch && matchingSkills.length === 0) {
                             return null;
@@ -207,7 +228,7 @@ export function SkillsSection({ skills, prerequisites }: Props) {
                                     {matchingSkills.map((skill) => (
                                         <AdminDetails
                                             key={`${selectedProgram}-${skill.id}`}
-                                            title={skill.name}
+                                            title={displayedSkillName(skill)}
                                             meta={`${skill.category} · Amatir / Menengah / Ahli`}
                                         >
                                             <SkillForm skill={skill} />
@@ -230,7 +251,7 @@ export function SkillsSection({ skills, prerequisites }: Props) {
                     {visibleAdditionalSkills.map((skill) => (
                         <AdminDetails
                             key={skill.id}
-                            title={skill.name}
+                            title={displayedSkillName(skill)}
                             meta={skill.category}
                         >
                             <div className="grid gap-5">
@@ -317,7 +338,7 @@ export function SkillsSection({ skills, prerequisites }: Props) {
                                                 key={skill.id}
                                                 value={skill.id}
                                             >
-                                                {skill.name}
+                                                {displayedSkillName(skill)}
                                             </option>
                                         ))}
                                     </SelectField>
@@ -337,7 +358,7 @@ export function SkillsSection({ skills, prerequisites }: Props) {
                                                 key={skill.id}
                                                 value={skill.id}
                                             >
-                                                {skill.name}
+                                                {displayedSkillName(skill)}
                                             </option>
                                         ))}
                                     </SelectField>

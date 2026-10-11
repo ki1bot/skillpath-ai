@@ -279,96 +279,6 @@ storeSkillForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'>
 storeSkill.form = storeSkillForm
 
 /**
-* @see \App\Http\Controllers\AdminController::updateSkill
-* @see app/Http/Controllers/AdminController.php:249
-* @route '/admin/skills/{skill}'
-*/
-export const updateSkill = (args: { skill: string | { slug: string } } | [skill: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
-    url: updateSkill.url(args, options),
-    method: 'put',
-})
-
-updateSkill.definition = {
-    methods: ["put"],
-    url: '/admin/skills/{skill}',
-} satisfies RouteDefinition<["put"]>
-
-/**
-* @see \App\Http\Controllers\AdminController::updateSkill
-* @see app/Http/Controllers/AdminController.php:249
-* @route '/admin/skills/{skill}'
-*/
-updateSkill.url = (args: { skill: string | { slug: string } } | [skill: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions) => {
-    if (typeof args === 'string' || typeof args === 'number') {
-        args = { skill: args }
-    }
-
-    if (typeof args === 'object' && !Array.isArray(args) && 'slug' in args) {
-        args = { skill: args.slug }
-    }
-
-    if (Array.isArray(args)) {
-        args = {
-            skill: args[0],
-        }
-    }
-
-    args = applyUrlDefaults(args)
-
-    const parsedArgs = {
-        skill: typeof args.skill === 'object'
-        ? args.skill.slug
-        : args.skill,
-    }
-
-    return updateSkill.definition.url
-            .replace('{skill}', parsedArgs.skill.toString())
-            .replace(/\/+$/, '') + queryParams(options)
-}
-
-/**
-* @see \App\Http\Controllers\AdminController::updateSkill
-* @see app/Http/Controllers/AdminController.php:249
-* @route '/admin/skills/{skill}'
-*/
-updateSkill.put = (args: { skill: string | { slug: string } } | [skill: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
-    url: updateSkill.url(args, options),
-    method: 'put',
-})
-
-/**
-* @see \App\Http\Controllers\AdminController::updateSkill
-* @see app/Http/Controllers/AdminController.php:249
-* @route '/admin/skills/{skill}'
-*/
-const updateSkillForm = (args: { skill: string | { slug: string } } | [skill: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: updateSkill.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PUT',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\AdminController::updateSkill
-* @see app/Http/Controllers/AdminController.php:249
-* @route '/admin/skills/{skill}'
-*/
-updateSkillForm.put = (args: { skill: string | { slug: string } } | [skill: string | { slug: string } ] | string | { slug: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: updateSkill.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PUT',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-updateSkill.form = updateSkillForm
-
-/**
 * @see \App\Http\Controllers\AdminController::destroySkill
 * @see app/Http/Controllers/AdminController.php:281
 * @route '/admin/skills/{skill}'
@@ -1473,6 +1383,6 @@ removeProjectSkillForm.delete = (args: { portfolioProject: string | { slug: stri
 
 removeProjectSkill.form = removeProjectSkillForm
 
-const AdminController = { storeCareer, attachCareerSkill, removeCareerSkill, storeSkill, updateSkill, destroySkill, storePrerequisite, destroyPrerequisite, storeAssessment, updateAssessment, destroyAssessment, storeMaterial, updateMaterial, destroyMaterial, storeProject, updateProject, destroyProject, attachProjectSkill, removeProjectSkill }
+const AdminController = { storeCareer, attachCareerSkill, removeCareerSkill, storeSkill, destroySkill, storePrerequisite, destroyPrerequisite, storeAssessment, updateAssessment, destroyAssessment, storeMaterial, updateMaterial, destroyMaterial, storeProject, updateProject, destroyProject, attachProjectSkill, removeProjectSkill }
 
 export default AdminController
