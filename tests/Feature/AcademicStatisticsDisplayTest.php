@@ -31,8 +31,7 @@ class AcademicStatisticsDisplayTest extends TestCase
                     ->component('welcome')
                     ->where('stats.careers', 6)
                     ->where('stats.skills', 18)
-                    ->where('stats.materials', 54)
-                    ->where('stats.assessmentQuestions', 300),
+                    ->where('stats.materials', 54),
             );
     }
 
@@ -87,8 +86,7 @@ class AcademicStatisticsDisplayTest extends TestCase
                     ->component('welcome')
                     ->where('stats.careers', 6)
                     ->where('stats.skills', 18)
-                    ->where('stats.materials', 53)
-                    ->where('stats.assessmentQuestions', 300),
+                    ->where('stats.materials', 53),
             );
 
         $admin = User::factory()->create([

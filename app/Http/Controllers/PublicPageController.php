@@ -38,7 +38,6 @@ class PublicPageController extends Controller
                     'careers' => $statistics->careers,
                     'skills' => $statistics->areas,
                     'materials' => $statistics->topics,
-                    'assessmentQuestions' => $statistics->questions,
                 ],
             ],
         );
