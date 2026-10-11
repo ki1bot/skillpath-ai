@@ -22,7 +22,7 @@ export function StatsSection({ stats }: { stats: AdminStats }) {
             accent: 'bg-[var(--neo-yellow)]',
         },
         {
-            label: 'Kemampuan',
+            label: 'Soal Kemampuan',
             value: stats.assessmentQuestions,
             icon: BookOpenCheck,
             accent: 'bg-[var(--neo-orange)]',
