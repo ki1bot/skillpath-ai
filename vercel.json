@@ -1,0 +1,22 @@
+{
+    "$schema": "https://openapi.vercel.sh/vercel.json",
+    "version": 2,
+    "framework": null,
+    "buildCommand": "npm run build && node scripts/prepare-vercel-static.mjs",
+    "outputDirectory": "vercel-static",
+    "functions": {
+        "api/index.php": {
+            "runtime": "vercel-php@0.8.0",
+            "maxDuration": 60
+        }
+    },
+    "routes": [
+        {
+            "handle": "filesystem"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/api/index.php"
+        }
+    ]
+}
