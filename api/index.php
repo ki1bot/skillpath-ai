@@ -17,9 +17,9 @@ $directories = [
 
 foreach ($directories as $directory) {
     if (
-        !is_dir($directory)
-        && !mkdir($directory, 0775, true)
-        && !is_dir($directory)
+        ! is_dir($directory)
+        && ! mkdir($directory, 0775, true)
+        && ! is_dir($directory)
     ) {
         throw new RuntimeException(
             'Unable to create directory: '.$directory
