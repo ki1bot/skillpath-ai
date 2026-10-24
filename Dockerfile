@@ -1,7 +1,7 @@
 ARG COMPOSER_IMAGE=public.ecr.aws/composer/composer:2
-ARG NODE_IMAGE=public.ecr.aws/docker/library/node:22-bookworm-slim
-ARG PHP_CLI_IMAGE=public.ecr.aws/docker/library/php:8.4-cli-bookworm
-ARG PHP_APACHE_IMAGE=public.ecr.aws/docker/library/php:8.4-apache-bookworm
+ARG NODE_IMAGE=public.ecr.aws/docker/library/node:24.22.1-bookworm-slim
+ARG PHP_CLI_IMAGE=public.ecr.aws/docker/library/php:8.5.12-cli-bookworm
+ARG PHP_APACHE_IMAGE=public.ecr.aws/docker/library/php:8.5.12-apache-bookworm
 
 FROM ${COMPOSER_IMAGE} AS composer
 
