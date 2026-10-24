@@ -1,4 +1,5 @@
 version: 2
+
 updates:
   - package-ecosystem: 'composer'
     directory: '/'
@@ -17,10 +18,20 @@ updates:
       interval: 'weekly'
     cooldown:
       default-days: 5
+    ignore:
+      - dependency-name: 'eslint'
+        update-types:
+          - 'version-update:semver-major'
+      - dependency-name: '@eslint/js'
+        update-types:
+          - 'version-update:semver-major'
     groups:
-      npm:
+      npm-minor-patch:
         patterns:
           - '*'
+        update-types:
+          - 'minor'
+          - 'patch'
 
   - package-ecosystem: 'github-actions'
     directory: '/'
